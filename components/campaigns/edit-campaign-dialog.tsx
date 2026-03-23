@@ -17,6 +17,7 @@ type Draft = {
   keywords: string[];
   negativeKeywords: string[];
   subreddits: string[];
+  recentDays: string;
   minScoreToAlert: string;
   isActive: boolean;
 };
@@ -30,6 +31,7 @@ type EditCampaignDialogProps = {
     keywords: string[];
     negativeKeywords: string[];
     subreddits: string[];
+    recentDays: number;
     minScoreToAlert: number;
     isActive: boolean;
   };
@@ -39,7 +41,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [errors, setErrors] = useState<Partial<Record<"name" | "description" | "keywords" | "subreddits" | "minScoreToAlert", string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>>({});
   const initialDraft = useMemo<Draft>(
     () => ({
       name: campaign.name,
@@ -48,6 +50,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
       keywords: campaign.keywords,
       negativeKeywords: campaign.negativeKeywords,
       subreddits: campaign.subreddits,
+      recentDays: String(campaign.recentDays),
       minScoreToAlert: String(campaign.minScoreToAlert),
       isActive: campaign.isActive,
     }),
@@ -85,6 +88,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
     formData.set("keywords", draft.keywords.join("\n"));
     formData.set("negativeKeywords", draft.negativeKeywords.join("\n"));
     formData.set("subreddits", draft.subreddits.join("\n"));
+    formData.set("recentDays", draft.recentDays);
     formData.set("minScoreToAlert", draft.minScoreToAlert);
     if (draft.isActive) formData.set("isActive", "on");
 
@@ -133,7 +137,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 </Field>
                 <Field hint="Offer type." label="Lead type">
                   <select
-                    className="flex h-11 w-full rounded-md border border-[#27312E] bg-[#111716] px-3 text-sm text-[#F3F5F4] outline-none transition-colors focus-visible:border-[#7BF179]/70 focus-visible:ring-2 focus-visible:ring-[#7BF179]/20"
+                    className="flex h-11 w-full rounded-xl border border-[#27272a] bg-[#09090b] px-3 text-sm text-[#fafafa] outline-none transition-colors focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10"
                     onChange={(event) => updateDraft("leadType", event.target.value as Draft["leadType"])}
                     value={draft.leadType}
                   >
@@ -154,12 +158,18 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 <div className="mt-2 text-sm text-[#9DA9A4]">Adjust the matching terms and communities this campaign should monitor.</div>
               </div>
 
-              <Field error={errors.keywords} hint="Intent and category keywords." label="Keywords">
-                <TagInput onChange={(values) => updateDraft("keywords", values)} placeholder="Type a keyword and press Enter" value={draft.keywords} />
+              <Field error={errors.keywords} hint="Single-word intent and category keywords only." label="Keywords">
+                <TagInput
+                  label="Single word only."
+                  onChange={(values) => updateDraft("keywords", values)}
+                  placeholder="Type a keyword and press Enter"
+                  value={draft.keywords}
+                />
               </Field>
 
-              <Field hint="Terms to exclude." label="Negative keywords">
+              <Field hint="Optional. Terms to exclude." label="Negative keywords">
                 <TagInput
+                  label="Optional."
                   onChange={(values) => updateDraft("negativeKeywords", values)}
                   placeholder="Type a negative keyword and press Enter"
                   value={draft.negativeKeywords}
@@ -177,6 +187,27 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 <div className="mt-2 text-sm text-[#9DA9A4]">Set the threshold and activation state for this campaign.</div>
               </div>
 
+              <Field error={errors.recentDays} hint="How far back the first sync and refresh should scan. Maximum 10 days." label="Recent window">
+                <div className="rounded-2xl border border-[#27312E] bg-[#111716] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-[#C3CBC8]">Scan the last</span>
+                    <span className="text-sm font-medium text-[#F3F5F4]">{draft.recentDays} days</span>
+                  </div>
+                  <input
+                    className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-[#18181b] accent-white"
+                    max={10}
+                    min={1}
+                    onChange={(event) => updateDraft("recentDays", event.target.value)}
+                    type="range"
+                    value={draft.recentDays}
+                  />
+                  <div className="mt-2 flex justify-between text-xs uppercase tracking-[0.2em] text-[#6F7C77]">
+                    <span>1 day</span>
+                    <span>10 days</span>
+                  </div>
+                </div>
+              </Field>
+
               <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
                 <Field error={errors.minScoreToAlert} hint="Alert threshold." label="Min score">
                   <Input
@@ -191,7 +222,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 <label className="flex items-center gap-3 rounded-2xl border border-[#27312E] bg-[#111716] px-4 py-4 text-sm text-[#C3CBC8]">
                   <input
                     checked={draft.isActive}
-                    className="h-4 w-4 rounded border-[#27312E] bg-[#111716] accent-[#7BF179]"
+                    className="h-4 w-4 rounded border-[#27272a] bg-[#09090b] accent-white"
                     onChange={(event) => updateDraft("isActive", event.target.checked)}
                     type="checkbox"
                   />
@@ -237,6 +268,7 @@ function hasCampaignChanged(initialDraft: Draft, draft: Draft) {
     initialDraft.name !== draft.name ||
     initialDraft.leadType !== draft.leadType ||
     initialDraft.description !== draft.description ||
+    initialDraft.recentDays !== draft.recentDays ||
     initialDraft.minScoreToAlert !== draft.minScoreToAlert ||
     initialDraft.isActive !== draft.isActive ||
     !areArraysEqual(initialDraft.keywords, draft.keywords) ||

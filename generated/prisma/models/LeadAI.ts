@@ -29,8 +29,11 @@ export type LeadAIMinAggregateOutputType = {
   leadId: string | null
   model: string | null
   promptVersion: string | null
+  intentType: $Enums.LeadIntentType | null
+  buyerStage: $Enums.BuyerStage | null
   category: string | null
   summary: string | null
+  disqualifier: string | null
   createdAt: Date | null
 }
 
@@ -39,8 +42,11 @@ export type LeadAIMaxAggregateOutputType = {
   leadId: string | null
   model: string | null
   promptVersion: string | null
+  intentType: $Enums.LeadIntentType | null
+  buyerStage: $Enums.BuyerStage | null
   category: string | null
   summary: string | null
+  disqualifier: string | null
   createdAt: Date | null
 }
 
@@ -49,9 +55,12 @@ export type LeadAICountAggregateOutputType = {
   leadId: number
   model: number
   promptVersion: number
+  intentType: number
+  buyerStage: number
   category: number
   summary: number
   painPoints: number
+  disqualifier: number
   repliesJson: number
   createdAt: number
   _all: number
@@ -63,8 +72,11 @@ export type LeadAIMinAggregateInputType = {
   leadId?: true
   model?: true
   promptVersion?: true
+  intentType?: true
+  buyerStage?: true
   category?: true
   summary?: true
+  disqualifier?: true
   createdAt?: true
 }
 
@@ -73,8 +85,11 @@ export type LeadAIMaxAggregateInputType = {
   leadId?: true
   model?: true
   promptVersion?: true
+  intentType?: true
+  buyerStage?: true
   category?: true
   summary?: true
+  disqualifier?: true
   createdAt?: true
 }
 
@@ -83,9 +98,12 @@ export type LeadAICountAggregateInputType = {
   leadId?: true
   model?: true
   promptVersion?: true
+  intentType?: true
+  buyerStage?: true
   category?: true
   summary?: true
   painPoints?: true
+  disqualifier?: true
   repliesJson?: true
   createdAt?: true
   _all?: true
@@ -168,9 +186,12 @@ export type LeadAIGroupByOutputType = {
   leadId: string
   model: string | null
   promptVersion: string | null
+  intentType: $Enums.LeadIntentType | null
+  buyerStage: $Enums.BuyerStage | null
   category: string | null
   summary: string | null
   painPoints: string[]
+  disqualifier: string | null
   repliesJson: runtime.JsonValue | null
   createdAt: Date
   _count: LeadAICountAggregateOutputType | null
@@ -201,9 +222,12 @@ export type LeadAIWhereInput = {
   leadId?: Prisma.StringFilter<"LeadAI"> | string
   model?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   promptVersion?: Prisma.StringNullableFilter<"LeadAI"> | string | null
+  intentType?: Prisma.EnumLeadIntentTypeNullableFilter<"LeadAI"> | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.EnumBuyerStageNullableFilter<"LeadAI"> | $Enums.BuyerStage | null
   category?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   summary?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   painPoints?: Prisma.StringNullableListFilter<"LeadAI">
+  disqualifier?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   repliesJson?: Prisma.JsonNullableFilter<"LeadAI">
   createdAt?: Prisma.DateTimeFilter<"LeadAI"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
@@ -214,9 +238,12 @@ export type LeadAIOrderByWithRelationInput = {
   leadId?: Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
   promptVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentType?: Prisma.SortOrderInput | Prisma.SortOrder
+  buyerStage?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   painPoints?: Prisma.SortOrder
+  disqualifier?: Prisma.SortOrderInput | Prisma.SortOrder
   repliesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lead?: Prisma.LeadOrderByWithRelationInput
@@ -230,9 +257,12 @@ export type LeadAIWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.LeadAIWhereInput | Prisma.LeadAIWhereInput[]
   model?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   promptVersion?: Prisma.StringNullableFilter<"LeadAI"> | string | null
+  intentType?: Prisma.EnumLeadIntentTypeNullableFilter<"LeadAI"> | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.EnumBuyerStageNullableFilter<"LeadAI"> | $Enums.BuyerStage | null
   category?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   summary?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   painPoints?: Prisma.StringNullableListFilter<"LeadAI">
+  disqualifier?: Prisma.StringNullableFilter<"LeadAI"> | string | null
   repliesJson?: Prisma.JsonNullableFilter<"LeadAI">
   createdAt?: Prisma.DateTimeFilter<"LeadAI"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
@@ -243,9 +273,12 @@ export type LeadAIOrderByWithAggregationInput = {
   leadId?: Prisma.SortOrder
   model?: Prisma.SortOrderInput | Prisma.SortOrder
   promptVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  intentType?: Prisma.SortOrderInput | Prisma.SortOrder
+  buyerStage?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   painPoints?: Prisma.SortOrder
+  disqualifier?: Prisma.SortOrderInput | Prisma.SortOrder
   repliesJson?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.LeadAICountOrderByAggregateInput
@@ -261,9 +294,12 @@ export type LeadAIScalarWhereWithAggregatesInput = {
   leadId?: Prisma.StringWithAggregatesFilter<"LeadAI"> | string
   model?: Prisma.StringNullableWithAggregatesFilter<"LeadAI"> | string | null
   promptVersion?: Prisma.StringNullableWithAggregatesFilter<"LeadAI"> | string | null
+  intentType?: Prisma.EnumLeadIntentTypeNullableWithAggregatesFilter<"LeadAI"> | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.EnumBuyerStageNullableWithAggregatesFilter<"LeadAI"> | $Enums.BuyerStage | null
   category?: Prisma.StringNullableWithAggregatesFilter<"LeadAI"> | string | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"LeadAI"> | string | null
   painPoints?: Prisma.StringNullableListFilter<"LeadAI">
+  disqualifier?: Prisma.StringNullableWithAggregatesFilter<"LeadAI"> | string | null
   repliesJson?: Prisma.JsonNullableWithAggregatesFilter<"LeadAI">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LeadAI"> | Date | string
 }
@@ -272,9 +308,12 @@ export type LeadAICreateInput = {
   id?: string
   model?: string | null
   promptVersion?: string | null
+  intentType?: $Enums.LeadIntentType | null
+  buyerStage?: $Enums.BuyerStage | null
   category?: string | null
   summary?: string | null
   painPoints?: Prisma.LeadAICreatepainPointsInput | string[]
+  disqualifier?: string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutAiInput
@@ -285,9 +324,12 @@ export type LeadAIUncheckedCreateInput = {
   leadId: string
   model?: string | null
   promptVersion?: string | null
+  intentType?: $Enums.LeadIntentType | null
+  buyerStage?: $Enums.BuyerStage | null
   category?: string | null
   summary?: string | null
   painPoints?: Prisma.LeadAICreatepainPointsInput | string[]
+  disqualifier?: string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -296,9 +338,12 @@ export type LeadAIUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentType?: Prisma.NullableEnumLeadIntentTypeFieldUpdateOperationsInput | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.NullableEnumBuyerStageFieldUpdateOperationsInput | $Enums.BuyerStage | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   painPoints?: Prisma.LeadAIUpdatepainPointsInput | string[]
+  disqualifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutAiNestedInput
@@ -309,9 +354,12 @@ export type LeadAIUncheckedUpdateInput = {
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentType?: Prisma.NullableEnumLeadIntentTypeFieldUpdateOperationsInput | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.NullableEnumBuyerStageFieldUpdateOperationsInput | $Enums.BuyerStage | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   painPoints?: Prisma.LeadAIUpdatepainPointsInput | string[]
+  disqualifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -321,9 +369,12 @@ export type LeadAICreateManyInput = {
   leadId: string
   model?: string | null
   promptVersion?: string | null
+  intentType?: $Enums.LeadIntentType | null
+  buyerStage?: $Enums.BuyerStage | null
   category?: string | null
   summary?: string | null
   painPoints?: Prisma.LeadAICreatepainPointsInput | string[]
+  disqualifier?: string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -332,9 +383,12 @@ export type LeadAIUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentType?: Prisma.NullableEnumLeadIntentTypeFieldUpdateOperationsInput | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.NullableEnumBuyerStageFieldUpdateOperationsInput | $Enums.BuyerStage | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   painPoints?: Prisma.LeadAIUpdatepainPointsInput | string[]
+  disqualifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -344,9 +398,12 @@ export type LeadAIUncheckedUpdateManyInput = {
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentType?: Prisma.NullableEnumLeadIntentTypeFieldUpdateOperationsInput | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.NullableEnumBuyerStageFieldUpdateOperationsInput | $Enums.BuyerStage | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   painPoints?: Prisma.LeadAIUpdatepainPointsInput | string[]
+  disqualifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -361,9 +418,12 @@ export type LeadAICountOrderByAggregateInput = {
   leadId?: Prisma.SortOrder
   model?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
+  intentType?: Prisma.SortOrder
+  buyerStage?: Prisma.SortOrder
   category?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   painPoints?: Prisma.SortOrder
+  disqualifier?: Prisma.SortOrder
   repliesJson?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -373,8 +433,11 @@ export type LeadAIMaxOrderByAggregateInput = {
   leadId?: Prisma.SortOrder
   model?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
+  intentType?: Prisma.SortOrder
+  buyerStage?: Prisma.SortOrder
   category?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  disqualifier?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -383,8 +446,11 @@ export type LeadAIMinOrderByAggregateInput = {
   leadId?: Prisma.SortOrder
   model?: Prisma.SortOrder
   promptVersion?: Prisma.SortOrder
+  intentType?: Prisma.SortOrder
+  buyerStage?: Prisma.SortOrder
   category?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  disqualifier?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -424,6 +490,14 @@ export type LeadAICreatepainPointsInput = {
   set: string[]
 }
 
+export type NullableEnumLeadIntentTypeFieldUpdateOperationsInput = {
+  set?: $Enums.LeadIntentType | null
+}
+
+export type NullableEnumBuyerStageFieldUpdateOperationsInput = {
+  set?: $Enums.BuyerStage | null
+}
+
 export type LeadAIUpdatepainPointsInput = {
   set?: string[]
   push?: string | string[]
@@ -433,9 +507,12 @@ export type LeadAICreateWithoutLeadInput = {
   id?: string
   model?: string | null
   promptVersion?: string | null
+  intentType?: $Enums.LeadIntentType | null
+  buyerStage?: $Enums.BuyerStage | null
   category?: string | null
   summary?: string | null
   painPoints?: Prisma.LeadAICreatepainPointsInput | string[]
+  disqualifier?: string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -444,9 +521,12 @@ export type LeadAIUncheckedCreateWithoutLeadInput = {
   id?: string
   model?: string | null
   promptVersion?: string | null
+  intentType?: $Enums.LeadIntentType | null
+  buyerStage?: $Enums.BuyerStage | null
   category?: string | null
   summary?: string | null
   painPoints?: Prisma.LeadAICreatepainPointsInput | string[]
+  disqualifier?: string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -471,9 +551,12 @@ export type LeadAIUpdateWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentType?: Prisma.NullableEnumLeadIntentTypeFieldUpdateOperationsInput | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.NullableEnumBuyerStageFieldUpdateOperationsInput | $Enums.BuyerStage | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   painPoints?: Prisma.LeadAIUpdatepainPointsInput | string[]
+  disqualifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -482,9 +565,12 @@ export type LeadAIUncheckedUpdateWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   promptVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  intentType?: Prisma.NullableEnumLeadIntentTypeFieldUpdateOperationsInput | $Enums.LeadIntentType | null
+  buyerStage?: Prisma.NullableEnumBuyerStageFieldUpdateOperationsInput | $Enums.BuyerStage | null
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   painPoints?: Prisma.LeadAIUpdatepainPointsInput | string[]
+  disqualifier?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repliesJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -496,9 +582,12 @@ export type LeadAISelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   leadId?: boolean
   model?: boolean
   promptVersion?: boolean
+  intentType?: boolean
+  buyerStage?: boolean
   category?: boolean
   summary?: boolean
   painPoints?: boolean
+  disqualifier?: boolean
   repliesJson?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
@@ -509,9 +598,12 @@ export type LeadAISelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   leadId?: boolean
   model?: boolean
   promptVersion?: boolean
+  intentType?: boolean
+  buyerStage?: boolean
   category?: boolean
   summary?: boolean
   painPoints?: boolean
+  disqualifier?: boolean
   repliesJson?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
@@ -522,9 +614,12 @@ export type LeadAISelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   leadId?: boolean
   model?: boolean
   promptVersion?: boolean
+  intentType?: boolean
+  buyerStage?: boolean
   category?: boolean
   summary?: boolean
   painPoints?: boolean
+  disqualifier?: boolean
   repliesJson?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
@@ -535,14 +630,17 @@ export type LeadAISelectScalar = {
   leadId?: boolean
   model?: boolean
   promptVersion?: boolean
+  intentType?: boolean
+  buyerStage?: boolean
   category?: boolean
   summary?: boolean
   painPoints?: boolean
+  disqualifier?: boolean
   repliesJson?: boolean
   createdAt?: boolean
 }
 
-export type LeadAIOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadId" | "model" | "promptVersion" | "category" | "summary" | "painPoints" | "repliesJson" | "createdAt", ExtArgs["result"]["leadAI"]>
+export type LeadAIOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadId" | "model" | "promptVersion" | "intentType" | "buyerStage" | "category" | "summary" | "painPoints" | "disqualifier" | "repliesJson" | "createdAt", ExtArgs["result"]["leadAI"]>
 export type LeadAIInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
 }
@@ -563,9 +661,12 @@ export type $LeadAIPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     leadId: string
     model: string | null
     promptVersion: string | null
+    intentType: $Enums.LeadIntentType | null
+    buyerStage: $Enums.BuyerStage | null
     category: string | null
     summary: string | null
     painPoints: string[]
+    disqualifier: string | null
     repliesJson: runtime.JsonValue | null
     createdAt: Date
   }, ExtArgs["result"]["leadAI"]>
@@ -996,9 +1097,12 @@ export interface LeadAIFieldRefs {
   readonly leadId: Prisma.FieldRef<"LeadAI", 'String'>
   readonly model: Prisma.FieldRef<"LeadAI", 'String'>
   readonly promptVersion: Prisma.FieldRef<"LeadAI", 'String'>
+  readonly intentType: Prisma.FieldRef<"LeadAI", 'LeadIntentType'>
+  readonly buyerStage: Prisma.FieldRef<"LeadAI", 'BuyerStage'>
   readonly category: Prisma.FieldRef<"LeadAI", 'String'>
   readonly summary: Prisma.FieldRef<"LeadAI", 'String'>
   readonly painPoints: Prisma.FieldRef<"LeadAI", 'String[]'>
+  readonly disqualifier: Prisma.FieldRef<"LeadAI", 'String'>
   readonly repliesJson: Prisma.FieldRef<"LeadAI", 'Json'>
   readonly createdAt: Prisma.FieldRef<"LeadAI", 'DateTime'>
 }

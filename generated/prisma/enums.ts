@@ -44,6 +44,26 @@ export const LeadStatus = {
 export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus]
 
 
+export const LeadIntentType = {
+  NONE: 'NONE',
+  IMPLICIT: 'IMPLICIT',
+  EXPLICIT: 'EXPLICIT',
+  SWITCHING: 'SWITCHING'
+} as const
+
+export type LeadIntentType = (typeof LeadIntentType)[keyof typeof LeadIntentType]
+
+
+export const BuyerStage = {
+  SOLVED: 'SOLVED',
+  PROBLEM_AWARE: 'PROBLEM_AWARE',
+  SOLUTION_AWARE: 'SOLUTION_AWARE',
+  EVALUATING: 'EVALUATING'
+} as const
+
+export type BuyerStage = (typeof BuyerStage)[keyof typeof BuyerStage]
+
+
 export const NotifyChannel = {
   EMAIL: 'EMAIL',
   SLACK: 'SLACK'
@@ -67,3 +87,28 @@ export const SourceMode = {
 } as const
 
 export type SourceMode = (typeof SourceMode)[keyof typeof SourceMode]
+
+
+export const CampaignSyncStatus = {
+  IDLE: 'IDLE',
+  QUEUED: 'QUEUED',
+  PROCESSING: 'PROCESSING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type CampaignSyncStatus = (typeof CampaignSyncStatus)[keyof typeof CampaignSyncStatus]
+
+
+export const CampaignSyncStage = {
+  NONE: 'NONE',
+  QUEUED: 'QUEUED',
+  FETCHING_POSTS: 'FETCHING_POSTS',
+  FETCHING_COMMENTS: 'FETCHING_COMMENTS',
+  CLASSIFYING: 'CLASSIFYING',
+  NOTIFYING: 'NOTIFYING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+} as const
+
+export type CampaignSyncStage = (typeof CampaignSyncStage)[keyof typeof CampaignSyncStage]

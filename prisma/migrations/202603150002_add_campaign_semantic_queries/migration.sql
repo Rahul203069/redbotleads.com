@@ -1,0 +1,2 @@
+ALTER TABLE "Campaign"
+ADD COLUMN "semanticQueries" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

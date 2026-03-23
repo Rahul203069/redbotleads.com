@@ -391,7 +391,10 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
+  CampaignSemanticQuery: 'CampaignSemanticQuery',
+  CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
+  RedditItemEmbedding: 'RedditItemEmbedding',
   Lead: 'Lead',
   LeadAI: 'LeadAI',
   Notification: 'Notification',
@@ -413,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "redditItem" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -935,6 +938,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CampaignSemanticQuery: {
+      payload: Prisma.$CampaignSemanticQueryPayload<ExtArgs>
+      fields: Prisma.CampaignSemanticQueryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignSemanticQueryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignSemanticQueryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignSemanticQueryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignSemanticQueryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignSemanticQueryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignSemanticQueryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignSemanticQueryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignSemanticQueryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignSemanticQueryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>
+        }
+        update: {
+          args: Prisma.CampaignSemanticQueryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignSemanticQueryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignSemanticQueryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignSemanticQueryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignSemanticQueryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticQueryPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignSemanticQueryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignSemanticQuery>
+        }
+        groupBy: {
+          args: Prisma.CampaignSemanticQueryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticQueryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignSemanticQueryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticQueryCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignSync: {
+      payload: Prisma.$CampaignSyncPayload<ExtArgs>
+      fields: Prisma.CampaignSyncFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignSyncFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignSyncFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignSyncFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignSyncFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignSyncFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignSyncCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignSyncCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignSyncCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignSyncDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>
+        }
+        update: {
+          args: Prisma.CampaignSyncUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignSyncDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignSyncUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignSyncUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignSyncUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSyncPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignSyncAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignSync>
+        }
+        groupBy: {
+          args: Prisma.CampaignSyncGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSyncGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignSyncCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSyncCountAggregateOutputType> | number
+        }
+      }
+    }
     RedditItem: {
       payload: Prisma.$RedditItemPayload<ExtArgs>
       fields: Prisma.RedditItemFieldRefs
@@ -1006,6 +1157,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.RedditItemCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.RedditItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    RedditItemEmbedding: {
+      payload: Prisma.$RedditItemEmbeddingPayload<ExtArgs>
+      fields: Prisma.RedditItemEmbeddingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RedditItemEmbeddingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RedditItemEmbeddingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>
+        }
+        findFirst: {
+          args: Prisma.RedditItemEmbeddingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RedditItemEmbeddingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>
+        }
+        findMany: {
+          args: Prisma.RedditItemEmbeddingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>[]
+        }
+        create: {
+          args: Prisma.RedditItemEmbeddingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>
+        }
+        createMany: {
+          args: Prisma.RedditItemEmbeddingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RedditItemEmbeddingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>[]
+        }
+        delete: {
+          args: Prisma.RedditItemEmbeddingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>
+        }
+        update: {
+          args: Prisma.RedditItemEmbeddingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>
+        }
+        deleteMany: {
+          args: Prisma.RedditItemEmbeddingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RedditItemEmbeddingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RedditItemEmbeddingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>[]
+        }
+        upsert: {
+          args: Prisma.RedditItemEmbeddingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RedditItemEmbeddingPayload>
+        }
+        aggregate: {
+          args: Prisma.RedditItemEmbeddingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRedditItemEmbedding>
+        }
+        groupBy: {
+          args: Prisma.RedditItemEmbeddingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RedditItemEmbeddingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RedditItemEmbeddingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RedditItemEmbeddingCountAggregateOutputType> | number
         }
       }
     }
@@ -1578,6 +1803,7 @@ export const CampaignScalarFieldEnum = {
   keywords: 'keywords',
   negativeKeywords: 'negativeKeywords',
   subreddits: 'subreddits',
+  recentDays: 'recentDays',
   isActive: 'isActive',
   minScoreToAlert: 'minScoreToAlert',
   sourceMode: 'sourceMode',
@@ -1589,12 +1815,46 @@ export const CampaignScalarFieldEnum = {
 export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
 
 
+export const CampaignSemanticQueryScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  queryText: 'queryText',
+  category: 'category',
+  dimensions: 'dimensions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticQueryScalarFieldEnum = (typeof CampaignSemanticQueryScalarFieldEnum)[keyof typeof CampaignSemanticQueryScalarFieldEnum]
+
+
+export const CampaignSyncScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  status: 'status',
+  stage: 'stage',
+  message: 'message',
+  lastError: 'lastError',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  lastHeartbeat: 'lastHeartbeat',
+  statsJson: 'statsJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSyncScalarFieldEnum = (typeof CampaignSyncScalarFieldEnum)[keyof typeof CampaignSyncScalarFieldEnum]
+
+
 export const RedditItemScalarFieldEnum = {
   id: 'id',
   fullname: 'fullname',
   type: 'type',
   subreddit: 'subreddit',
   title: 'title',
+  description: 'description',
   body: 'body',
   author: 'author',
   url: 'url',
@@ -1607,6 +1867,20 @@ export const RedditItemScalarFieldEnum = {
 } as const
 
 export type RedditItemScalarFieldEnum = (typeof RedditItemScalarFieldEnum)[keyof typeof RedditItemScalarFieldEnum]
+
+
+export const RedditItemEmbeddingScalarFieldEnum = {
+  id: 'id',
+  redditItemId: 'redditItemId',
+  provider: 'provider',
+  model: 'model',
+  sourceText: 'sourceText',
+  dimensions: 'dimensions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RedditItemEmbeddingScalarFieldEnum = (typeof RedditItemEmbeddingScalarFieldEnum)[keyof typeof RedditItemEmbeddingScalarFieldEnum]
 
 
 export const LeadScalarFieldEnum = {
@@ -1630,9 +1904,12 @@ export const LeadAIScalarFieldEnum = {
   leadId: 'leadId',
   model: 'model',
   promptVersion: 'promptVersion',
+  intentType: 'intentType',
+  buyerStage: 'buyerStage',
   category: 'category',
   summary: 'summary',
   painPoints: 'painPoints',
+  disqualifier: 'disqualifier',
   repliesJson: 'repliesJson',
   createdAt: 'createdAt'
 } as const
@@ -1824,16 +2101,30 @@ export type ListEnumSourceModeFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'RedditItemType'
+ * Reference to a field of type 'CampaignSyncStatus'
  */
-export type EnumRedditItemTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RedditItemType'>
+export type EnumCampaignSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStatus'>
     
 
 
 /**
- * Reference to a field of type 'RedditItemType[]'
+ * Reference to a field of type 'CampaignSyncStatus[]'
  */
-export type ListEnumRedditItemTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RedditItemType[]'>
+export type ListEnumCampaignSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignSyncStage'
+ */
+export type EnumCampaignSyncStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStage'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignSyncStage[]'
+ */
+export type ListEnumCampaignSyncStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStage[]'>
     
 
 
@@ -1848,6 +2139,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'RedditItemType'
+ */
+export type EnumRedditItemTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RedditItemType'>
+    
+
+
+/**
+ * Reference to a field of type 'RedditItemType[]'
+ */
+export type ListEnumRedditItemTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RedditItemType[]'>
     
 
 
@@ -1876,6 +2181,34 @@ export type EnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'LeadStatus[]'
  */
 export type ListEnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'LeadIntentType'
+ */
+export type EnumLeadIntentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadIntentType'>
+    
+
+
+/**
+ * Reference to a field of type 'LeadIntentType[]'
+ */
+export type ListEnumLeadIntentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadIntentType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BuyerStage'
+ */
+export type EnumBuyerStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BuyerStage'>
+    
+
+
+/**
+ * Reference to a field of type 'BuyerStage[]'
+ */
+export type ListEnumBuyerStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BuyerStage[]'>
     
 
 
@@ -2022,7 +2355,10 @@ export type GlobalOmitConfig = {
   verificationToken?: Prisma.VerificationTokenOmit
   redditAccount?: Prisma.RedditAccountOmit
   campaign?: Prisma.CampaignOmit
+  campaignSemanticQuery?: Prisma.CampaignSemanticQueryOmit
+  campaignSync?: Prisma.CampaignSyncOmit
   redditItem?: Prisma.RedditItemOmit
+  redditItemEmbedding?: Prisma.RedditItemEmbeddingOmit
   lead?: Prisma.LeadOmit
   leadAI?: Prisma.LeadAIOmit
   notification?: Prisma.NotificationOmit

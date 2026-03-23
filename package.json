@@ -10,6 +10,8 @@
     "typecheck": "tsc --noEmit",
     "worker:dev": "tsx worker/index.ts",
     "worker:ingestion": "tsx worker/ingestion.ts",
+    "worker:embedding": "tsx worker/embedding.ts",
+    "worker:semantic": "tsx worker/semantic.ts",
     "worker:classification": "tsx worker/classification.ts",
     "worker:notifications": "tsx worker/notifications.ts",
     "prisma:generate": "prisma generate",

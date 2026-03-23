@@ -27,10 +27,12 @@ export type AggregateCampaign = {
 }
 
 export type CampaignAvgAggregateOutputType = {
+  recentDays: number | null
   minScoreToAlert: number | null
 }
 
 export type CampaignSumAggregateOutputType = {
+  recentDays: number | null
   minScoreToAlert: number | null
 }
 
@@ -40,6 +42,7 @@ export type CampaignMinAggregateOutputType = {
   name: string | null
   leadType: $Enums.LeadType | null
   description: string | null
+  recentDays: number | null
   isActive: boolean | null
   minScoreToAlert: number | null
   sourceMode: $Enums.SourceMode | null
@@ -54,6 +57,7 @@ export type CampaignMaxAggregateOutputType = {
   name: string | null
   leadType: $Enums.LeadType | null
   description: string | null
+  recentDays: number | null
   isActive: boolean | null
   minScoreToAlert: number | null
   sourceMode: $Enums.SourceMode | null
@@ -71,6 +75,7 @@ export type CampaignCountAggregateOutputType = {
   keywords: number
   negativeKeywords: number
   subreddits: number
+  recentDays: number
   isActive: number
   minScoreToAlert: number
   sourceMode: number
@@ -82,10 +87,12 @@ export type CampaignCountAggregateOutputType = {
 
 
 export type CampaignAvgAggregateInputType = {
+  recentDays?: true
   minScoreToAlert?: true
 }
 
 export type CampaignSumAggregateInputType = {
+  recentDays?: true
   minScoreToAlert?: true
 }
 
@@ -95,6 +102,7 @@ export type CampaignMinAggregateInputType = {
   name?: true
   leadType?: true
   description?: true
+  recentDays?: true
   isActive?: true
   minScoreToAlert?: true
   sourceMode?: true
@@ -109,6 +117,7 @@ export type CampaignMaxAggregateInputType = {
   name?: true
   leadType?: true
   description?: true
+  recentDays?: true
   isActive?: true
   minScoreToAlert?: true
   sourceMode?: true
@@ -126,6 +135,7 @@ export type CampaignCountAggregateInputType = {
   keywords?: true
   negativeKeywords?: true
   subreddits?: true
+  recentDays?: true
   isActive?: true
   minScoreToAlert?: true
   sourceMode?: true
@@ -230,6 +240,7 @@ export type CampaignGroupByOutputType = {
   keywords: string[]
   negativeKeywords: string[]
   subreddits: string[]
+  recentDays: number
   isActive: boolean
   minScoreToAlert: number
   sourceMode: $Enums.SourceMode
@@ -270,6 +281,7 @@ export type CampaignWhereInput = {
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeFilter<"Campaign"> | $Enums.SourceMode
@@ -279,6 +291,8 @@ export type CampaignWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   redditAccount?: Prisma.XOR<Prisma.RedditAccountNullableScalarRelationFilter, Prisma.RedditAccountWhereInput> | null
   leads?: Prisma.LeadListRelationFilter
+  sync?: Prisma.XOR<Prisma.CampaignSyncNullableScalarRelationFilter, Prisma.CampaignSyncWhereInput> | null
+  semanticQueries?: Prisma.CampaignSemanticQueryListRelationFilter
 }
 
 export type CampaignOrderByWithRelationInput = {
@@ -290,6 +304,7 @@ export type CampaignOrderByWithRelationInput = {
   keywords?: Prisma.SortOrder
   negativeKeywords?: Prisma.SortOrder
   subreddits?: Prisma.SortOrder
+  recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
@@ -299,6 +314,8 @@ export type CampaignOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   redditAccount?: Prisma.RedditAccountOrderByWithRelationInput
   leads?: Prisma.LeadOrderByRelationAggregateInput
+  sync?: Prisma.CampaignSyncOrderByWithRelationInput
+  semanticQueries?: Prisma.CampaignSemanticQueryOrderByRelationAggregateInput
 }
 
 export type CampaignWhereUniqueInput = Prisma.AtLeast<{
@@ -313,6 +330,7 @@ export type CampaignWhereUniqueInput = Prisma.AtLeast<{
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeFilter<"Campaign"> | $Enums.SourceMode
@@ -322,6 +340,8 @@ export type CampaignWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   redditAccount?: Prisma.XOR<Prisma.RedditAccountNullableScalarRelationFilter, Prisma.RedditAccountWhereInput> | null
   leads?: Prisma.LeadListRelationFilter
+  sync?: Prisma.XOR<Prisma.CampaignSyncNullableScalarRelationFilter, Prisma.CampaignSyncWhereInput> | null
+  semanticQueries?: Prisma.CampaignSemanticQueryListRelationFilter
 }, "id">
 
 export type CampaignOrderByWithAggregationInput = {
@@ -333,6 +353,7 @@ export type CampaignOrderByWithAggregationInput = {
   keywords?: Prisma.SortOrder
   negativeKeywords?: Prisma.SortOrder
   subreddits?: Prisma.SortOrder
+  recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
@@ -358,6 +379,7 @@ export type CampaignScalarWhereWithAggregatesInput = {
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  recentDays?: Prisma.IntWithAggregatesFilter<"Campaign"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntWithAggregatesFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeWithAggregatesFilter<"Campaign"> | $Enums.SourceMode
@@ -374,6 +396,7 @@ export type CampaignCreateInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -382,6 +405,8 @@ export type CampaignCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutCampaignsInput
   redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
   leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateInput = {
@@ -393,6 +418,7 @@ export type CampaignUncheckedCreateInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -400,6 +426,8 @@ export type CampaignUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUpdateInput = {
@@ -410,6 +438,7 @@ export type CampaignUpdateInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -418,6 +447,8 @@ export type CampaignUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
   redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
   leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateInput = {
@@ -429,6 +460,7 @@ export type CampaignUncheckedUpdateInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -436,6 +468,8 @@ export type CampaignUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateManyInput = {
@@ -447,6 +481,7 @@ export type CampaignCreateManyInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -463,6 +498,7 @@ export type CampaignUpdateManyMutationInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -479,6 +515,7 @@ export type CampaignUncheckedUpdateManyInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -514,6 +551,7 @@ export type CampaignCountOrderByAggregateInput = {
   keywords?: Prisma.SortOrder
   negativeKeywords?: Prisma.SortOrder
   subreddits?: Prisma.SortOrder
+  recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
@@ -523,6 +561,7 @@ export type CampaignCountOrderByAggregateInput = {
 }
 
 export type CampaignAvgOrderByAggregateInput = {
+  recentDays?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
 }
 
@@ -532,6 +571,7 @@ export type CampaignMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   leadType?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
@@ -546,6 +586,7 @@ export type CampaignMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   leadType?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
@@ -555,6 +596,7 @@ export type CampaignMinOrderByAggregateInput = {
 }
 
 export type CampaignSumOrderByAggregateInput = {
+  recentDays?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
 }
 
@@ -690,6 +732,34 @@ export type EnumSourceModeFieldUpdateOperationsInput = {
   set?: $Enums.SourceMode
 }
 
+export type CampaignCreateNestedOneWithoutSemanticQueriesInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticQueriesInput, Prisma.CampaignUncheckedCreateWithoutSemanticQueriesInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutSemanticQueriesInput
+  connect?: Prisma.CampaignWhereUniqueInput
+}
+
+export type CampaignUpdateOneRequiredWithoutSemanticQueriesNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticQueriesInput, Prisma.CampaignUncheckedCreateWithoutSemanticQueriesInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutSemanticQueriesInput
+  upsert?: Prisma.CampaignUpsertWithoutSemanticQueriesInput
+  connect?: Prisma.CampaignWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutSemanticQueriesInput, Prisma.CampaignUpdateWithoutSemanticQueriesInput>, Prisma.CampaignUncheckedUpdateWithoutSemanticQueriesInput>
+}
+
+export type CampaignCreateNestedOneWithoutSyncInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutSyncInput, Prisma.CampaignUncheckedCreateWithoutSyncInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutSyncInput
+  connect?: Prisma.CampaignWhereUniqueInput
+}
+
+export type CampaignUpdateOneRequiredWithoutSyncNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutSyncInput, Prisma.CampaignUncheckedCreateWithoutSyncInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutSyncInput
+  upsert?: Prisma.CampaignUpsertWithoutSyncInput
+  connect?: Prisma.CampaignWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutSyncInput, Prisma.CampaignUpdateWithoutSyncInput>, Prisma.CampaignUncheckedUpdateWithoutSyncInput>
+}
+
 export type CampaignCreateNestedOneWithoutLeadsInput = {
   create?: Prisma.XOR<Prisma.CampaignCreateWithoutLeadsInput, Prisma.CampaignUncheckedCreateWithoutLeadsInput>
   connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutLeadsInput
@@ -712,6 +782,7 @@ export type CampaignCreateWithoutUserInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -719,6 +790,8 @@ export type CampaignCreateWithoutUserInput = {
   updatedAt?: Date | string
   redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
   leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutUserInput = {
@@ -729,6 +802,7 @@ export type CampaignUncheckedCreateWithoutUserInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -736,6 +810,8 @@ export type CampaignUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutUserInput = {
@@ -776,6 +852,7 @@ export type CampaignScalarWhereInput = {
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeFilter<"Campaign"> | $Enums.SourceMode
@@ -792,6 +869,7 @@ export type CampaignCreateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -799,6 +877,8 @@ export type CampaignCreateWithoutRedditAccountInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCampaignsInput
   leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutRedditAccountInput = {
@@ -810,12 +890,15 @@ export type CampaignUncheckedCreateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   createdAt?: Date | string
   updatedAt?: Date | string
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutRedditAccountInput = {
@@ -844,6 +927,198 @@ export type CampaignUpdateManyWithWhereWithoutRedditAccountInput = {
   data: Prisma.XOR<Prisma.CampaignUpdateManyMutationInput, Prisma.CampaignUncheckedUpdateManyWithoutRedditAccountInput>
 }
 
+export type CampaignCreateWithoutSemanticQueriesInput = {
+  id?: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignsInput
+  redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
+  leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+}
+
+export type CampaignUncheckedCreateWithoutSemanticQueriesInput = {
+  id?: string
+  userId: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  redditAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+}
+
+export type CampaignCreateOrConnectWithoutSemanticQueriesInput = {
+  where: Prisma.CampaignWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticQueriesInput, Prisma.CampaignUncheckedCreateWithoutSemanticQueriesInput>
+}
+
+export type CampaignUpsertWithoutSemanticQueriesInput = {
+  update: Prisma.XOR<Prisma.CampaignUpdateWithoutSemanticQueriesInput, Prisma.CampaignUncheckedUpdateWithoutSemanticQueriesInput>
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticQueriesInput, Prisma.CampaignUncheckedCreateWithoutSemanticQueriesInput>
+  where?: Prisma.CampaignWhereInput
+}
+
+export type CampaignUpdateToOneWithWhereWithoutSemanticQueriesInput = {
+  where?: Prisma.CampaignWhereInput
+  data: Prisma.XOR<Prisma.CampaignUpdateWithoutSemanticQueriesInput, Prisma.CampaignUncheckedUpdateWithoutSemanticQueriesInput>
+}
+
+export type CampaignUpdateWithoutSemanticQueriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
+  redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+}
+
+export type CampaignUncheckedUpdateWithoutSemanticQueriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  redditAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+}
+
+export type CampaignCreateWithoutSyncInput = {
+  id?: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignsInput
+  redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
+  leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignUncheckedCreateWithoutSyncInput = {
+  id?: string
+  userId: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  redditAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignCreateOrConnectWithoutSyncInput = {
+  where: Prisma.CampaignWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutSyncInput, Prisma.CampaignUncheckedCreateWithoutSyncInput>
+}
+
+export type CampaignUpsertWithoutSyncInput = {
+  update: Prisma.XOR<Prisma.CampaignUpdateWithoutSyncInput, Prisma.CampaignUncheckedUpdateWithoutSyncInput>
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutSyncInput, Prisma.CampaignUncheckedCreateWithoutSyncInput>
+  where?: Prisma.CampaignWhereInput
+}
+
+export type CampaignUpdateToOneWithWhereWithoutSyncInput = {
+  where?: Prisma.CampaignWhereInput
+  data: Prisma.XOR<Prisma.CampaignUpdateWithoutSyncInput, Prisma.CampaignUncheckedUpdateWithoutSyncInput>
+}
+
+export type CampaignUpdateWithoutSyncInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
+  redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignUncheckedUpdateWithoutSyncInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  redditAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
+}
+
 export type CampaignCreateWithoutLeadsInput = {
   id?: string
   name: string
@@ -852,6 +1127,7 @@ export type CampaignCreateWithoutLeadsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -859,6 +1135,8 @@ export type CampaignCreateWithoutLeadsInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCampaignsInput
   redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutLeadsInput = {
@@ -870,12 +1148,15 @@ export type CampaignUncheckedCreateWithoutLeadsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   redditAccountId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutLeadsInput = {
@@ -902,6 +1183,7 @@ export type CampaignUpdateWithoutLeadsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -909,6 +1191,8 @@ export type CampaignUpdateWithoutLeadsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
   redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutLeadsInput = {
@@ -920,12 +1204,15 @@ export type CampaignUncheckedUpdateWithoutLeadsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   redditAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateManyUserInput = {
@@ -936,6 +1223,7 @@ export type CampaignCreateManyUserInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -952,6 +1240,7 @@ export type CampaignUpdateWithoutUserInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -959,6 +1248,8 @@ export type CampaignUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
   leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutUserInput = {
@@ -969,6 +1260,7 @@ export type CampaignUncheckedUpdateWithoutUserInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -976,6 +1268,8 @@ export type CampaignUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateManyWithoutUserInput = {
@@ -986,6 +1280,7 @@ export type CampaignUncheckedUpdateManyWithoutUserInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -1003,6 +1298,7 @@ export type CampaignCreateManyRedditAccountInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
   isActive?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
@@ -1018,6 +1314,7 @@ export type CampaignUpdateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -1025,6 +1322,8 @@ export type CampaignUpdateWithoutRedditAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
   leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
@@ -1036,12 +1335,15 @@ export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateManyWithoutRedditAccountInput = {
@@ -1053,6 +1355,7 @@ export type CampaignUncheckedUpdateManyWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
@@ -1067,10 +1370,12 @@ export type CampaignUncheckedUpdateManyWithoutRedditAccountInput = {
 
 export type CampaignCountOutputType = {
   leads: number
+  semanticQueries: number
 }
 
 export type CampaignCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leads?: boolean | CampaignCountOutputTypeCountLeadsArgs
+  semanticQueries?: boolean | CampaignCountOutputTypeCountSemanticQueriesArgs
 }
 
 /**
@@ -1090,6 +1395,13 @@ export type CampaignCountOutputTypeCountLeadsArgs<ExtArgs extends runtime.Types.
   where?: Prisma.LeadWhereInput
 }
 
+/**
+ * CampaignCountOutputType without action
+ */
+export type CampaignCountOutputTypeCountSemanticQueriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignSemanticQueryWhereInput
+}
+
 
 export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1100,6 +1412,7 @@ export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  recentDays?: boolean
   isActive?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
@@ -1109,6 +1422,8 @@ export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   redditAccount?: boolean | Prisma.Campaign$redditAccountArgs<ExtArgs>
   leads?: boolean | Prisma.Campaign$leadsArgs<ExtArgs>
+  sync?: boolean | Prisma.Campaign$syncArgs<ExtArgs>
+  semanticQueries?: boolean | Prisma.Campaign$semanticQueriesArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["campaign"]>
 
@@ -1121,6 +1436,7 @@ export type CampaignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  recentDays?: boolean
   isActive?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
@@ -1140,6 +1456,7 @@ export type CampaignSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  recentDays?: boolean
   isActive?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
@@ -1159,6 +1476,7 @@ export type CampaignSelectScalar = {
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  recentDays?: boolean
   isActive?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
@@ -1167,11 +1485,13 @@ export type CampaignSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "leadType" | "description" | "keywords" | "negativeKeywords" | "subreddits" | "isActive" | "minScoreToAlert" | "sourceMode" | "redditAccountId" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
+export type CampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "leadType" | "description" | "keywords" | "negativeKeywords" | "subreddits" | "recentDays" | "isActive" | "minScoreToAlert" | "sourceMode" | "redditAccountId" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
 export type CampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   redditAccount?: boolean | Prisma.Campaign$redditAccountArgs<ExtArgs>
   leads?: boolean | Prisma.Campaign$leadsArgs<ExtArgs>
+  sync?: boolean | Prisma.Campaign$syncArgs<ExtArgs>
+  semanticQueries?: boolean | Prisma.Campaign$semanticQueriesArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CampaignIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1189,6 +1509,8 @@ export type $CampaignPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     user: Prisma.$UserPayload<ExtArgs>
     redditAccount: Prisma.$RedditAccountPayload<ExtArgs> | null
     leads: Prisma.$LeadPayload<ExtArgs>[]
+    sync: Prisma.$CampaignSyncPayload<ExtArgs> | null
+    semanticQueries: Prisma.$CampaignSemanticQueryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1199,6 +1521,7 @@ export type $CampaignPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     keywords: string[]
     negativeKeywords: string[]
     subreddits: string[]
+    recentDays: number
     isActive: boolean
     minScoreToAlert: number
     sourceMode: $Enums.SourceMode
@@ -1602,6 +1925,8 @@ export interface Prisma__CampaignClient<T, Null = never, ExtArgs extends runtime
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   redditAccount<T extends Prisma.Campaign$redditAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$redditAccountArgs<ExtArgs>>): Prisma.Prisma__RedditAccountClient<runtime.Types.Result.GetResult<Prisma.$RedditAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   leads<T extends Prisma.Campaign$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sync<T extends Prisma.Campaign$syncArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$syncArgs<ExtArgs>>): Prisma.Prisma__CampaignSyncClient<runtime.Types.Result.GetResult<Prisma.$CampaignSyncPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  semanticQueries<T extends Prisma.Campaign$semanticQueriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$semanticQueriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignSemanticQueryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1639,6 +1964,7 @@ export interface CampaignFieldRefs {
   readonly keywords: Prisma.FieldRef<"Campaign", 'String[]'>
   readonly negativeKeywords: Prisma.FieldRef<"Campaign", 'String[]'>
   readonly subreddits: Prisma.FieldRef<"Campaign", 'String[]'>
+  readonly recentDays: Prisma.FieldRef<"Campaign", 'Int'>
   readonly isActive: Prisma.FieldRef<"Campaign", 'Boolean'>
   readonly minScoreToAlert: Prisma.FieldRef<"Campaign", 'Int'>
   readonly sourceMode: Prisma.FieldRef<"Campaign", 'SourceMode'>
@@ -2081,6 +2407,49 @@ export type Campaign$leadsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.LeadScalarFieldEnum | Prisma.LeadScalarFieldEnum[]
+}
+
+/**
+ * Campaign.sync
+ */
+export type Campaign$syncArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignSync
+   */
+  select?: Prisma.CampaignSyncSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignSync
+   */
+  omit?: Prisma.CampaignSyncOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignSyncInclude<ExtArgs> | null
+  where?: Prisma.CampaignSyncWhereInput
+}
+
+/**
+ * Campaign.semanticQueries
+ */
+export type Campaign$semanticQueriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignSemanticQuery
+   */
+  select?: Prisma.CampaignSemanticQuerySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignSemanticQuery
+   */
+  omit?: Prisma.CampaignSemanticQueryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignSemanticQueryInclude<ExtArgs> | null
+  where?: Prisma.CampaignSemanticQueryWhereInput
+  orderBy?: Prisma.CampaignSemanticQueryOrderByWithRelationInput | Prisma.CampaignSemanticQueryOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignSemanticQueryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignSemanticQueryScalarFieldEnum | Prisma.CampaignSemanticQueryScalarFieldEnum[]
 }
 
 /**

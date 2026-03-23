@@ -8,7 +8,7 @@ Use it to align implementation decisions across the Next.js app, ingestion worke
 
 The product is a Reddit lead discovery platform.
 
-It continuously ingests Reddit content, filters and scores candidate leads, stores structured lead records, and exposes those records to a dashboard used by end users.
+It continuously ingests Reddit post data from public subreddit RSS feeds, filters and scores candidate leads, stores structured lead records, and exposes those records to a dashboard used by end users.
 
 The system is split into:
 
@@ -22,7 +22,7 @@ The system is split into:
 ## High-Level Architecture
 
 ```text
-             Reddit API
+          Reddit RSS Feeds
                  |
                  v
         Ingestion Workers (BullMQ)
@@ -87,7 +87,7 @@ Stores:
 Used for:
 
 - BullMQ backing store
-- Reddit rate limiting
+- ingestion job coordination
 - short-lived caches
 - adaptive polling state
 
@@ -103,14 +103,13 @@ Currently implemented in this repo:
 - login and signup frontend
 - protected app route shell
 
-Not yet implemented in this repo:
+Not yet fully implemented in this repo:
 
-- Next.js product APIs
-- BullMQ queues
-- Redis integration
-- Reddit ingestion workers
-- AI pipeline
-- alert delivery workers
+- lead dashboard
+- lead detail workflow
+- RSS-based ingestion worker implementation
+- notification delivery workers
+- final queue wiring from campaign creation into sync jobs
 
 ## Authentication Architecture
 
@@ -256,14 +255,14 @@ Responsibilities:
 - update lead status
 - filter and paginate results
 
-### Reddit layer
+### Reddit ingestion layer
 
 Responsibilities:
 
-- Reddit API client
-- subreddit search
-- post and comment retrieval
-- API retry behavior
+- fetch subreddit RSS feeds
+- parse and normalize RSS entries into post records
+- deduplicate feed items
+- enforce bounded polling behavior
 
 ### Ingestion workers
 
@@ -361,7 +360,7 @@ Prisma is the source of truth for schema design.
 Main data flow:
 
 1. Users create campaigns
-2. Reddit items are ingested and stored
+2. Reddit posts are ingested and stored
 3. Campaign matching generates leads
 4. AI analysis enriches leads
 5. Notifications are created and sent
@@ -384,7 +383,9 @@ Defines targeting criteria:
 
 #### `RedditItem`
 
-Canonical store for Reddit posts and comments.
+Canonical store for Reddit content ingested by the MVP.
+
+Current MVP usage is post-only via RSS.
 
 Unique fullname values prevent duplication.
 
@@ -428,16 +429,14 @@ Stores ingestion progress and backoff state by subreddit.
 
 Workers fetch:
 
-- new posts from tracked subreddits
-- new comments from tracked subreddits
-- comment streams from tracked posts when needed
+- recent posts from tracked subreddit RSS feeds
 
 ### 2. Deduplication
 
 Use Reddit fullname as the unique ingestion key:
 
-- `t3_*` for posts
-- `t1_*` for comments
+- `t3_*` for posts when available from parsed feed data
+- fallback to stable Reddit post identifiers derived from feed entries when needed
 
 ### 3. Campaign candidate filtering
 
@@ -459,7 +458,7 @@ The AI layer determines:
 
 ### 5. Lead creation
 
-If the score threshold is met, a lead is inserted or updated.
+Matched posts are inserted as candidate leads and then enriched by AI scoring.
 
 ### 6. Notification dispatch
 
@@ -476,9 +475,8 @@ BullMQ queues should be separated by responsibility.
 
 Jobs:
 
-- `FETCH_POSTS`
-- `FETCH_COMMENTS`
-- `FETCH_THREAD_COMMENTS`
+- `INITIAL_INGEST`
+- future bounded resync jobs when manual refresh is added
 
 ### Classification queue
 
@@ -500,20 +498,22 @@ Keep workers idempotent.
 
 Every job should be safe to retry.
 
-## Reddit API Strategy
+## Reddit Source Strategy
 
-Use app-only OAuth for discovery.
+Use public subreddit RSS feeds for discovery.
 
 Capabilities:
 
-- read subreddit posts
-- read subreddit comments
-- search subreddits
+- read recent subreddit posts
+- monitor targeted communities without Reddit API auth
+- support post-level discovery for campaign matching
 
-Explicit non-goal for MVP:
+Explicit MVP limits:
 
-- automated posting
-- automated commenting
+- no Reddit API dependency for ingestion
+- no comment ingestion
+- no automated posting
+- no automated commenting
 
 Reply suggestions are generated for manual use only.
 
@@ -558,7 +558,7 @@ Each dispatch attempt should:
 
 ## Security Rules
 
-- Never expose Reddit or AI provider secrets to the frontend
+- Never expose AI provider secrets to the frontend
 - Encrypt sensitive OAuth tokens at rest if persisted
 - Validate sessions and auth context before allowing API access
 - Check resource ownership on all campaign and lead endpoints
@@ -584,12 +584,8 @@ GOOGLE_CLIENT_SECRET=
 DATABASE_URL=
 REDIS_URL=
 
-REDDIT_CLIENT_ID=
-REDDIT_CLIENT_SECRET=
-REDDIT_USER_AGENT=
-
 OPENAI_API_KEY=
-GEMINI_API_KEY=
+OPENAI_MODEL=
 ```
 
 ## Deployment Reference
@@ -609,7 +605,7 @@ Recommended build sequence:
 2. campaign creation
 3. campaign listing
 4. campaign API in Next.js
-5. Reddit ingestion worker
+5. Reddit RSS ingestion worker
 6. keyword candidate matching
 7. AI scoring
 8. lead dashboard

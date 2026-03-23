@@ -48,17 +48,17 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
   }
 
   return (
-    <div className="rounded-2xl border border-[#27312E] bg-[#111716] p-3">
+    <div className="rounded-2xl border border-[#27272a] bg-[#09090b] p-3">
       <div className="flex flex-wrap gap-2">
         {value.map((tag) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-2 rounded-full border border-[#2f3b37] bg-[#161D1B] px-3 py-1.5 text-sm text-[#C3CBC8]"
+            className="inline-flex items-center gap-2 rounded-full border border-[#3f3f46] bg-[#18181b] px-3 py-1.5 text-sm text-[#e4e4e7]"
           >
             <span>{tag}</span>
             <button
               aria-label={`Remove ${tag}`}
-              className="text-[#6F7C77] transition hover:text-[#F3F5F4]"
+              className="text-[#71717a] transition hover:text-[#fafafa]"
               onClick={() => removeTag(tag)}
               type="button"
             >
@@ -68,7 +68,7 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
         ))}
         <input
           className={cn(
-            "min-w-[180px] flex-1 bg-transparent px-1 py-1 text-sm text-[#F3F5F4] outline-none placeholder:text-[#6F7C77]",
+            "min-w-[180px] flex-1 bg-transparent px-1 py-1 text-sm text-[#fafafa] outline-none placeholder:text-[#71717a]",
             value.length === 0 ? "min-h-8" : "",
           )}
           onBlur={() => commitTag(draft)}
@@ -78,10 +78,10 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
           value={draft}
         />
       </div>
-      {label ? <p className="mt-3 text-xs text-[#6F7C77]">{label}</p> : null}
+      {label ? <p className="mt-3 text-xs text-[#71717a]">{label}</p> : null}
       {draft.trim().length > 0 ? (
-        <p className="mt-2 text-xs text-[#9DA9A4]">
-          Pending: <span className="text-[#F3F5F4]">{normalizeValue(draft)}</span>
+        <p className="mt-2 text-xs text-[#a1a1aa]">
+          Pending: <span className="text-[#fafafa]">{normalizeValue(draft)}</span>
         </p>
       ) : null}
       {draft.trim().length > 0 ? (

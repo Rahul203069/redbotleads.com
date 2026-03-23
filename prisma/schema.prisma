@@ -35,6 +35,20 @@ enum LeadStatus {
   REPLIED
 }
 
+enum LeadIntentType {
+  NONE
+  IMPLICIT
+  EXPLICIT
+  SWITCHING
+}
+
+enum BuyerStage {
+  SOLVED
+  PROBLEM_AWARE
+  SOLUTION_AWARE
+  EVALUATING
+}
+
 enum NotifyChannel {
   EMAIL
   SLACK
@@ -49,6 +63,25 @@ enum NotifyStatus {
 enum SourceMode {
   PUBLIC
   OAUTH_USER
+}
+
+enum CampaignSyncStatus {
+  IDLE
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum CampaignSyncStage {
+  NONE
+  QUEUED
+  FETCHING_POSTS
+  FETCHING_COMMENTS
+  CLASSIFYING
+  NOTIFYING
+  COMPLETED
+  FAILED
 }
 
 /* =========================
@@ -169,6 +202,7 @@ model Campaign {
   keywords         String[]
   negativeKeywords String[]
   subreddits       String[]
+  recentDays       Int      @default(7)
 
   isActive        Boolean    @default(true)
   minScoreToAlert Int        @default(75)
@@ -184,9 +218,52 @@ model Campaign {
   redditAccount RedditAccount? @relation(fields: [redditAccountId], references: [id], onDelete: SetNull)
 
   leads Lead[]
+  sync  CampaignSync?
+  semanticQueries CampaignSemanticQuery[]
 
   @@index([userId, isActive])
   @@index([redditAccountId])
+}
+
+model CampaignSemanticQuery {
+  id         String @id @default(cuid())
+  campaignId String
+
+  queryText  String
+  category   String?
+  dimensions Int      @default(1536)
+  embedding  Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, createdAt(sort: Desc)])
+}
+
+model CampaignSync {
+  id         String             @id @default(cuid())
+  campaignId String             @unique
+  status     CampaignSyncStatus @default(IDLE)
+  stage      CampaignSyncStage  @default(NONE)
+  message    String?
+  lastError  String?
+
+  queuedAt      DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  failedAt      DateTime?
+  lastHeartbeat DateTime?
+
+  statsJson Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([status, updatedAt(sort: Desc)])
 }
 
 model RedditItem {
@@ -195,6 +272,7 @@ model RedditItem {
   type       RedditItemType
   subreddit  String
   title      String?
+  description String?
   body       String?
   author     String?
   url        String?
@@ -209,10 +287,30 @@ model RedditItem {
   rawJson Json?
 
   leads Lead[]
+  embedding RedditItemEmbedding?
 
   @@index([subreddit, createdUtc(sort: Desc)])
   @@index([createdUtc(sort: Desc)])
   @@index([postFullname])
+}
+
+model RedditItemEmbedding {
+  id           String @id @default(cuid())
+  redditItemId String @unique
+
+  provider   String?
+  model      String?
+  sourceText String?
+  dimensions Int      @default(1536)
+  // Prisma cannot manage pgvector values directly, so the worker should write this via raw SQL.
+  embedding Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  redditItem RedditItem @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+
+  @@index([model])
 }
 
 model Lead {
@@ -251,9 +349,12 @@ model LeadAI {
 
   model         String?
   promptVersion String?
+  intentType    LeadIntentType?
+  buyerStage    BuyerStage?
   category      String?
   summary       String?
   painPoints    String[]
+  disqualifier  String?
   repliesJson   Json?
 
   createdAt DateTime @default(now())

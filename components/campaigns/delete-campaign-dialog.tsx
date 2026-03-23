@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { deleteCampaign } from "@/actions/campaigns";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,6 @@ type DeleteCampaignDialogProps = {
 };
 
 export function DeleteCampaignDialog({ campaignId, campaignName }: DeleteCampaignDialogProps) {
-  const router = useRouter();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -32,8 +30,7 @@ export function DeleteCampaignDialog({ campaignId, campaignName }: DeleteCampaig
           description: result.message,
         });
         setOpen(false);
-        router.push("/campaigns");
-        router.refresh();
+        window.location.assign("/campaigns");
         return;
       }
 

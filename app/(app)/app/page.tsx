@@ -33,13 +33,13 @@ export default async function AppHomePage() {
             <CardDescription>Discovery-first workflow with worker-backed enrichment arriving after core CRUD.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="rounded-2xl border border-[#27312E] bg-[#111716] px-4 py-3 text-sm text-[#C3CBC8]">
+            <div className="rounded-2xl border border-[#27272a] bg-[#111113] px-4 py-3 text-sm text-[#d4d4d8]">
               1. Campaign creation and targeting
             </div>
-            <div className="rounded-2xl border border-[#27312E] bg-[#111716] px-4 py-3 text-sm text-[#C3CBC8]">
+            <div className="rounded-2xl border border-[#27272a] bg-[#111113] px-4 py-3 text-sm text-[#d4d4d8]">
               2. Leads list and detail views
             </div>
-            <div className="rounded-2xl border border-[#27312E] bg-[#111716] px-4 py-3 text-sm text-[#C3CBC8]">
+            <div className="rounded-2xl border border-[#27272a] bg-[#111113] px-4 py-3 text-sm text-[#d4d4d8]">
               3. Worker-backed ingestion and scoring
             </div>
           </CardContent>
@@ -51,9 +51,9 @@ export default async function AppHomePage() {
 
 function SignalStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#27312E] bg-[#111716] p-4">
-      <div className="text-xs uppercase tracking-[0.24em] text-[#6F7C77]">{label}</div>
-      <div className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#F3F5F4]">{value}</div>
+    <div className="rounded-2xl border border-[#27272a] bg-[#111113] p-4">
+      <div className="text-xs uppercase tracking-[0.24em] text-[#71717a]">{label}</div>
+      <div className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[#fafafa]">{value}</div>
     </div>
   );
 }

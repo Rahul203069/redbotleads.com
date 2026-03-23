@@ -58,7 +58,10 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
+  CampaignSemanticQuery: 'CampaignSemanticQuery',
+  CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
+  RedditItemEmbedding: 'RedditItemEmbedding',
   Lead: 'Lead',
   LeadAI: 'LeadAI',
   Notification: 'Notification',
@@ -169,6 +172,7 @@ export const CampaignScalarFieldEnum = {
   keywords: 'keywords',
   negativeKeywords: 'negativeKeywords',
   subreddits: 'subreddits',
+  recentDays: 'recentDays',
   isActive: 'isActive',
   minScoreToAlert: 'minScoreToAlert',
   sourceMode: 'sourceMode',
@@ -180,12 +184,46 @@ export const CampaignScalarFieldEnum = {
 export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
 
 
+export const CampaignSemanticQueryScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  queryText: 'queryText',
+  category: 'category',
+  dimensions: 'dimensions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticQueryScalarFieldEnum = (typeof CampaignSemanticQueryScalarFieldEnum)[keyof typeof CampaignSemanticQueryScalarFieldEnum]
+
+
+export const CampaignSyncScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  status: 'status',
+  stage: 'stage',
+  message: 'message',
+  lastError: 'lastError',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  lastHeartbeat: 'lastHeartbeat',
+  statsJson: 'statsJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSyncScalarFieldEnum = (typeof CampaignSyncScalarFieldEnum)[keyof typeof CampaignSyncScalarFieldEnum]
+
+
 export const RedditItemScalarFieldEnum = {
   id: 'id',
   fullname: 'fullname',
   type: 'type',
   subreddit: 'subreddit',
   title: 'title',
+  description: 'description',
   body: 'body',
   author: 'author',
   url: 'url',
@@ -198,6 +236,20 @@ export const RedditItemScalarFieldEnum = {
 } as const
 
 export type RedditItemScalarFieldEnum = (typeof RedditItemScalarFieldEnum)[keyof typeof RedditItemScalarFieldEnum]
+
+
+export const RedditItemEmbeddingScalarFieldEnum = {
+  id: 'id',
+  redditItemId: 'redditItemId',
+  provider: 'provider',
+  model: 'model',
+  sourceText: 'sourceText',
+  dimensions: 'dimensions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RedditItemEmbeddingScalarFieldEnum = (typeof RedditItemEmbeddingScalarFieldEnum)[keyof typeof RedditItemEmbeddingScalarFieldEnum]
 
 
 export const LeadScalarFieldEnum = {
@@ -221,9 +273,12 @@ export const LeadAIScalarFieldEnum = {
   leadId: 'leadId',
   model: 'model',
   promptVersion: 'promptVersion',
+  intentType: 'intentType',
+  buyerStage: 'buyerStage',
   category: 'category',
   summary: 'summary',
   painPoints: 'painPoints',
+  disqualifier: 'disqualifier',
   repliesJson: 'repliesJson',
   createdAt: 'createdAt'
 } as const

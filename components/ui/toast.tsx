@@ -20,7 +20,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
 const toastVariants = {
-  default: "border-[#27312E] bg-[#161D1B] text-[#F3F5F4]",
+  default: "border-[#27272a] bg-[#111113] text-[#fafafa]",
   destructive: "border-[#7f1d1d] bg-[#241313] text-[#FEE2E2]",
 };
 
@@ -64,7 +64,7 @@ const ToastClose = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitives.Close
     ref={ref}
-    className={cn("rounded-md p-1 text-current/60 transition hover:bg-white/5 hover:text-current focus-visible:outline-none", className)}
+    className={cn("rounded-md p-1 text-current/60 transition hover:bg-white/8 hover:text-current focus-visible:outline-none", className)}
     toast-close=""
     {...props}
   >

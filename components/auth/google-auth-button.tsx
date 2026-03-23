@@ -29,9 +29,17 @@ export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
   }
 
   return (
-    <Button className="w-full" onClick={handleSignIn} size="lg" type="button">
-      <span className="grid h-5 w-5 place-items-center rounded-full bg-[#0b0f0e]/10 text-[11px] font-bold">G</span>
-      {pending ? "Redirecting..." : mode === "login" ? "Continue with Google" : "Sign up with Google"}
+    <Button
+      className="h-14 w-full justify-between rounded-2xl border-white/12 bg-white px-5 text-base font-semibold text-black shadow-[0_18px_40px_rgba(255,255,255,0.12)] hover:bg-[#e4e4e7] focus-visible:ring-white/35 focus-visible:ring-offset-[#050505]"
+      onClick={handleSignIn}
+      size="lg"
+      type="button"
+    >
+      <span className="flex items-center gap-3">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-black/8 text-[13px] font-bold text-black">G</span>
+        <span>{pending ? "Redirecting..." : mode === "login" ? "Continue with Google" : "Sign up with Google"}</span>
+      </span>
+      <span className="text-lg leading-none text-black/60">{pending ? "..." : "->"}</span>
     </Button>
   );
 }

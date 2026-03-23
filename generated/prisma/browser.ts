@@ -53,10 +53,25 @@ export type RedditAccount = Prisma.RedditAccountModel
  */
 export type Campaign = Prisma.CampaignModel
 /**
+ * Model CampaignSemanticQuery
+ * 
+ */
+export type CampaignSemanticQuery = Prisma.CampaignSemanticQueryModel
+/**
+ * Model CampaignSync
+ * 
+ */
+export type CampaignSync = Prisma.CampaignSyncModel
+/**
  * Model RedditItem
  * 
  */
 export type RedditItem = Prisma.RedditItemModel
+/**
+ * Model RedditItemEmbedding
+ * 
+ */
+export type RedditItemEmbedding = Prisma.RedditItemEmbeddingModel
 /**
  * Model Lead
  * 

@@ -1,8 +1,8 @@
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { generateStructuredOutput } from "@/lib/openai";
 
 const requestSchema = z.object({
   description: z.string().trim().min(10, "Add a more descriptive campaign description first."),
@@ -12,9 +12,16 @@ const requestSchema = z.object({
 });
 
 const responseSchema = {
-  type: "array",
-  items: {
-    type: "string",
+  type: "object",
+  additionalProperties: false,
+  required: ["suggestions"],
+  properties: {
+    suggestions: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
   },
 } as const;
 
@@ -25,8 +32,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!process.env.GEMINI_API_KEY) {
-    return NextResponse.json({ error: "GEMINI_API_KEY is not configured." }, { status: 500 });
+  if (!process.env.OPENAI_API_KEY) {
+    return NextResponse.json({ error: "OPENAI_API_KEY is not configured." }, { status: 500 });
   }
 
   const json = await request.json().catch(() => null);
@@ -37,21 +44,23 @@ export async function POST(request: Request) {
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const prompt =
       parsed.data.kind === "keywords"
         ? `
 You are helping a Reddit lead generation app produce campaign keywords.
 
-Return a JSON array of keyword phrases only.
+Return a JSON array of single-word keywords only.
 Rules:
 - no explanation
 - no markdown
 - no duplicates
 - return between 8 and 14 items
+- every item must be exactly one word
+- no spaces
+- no multi-word phrases
 - prioritize phrases that indicate buying intent, active evaluation, recommendation-seeking, or category search
-- include both category terms and intent phrases
-- keep phrases short and useful for Reddit matching
+- include both category terms and intent signals when they can be expressed as one word
+- keep words short and useful for Reddit matching
 
 Campaign lead type: ${parsed.data.leadType}
 Campaign description:
@@ -80,30 +89,37 @@ Already selected:
 ${parsed.data.existing.join(", ") || "none"}
         `.trim();
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema,
-        temperature: 0.3,
-      },
+    const response = await generateStructuredOutput({
+      model: "gpt-5.1",
+      schemaName: parsed.data.kind === "keywords" ? "campaign_keyword_suggestions" : "campaign_negative_keyword_suggestions",
+      schema: responseSchema,
+      systemPrompt:
+        parsed.data.kind === "keywords"
+          ? "You generate high-signal Reddit lead generation keywords. Return only a JSON array matching the schema."
+          : "You generate negative keywords for Reddit lead generation campaigns. Return only a JSON array matching the schema.",
+      temperature: 0.3,
+      userPrompt: prompt,
     });
 
-    const raw = JSON.parse(response.text ?? "[]");
-    const suggestions = z.array(z.string()).parse(raw);
+    const raw = z
+      .object({
+        suggestions: z.array(z.string()),
+      })
+      .parse(JSON.parse(response.content));
+    const suggestions = raw.suggestions;
     const normalized = Array.from(
       new Set(
         suggestions
           .map((item) => item.trim().toLowerCase())
           .filter(Boolean)
+          .filter((item) => (parsed.data.kind === "keywords" ? !/\s/.test(item) : true))
           .filter((item) => !parsed.data.existing.includes(item)),
       ),
     ).slice(0, 14);
 
     return NextResponse.json({ suggestions: normalized });
   } catch (error) {
-    console.error("Gemini term suggestion failed", error);
+    console.error("OpenAI term suggestion failed", error);
 
     return NextResponse.json({ error: "Could not generate suggestions right now." }, { status: 500 });
   }

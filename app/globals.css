@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0f0e;
-  --foreground: #f3f5f4;
-  --surface: #111716;
-  --surface-elevated: #161d1b;
-  --border: #27312e;
-  --muted: #9da9a4;
-  --muted-2: #6f7c77;
-  --accent: #7bf179;
-  --accent-strong: #4ade80;
+  --background: #050505;
+  --foreground: #fafafa;
+  --surface: #0f0f10;
+  --surface-elevated: #171717;
+  --border: #27272a;
+  --muted: #a1a1aa;
+  --muted-2: #71717a;
+  --accent: #ffffff;
+  --accent-strong: #d4d4d8;
   --warning: #f5c451;
-  --error: #f87171;
+  --error: #c24141;
 }
 
 @theme inline {
@@ -27,12 +27,16 @@
 
 html {
   background: var(--background);
+  color-scheme: dark;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  background-image:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.06), transparent 18%),
+    linear-gradient(180deg, #050505 0%, #09090b 100%);
 }
 
 a,
@@ -42,13 +46,13 @@ input {
 }
 
 ::selection {
-  background: rgba(123, 241, 121, 0.28);
-  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.2);
+  color: #050505;
 }
 
 .scrollbar-subtle {
   scrollbar-width: thin;
-  scrollbar-color: rgba(111, 124, 119, 0.45) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.24) transparent;
 }
 
 .scrollbar-subtle::-webkit-scrollbar {
@@ -63,11 +67,11 @@ input {
   border: 3px solid transparent;
   border-radius: 9999px;
   background-clip: padding-box;
-  background-color: rgba(111, 124, 119, 0.45);
+  background-color: rgba(255, 255, 255, 0.16);
 }
 
 .scrollbar-subtle::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(157, 169, 164, 0.55);
+  background-color: rgba(255, 255, 255, 0.28);
 }
 
 .no-scrollbar {

@@ -2,17 +2,28 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { Prisma } from "../generated/prisma/client";
 
 import { auth } from "@/lib/auth";
+import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
+import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
+import { enqueueInitialIngest } from "@/worker/queues";
+
+const singleWordKeyword = z
+  .string()
+  .trim()
+  .min(1)
+  .refine((value) => !/\s/.test(value), "Keywords must be a single word.");
 
 const createCampaignSchema = z.object({
   name: z.string().trim().min(2, "Campaign name must be at least 2 characters."),
   leadType: z.enum(["PRODUCT", "SERVICE"]),
   description: z.string().trim().optional(),
-  keywords: z.array(z.string()).min(1, "Add at least one keyword."),
+  keywords: z.array(singleWordKeyword),
   negativeKeywords: z.array(z.string()),
   subreddits: z.array(z.string()).min(1, "Add at least one subreddit."),
+  recentDays: z.coerce.number().int().min(1, "Recent window must be at least 1 day.").max(10, "Recent window must be 10 days or less."),
   minScoreToAlert: z.coerce.number().int().min(1, "Min score must be at least 1.").max(100, "Min score must be 100 or less."),
   isActive: z.boolean(),
 });
@@ -20,8 +31,17 @@ const createCampaignSchema = z.object({
 export type CampaignActionState = {
   status: "idle" | "success" | "error";
   message?: string;
-  fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "minScoreToAlert", string>>;
+  fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>;
 };
+
+const semanticQueryResponseSchema = z.object({
+  queries: z.array(
+    z.object({
+      text: z.string().trim().min(1).max(300),
+      category: z.string().trim().min(1).max(120),
+    }),
+  ).length(30),
+});
 
 export async function createCampaign(
   _prevState: CampaignActionState,
@@ -51,6 +71,7 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
       flattened.description?.[0] ??
       flattened.keywords?.[0] ??
       flattened.subreddits?.[0] ??
+      flattened.recentDays?.[0] ??
       flattened.minScoreToAlert?.[0] ??
       parsed.error.flatten().formErrors[0] ??
       "Review the campaign fields and try again.";
@@ -63,13 +84,17 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
         description: flattened.description?.[0],
         keywords: flattened.keywords?.[0],
         subreddits: flattened.subreddits?.[0],
+        recentDays: flattened.recentDays?.[0],
         minScoreToAlert: flattened.minScoreToAlert?.[0],
       },
     };
   }
 
+  let campaignId = "";
+  let shouldQueueInitialIngest = false;
+
   try {
-    await prisma.campaign.create({
+    const campaign = await prisma.campaign.create({
       data: {
         userId: session.user.id,
         name: parsed.data.name,
@@ -78,12 +103,37 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
         keywords: parsed.data.keywords,
         negativeKeywords: parsed.data.negativeKeywords,
         subreddits: parsed.data.subreddits,
+        recentDays: parsed.data.recentDays,
         minScoreToAlert: parsed.data.minScoreToAlert,
         isActive: parsed.data.isActive,
       },
+      select: {
+        id: true,
+        isActive: true,
+      },
     });
+
+    campaignId = campaign.id;
+    shouldQueueInitialIngest = campaign.isActive;
+
+    if (parsed.data.description) {
+      const semanticQueries = await generateCampaignSemanticQueries(parsed.data.description);
+      await persistCampaignSemanticQueries(campaign.id, semanticQueries);
+    }
   } catch (error) {
     console.error("Campaign create failed", error);
+
+    if (campaignId) {
+      try {
+        await prisma.campaign.delete({
+          where: {
+            id: campaignId,
+          },
+        });
+      } catch (rollbackError) {
+        console.error("Campaign rollback failed after semantic setup failure", rollbackError);
+      }
+    }
 
     return {
       status: "error",
@@ -91,12 +141,204 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     };
   }
 
+  if (shouldQueueInitialIngest) {
+    try {
+      await enqueueInitialIngest({
+        campaignId,
+        trigger: "campaign_created",
+      });
+    } catch (error) {
+      console.error("Campaign queue failed", error);
+
+      try {
+        await prisma.campaign.delete({
+          where: {
+            id: campaignId,
+          },
+        });
+      } catch (rollbackError) {
+        console.error("Campaign rollback failed after queue failure", rollbackError);
+      }
+
+      revalidatePath("/campaigns");
+
+      return {
+        status: "error",
+        message:
+          error instanceof Error
+            ? `Campaign was not created because initial sync queueing failed: ${error.message}`
+            : "Campaign was not created because initial sync queueing failed.",
+      };
+    }
+  }
+
   revalidatePath("/campaigns");
 
   return {
     status: "success",
-    message: "Campaign created.",
+    message: shouldQueueInitialIngest ? "Campaign created and queued for initial sync." : "Campaign created.",
   };
+}
+
+async function generateCampaignSemanticQueries(productDescription: string) {
+  const response = await generateStructuredOutput({
+    model: "gpt-4o-mini",
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["queries"],
+      properties: {
+        queries: {
+          type: "array",
+          minItems: 30,
+          maxItems: 30,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["text", "category"],
+            properties: {
+              text: { type: "string" },
+              category: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+    schemaName: "campaign_semantic_queries",
+    systemPrompt: "Generate high-intent semantic search queries for product-led lead discovery. Return only JSON matching the schema.",
+    temperature: 0.7,
+    userPrompt: [
+      "Generate 30 semantic search queries representing",
+      "high-intent product discovery signals in online",
+      "communities such as Reddit.",
+      "",
+      "The goal is to detect users who are actively",
+      "looking for a solution or struggling with an",
+      "existing workflow.",
+      "",
+      "The queries must represent REAL BUYING INTENT.",
+      "",
+      "Include only situations where a user:",
+      "- is asking for a tool",
+      "- is looking for recommendations",
+      "- is frustrated with their current solution",
+      "- is considering switching tools",
+      "- is struggling with a manual process",
+      "",
+      "Do NOT generate queries where the user is:",
+      "- sharing a tool they built",
+      "- explaining their workflow",
+      "- discussing tools in general",
+      "- promoting products",
+      "- writing case studies",
+      "",
+      "Queries should resemble natural Reddit posts",
+      "or comments.",
+      "",
+      "Examples of correct style:",
+      "",
+      '"looking for a better way to track leads"',
+      '"any good CRM for small teams"',
+      '"what tool do you use for managing prospects"',
+      '"our lead tracking process is a mess"',
+      '"alternatives to hubspot for startups"',
+      "",
+      "Return 30 queries.",
+      "",
+      "Return JSON with:",
+      "{",
+      '  "queries": [',
+      '    {',
+      '      "text": "",',
+      '      "category": "",',
+      "    }",
+      "  ]",
+      "}",
+      "",
+      "Product description:",
+      '"""',
+      productDescription,
+      '"""',
+    ].join("\n"),
+  });
+
+  const parsed = semanticQueryResponseSchema.parse(JSON.parse(response.content));
+  return parsed.queries;
+}
+
+async function persistCampaignSemanticQueries(
+  campaignId: string,
+  queries: Array<{
+    text: string;
+    category: string;
+  }>,
+) {
+  const normalizedQueries = dedupeSemanticQueries(queries);
+
+  if (normalizedQueries.length === 0) {
+    return;
+  }
+
+  const embeddingResult = await generateEmbeddings({
+    input: normalizedQueries.map((query) => query.text),
+    model: "text-embedding-3-small",
+    dimensions: 1536,
+  });
+
+  await prisma.$executeRaw(
+    Prisma.sql`DELETE FROM "CampaignSemanticQuery" WHERE "campaignId" = ${campaignId}`,
+  );
+
+  const rows = normalizedQueries.map((query, index) => {
+    const vectorLiteral = `[${embeddingResult.embeddings[index].join(",")}]`;
+
+    return Prisma.sql`(
+      ${crypto.randomUUID()},
+      ${campaignId},
+      ${query.text},
+      ${query.category},
+      ${embeddingResult.dimensions},
+      CAST(${vectorLiteral} AS vector),
+      CURRENT_TIMESTAMP,
+      CURRENT_TIMESTAMP
+    )`;
+  });
+
+  await prisma.$executeRaw(
+    Prisma.sql`
+      INSERT INTO "CampaignSemanticQuery" (
+        "id",
+        "campaignId",
+        "queryText",
+        "category",
+        "dimensions",
+        "embedding",
+        "createdAt",
+        "updatedAt"
+      )
+      VALUES ${Prisma.join(rows)}
+    `,
+  );
+}
+
+function dedupeSemanticQueries(
+  queries: Array<{
+    text: string;
+    category: string;
+  }>,
+) {
+  const seen = new Set<string>();
+
+  return queries.filter((query) => {
+    const normalizedText = query.text.trim().toLowerCase();
+
+    if (!normalizedText || seen.has(normalizedText)) {
+      return false;
+    }
+
+    seen.add(normalizedText);
+    return true;
+  });
 }
 
 export async function updateCampaign(formData: FormData): Promise<CampaignActionState> {
@@ -128,6 +370,7 @@ export async function updateCampaign(formData: FormData): Promise<CampaignAction
       flattened.description?.[0] ??
       flattened.keywords?.[0] ??
       flattened.subreddits?.[0] ??
+      flattened.recentDays?.[0] ??
       flattened.minScoreToAlert?.[0] ??
       parsed.error.flatten().formErrors[0] ??
       "Review the campaign fields and try again.";
@@ -140,6 +383,7 @@ export async function updateCampaign(formData: FormData): Promise<CampaignAction
         description: flattened.description?.[0],
         keywords: flattened.keywords?.[0],
         subreddits: flattened.subreddits?.[0],
+        recentDays: flattened.recentDays?.[0],
         minScoreToAlert: flattened.minScoreToAlert?.[0],
       },
     };
@@ -170,6 +414,7 @@ export async function updateCampaign(formData: FormData): Promise<CampaignAction
         keywords: parsed.data.keywords,
         negativeKeywords: parsed.data.negativeKeywords,
         subreddits: parsed.data.subreddits,
+        recentDays: parsed.data.recentDays,
         minScoreToAlert: parsed.data.minScoreToAlert,
         isActive: parsed.data.isActive,
       },
@@ -189,6 +434,73 @@ export async function updateCampaign(formData: FormData): Promise<CampaignAction
   return {
     status: "success",
     message: "Campaign updated.",
+  };
+}
+
+export async function manualSyncCampaign(formData: FormData): Promise<CampaignActionState> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to sync a campaign.",
+    };
+  }
+
+  const campaignId = String(formData.get("campaignId") ?? "").trim();
+
+  if (!campaignId) {
+    return {
+      status: "error",
+      message: "Campaign ID is missing.",
+    };
+  }
+
+  const campaign = await prisma.campaign.findFirst({
+    where: {
+      id: campaignId,
+      userId: session.user.id,
+    },
+    select: {
+      id: true,
+      isActive: true,
+    },
+  });
+
+  if (!campaign) {
+    return {
+      status: "error",
+      message: "Campaign not found.",
+    };
+  }
+
+  if (!campaign.isActive) {
+    return {
+      status: "error",
+      message: "Activate the campaign before running a manual sync.",
+    };
+  }
+
+  try {
+    await enqueueInitialIngest({
+      campaignId: campaign.id,
+      trigger: "manual_resync",
+    });
+  } catch (error) {
+    console.error("Manual campaign sync failed", error);
+
+    return {
+      status: "error",
+      message: error instanceof Error ? `Manual sync failed: ${error.message}` : "Manual sync failed.",
+    };
+  }
+
+  revalidatePath("/campaigns");
+  revalidatePath(`/campaigns/${campaign.id}`);
+
+  return {
+    status: "success",
+    message: "Campaign queued for manual sync.",
   };
 }
 
@@ -252,6 +564,73 @@ export async function deleteCampaign(formData: FormData): Promise<CampaignAction
   };
 }
 
+export async function getCampaignSyncStatuses(campaignIds: string[]) {
+  const session = await auth();
+
+  if (!session?.user?.id || campaignIds.length === 0) {
+    return [];
+  }
+
+  const campaigns = await prisma.campaign.findMany({
+    where: {
+      userId: session.user.id,
+      id: {
+        in: campaignIds,
+      },
+    },
+    select: {
+      id: true,
+      sync: {
+        select: {
+          status: true,
+          stage: true,
+          message: true,
+          lastError: true,
+          queuedAt: true,
+          startedAt: true,
+          completedAt: true,
+          failedAt: true,
+          lastHeartbeat: true,
+          statsJson: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  return campaigns.map((campaign) => ({
+    campaignId: campaign.id,
+    sync: campaign.sync
+      ? {
+          status: campaign.sync.status,
+          stage: campaign.sync.stage,
+          message: campaign.sync.message,
+          lastError: campaign.sync.lastError,
+          queuedAt: campaign.sync.queuedAt?.toISOString() ?? null,
+          startedAt: campaign.sync.startedAt?.toISOString() ?? null,
+          completedAt: campaign.sync.completedAt?.toISOString() ?? null,
+          failedAt: campaign.sync.failedAt?.toISOString() ?? null,
+          lastHeartbeat: campaign.sync.lastHeartbeat?.toISOString() ?? null,
+          statsJson: campaign.sync.statsJson,
+          updatedAt: campaign.sync.updatedAt.toISOString(),
+        }
+      : null,
+  }));
+}
+
+export async function getCampaignLeads(campaignId: string) {
+  const session = await auth();
+
+  if (!session?.user?.id || !campaignId) {
+    return [];
+  }
+
+  return getCampaignLeadViewsForUser({
+    campaignId,
+    userId: session.user.id,
+  });
+}
+
 function parseList(value: FormDataEntryValue | null) {
   return String(value ?? "")
     .split(/\r?\n|,/)
@@ -276,6 +655,7 @@ function parseCampaignFormData(formData: FormData) {
     keywords: parseList(formData.get("keywords")),
     negativeKeywords: parseList(formData.get("negativeKeywords")),
     subreddits: parseSubreddits(formData.get("subreddits")),
+    recentDays: formData.get("recentDays"),
     minScoreToAlert: formData.get("minScoreToAlert"),
     isActive: formData.get("isActive") === "on",
   };

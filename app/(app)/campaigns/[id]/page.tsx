@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { CampaignLeadsLiveSection } from "@/components/campaigns/campaign-leads-live-section";
+import { CampaignSyncPanel } from "@/components/campaigns/campaign-sync-panel";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
+import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
+import { ManualSyncButton } from "@/components/campaigns/manual-sync-button";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
+import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
 
 export default async function CampaignDetailPage({
@@ -31,9 +36,30 @@ export default async function CampaignDetailPage({
         orderBy: {
           createdAt: "desc",
         },
-        take: 8,
         include: {
+          ai: {
+            select: {
+              category: true,
+              summary: true,
+              painPoints: true,
+            },
+          },
           redditItem: true,
+        },
+      },
+      sync: {
+        select: {
+          status: true,
+          stage: true,
+          message: true,
+          lastError: true,
+          queuedAt: true,
+          startedAt: true,
+          completedAt: true,
+          failedAt: true,
+          lastHeartbeat: true,
+          statsJson: true,
+          updatedAt: true,
         },
       },
     },
@@ -43,34 +69,39 @@ export default async function CampaignDetailPage({
     notFound();
   }
 
-  const strongMatches = campaign.leads.filter((lead) => lead.label === "HIGH").length;
-  const partialMatches = campaign.leads.filter((lead) => lead.label !== "HIGH").length;
+  const lastSyncSource = campaign.sync?.completedAt ?? campaign.sync?.failedAt ?? campaign.sync?.lastHeartbeat ?? campaign.updatedAt;
   const lastSync = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  }).format(campaign.updatedAt);
+  }).format(lastSyncSource);
   const nextSync = campaign.isActive ? "Awaiting worker" : "Paused";
+  const initialLeads = await getCampaignLeadViewsForUser({
+    campaignId: campaign.id,
+    userId: session.user.id,
+  });
 
   return (
     <div className="space-y-6">
       <div className="rounded-[28px] border border-[#27312E] bg-[#111716]/92 p-6 shadow-[0_24px_64px_rgba(0,0,0,0.28)] lg:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-[#7BF179]">Campaign detail</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs uppercase tracking-[0.3em] text-[#d4d4d8]">Campaign detail</p>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#F3F5F4] lg:text-4xl">{campaign.name}</h1>
             <p className="mt-3 max-w-3xl truncate text-sm leading-7 text-[#9DA9A4] lg:text-base">
               {campaign.description || "No campaign description added yet."}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/campaigns">
-              <Button variant="secondary">
+          <div className="flex flex-wrap items-stretch gap-3 lg:max-w-[50%] lg:justify-end">
+            <Link className="w-full sm:w-auto" href="/campaigns">
+              <Button className="w-full sm:w-auto" variant="secondary">
                 <BackIcon />
                 Back to campaigns
               </Button>
             </Link>
+            <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
+            <ManualSyncButton campaignId={campaign.id} disabled={!campaign.isActive} />
             <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
             <EditCampaignDialog
               campaign={{
@@ -81,6 +112,7 @@ export default async function CampaignDetailPage({
                 keywords: campaign.keywords,
                 negativeKeywords: campaign.negativeKeywords,
                 subreddits: campaign.subreddits,
+                recentDays: campaign.recentDays,
                 minScoreToAlert: campaign.minScoreToAlert,
                 isActive: campaign.isActive,
               }}
@@ -90,48 +122,48 @@ export default async function CampaignDetailPage({
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1fr_1fr_1fr_1fr]">
-        <MetricCard label="Strong match" value={String(strongMatches)} />
-        <MetricCard label="Partial match" value={String(partialMatches)} />
         <MetricCard label="Last sync" value={lastSync} />
         <MetricCard label="Next sync" value={nextSync} />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Leads found</CardTitle>
-          <CardDescription>Matched Reddit items for this campaign. Full lead management can grow here next.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {campaign.leads.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#27312E] bg-[#111716] px-4 py-8 text-sm leading-6 text-[#9DA9A4]">
-              No leads found yet. Once ingestion is wired, matched posts and comments will appear here.
-            </div>
-          ) : (
-            campaign.leads.map((lead) => (
-              <div key={lead.id} className="rounded-2xl border border-[#27312E] bg-[#111716] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full border border-[#27312E] bg-[#161D1B] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[#F3F5F4]">
-                      {lead.redditItem.type}
-                    </span>
-                    <span className="rounded-full border border-[#2b5a36] bg-[#142219] px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[#7BF179]">
-                      {lead.label}
-                    </span>
-                  </div>
-                  <span className="text-xs uppercase tracking-[0.2em] text-[#6F7C77]">Score {lead.score}</span>
-                </div>
-                <p className="mt-3 text-sm font-medium leading-6 text-[#F3F5F4]">
-                  {lead.redditItem.title || lead.redditItem.body || "Untitled Reddit item"}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-[#6F7C77]">
-                  <span>r/{lead.redditItem.subreddit}</span>
-                  <span>{lead.status}</span>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <CampaignSyncPanel
+        campaignId={campaign.id}
+        initialSync={
+          campaign.sync
+            ? {
+                status: campaign.sync.status,
+                stage: campaign.sync.stage,
+                message: campaign.sync.message,
+                lastError: campaign.sync.lastError,
+                queuedAt: campaign.sync.queuedAt?.toISOString() ?? null,
+                startedAt: campaign.sync.startedAt?.toISOString() ?? null,
+                completedAt: campaign.sync.completedAt?.toISOString() ?? null,
+                failedAt: campaign.sync.failedAt?.toISOString() ?? null,
+                lastHeartbeat: campaign.sync.lastHeartbeat?.toISOString() ?? null,
+                statsJson: campaign.sync.statsJson as {
+                  fetchedPosts?: number;
+                  promisingPosts?: number;
+                  fetchedComments?: number;
+                  matchedItems?: number;
+                  createdLeads?: number;
+                  embeddedLeads?: number;
+                  semanticCheckedLeads?: number;
+                  semanticPassedLeads?: number;
+                  semanticFilteredLeads?: number;
+                  classifiedLeads?: number;
+                  durationMs?: number;
+                } | null,
+                updatedAt: campaign.sync.updatedAt.toISOString(),
+              }
+            : null
+        }
+      />
+
+      <CampaignLeadsLiveSection
+        campaignId={campaign.id}
+        initialLeads={initialLeads}
+        initialSyncStatus={campaign.sync?.status ?? "IDLE"}
+      />
     </div>
   );
 }

@@ -1,0 +1,259 @@
+const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
+const DEFAULT_OPENAI_EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL?.trim() || "text-embedding-3-small";
+const DEFAULT_OPENAI_EMBEDDING_DIMENSIONS = Number.parseInt(
+  process.env.OPENAI_EMBEDDING_DIMENSIONS?.trim() || "1536",
+  10,
+);
+const MAX_RETRY_ATTEMPTS = 4;
+const BASE_BACKOFF_MS = 2_000;
+const MAX_BACKOFF_MS = 30_000;
+
+type StructuredOutputRequest = {
+  systemPrompt: string;
+  userPrompt: string;
+  schemaName: string;
+  schema: Record<string, unknown>;
+  temperature?: number;
+  model?: string;
+};
+
+type StructuredOutputResponse = {
+  content: string;
+  model: string;
+};
+
+type EmbeddingRequest = {
+  input: string;
+  model?: string;
+  dimensions?: number;
+};
+
+type EmbeddingResponse = {
+  embedding: number[];
+  model: string;
+  dimensions: number;
+};
+
+type EmbeddingsRequest = {
+  input: string[];
+  model?: string;
+  dimensions?: number;
+};
+
+type EmbeddingsResponse = {
+  embeddings: number[][];
+  model: string;
+  dimensions: number;
+};
+
+export async function generateStructuredOutput(
+  request: StructuredOutputRequest,
+): Promise<StructuredOutputResponse> {
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is not configured.");
+  }
+
+  const model = request.model?.trim() || DEFAULT_OPENAI_MODEL;
+  const content = await requestWithRetry({
+    apiKey,
+    attempt: 0,
+    model,
+    schema: request.schema,
+    schemaName: request.schemaName,
+    systemPrompt: request.systemPrompt,
+    temperature: request.temperature ?? 0.1,
+    userPrompt: request.userPrompt,
+  });
+
+  return {
+    content,
+    model,
+  };
+}
+
+export async function generateEmbedding(request: EmbeddingRequest): Promise<EmbeddingResponse> {
+  const response = await generateEmbeddings({
+    input: [request.input],
+    model: request.model,
+    dimensions: request.dimensions,
+  });
+
+  return {
+    embedding: response.embeddings[0],
+    model: response.model,
+    dimensions: response.dimensions,
+  };
+}
+
+export async function generateEmbeddings(request: EmbeddingsRequest): Promise<EmbeddingsResponse> {
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
+
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is not configured.");
+  }
+
+  const model = request.model?.trim() || DEFAULT_OPENAI_EMBEDDING_MODEL;
+  const dimensions = request.dimensions ?? DEFAULT_OPENAI_EMBEDDING_DIMENSIONS;
+  const embeddings = await requestEmbeddingWithRetry({
+    apiKey,
+    attempt: 0,
+    dimensions,
+    input: request.input,
+    model,
+  });
+
+  return {
+    embeddings,
+    model,
+    dimensions,
+  };
+}
+
+async function requestWithRetry(input: {
+  apiKey: string;
+  attempt: number;
+  model: string;
+  schema: Record<string, unknown>;
+  schemaName: string;
+  systemPrompt: string;
+  temperature: number;
+  userPrompt: string;
+}): Promise<string> {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${input.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: input.model,
+      temperature: input.temperature,
+      messages: [
+        {
+          role: "system",
+          content: input.systemPrompt,
+        },
+        {
+          role: "user",
+          content: input.userPrompt,
+        },
+      ],
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: input.schemaName,
+          strict: true,
+          schema: input.schema,
+        },
+      },
+    }),
+  });
+
+  if ((response.status === 429 || response.status >= 500) && input.attempt < MAX_RETRY_ATTEMPTS) {
+    const retryAfterSeconds = Number(response.headers.get("retry-after") ?? "0");
+    const backoffMs =
+      retryAfterSeconds > 0 ? retryAfterSeconds * 1000 : getExponentialBackoffDelay(input.attempt);
+    await sleep(backoffMs);
+    return requestWithRetry({
+      ...input,
+      attempt: input.attempt + 1,
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`OpenAI request failed: ${response.status} ${response.statusText} ${errorText}`.trim());
+  }
+
+  const payload = (await response.json()) as {
+    choices?: Array<{
+      message?: {
+        content?: string | Array<{ type?: string; text?: string }>;
+        refusal?: string;
+      };
+    }>;
+  };
+
+  const message = payload.choices?.[0]?.message;
+
+  if (message?.refusal) {
+    throw new Error(`OpenAI refused the request: ${message.refusal}`);
+  }
+
+  const content =
+    typeof message?.content === "string"
+      ? message.content
+      : message?.content
+          ?.map((part) => (part.type === "text" ? part.text ?? "" : ""))
+          .join("")
+          .trim();
+
+  if (!content) {
+    throw new Error("OpenAI returned an empty response.");
+  }
+
+  return content;
+}
+
+async function requestEmbeddingWithRetry(input: {
+  apiKey: string;
+  attempt: number;
+  dimensions: number;
+  input: string[];
+  model: string;
+}): Promise<number[][]> {
+  const response = await fetch("https://api.openai.com/v1/embeddings", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${input.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      input: input.input,
+      model: input.model,
+      dimensions: input.dimensions,
+    }),
+  });
+
+  if ((response.status === 429 || response.status >= 500) && input.attempt < MAX_RETRY_ATTEMPTS) {
+    const retryAfterSeconds = Number(response.headers.get("retry-after") ?? "0");
+    const backoffMs =
+      retryAfterSeconds > 0 ? retryAfterSeconds * 1000 : getExponentialBackoffDelay(input.attempt);
+    await sleep(backoffMs);
+    return requestEmbeddingWithRetry({
+      ...input,
+      attempt: input.attempt + 1,
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`OpenAI embedding request failed: ${response.status} ${response.statusText} ${errorText}`.trim());
+  }
+
+  const payload = (await response.json()) as {
+    data?: Array<{
+      embedding?: number[];
+    }>;
+  };
+
+  const embeddings = payload.data?.map((item) => item.embedding).filter((item): item is number[] => Array.isArray(item) && item.length > 0);
+
+  if (!embeddings || embeddings.length !== input.input.length) {
+    throw new Error("OpenAI returned an incomplete embeddings response.");
+  }
+
+  return embeddings;
+}
+
+function getExponentialBackoffDelay(attempt: number) {
+  const exponentialMs = Math.min(MAX_BACKOFF_MS, BASE_BACKOFF_MS * 2 ** attempt);
+  const jitterMs = Math.floor(Math.random() * 500);
+  return exponentialMs + jitterMs;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

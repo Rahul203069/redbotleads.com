@@ -30,6 +30,7 @@ export type RedditItemMinAggregateOutputType = {
   type: $Enums.RedditItemType | null
   subreddit: string | null
   title: string | null
+  description: string | null
   body: string | null
   author: string | null
   url: string | null
@@ -46,6 +47,7 @@ export type RedditItemMaxAggregateOutputType = {
   type: $Enums.RedditItemType | null
   subreddit: string | null
   title: string | null
+  description: string | null
   body: string | null
   author: string | null
   url: string | null
@@ -62,6 +64,7 @@ export type RedditItemCountAggregateOutputType = {
   type: number
   subreddit: number
   title: number
+  description: number
   body: number
   author: number
   url: number
@@ -81,6 +84,7 @@ export type RedditItemMinAggregateInputType = {
   type?: true
   subreddit?: true
   title?: true
+  description?: true
   body?: true
   author?: true
   url?: true
@@ -97,6 +101,7 @@ export type RedditItemMaxAggregateInputType = {
   type?: true
   subreddit?: true
   title?: true
+  description?: true
   body?: true
   author?: true
   url?: true
@@ -113,6 +118,7 @@ export type RedditItemCountAggregateInputType = {
   type?: true
   subreddit?: true
   title?: true
+  description?: true
   body?: true
   author?: true
   url?: true
@@ -203,6 +209,7 @@ export type RedditItemGroupByOutputType = {
   type: $Enums.RedditItemType
   subreddit: string
   title: string | null
+  description: string | null
   body: string | null
   author: string | null
   url: string | null
@@ -241,6 +248,7 @@ export type RedditItemWhereInput = {
   type?: Prisma.EnumRedditItemTypeFilter<"RedditItem"> | $Enums.RedditItemType
   subreddit?: Prisma.StringFilter<"RedditItem"> | string
   title?: Prisma.StringNullableFilter<"RedditItem"> | string | null
+  description?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   body?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   author?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   url?: Prisma.StringNullableFilter<"RedditItem"> | string | null
@@ -251,6 +259,7 @@ export type RedditItemWhereInput = {
   parentFullname?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   rawJson?: Prisma.JsonNullableFilter<"RedditItem">
   leads?: Prisma.LeadListRelationFilter
+  embedding?: Prisma.XOR<Prisma.RedditItemEmbeddingNullableScalarRelationFilter, Prisma.RedditItemEmbeddingWhereInput> | null
 }
 
 export type RedditItemOrderByWithRelationInput = {
@@ -259,6 +268,7 @@ export type RedditItemOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   subreddit?: Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   author?: Prisma.SortOrderInput | Prisma.SortOrder
   url?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -269,6 +279,7 @@ export type RedditItemOrderByWithRelationInput = {
   parentFullname?: Prisma.SortOrderInput | Prisma.SortOrder
   rawJson?: Prisma.SortOrderInput | Prisma.SortOrder
   leads?: Prisma.LeadOrderByRelationAggregateInput
+  embedding?: Prisma.RedditItemEmbeddingOrderByWithRelationInput
 }
 
 export type RedditItemWhereUniqueInput = Prisma.AtLeast<{
@@ -280,6 +291,7 @@ export type RedditItemWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.EnumRedditItemTypeFilter<"RedditItem"> | $Enums.RedditItemType
   subreddit?: Prisma.StringFilter<"RedditItem"> | string
   title?: Prisma.StringNullableFilter<"RedditItem"> | string | null
+  description?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   body?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   author?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   url?: Prisma.StringNullableFilter<"RedditItem"> | string | null
@@ -290,6 +302,7 @@ export type RedditItemWhereUniqueInput = Prisma.AtLeast<{
   parentFullname?: Prisma.StringNullableFilter<"RedditItem"> | string | null
   rawJson?: Prisma.JsonNullableFilter<"RedditItem">
   leads?: Prisma.LeadListRelationFilter
+  embedding?: Prisma.XOR<Prisma.RedditItemEmbeddingNullableScalarRelationFilter, Prisma.RedditItemEmbeddingWhereInput> | null
 }, "id" | "fullname">
 
 export type RedditItemOrderByWithAggregationInput = {
@@ -298,6 +311,7 @@ export type RedditItemOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   subreddit?: Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   body?: Prisma.SortOrderInput | Prisma.SortOrder
   author?: Prisma.SortOrderInput | Prisma.SortOrder
   url?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -321,6 +335,7 @@ export type RedditItemScalarWhereWithAggregatesInput = {
   type?: Prisma.EnumRedditItemTypeWithAggregatesFilter<"RedditItem"> | $Enums.RedditItemType
   subreddit?: Prisma.StringWithAggregatesFilter<"RedditItem"> | string
   title?: Prisma.StringNullableWithAggregatesFilter<"RedditItem"> | string | null
+  description?: Prisma.StringNullableWithAggregatesFilter<"RedditItem"> | string | null
   body?: Prisma.StringNullableWithAggregatesFilter<"RedditItem"> | string | null
   author?: Prisma.StringNullableWithAggregatesFilter<"RedditItem"> | string | null
   url?: Prisma.StringNullableWithAggregatesFilter<"RedditItem"> | string | null
@@ -338,6 +353,7 @@ export type RedditItemCreateInput = {
   type: $Enums.RedditItemType
   subreddit: string
   title?: string | null
+  description?: string | null
   body?: string | null
   author?: string | null
   url?: string | null
@@ -348,6 +364,7 @@ export type RedditItemCreateInput = {
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
 }
 
 export type RedditItemUncheckedCreateInput = {
@@ -356,6 +373,7 @@ export type RedditItemUncheckedCreateInput = {
   type: $Enums.RedditItemType
   subreddit: string
   title?: string | null
+  description?: string | null
   body?: string | null
   author?: string | null
   url?: string | null
@@ -366,6 +384,7 @@ export type RedditItemUncheckedCreateInput = {
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
 }
 
 export type RedditItemUpdateInput = {
@@ -374,6 +393,7 @@ export type RedditItemUpdateInput = {
   type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -384,6 +404,7 @@ export type RedditItemUpdateInput = {
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateInput = {
@@ -392,6 +413,7 @@ export type RedditItemUncheckedUpdateInput = {
   type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -402,6 +424,7 @@ export type RedditItemUncheckedUpdateInput = {
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
 }
 
 export type RedditItemCreateManyInput = {
@@ -410,6 +433,7 @@ export type RedditItemCreateManyInput = {
   type: $Enums.RedditItemType
   subreddit: string
   title?: string | null
+  description?: string | null
   body?: string | null
   author?: string | null
   url?: string | null
@@ -427,6 +451,7 @@ export type RedditItemUpdateManyMutationInput = {
   type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -444,6 +469,7 @@ export type RedditItemUncheckedUpdateManyInput = {
   type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -461,6 +487,7 @@ export type RedditItemCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   subreddit?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   body?: Prisma.SortOrder
   author?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -478,6 +505,7 @@ export type RedditItemMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   subreddit?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   body?: Prisma.SortOrder
   author?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -494,6 +522,7 @@ export type RedditItemMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   subreddit?: Prisma.SortOrder
   title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   body?: Prisma.SortOrder
   author?: Prisma.SortOrder
   url?: Prisma.SortOrder
@@ -513,6 +542,20 @@ export type EnumRedditItemTypeFieldUpdateOperationsInput = {
   set?: $Enums.RedditItemType
 }
 
+export type RedditItemCreateNestedOneWithoutEmbeddingInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutEmbeddingInput, Prisma.RedditItemUncheckedCreateWithoutEmbeddingInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutEmbeddingInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+}
+
+export type RedditItemUpdateOneRequiredWithoutEmbeddingNestedInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutEmbeddingInput, Prisma.RedditItemUncheckedCreateWithoutEmbeddingInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutEmbeddingInput
+  upsert?: Prisma.RedditItemUpsertWithoutEmbeddingInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RedditItemUpdateToOneWithWhereWithoutEmbeddingInput, Prisma.RedditItemUpdateWithoutEmbeddingInput>, Prisma.RedditItemUncheckedUpdateWithoutEmbeddingInput>
+}
+
 export type RedditItemCreateNestedOneWithoutLeadsInput = {
   create?: Prisma.XOR<Prisma.RedditItemCreateWithoutLeadsInput, Prisma.RedditItemUncheckedCreateWithoutLeadsInput>
   connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutLeadsInput
@@ -527,12 +570,13 @@ export type RedditItemUpdateOneRequiredWithoutLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RedditItemUpdateToOneWithWhereWithoutLeadsInput, Prisma.RedditItemUpdateWithoutLeadsInput>, Prisma.RedditItemUncheckedUpdateWithoutLeadsInput>
 }
 
-export type RedditItemCreateWithoutLeadsInput = {
+export type RedditItemCreateWithoutEmbeddingInput = {
   id?: string
   fullname: string
   type: $Enums.RedditItemType
   subreddit: string
   title?: string | null
+  description?: string | null
   body?: string | null
   author?: string | null
   url?: string | null
@@ -542,6 +586,99 @@ export type RedditItemCreateWithoutLeadsInput = {
   postFullname?: string | null
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
+}
+
+export type RedditItemUncheckedCreateWithoutEmbeddingInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
+}
+
+export type RedditItemCreateOrConnectWithoutEmbeddingInput = {
+  where: Prisma.RedditItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutEmbeddingInput, Prisma.RedditItemUncheckedCreateWithoutEmbeddingInput>
+}
+
+export type RedditItemUpsertWithoutEmbeddingInput = {
+  update: Prisma.XOR<Prisma.RedditItemUpdateWithoutEmbeddingInput, Prisma.RedditItemUncheckedUpdateWithoutEmbeddingInput>
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutEmbeddingInput, Prisma.RedditItemUncheckedCreateWithoutEmbeddingInput>
+  where?: Prisma.RedditItemWhereInput
+}
+
+export type RedditItemUpdateToOneWithWhereWithoutEmbeddingInput = {
+  where?: Prisma.RedditItemWhereInput
+  data: Prisma.XOR<Prisma.RedditItemUpdateWithoutEmbeddingInput, Prisma.RedditItemUncheckedUpdateWithoutEmbeddingInput>
+}
+
+export type RedditItemUpdateWithoutEmbeddingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
+}
+
+export type RedditItemUncheckedUpdateWithoutEmbeddingInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
+}
+
+export type RedditItemCreateWithoutLeadsInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
 }
 
 export type RedditItemUncheckedCreateWithoutLeadsInput = {
@@ -550,6 +687,7 @@ export type RedditItemUncheckedCreateWithoutLeadsInput = {
   type: $Enums.RedditItemType
   subreddit: string
   title?: string | null
+  description?: string | null
   body?: string | null
   author?: string | null
   url?: string | null
@@ -559,6 +697,7 @@ export type RedditItemUncheckedCreateWithoutLeadsInput = {
   postFullname?: string | null
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
 }
 
 export type RedditItemCreateOrConnectWithoutLeadsInput = {
@@ -583,6 +722,7 @@ export type RedditItemUpdateWithoutLeadsInput = {
   type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -592,6 +732,7 @@ export type RedditItemUpdateWithoutLeadsInput = {
   postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateWithoutLeadsInput = {
@@ -600,6 +741,7 @@ export type RedditItemUncheckedUpdateWithoutLeadsInput = {
   type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
   subreddit?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -609,6 +751,7 @@ export type RedditItemUncheckedUpdateWithoutLeadsInput = {
   postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
 }
 
 
@@ -648,6 +791,7 @@ export type RedditItemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   type?: boolean
   subreddit?: boolean
   title?: boolean
+  description?: boolean
   body?: boolean
   author?: boolean
   url?: boolean
@@ -658,6 +802,7 @@ export type RedditItemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   parentFullname?: boolean
   rawJson?: boolean
   leads?: boolean | Prisma.RedditItem$leadsArgs<ExtArgs>
+  embedding?: boolean | Prisma.RedditItem$embeddingArgs<ExtArgs>
   _count?: boolean | Prisma.RedditItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditItem"]>
 
@@ -667,6 +812,7 @@ export type RedditItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   type?: boolean
   subreddit?: boolean
   title?: boolean
+  description?: boolean
   body?: boolean
   author?: boolean
   url?: boolean
@@ -684,6 +830,7 @@ export type RedditItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   type?: boolean
   subreddit?: boolean
   title?: boolean
+  description?: boolean
   body?: boolean
   author?: boolean
   url?: boolean
@@ -701,6 +848,7 @@ export type RedditItemSelectScalar = {
   type?: boolean
   subreddit?: boolean
   title?: boolean
+  description?: boolean
   body?: boolean
   author?: boolean
   url?: boolean
@@ -712,9 +860,10 @@ export type RedditItemSelectScalar = {
   rawJson?: boolean
 }
 
-export type RedditItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullname" | "type" | "subreddit" | "title" | "body" | "author" | "url" | "createdUtc" | "fetchedAt" | "sourceMode" | "postFullname" | "parentFullname" | "rawJson", ExtArgs["result"]["redditItem"]>
+export type RedditItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullname" | "type" | "subreddit" | "title" | "description" | "body" | "author" | "url" | "createdUtc" | "fetchedAt" | "sourceMode" | "postFullname" | "parentFullname" | "rawJson", ExtArgs["result"]["redditItem"]>
 export type RedditItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leads?: boolean | Prisma.RedditItem$leadsArgs<ExtArgs>
+  embedding?: boolean | Prisma.RedditItem$embeddingArgs<ExtArgs>
   _count?: boolean | Prisma.RedditItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RedditItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -724,6 +873,7 @@ export type $RedditItemPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "RedditItem"
   objects: {
     leads: Prisma.$LeadPayload<ExtArgs>[]
+    embedding: Prisma.$RedditItemEmbeddingPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -731,6 +881,7 @@ export type $RedditItemPayload<ExtArgs extends runtime.Types.Extensions.Internal
     type: $Enums.RedditItemType
     subreddit: string
     title: string | null
+    description: string | null
     body: string | null
     author: string | null
     url: string | null
@@ -1135,6 +1286,7 @@ readonly fields: RedditItemFieldRefs;
 export interface Prisma__RedditItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   leads<T extends Prisma.RedditItem$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  embedding<T extends Prisma.RedditItem$embeddingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$embeddingArgs<ExtArgs>>): Prisma.Prisma__RedditItemEmbeddingClient<runtime.Types.Result.GetResult<Prisma.$RedditItemEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1169,6 +1321,7 @@ export interface RedditItemFieldRefs {
   readonly type: Prisma.FieldRef<"RedditItem", 'RedditItemType'>
   readonly subreddit: Prisma.FieldRef<"RedditItem", 'String'>
   readonly title: Prisma.FieldRef<"RedditItem", 'String'>
+  readonly description: Prisma.FieldRef<"RedditItem", 'String'>
   readonly body: Prisma.FieldRef<"RedditItem", 'String'>
   readonly author: Prisma.FieldRef<"RedditItem", 'String'>
   readonly url: Prisma.FieldRef<"RedditItem", 'String'>
@@ -1587,6 +1740,25 @@ export type RedditItem$leadsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.LeadScalarFieldEnum | Prisma.LeadScalarFieldEnum[]
+}
+
+/**
+ * RedditItem.embedding
+ */
+export type RedditItem$embeddingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RedditItemEmbedding
+   */
+  select?: Prisma.RedditItemEmbeddingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RedditItemEmbedding
+   */
+  omit?: Prisma.RedditItemEmbeddingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RedditItemEmbeddingInclude<ExtArgs> | null
+  where?: Prisma.RedditItemEmbeddingWhereInput
 }
 
 /**

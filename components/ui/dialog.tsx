@@ -31,7 +31,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "scrollbar-subtle fixed left-1/2 top-1/2 z-50 max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[28px] border border-[#27312E] bg-[#111716] p-0 shadow-[0_30px_80px_rgba(0,0,0,0.45)] outline-none",
+        "scrollbar-subtle fixed left-1/2 top-1/2 z-50 max-h-[calc(100vh-2rem)] w-[calc(100vw-2rem)] max-w-4xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[28px] border border-[#27272a] bg-[#09090b]/96 p-0 shadow-[0_32px_90px_rgba(0,0,0,0.6)] outline-none",
         className,
       )}
       {...props}
@@ -49,14 +49,14 @@ function DialogFooter({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 }
 
 function DialogTitle({ className, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>) {
-  return <DialogPrimitive.Title className={cn("text-2xl font-semibold tracking-tight text-[#F3F5F4]", className)} {...props} />;
+  return <DialogPrimitive.Title className={cn("text-2xl font-semibold tracking-tight text-[#F8FAFC]", className)} {...props} />;
 }
 
 function DialogDescription({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>) {
-  return <DialogPrimitive.Description className={cn("text-sm leading-6 text-[#9DA9A4]", className)} {...props} />;
+  return <DialogPrimitive.Description className={cn("text-sm leading-6 text-[#a1a1aa]", className)} {...props} />;
 }
 
 export { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger };

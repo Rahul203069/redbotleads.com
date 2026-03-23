@@ -15,7 +15,7 @@ The platform is split into:
 ## High-Level Flow
 
 ```text
-             Reddit API
+          Reddit RSS Feeds
                  |
                  v
         Ingestion Workers
@@ -55,7 +55,7 @@ Implemented:
 Planned:
 
 - Next.js APIs for campaigns, leads, settings, and suggestions
-- ingestion workers
+- RSS ingestion workers
 - BullMQ queues
 - Redis integration
 - AI scoring pipeline
@@ -73,7 +73,7 @@ Planned:
 
 - authenticated route handlers
 - server actions for product workflows
-- Reddit ingestion
+- Reddit RSS ingestion
 - keyword matching
 - lead scoring orchestration
 - subreddit recommendation logic
@@ -103,7 +103,7 @@ lib/
   db/
   campaigns/
   leads/
-  reddit/
+  rss/
   ai/
   notifications/
   ingestion/
@@ -160,9 +160,8 @@ Put it in `lib/` and share it across those entry points.
 
 ### Ingestion Queue
 
-- `FETCH_POSTS`
-- `FETCH_COMMENTS`
-- `FETCH_THREAD_COMMENTS`
+- `INITIAL_INGEST`
+- future manual resync jobs
 
 ### Classification Queue
 
@@ -198,6 +197,19 @@ Workers and internal APIs should rely on the authenticated user context establis
 - verify resource ownership on all APIs
 - encrypt sensitive OAuth tokens if persisted
 - apply rate limits and queue retry caps
+
+## Ingestion Direction
+
+The MVP ingestion path is now:
+
+1. fetch subreddit RSS feeds
+2. parse feed entries into normalized Reddit post records
+3. filter by keywords and negative keywords
+4. store matched posts
+5. create lead candidates
+6. enqueue AI classification
+
+The MVP does not ingest comments.
 
 ## Deployment Split
 

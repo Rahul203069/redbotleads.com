@@ -53,5 +53,5 @@ export function CampaignLeadsLiveSection({
     };
   }, [campaignId, shouldPoll]);
 
-  return <ClassifiedLeadsPanel isRefreshing={isPending} leads={leads} />;
+  return <ClassifiedLeadsPanel isRefreshing={isPending} leads={leads} syncStatus={syncStatus} />;
 }

@@ -34,9 +34,11 @@ const scoreSortOptions = ["SCORE_DESC", "SCORE_ASC", "SEMANTIC_DESC"] as const;
 export function ClassifiedLeadsPanel({
   leads,
   isRefreshing = false,
+  syncStatus = "IDLE",
 }: {
   leads: ClassifiedLead[];
   isRefreshing?: boolean;
+  syncStatus?: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 }) {
   const [labelFilter, setLabelFilter] = useState<(typeof labelFilters)[number]>("ALL");
   const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>("ALL");
@@ -70,6 +72,8 @@ export function ClassifiedLeadsPanel({
     },
     [classifiedLeads, labelFilter, scoreSort, statusFilter],
   );
+  const isProcessing = syncStatus === "QUEUED" || syncStatus === "PROCESSING";
+  const isCompleted = syncStatus === "COMPLETED";
 
   return (
     <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
@@ -78,7 +82,7 @@ export function ClassifiedLeadsPanel({
           <div>
             <h2 className="text-[24px] font-bold tracking-tight text-[#ffffff]">Classified leads</h2>
             <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
-              All leads scored for this campaign, with quick filters for label and workflow status.
+              Only leads that passed semantic matching and finished LLM classification appear here.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -87,39 +91,45 @@ export function ClassifiedLeadsPanel({
                 Refreshing
               </div>
             ) : null}
-            <FilterGroup
-              label="Label"
-              options={labelFilters}
-              value={labelFilter}
-              onChange={setLabelFilter}
-            />
-            <FilterGroup
-              label="Status"
-              options={statusFilters}
-              value={statusFilter}
-              onChange={setStatusFilter}
-            />
-            <FilterGroup
-              label="Sort"
-              options={scoreSortOptions}
-              value={scoreSort}
-              onChange={setScoreSort}
-              formatOptionLabel={(option) =>
-                option === "SCORE_DESC"
-                  ? "Score high to low"
-                  : option === "SCORE_ASC"
-                    ? "Score low to high"
-                    : "Semantic high to low"
-              }
-            />
+            {!isProcessing ? (
+              <>
+                <FilterGroup
+                  label="Label"
+                  options={labelFilters}
+                  value={labelFilter}
+                  onChange={setLabelFilter}
+                />
+                <FilterGroup
+                  label="Status"
+                  options={statusFilters}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                />
+                <FilterGroup
+                  label="Sort"
+                  options={scoreSortOptions}
+                  value={scoreSort}
+                  onChange={setScoreSort}
+                  formatOptionLabel={(option) =>
+                    option === "SCORE_DESC"
+                      ? "Score high to low"
+                      : option === "SCORE_ASC"
+                        ? "Score low to high"
+                        : "Semantic high to low"
+                  }
+                />
+              </>
+            ) : null}
           </div>
         </div>
       </div>
       <div className="space-y-4 pt-5">
-        {classifiedLeads.length === 0 ? (
-          <div className="rounded-[20px] bg-[#1f1f1f] px-4 py-8 text-[14px] leading-6 text-[#cbcbcb]">
-            No classified leads yet. Once the worker finishes scoring, they will appear here.
-          </div>
+        {isProcessing ? (
+          <PendingLeadState />
+        ) : isCompleted && classifiedLeads.length === 0 ? (
+          <NoLeadsFoundState />
+        ) : classifiedLeads.length === 0 ? (
+          <NoLeadsYetState syncStatus={syncStatus} />
         ) : filteredLeads.length === 0 ? (
           <div className="rounded-[20px] bg-[#1f1f1f] px-4 py-8 text-[14px] leading-6 text-[#cbcbcb]">
             No classified leads match the active filters.
@@ -209,6 +219,56 @@ export function ClassifiedLeadsPanel({
         )}
       </div>
     </section>
+  );
+}
+
+function PendingLeadState() {
+  return (
+    <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="max-w-2xl">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead review in progress</p>
+          <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">Waiting for the final classified set.</h3>
+          <p className="mt-3 text-[14px] leading-6 text-[#cbcbcb]">
+            Leads stay hidden until the worker finishes semantic filtering and LLM scoring, so this view only shows the final qualified set.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 self-start rounded-full bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+          <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#1ed760] border-t-transparent" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">Processing</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NoLeadsFoundState() {
+  return (
+    <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">No qualified leads</p>
+      <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">No leads cleared the full pipeline.</h3>
+      <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
+        The sync finished, but no Reddit items both passed semantic matching and received an LLM classification worth showing here.
+      </p>
+    </div>
+  );
+}
+
+function NoLeadsYetState({
+  syncStatus,
+}: {
+  syncStatus: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+}) {
+  return (
+    <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead inbox</p>
+      <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">No classified leads yet.</h3>
+      <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
+        {syncStatus === "FAILED"
+          ? "The latest sync did not complete successfully, so there are no final classified leads to show yet."
+          : "Run a sync to populate this campaign with Reddit items that make it through semantic matching and LLM scoring."}
+      </p>
+    </div>
   );
 }
 

@@ -45,6 +45,15 @@ export default async function NotificationSettingsPage() {
 
       <SettingsBackLink />
 
+      <div className="flex items-center justify-start">
+        <a
+          className="inline-flex items-center rounded-full bg-[#1f1f1f] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition hover:bg-[#252525] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
+          href="/settings/notifcation/test"
+        >
+          Open Slack test
+        </a>
+      </div>
+
       <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <NotificationSettingsForm
           deliveryEmail={user.email ?? "your account email"}

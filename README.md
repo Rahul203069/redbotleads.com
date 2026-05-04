@@ -112,6 +112,87 @@ Run workers:
 npm run worker:dev
 ```
 
+## Docker
+
+This app should run as a small Docker stack, not as one container with multiple long-running processes.
+
+Recommended local stack:
+
+- `web`: Next.js app
+- `worker`: BullMQ workers
+- `redis`: local Redis instance
+
+Setup:
+
+```bash
+cp .env.docker.example .env.docker
+```
+
+Fill in the real values in `.env.docker`, especially:
+
+- `DATABASE_URL`
+- `NEXTAUTH_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `OPENAI_API_KEY`
+
+Start the stack:
+
+```bash
+docker compose up --build
+```
+
+The app will be available at `http://localhost:3000`.
+
+Notes:
+
+- `REDIS_URL` is forced to `redis://redis:6379` inside Compose so the app and worker use the local Redis container.
+- This setup assumes you keep PostgreSQL hosted externally. That matches the current project better than trying to stand up local Postgres with pgvector by default.
+- If you need schema updates, run Prisma separately against the same database before or during deployment.
+
+## Vercel + VM Deployment
+
+If you keep the web app on Vercel, do not run the web container on the VM. The VM should only run:
+
+- `worker`
+- `redis`
+
+Use the VM-specific stack:
+
+```bash
+docker compose --env-file .env.vm -f compose.vm.yaml up --build -d
+```
+
+VM files:
+
+- [compose.vm.yaml](C:\Users\rs329\goal\my-app\compose.vm.yaml)
+- [\.env.vm.example](C:\Users\rs329\goal\my-app\.env.vm.example)
+
+What goes where:
+
+- `Vercel`
+  - `DATABASE_URL=<your Neon URL>`
+  - `REDIS_URL=redis://:<REDIS_PASSWORD>@<your-vm-ip-or-domain>:6379`
+  - `NEXTAUTH_URL=<your production URL>`
+  - `NEXTAUTH_SECRET=...`
+  - `GOOGLE_CLIENT_ID=...`
+  - `GOOGLE_CLIENT_SECRET=...`
+  - `OPENAI_API_KEY=...`
+
+- `VM worker stack`
+  - `DATABASE_URL=<same Neon URL>`
+  - `REDIS_PASSWORD=<strong password>`
+  - `OPENAI_API_KEY=...`
+  - other OpenAI and RSS envs from `.env.vm`
+
+Important:
+
+- Redis is password-protected in the VM compose stack.
+- Vercel talks to Redis over the VM public endpoint.
+- The worker talks to Redis over the internal Docker network.
+- Keep the VM firewall tight. Open `6379` only if Vercel must reach Redis directly.
+- Do not expose Redis publicly without a password.
+
 ## Environment Variables
 
 Frontend auth and database:

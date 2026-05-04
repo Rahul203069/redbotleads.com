@@ -1,0 +1,37 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: reddit-leads-redis
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - exec redis-server --appendonly yes --bind 0.0.0.0 --protected-mode yes --requirepass "$$REDIS_PASSWORD"
+    env_file:
+      - .env.vm
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  worker:
+    build:
+      context: .
+      target: worker-runner
+    container_name: reddit-leads-worker
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env.vm
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+
+volumes:
+  redis-data:

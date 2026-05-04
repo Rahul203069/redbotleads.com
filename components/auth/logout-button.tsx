@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { signOut } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
@@ -10,14 +11,37 @@ type LogoutButtonProps = {
 };
 
 export function LogoutButton({ className }: LogoutButtonProps) {
+  const [pending, setPending] = useState(false);
+
+  async function handleSignOut() {
+    try {
+      setPending(true);
+      await signOut({ callbackUrl: "/login" });
+    } catch {
+      setPending(false);
+    }
+  }
+
   return (
     <Button
-      onClick={() => signOut({ callbackUrl: "/login" })}
+      aria-busy={pending}
+      disabled={pending}
+      onClick={handleSignOut}
       type="button"
       variant="secondary"
-      className={cn(className)}
+      className={cn("gap-3", className)}
     >
-      Log out
+      {pending ? (
+        <>
+          <span
+            aria-hidden="true"
+            className="h-3.5 w-3.5 animate-spin rounded-full border-[1.5px] border-current border-t-transparent"
+          />
+          Logging out...
+        </>
+      ) : (
+        "Log out"
+      )}
     </Button>
   );
 }

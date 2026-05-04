@@ -1,7 +1,7 @@
 import { Queue } from "bullmq";
 
 import { markCampaignFailed, markCampaignQueued } from "./campaign-sync";
-import { workerRedisConnection } from "./config";
+import { redisQueueTimeoutMs, workerRedisConnection } from "./config";
 
 export const ingestionQueueName = "ingestion";
 export const embeddingQueueName = "embedding";
@@ -117,13 +117,18 @@ export async function checkRedisHealth() {
   try {
     await withTimeout(
       ingestionQueue.waitUntilReady(),
-      5000,
+      redisQueueTimeoutMs,
       "Redis queue readiness check",
       "QUEUE_TIMEOUT",
     );
 
     const client = await ingestionQueue.client;
-    const redisResponse = await withTimeout(client.ping(), 5000, "Redis ping", "QUEUE_TIMEOUT");
+    const redisResponse = await withTimeout(
+      client.ping(),
+      redisQueueTimeoutMs,
+      "Redis ping",
+      "QUEUE_TIMEOUT",
+    );
 
     if (redisResponse !== "PONG") {
       throw new InitialIngestQueueError(
@@ -147,7 +152,7 @@ export async function checkIngestionWorkerHealth() {
   try {
     const workersCount = await withTimeout(
       ingestionQueue.getWorkersCount(),
-      5000,
+      redisQueueTimeoutMs,
       "Ingestion worker availability check",
       "QUEUE_TIMEOUT",
     );
@@ -184,7 +189,7 @@ export async function enqueueInitialIngest(data: InitialIngestJobData) {
           removeOnComplete: 100,
           removeOnFail: 200,
         }),
-        5000,
+        redisQueueTimeoutMs,
         "Initial ingest enqueue",
         "QUEUE_TIMEOUT",
       );

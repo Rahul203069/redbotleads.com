@@ -30,16 +30,18 @@ export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
 
   return (
     <Button
-      className="h-14 w-full justify-between rounded-2xl border-white/12 bg-white px-5 text-base font-semibold text-black shadow-[0_18px_40px_rgba(255,255,255,0.12)] hover:bg-[#e4e4e7] focus-visible:ring-white/35 focus-visible:ring-offset-[#050505]"
+      className="h-14 w-full justify-between rounded-full bg-[#1ed760] px-5 text-[13px] font-bold uppercase tracking-[0.16em] text-[#08110c] shadow-[0_18px_40px_rgba(30,215,96,0.22)] transition-colors duration-200 hover:bg-[#3be477] focus-visible:ring-[#1ed760]/40 focus-visible:ring-offset-[#181818]"
       onClick={handleSignIn}
       size="lg"
       type="button"
     >
       <span className="flex items-center gap-3">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-black/8 text-[13px] font-bold text-black">G</span>
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-black/10 text-[12px] font-bold text-[#08110c] shadow-[inset_0_0_0_1px_rgba(8,17,12,0.08)]">
+          G
+        </span>
         <span>{pending ? "Redirecting..." : mode === "login" ? "Continue with Google" : "Sign up with Google"}</span>
       </span>
-      <span className="text-lg leading-none text-black/60">{pending ? "..." : "->"}</span>
+      <span className="text-lg leading-none text-[#08110c]/70">{pending ? "..." : "->"}</span>
     </Button>
   );
 }

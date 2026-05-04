@@ -9,7 +9,10 @@ export const semanticQueueName = "semantic";
 export const classificationQueueName = "classification";
 export const notificationsQueueName = "notifications";
 
-export type IngestionJobName = "INITIAL_INGEST";
+export const initialIngestJobName = "INITIAL_INGEST";
+export const dailyIngestJobName = "DAILY_INGEST";
+
+export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName;
 export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_REDDIT_ITEM";
 export type SemanticJobName = "SEMANTIC_MATCH_LEAD" | "SEMANTIC_MATCH_REDDIT_ITEM";
 export type ClassificationJobName = "CLASSIFY_LEAD" | "GENERATE_REPLIES";
@@ -18,6 +21,11 @@ export type NotificationJobName = "SEND_EMAIL" | "SEND_SLACK";
 export type InitialIngestJobData = {
   campaignId: string;
   trigger: "campaign_created" | "manual_resync";
+};
+
+export type DailyIngestJobData = {
+  campaignId: string;
+  trigger: "daily_sync";
 };
 
 export type ClassificationJobData = {
@@ -175,16 +183,20 @@ export async function checkIngestionWorkerHealth() {
   }
 }
 
+export async function ensureIngestionQueueReady() {
+  await checkRedisHealth();
+  await checkIngestionWorkerHealth();
+}
+
 export async function enqueueInitialIngest(data: InitialIngestJobData) {
   try {
-    await checkRedisHealth();
-    await checkIngestionWorkerHealth();
+    await ensureIngestionQueueReady();
 
     let job;
 
     try {
       job = await withTimeout(
-        ingestionQueue.add("INITIAL_INGEST", data, {
+        ingestionQueue.add(initialIngestJobName, data, {
           jobId: buildJobId("initial-ingest", data.campaignId),
           removeOnComplete: 100,
           removeOnFail: 200,
@@ -241,6 +253,42 @@ export function getInitialIngestQueueFailureMessage(error: unknown) {
   }
 
   return error.message;
+}
+
+export async function enqueueDailyIngest(
+  data: DailyIngestJobData,
+  options?: {
+    skipHealthChecks?: boolean;
+  },
+) {
+  try {
+    if (!options?.skipHealthChecks) {
+      await ensureIngestionQueueReady();
+    }
+
+    const job = await ingestionQueue.add(dailyIngestJobName, data, {
+      jobId: buildJobId("daily-ingest", data.campaignId),
+      removeOnComplete: 100,
+      removeOnFail: 200,
+    });
+
+    await markCampaignQueued(data.campaignId, "Campaign queued for daily Reddit sync.");
+
+    return job;
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? `Daily sync queueing failed: ${error.message}`
+        : "Daily sync queueing failed before the job could be added.";
+
+    try {
+      await markCampaignFailed(data.campaignId, "FAILED", message);
+    } catch (statusError) {
+      console.error("Campaign sync status update failed after daily queue failure", statusError);
+    }
+
+    throw error;
+  }
 }
 
 export async function enqueueLeadClassification(data: ClassificationJobData) {

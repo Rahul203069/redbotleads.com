@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { CampaignLeadsLiveSection } from "@/components/campaigns/campaign-leads-live-section";
-import { CampaignSyncPanel } from "@/components/campaigns/campaign-sync-panel";
+import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
@@ -11,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
+
+const MIN_VISIBLE_LEAD_SCORE = 40;
 
 export default async function CampaignDetailPage({
   params,
@@ -73,12 +74,6 @@ export default async function CampaignDetailPage({
     campaign.sync?.failedAt ??
     campaign.sync?.lastHeartbeat ??
     campaign.updatedAt;
-  const lastSync = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(lastSyncSource);
   const nextSyncSource = new Date(lastSyncSource.getTime() + 24 * 60 * 60 * 1000);
   const nextSync = new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -90,7 +85,7 @@ export default async function CampaignDetailPage({
     campaignId: campaign.id,
     userId: session.user.id,
   });
-  const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null);
+  const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
 
@@ -147,8 +142,9 @@ export default async function CampaignDetailPage({
         </div>
       </section>
 
-      <CampaignSyncPanel
+      <CampaignDetailLiveSections
         campaignId={campaign.id}
+        initialLeads={classifiedLeads}
         initialSync={
           campaign.sync
             ? {
@@ -179,18 +175,6 @@ export default async function CampaignDetailPage({
             : null
         }
         nextSyncLabel={nextSync}
-        summaryMetrics={{
-          lastSync,
-          nextSync,
-          leadCount,
-          highIntentCount,
-        }}
-      />
-
-      <CampaignLeadsLiveSection
-        campaignId={campaign.id}
-        initialLeads={classifiedLeads}
-        initialSyncStatus={campaign.sync?.status ?? "IDLE"}
       />
     </div>
   );

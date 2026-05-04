@@ -25,6 +25,7 @@ Available scripts:
 ```bash
 npm run worker:dev
 npm run worker:ingestion
+npm run worker:daily-ingestion
 npm run worker:embedding
 npm run worker:semantic
 npm run worker:classification

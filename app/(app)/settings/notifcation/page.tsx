@@ -58,7 +58,7 @@ export default async function NotificationSettingsPage() {
           </div>
           <div className="mt-4 space-y-3 text-[14px] leading-6 text-[#cbcbcb]">
             <p>Email alerts control whether this user can receive notification deliveries when lead alerts are enabled.</p>
-            <p>The Slack field stores an incoming webhook URL for future Slack-based notification delivery.</p>
+            <p>The Slack field stores an incoming webhook URL used for lead alerts that cross the campaign threshold.</p>
             <p>You can leave Slack empty and still use email-only alerts.</p>
           </div>
         </div>

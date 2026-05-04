@@ -49,7 +49,7 @@ export function NotificationSettingsForm({
           Notifications
         </div>
         <div className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
-          Configure email alerts and connect a Slack webhook for future delivery flows.
+          Configure email alerts and connect a Slack webhook for lead delivery.
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export function NotificationSettingsForm({
 
       <div className="flex items-center justify-between gap-4 border-t border-white/8 pt-5">
         <div className="text-sm leading-6 text-[#b3b3b3]">
-          Slack notifications can be connected now even if delivery workflows expand later.
+          Slack notifications are sent when a lead crosses the campaign alert threshold.
         </div>
         <Button
           disabled={isPending}

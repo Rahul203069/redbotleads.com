@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
 import {
@@ -18,17 +19,16 @@ import {
 } from "./ingestion-shared";
 import { workerLogger } from "./logger";
 import { fetchSubredditPosts } from "./reddit";
-import { type InitialIngestJobData, ingestionQueueName } from "./queues";
+import { dailyIngestJobName, ingestionQueueName, type DailyIngestJobData } from "./queues";
 
-const worker = new Worker<InitialIngestJobData>(
+const worker = new Worker<DailyIngestJobData>(
   ingestionQueueName,
   async (job) => {
-    if (job.name !== "INITIAL_INGEST") {
-      workerLogger.warn({ jobId: job.id, name: job.name }, "Ignoring unsupported ingestion job");
+    if (job.name !== dailyIngestJobName) {
       return;
     }
 
-    return runInitialIngest(job.data, job.id ?? "unknown");
+    return runDailyIngest(job.data, job.id ?? "unknown");
   },
   {
     connection: workerRedisConnection,
@@ -36,35 +36,38 @@ const worker = new Worker<InitialIngestJobData>(
 );
 
 worker.on("completed", (job) => {
-  workerLogger.info({ jobId: job.id, name: job.name }, "Ingestion job completed");
+  if (job.name === dailyIngestJobName) {
+    workerLogger.info({ jobId: job.id, name: job.name }, "Daily ingestion job completed");
+  }
 });
 
 worker.on("failed", (job, error) => {
-  workerLogger.error({ jobId: job?.id, name: job?.name, error }, "Ingestion job failed");
+  if (job?.name === dailyIngestJobName) {
+    workerLogger.error({ jobId: job?.id, name: job?.name, error }, "Daily ingestion job failed");
+  }
 });
 
-workerLogger.info("Ingestion worker started");
+workerLogger.info("Daily ingestion worker started");
 
-async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
+async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
   const campaign = await getCampaignIngestionTarget(data.campaignId);
 
   if (!campaign) {
-    workerLogger.warn({ jobId, campaignId: data.campaignId }, "Campaign not found for ingestion");
+    workerLogger.warn({ jobId, campaignId: data.campaignId }, "Campaign not found for daily ingestion");
     return { skipped: true, reason: "campaign_not_found" };
   }
 
   if (!campaign.isActive) {
-    await markCampaignCompleted(campaign.id, "Campaign is paused. Initial sync skipped.");
-    workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping inactive campaign ingestion");
+    await markCampaignCompleted(campaign.id, "Campaign is paused. Daily sync skipped.");
+    workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping inactive campaign daily ingestion");
     return { skipped: true, reason: "campaign_inactive" };
   }
 
-  await markCampaignProcessing(campaign.id, "FETCHING_POSTS", "Starting Reddit ingestion for this campaign.");
+  await markCampaignProcessing(campaign.id, "FETCHING_POSTS", "Starting daily Reddit sync for this campaign.");
 
   const startedAt = Date.now();
   let fetchedPosts = 0;
   let promisingPosts = 0;
-  const fetchedComments = 0;
   let matchedItems = 0;
   let createdLeads = 0;
   const subredditErrors: Array<{ subreddit: string; message: string }> = [];
@@ -74,14 +77,32 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       await updateCampaignProgress(
         campaign.id,
         "FETCHING_POSTS",
-        `Fetching recent RSS posts from r/${subreddit}.`,
-        { fetchedPosts, promisingPosts, fetchedComments, matchedItems, createdLeads },
+        `Checking for new RSS posts in r/${subreddit}.`,
+        { fetchedPosts, promisingPosts, matchedItems, createdLeads },
       );
 
-      const posts = await fetchSubredditPosts(subreddit);
+      const cursor = await prisma.ingestCursor.findUnique({
+        where: {
+          subreddit,
+        },
+        select: {
+          lastPostFullname: true,
+          lastFetchedPostsAt: true,
+        },
+      });
+
+      const posts = (await fetchSubredditPosts(subreddit)).sort(
+        (left, right) => right.createdUtc.getTime() - left.createdUtc.getTime(),
+      );
       fetchedPosts += posts.length;
 
+      const newestSeenPost = posts[0] ?? null;
+
       for (const post of posts) {
+        if (isKnownPostBoundary(post, cursor?.lastPostFullname ?? null, cursor?.lastFetchedPostsAt ?? null)) {
+          break;
+        }
+
         if (isOutsideRecencyWindow(post.createdUtc, campaign.recentDays)) {
           continue;
         }
@@ -105,8 +126,25 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
           redditItemId: redditPost.id,
         });
       }
+
+      if (newestSeenPost) {
+        await prisma.ingestCursor.upsert({
+          where: {
+            subreddit,
+          },
+          update: {
+            lastPostFullname: newestSeenPost.fullname,
+            lastFetchedPostsAt: newestSeenPost.createdUtc,
+          },
+          create: {
+            subreddit,
+            lastPostFullname: newestSeenPost.fullname,
+            lastFetchedPostsAt: newestSeenPost.createdUtc,
+          },
+        });
+      }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Subreddit ingestion failed.";
+      const errorMessage = error instanceof Error ? error.message : "Daily subreddit ingestion failed.";
       subredditErrors.push({ subreddit, message: errorMessage });
       workerLogger.error(
         {
@@ -115,7 +153,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
           subreddit,
           error,
         },
-        "Subreddit ingestion failed",
+        "Daily subreddit ingestion failed",
       );
     }
   }
@@ -132,11 +170,10 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     await updateCampaignProgress(
       campaign.id,
       "CLASSIFYING",
-      `RSS ingestion complete. ${createdLeads} lead${createdLeads === 1 ? "" : "s"} queued for AI scoring.${errorSummary}`,
+      `Daily RSS sync found ${createdLeads} new lead${createdLeads === 1 ? "" : "s"} for AI scoring.${errorSummary}`,
       {
         fetchedPosts,
         promisingPosts,
-        fetchedComments,
         matchedItems,
         createdLeads,
         durationMs,
@@ -146,11 +183,10 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     await markCampaignFailed(
       campaign.id,
       "FETCHING_POSTS",
-      `RSS ingestion completed with no queued leads.${errorSummary}`,
+      `Daily RSS sync completed with no queued leads.${errorSummary}`,
       {
         fetchedPosts,
         promisingPosts,
-        fetchedComments,
         matchedItems,
         createdLeads,
         durationMs,
@@ -159,11 +195,10 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
   } else {
     await markCampaignCompleted(
       campaign.id,
-      `RSS ingestion completed. No matching leads were found.${hasErrors ? errorSummary : ""}`,
+      `Daily RSS sync completed. No new matching leads were found.${hasErrors ? errorSummary : ""}`,
       {
         fetchedPosts,
         promisingPosts,
-        fetchedComments,
         matchedItems,
         createdLeads,
         durationMs,
@@ -175,7 +210,6 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     {
       jobId,
       campaignId: campaign.id,
-      trigger: data.trigger,
       fetchedPosts,
       filteredPosts: promisingPosts,
       matchedItems,
@@ -183,16 +217,31 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       subredditErrors,
       durationMs,
     },
-    "Initial RSS campaign ingestion completed",
+    "Daily RSS campaign ingestion completed",
   );
 
   return {
     fetchedPosts,
     promisingPosts,
-    fetchedComments,
     matchedItems,
     createdLeads,
     subredditErrors,
     durationMs,
   };
+}
+
+function isKnownPostBoundary(
+  post: { fullname: string; createdUtc: Date },
+  lastPostFullname: string | null,
+  lastFetchedPostsAt: Date | null,
+) {
+  if (lastPostFullname && post.fullname === lastPostFullname) {
+    return true;
+  }
+
+  if (lastFetchedPostsAt && post.createdUtc.getTime() <= lastFetchedPostsAt.getTime()) {
+    return true;
+  }
+
+  return false;
 }

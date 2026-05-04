@@ -11,7 +11,7 @@ import {
 import { classifyLeadWithOpenAI } from "./classification-ai";
 import { workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
-import { type ClassificationJobData, classificationQueueName } from "./queues";
+import { enqueueNotification, type ClassificationJobData, classificationQueueName } from "./queues";
 
 const SEMANTIC_FILTER_MODEL = "semantic-threshold-filter";
 
@@ -168,6 +168,25 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
 
     const crossedAlertThreshold = result.score >= lead.campaign.minScoreToAlert;
 
+    if (crossedAlertThreshold && lead.user.slackWebhookUrl && !lead.notifications.some((notification) => notification.channel === "SLACK")) {
+      const notification = await prisma.notification.create({
+        data: {
+          leadId: lead.id,
+          channel: "SLACK",
+          status: "PENDING",
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await enqueueNotification({
+        notificationId: notification.id,
+        leadId: lead.id,
+        channel: "SLACK",
+      });
+    }
+
     const remainingAfter = await countPendingLeadClassification(lead.campaignId);
     const classifiedAfter = await countClassifiedLeads(lead.campaignId);
 
@@ -199,7 +218,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         label: result.label,
         category: result.category,
         crossedAlertThreshold,
-        notificationsDisabled: true,
+        slackNotificationsEnabled: Boolean(lead.user.slackWebhookUrl),
       },
       "Lead classified with OpenAI",
     );

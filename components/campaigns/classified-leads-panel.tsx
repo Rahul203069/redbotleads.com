@@ -30,6 +30,7 @@ export type ClassifiedLead = {
 const labelFilters = ["ALL", "HIGH", "MED", "LOW"] as const;
 const statusFilters = ["ALL", "NEW", "SAVED", "IGNORED", "REPLIED"] as const;
 const scoreSortOptions = ["SCORE_DESC", "SCORE_ASC", "SEMANTIC_DESC"] as const;
+const MIN_VISIBLE_LEAD_SCORE = 40;
 
 export function ClassifiedLeadsPanel({
   leads,
@@ -45,7 +46,10 @@ export function ClassifiedLeadsPanel({
   const [scoreSort, setScoreSort] = useState<(typeof scoreSortOptions)[number]>("SCORE_DESC");
   const [expandedLeadIds, setExpandedLeadIds] = useState<string[]>([]);
 
-  const classifiedLeads = useMemo(() => leads.filter((lead) => lead.ai !== null), [leads]);
+  const classifiedLeads = useMemo(
+    () => leads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE),
+    [leads],
+  );
   const filteredLeads = useMemo(
     () => {
       const nextLeads = classifiedLeads.filter((lead) => {
@@ -224,20 +228,57 @@ export function ClassifiedLeadsPanel({
 
 function PendingLeadState() {
   return (
-    <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead review in progress</p>
-          <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">Waiting for the final classified set.</h3>
-          <p className="mt-3 text-[14px] leading-6 text-[#cbcbcb]">
-            Leads stay hidden until the worker finishes semantic filtering and LLM scoring, so this view only shows the final qualified set.
-          </p>
-        </div>
-        <div className="flex items-center gap-3 self-start rounded-full bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-          <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#1ed760] border-t-transparent" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">Processing</span>
+    <div className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+      <div className="border-b border-white/8 px-6 py-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead review in progress</p>
+            <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">Preparing the qualified lead set.</h3>
+            <p className="mt-3 text-[14px] leading-6 text-[#cbcbcb]">
+              The feed stays hidden until semantic filtering and LLM scoring finish, so this table only opens with the final reviewed leads.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 self-start rounded-full bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+            <span className="relative flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1ed760]/45" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-[#1ed760]" />
+            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">Processing</span>
+          </div>
         </div>
       </div>
+      <div className="space-y-4 px-6 py-5">
+        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+          <span className="text-[#ffffff]">What happens next</span>
+          <span className="h-px flex-1 bg-white/8" />
+        </div>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <PendingStep label="Semantic pass" description="Checking Reddit items against the saved intent queries." />
+          <PendingStep label="LLM scoring" description="Ranking qualified items for buying intent and fit." />
+          <PendingStep label="Final feed" description="Publishing only the leads ready for review in this table." />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PendingStep({
+  label,
+  description,
+}: {
+  label: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+      <div className="flex items-center gap-3">
+        <span className="relative flex h-2.5 w-2.5 shrink-0">
+          <span className="absolute inline-flex h-full w-full animate-pulse rounded-full bg-[#1ed760]/40" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#1ed760]" />
+        </span>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ffffff]">{label}</p>
+      </div>
+      <p className="mt-3 text-[13px] leading-6 text-[#b3b3b3]">{description}</p>
     </div>
   );
 }

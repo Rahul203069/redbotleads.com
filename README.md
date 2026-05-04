@@ -215,7 +215,29 @@ OPENAI_WEB_SEARCH_MODEL=
 OPENAI_SUBREDDIT_MODEL=
 OPENAI_SUBREDDIT_WEB_SEARCH_CONTEXT_SIZE=high
 OPENAI_SUBREDDIT_VALIDATION_TIMEOUT_MS=8000
+CRON_SECRET=
 ```
+
+## Daily Sync Scheduler
+
+The repo includes a Vercel Cron job at `/api/cron/daily-sync`.
+
+- Route: [app/api/cron/daily-sync/route.ts](C:\Users\rs329\goal\my-app\app\api\cron\daily-sync\route.ts)
+- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) currently runs at `0 0 * * *` (midnight UTC)
+
+What it does:
+
+- finds active campaigns due for a daily sync
+- skips campaigns already `QUEUED` or `PROCESSING`
+- enqueues `DAILY_INGEST` jobs through BullMQ
+
+Required env on Vercel:
+
+```env
+CRON_SECRET=
+```
+
+Set the same secret in the Vercel Cron configuration so the scheduler route only accepts authorized calls.
 
 ## Notes
 

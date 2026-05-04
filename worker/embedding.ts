@@ -48,6 +48,13 @@ async function runEmbedding(data: EmbeddingJobData, jobId: string) {
       description: true,
       subreddit: true,
       type: true,
+      embedding: {
+        select: {
+          model: true,
+          dimensions: true,
+          sourceText: true,
+        },
+      },
     },
   });
 
@@ -65,6 +72,33 @@ async function runEmbedding(data: EmbeddingJobData, jobId: string) {
   if (!sourceText) {
     workerLogger.warn({ jobId, redditItemId }, "Skipping embedding because there is no usable source text");
     return { skipped: true, reason: "empty_source_text" };
+  }
+
+  if (redditItem.embedding?.sourceText === sourceText) {
+    workerLogger.info(
+      {
+        jobId,
+        redditItemId: redditItem.id,
+        type: redditItem.type,
+        subreddit: redditItem.subreddit,
+        dimensions: redditItem.embedding.dimensions,
+        model: redditItem.embedding.model,
+        sourceLength: sourceText.length,
+      },
+      "Reusing existing Reddit item embedding",
+    );
+
+    if ("leadId" in data && "campaignId" in data) {
+      await continueLeadSemanticFlow(data);
+    }
+
+    return {
+      redditItemId: redditItem.id,
+      dimensions: redditItem.embedding.dimensions,
+      model: redditItem.embedding.model,
+      sourceLength: sourceText.length,
+      reused: true,
+    };
   }
 
   try {
@@ -123,22 +157,7 @@ async function runEmbedding(data: EmbeddingJobData, jobId: string) {
     );
 
     if ("leadId" in data && "campaignId" in data) {
-      const embeddedLeads = await countEmbeddedLeads(data.campaignId);
-
-      await updateCampaignProgress(
-        data.campaignId,
-        "CLASSIFYING",
-        `Embeddings prepared for ${embeddedLeads} lead${embeddedLeads === 1 ? "" : "s"}. Moving matched leads into semantic filtering.`,
-        {
-          embeddedLeads,
-        },
-      );
-
-      await enqueueLeadSemanticMatch({
-        leadId: data.leadId,
-        campaignId: data.campaignId,
-        redditItemId: data.redditItemId,
-      });
+      await continueLeadSemanticFlow(data);
     }
 
     return {
@@ -151,6 +170,25 @@ async function runEmbedding(data: EmbeddingJobData, jobId: string) {
     workerLogger.error({ jobId, redditItemId, error }, "Embedding generation failed");
     throw error;
   }
+}
+
+async function continueLeadSemanticFlow(data: Extract<EmbeddingJobData, { leadId: string }>) {
+  const embeddedLeads = await countEmbeddedLeads(data.campaignId);
+
+  await updateCampaignProgress(
+    data.campaignId,
+    "CLASSIFYING",
+    `Embeddings prepared for ${embeddedLeads} lead${embeddedLeads === 1 ? "" : "s"}. Moving matched leads into semantic filtering.`,
+    {
+      embeddedLeads,
+    },
+  );
+
+  await enqueueLeadSemanticMatch({
+    leadId: data.leadId,
+    campaignId: data.campaignId,
+    redditItemId: data.redditItemId,
+  });
 }
 
 function buildEmbeddingText(input: {

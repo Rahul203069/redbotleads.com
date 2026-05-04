@@ -2,11 +2,28 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export default async function SettingsPage() {
   const session = await auth();
 
   if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    select: {
+      name: true,
+      email: true,
+      plan: true,
+      slackWebhookUrl: true,
+    },
+  });
+
+  if (!user) {
     redirect("/login");
   }
 
@@ -32,20 +49,20 @@ export default async function SettingsPage() {
           href="/settings/profile"
           title="Profile"
           description="View your username and email."
-          meta={session.user.name ?? session.user.email ?? "Account details"}
+          meta={user.name ?? user.email ?? "Account details"}
         />
         <SettingsCard
           href="/settings/billing"
           title="Billing"
           description="Review plan and billing status."
-          meta={session.user.plan === "free" ? "Free plan" : session.user.plan}
+          meta={user.plan === "free" ? "Free plan" : user.plan}
         />
         <SettingsCard
           href="/settings/notifcation"
           title="Notification"
           description="Manage email alerts and Slack delivery."
           meta="Email + Slack"
-          status={session.user.slackWebhookUrl ? "Connected" : "Not connected"}
+          status={user.slackWebhookUrl ? "Connected" : "Not connected"}
         />
       </div>
     </div>

@@ -7,6 +7,21 @@ const DEFAULT_OPENAI_EMBEDDING_DIMENSIONS = Number.parseInt(
 const MAX_RETRY_ATTEMPTS = 4;
 const BASE_BACKOFF_MS = 2_000;
 const MAX_BACKOFF_MS = 30_000;
+const OPENAI_REQUEST_TIMEOUT_MS = Number.parseInt(
+  process.env.OPENAI_REQUEST_TIMEOUT_MS?.trim() || "45000",
+  10,
+);
+
+type WebSearchRequest = {
+  enabled?: boolean;
+  searchContextSize?: "low" | "medium" | "high";
+  userLocation?: {
+    country?: string;
+    city?: string;
+    region?: string;
+    timezone?: string;
+  };
+};
 
 type StructuredOutputRequest = {
   systemPrompt: string;
@@ -15,6 +30,7 @@ type StructuredOutputRequest = {
   schema: Record<string, unknown>;
   temperature?: number;
   model?: string;
+  webSearch?: WebSearchRequest;
 };
 
 type StructuredOutputResponse = {
@@ -56,16 +72,29 @@ export async function generateStructuredOutput(
   }
 
   const model = request.model?.trim() || DEFAULT_OPENAI_MODEL;
-  const content = await requestWithRetry({
-    apiKey,
-    attempt: 0,
-    model,
-    schema: request.schema,
-    schemaName: request.schemaName,
-    systemPrompt: request.systemPrompt,
-    temperature: request.temperature ?? 0.1,
-    userPrompt: request.userPrompt,
-  });
+  const content = request.webSearch?.enabled
+    ? await requestWithWebSearchRetry({
+        apiKey,
+        attempt: 0,
+        model,
+        schema: request.schema,
+        schemaName: request.schemaName,
+        systemPrompt: request.systemPrompt,
+        temperature: request.temperature ?? 0.1,
+        userPrompt: request.userPrompt,
+        webSearch: request.webSearch,
+      })
+    : await requestWithRetry({
+        apiKey,
+        attempt: 0,
+        model,
+        schema: request.schema,
+        schemaName: request.schemaName,
+        systemPrompt: request.systemPrompt,
+        temperature: request.temperature ?? 0.1,
+        userPrompt: request.userPrompt,
+        webSearch: request.webSearch,
+      });
 
   return {
     content,
@@ -120,13 +149,29 @@ async function requestWithRetry(input: {
   systemPrompt: string;
   temperature: number;
   userPrompt: string;
+  webSearch?: WebSearchRequest;
 }): Promise<string> {
+  const webSearchOptions = input.webSearch?.enabled
+    ? {
+        search_context_size: input.webSearch.searchContextSize ?? "medium",
+        ...(input.webSearch.userLocation
+          ? {
+              user_location: {
+                type: "approximate",
+                ...input.webSearch.userLocation,
+              },
+            }
+          : {}),
+      }
+    : undefined;
+
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${input.apiKey}`,
       "Content-Type": "application/json",
     },
+    signal: AbortSignal.timeout(OPENAI_REQUEST_TIMEOUT_MS),
     body: JSON.stringify({
       model: input.model,
       temperature: input.temperature,
@@ -148,6 +193,7 @@ async function requestWithRetry(input: {
           schema: input.schema,
         },
       },
+      ...(webSearchOptions ? { web_search_options: webSearchOptions } : {}),
     }),
   });
 
@@ -197,6 +243,124 @@ async function requestWithRetry(input: {
   return content;
 }
 
+async function requestWithWebSearchRetry(input: {
+  apiKey: string;
+  attempt: number;
+  model: string;
+  schema: Record<string, unknown>;
+  schemaName: string;
+  systemPrompt: string;
+  temperature: number;
+  userPrompt: string;
+  webSearch?: WebSearchRequest;
+}): Promise<string> {
+  const tool = {
+    type: "web_search",
+    search_context_size: input.webSearch?.searchContextSize ?? "medium",
+    ...(input.webSearch?.userLocation
+      ? {
+          user_location: {
+            type: "approximate",
+            ...input.webSearch.userLocation,
+          },
+        }
+      : {}),
+  };
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${input.apiKey}`,
+      "Content-Type": "application/json",
+    },
+    signal: AbortSignal.timeout(OPENAI_REQUEST_TIMEOUT_MS),
+    body: JSON.stringify({
+      model: input.model,
+      input: [
+        {
+          role: "system",
+          content: input.systemPrompt,
+        },
+        {
+          role: "user",
+          content: input.userPrompt,
+        },
+      ],
+      tools: [tool],
+      tool_choice: "auto",
+      text: {
+        format: {
+          type: "json_schema",
+          name: input.schemaName,
+          strict: true,
+          schema: input.schema,
+        },
+      },
+    }),
+  });
+
+  if ((response.status === 429 || response.status >= 500) && input.attempt < MAX_RETRY_ATTEMPTS) {
+    const retryAfterSeconds = Number(response.headers.get("retry-after") ?? "0");
+    const backoffMs =
+      retryAfterSeconds > 0 ? retryAfterSeconds * 1000 : getExponentialBackoffDelay(input.attempt);
+    await sleep(backoffMs);
+    return requestWithWebSearchRetry({
+      ...input,
+      attempt: input.attempt + 1,
+    });
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`OpenAI web search request failed: ${response.status} ${response.statusText} ${errorText}`.trim());
+  }
+
+  const payload = (await response.json()) as {
+    error?: {
+      message?: string;
+    };
+    output_text?: string;
+    output?: Array<{
+      type?: string;
+      content?: Array<{
+        type?: string;
+        text?: string;
+        refusal?: string;
+      }>;
+    }>;
+  };
+
+  if (payload.error?.message) {
+    throw new Error(`OpenAI web search request failed: ${payload.error.message}`);
+  }
+
+  if (payload.output_text?.trim()) {
+    return payload.output_text.trim();
+  }
+
+  const refusal = payload.output
+    ?.flatMap((item) => item.content ?? [])
+    .map((part) => part.refusal)
+    .find((value) => Boolean(value));
+
+  if (refusal) {
+    throw new Error(`OpenAI refused the request: ${refusal}`);
+  }
+
+  const content = payload.output
+    ?.flatMap((item) => item.content ?? [])
+    .filter((part) => part.type === "output_text" || part.type === "text")
+    .map((part) => part.text ?? "")
+    .join("")
+    .trim();
+
+  if (!content) {
+    throw new Error("OpenAI returned an empty web search response.");
+  }
+
+  return content;
+}
+
 async function requestEmbeddingWithRetry(input: {
   apiKey: string;
   attempt: number;
@@ -210,6 +374,7 @@ async function requestEmbeddingWithRetry(input: {
       "Authorization": `Bearer ${input.apiKey}`,
       "Content-Type": "application/json",
     },
+    signal: AbortSignal.timeout(OPENAI_REQUEST_TIMEOUT_MS),
     body: JSON.stringify({
       input: input.input,
       model: input.model,

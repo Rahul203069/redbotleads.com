@@ -17,14 +17,14 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
   const [draft, setDraft] = useState("");
 
   function commitTag(rawValue: string) {
-    const next = normalizeValue(rawValue);
+    const nextValues = splitValues(rawValue).filter((item) => !value.includes(item));
 
-    if (!next || value.includes(next)) {
+    if (nextValues.length === 0) {
       return;
     }
 
     flushSync(() => {
-      onChange([...value, next]);
+      onChange([...value, ...nextValues]);
     });
     setDraft("");
   }
@@ -45,6 +45,17 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
       event.preventDefault();
       removeTag(value[value.length - 1]);
     }
+  }
+
+  function handlePaste(event: React.ClipboardEvent<HTMLInputElement>) {
+    const pasted = event.clipboardData.getData("text");
+
+    if (!/[,\r\n\t]/.test(pasted)) {
+      return;
+    }
+
+    event.preventDefault();
+    commitTag(pasted);
   }
 
   return (
@@ -74,6 +85,7 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
           onBlur={() => commitTag(draft)}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           placeholder={value.length === 0 ? placeholder : ""}
           value={draft}
         />
@@ -97,4 +109,15 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
 
 function normalizeValue(value: string) {
   return value.trim().toLowerCase().replace(/^r\//, "");
+}
+
+function splitValues(value: string) {
+  return Array.from(
+    new Set(
+      value
+        .split(/[,\r\n\t]+/)
+        .map((item) => normalizeValue(item))
+        .filter(Boolean),
+    ),
+  );
 }

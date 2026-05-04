@@ -209,7 +209,9 @@ Post-processing:
 - strips `r/`
 - removes duplicates
 - excludes already-selected subreddits
-- caps results to 14
+- validates each suggestion against live Reddit `about.json`
+- excludes NSFW, quarantined, private, and missing subreddits
+- caps results to 40
 
 Important product behavior:
 
@@ -392,7 +394,9 @@ Used in `app/api/subreddits/suggest/route.ts`.
 
 Model:
 
-- `gpt-5.1`
+- `OPENAI_SUBREDDIT_MODEL`
+- fallback: `OPENAI_WEB_SEARCH_MODEL`
+- fallback default: `gpt-4o-mini-search-preview`
 
 Temperature:
 
@@ -401,13 +405,15 @@ Temperature:
 System prompt:
 
 ```text
-You recommend real, high-signal subreddits for Reddit lead generation. Infer likely buyer communities, operator communities, workflow communities, problem-aware communities, and tool-evaluation communities from the product description. Return only JSON matching the schema.
+You recommend real, current, high-signal subreddits for Reddit lead generation. Use live web search evidence to find communities that are active, specific, and commercially relevant to the described offer. Return only JSON matching the schema.
 ```
 
 User prompt:
 
 ```text
-You are helping a Reddit lead generation app recommend subreddits to monitor.
+You are helping a Reddit lead generation app recommend subreddits to monitor for possible leads.
+
+Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.
 
 Return JSON with a "suggestions" array of subreddit names only.
 Rules:
@@ -417,15 +423,20 @@ Rules:
 - no duplicates
 - real subreddit names only
 - prioritize subreddits likely to produce high-intent leads for the described offer
+- prioritize subreddits where people ask for recommendations, alternatives, vendors, agencies, tools, software, workflows, outsourcing help, or operational advice related to the campaign
 - include a mix of:
   - direct buyer-intent communities
   - operator or practitioner communities
   - adjacent workflow communities
   - communities where people ask for recommendations or tool alternatives
+- prefer focused mid-signal and high-signal communities over huge generic communities when both are available
+- prefer communities that are currently active and public
 - infer relevant subreddits from the description even if the exact product category is not named
 - avoid overly generic low-signal communities when more targeted ones exist
 - avoid NSFW communities
-- return between 10 and 14 subreddits
+- avoid meme, entertainment, giveaway, and karma-farming communities
+- think in terms of likely lead sources, not just topical relevance
+- return between 32 and 40 subreddits
 
 Campaign lead type: <PRODUCT|SERVICE>
 Campaign description:
@@ -437,6 +448,13 @@ Known keywords:
 Already selected:
 <existing subreddits or none>
 ```
+
+Config used by this endpoint:
+
+- `OPENAI_SUBREDDIT_MODEL` for the search-capable model override
+- `OPENAI_WEB_SEARCH_MODEL` as a shared fallback override
+- `OPENAI_SUBREDDIT_WEB_SEARCH_CONTEXT_SIZE` with `low | medium | high`
+- `OPENAI_SUBREDDIT_VALIDATION_TIMEOUT_MS` for live Reddit validation fetches
 
 ## 6. Queue and Worker Pipeline
 

@@ -68,7 +68,7 @@ type ParsedFeedEntry = {
   content: string | null;
 };
 
-export async function fetchSubredditPosts(subreddit: string, limit = 100) {
+export async function fetchSubredditPosts(subreddit: string, limit?: number) {
   const xml = await fetchSubredditRss(subreddit);
   return parseSubredditPostsFromRss(xml, { subreddit, limit });
 }
@@ -97,13 +97,16 @@ export function parseSubredditPostsFromRss(
   },
 ) {
   const subreddit = normalizeSubredditName(options.subreddit);
-  const limit = Math.max(1, options.limit ?? 100);
   const entries = parseFeedEntries(xml);
-
-  return entries
+  const posts = entries
     .map((entry) => mapParsedEntryToPost(entry, subreddit))
-    .filter((post): post is RedditPost => post !== null)
-    .slice(0, limit);
+    .filter((post): post is RedditPost => post !== null);
+
+  if (typeof options.limit === "number") {
+    return posts.slice(0, Math.max(1, options.limit));
+  }
+
+  return posts;
 }
 
 function parseFeedEntries(xml: string) {

@@ -9,7 +9,7 @@ import { workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
 import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } from "./queues";
 
-const SEMANTIC_MATCH_THRESHOLD = 0.5;
+const SEMANTIC_MATCH_THRESHOLD = 0.55;
 const SEMANTIC_FILTER_MODEL = "semantic-threshold-filter";
 const SEMANTIC_FILTER_PROMPT_VERSION = "semantic-threshold-v1";
 

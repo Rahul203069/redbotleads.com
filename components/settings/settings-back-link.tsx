@@ -12,7 +12,7 @@ export function SettingsBackLink({
   return (
     <div className="flex items-center justify-start">
       <Link
-        className="inline-flex items-center gap-3 rounded-2xl border border-[#3f3f46] bg-[#18181b] px-5 py-3 text-sm font-semibold text-[#fafafa] shadow-[0_16px_36px_rgba(0,0,0,0.28)] transition hover:border-[#52525b] hover:bg-[#1f1f23]"
+        className="inline-flex items-center gap-3 rounded-full bg-[#1f1f1f] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition hover:bg-[#252525] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
         href={href}
       >
         <span aria-hidden="true">{"<-"}</span>

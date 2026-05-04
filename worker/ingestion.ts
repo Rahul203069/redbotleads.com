@@ -19,8 +19,6 @@ import {
   ingestionQueueName,
 } from "./queues";
 
-const MAX_POSTS_PER_SUBREDDIT = 100;
-
 const worker = new Worker<InitialIngestJobData>(
   ingestionQueueName,
   async (job) => {
@@ -92,7 +90,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
         { fetchedPosts, promisingPosts, fetchedComments, matchedItems, createdLeads },
       );
 
-      const posts = await fetchSubredditPosts(subreddit, MAX_POSTS_PER_SUBREDDIT);
+      const posts = await fetchSubredditPosts(subreddit);
       fetchedPosts += posts.length;
 
       for (const post of posts) {

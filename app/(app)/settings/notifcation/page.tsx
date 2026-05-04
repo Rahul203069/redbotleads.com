@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { AppHeader } from "@/components/app/app-header";
 import { NotificationSettingsForm } from "@/components/settings/notification-settings-form";
 import { SettingsBackLink } from "@/components/settings/settings-back-link";
 import { auth } from "@/lib/auth";
@@ -29,12 +28,20 @@ export default async function NotificationSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <AppHeader
-        eyebrow="Notification"
-        title="Notification settings"
-        description="Manage email alerts and Slack delivery preferences."
-      />
+    <div className="space-y-5">
+      <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
+        <div className="max-w-2xl">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#b3b3b3]">
+            Notification
+          </p>
+          <h1 className="mt-3 text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.5rem]">
+            Notification settings
+          </h1>
+          <p className="mt-3 text-[15px] leading-6 text-[#cbcbcb]">
+            Manage email alerts and Slack delivery preferences.
+          </p>
+        </div>
+      </section>
 
       <SettingsBackLink />
 
@@ -45,9 +52,11 @@ export default async function NotificationSettingsPage() {
           defaultSlackWebhookUrl={user.slackWebhookUrl ?? ""}
         />
 
-        <div className="rounded-[24px] border border-[#27272a] bg-[#111113] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.28)]">
-          <div className="text-xs uppercase tracking-[0.24em] text-[#71717a]">What this does</div>
-          <div className="mt-4 space-y-3 text-sm leading-6 text-[#a1a1aa]">
+        <div className="rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+            What this does
+          </div>
+          <div className="mt-4 space-y-3 text-[14px] leading-6 text-[#cbcbcb]">
             <p>Email alerts control whether this user can receive notification deliveries when lead alerts are enabled.</p>
             <p>The Slack field stores an incoming webhook URL for future Slack-based notification delivery.</p>
             <p>You can leave Slack empty and still use email-only alerts.</p>

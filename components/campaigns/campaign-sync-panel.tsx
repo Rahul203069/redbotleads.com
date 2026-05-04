@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { getCampaignSyncStatuses } from "@/actions/campaigns";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 type CampaignSync = {
   status: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
@@ -30,8 +29,6 @@ type CampaignSync = {
     durationMs?: number;
   } | null;
 } | null;
-
-const stageOrder = ["QUEUED", "FETCHING_POSTS", "CLASSIFYING", "COMPLETED"] as const;
 
 function isStatsJson(
   value: unknown,
@@ -64,32 +61,24 @@ function normalizeSync(sync: unknown): CampaignSync {
 export function CampaignSyncPanel({
   campaignId,
   initialSync,
+  nextSyncLabel,
+  summaryMetrics,
 }: {
   campaignId: string;
   initialSync: CampaignSync;
+  nextSyncLabel: string;
+  summaryMetrics: {
+    lastSync: string;
+    nextSync: string;
+    leadCount: number;
+    highIntentCount: number;
+  };
 }) {
   const [isPending, startTransition] = useTransition();
   const [sync, setSync] = useState<CampaignSync>(initialSync);
 
   const isLive = sync?.status === "QUEUED" || sync?.status === "PROCESSING";
-  const stats = sync?.statsJson;
-
-  const visibleStats = useMemo(
-    () =>
-      [
-        { label: "Posts fetched", value: stats?.fetchedPosts },
-        { label: "Promising posts", value: stats?.promisingPosts },
-        { label: "Matched items", value: stats?.matchedItems },
-        { label: "Leads created", value: stats?.createdLeads },
-        { label: "Leads embedded", value: stats?.embeddedLeads },
-        { label: "Semantic checked", value: stats?.semanticCheckedLeads },
-        { label: "Semantic passed", value: stats?.semanticPassedLeads },
-        { label: "Semantic filtered", value: stats?.semanticFilteredLeads },
-        { label: "Leads classified", value: stats?.classifiedLeads },
-        { label: "Duration", value: typeof stats?.durationMs === "number" ? formatDuration(stats.durationMs) : undefined },
-      ].filter((item) => item.value !== undefined),
-    [stats],
-  );
+  const progress = getProgress(sync);
 
   useEffect(() => {
     setSync(initialSync);
@@ -116,105 +105,72 @@ export function CampaignSyncPanel({
   }, [campaignId, isLive]);
 
   return (
-    <Card className="overflow-hidden border-[#27272a] bg-[linear-gradient(180deg,rgba(17,17,19,0.98),rgba(9,9,11,0.98))]">
-      <CardHeader className="border-b border-[#27272a] pb-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <section className="space-y-5">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Last sync" value={summaryMetrics.lastSync} />
+        <MetricCard label="Next sync" value={summaryMetrics.nextSync} />
+        <MetricCard label="Leads found" value={String(summaryMetrics.leadCount)} />
+        <MetricCard label="Strong matches" value={String(summaryMetrics.highIntentCount)} />
+      </div>
+
+      <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
+        <div className="flex flex-col gap-4 border-b border-white/8 pb-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <CardTitle className="text-[1.65rem]">Campaign sync</CardTitle>
-            <CardDescription>
-              Live worker state from the database. This updates while ingestion and classification are running.
-            </CardDescription>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#b3b3b3]">
+              Current message
+            </p>
+            <h2 className="mt-2 text-[24px] font-bold tracking-tight text-[#ffffff]">Worker progress</h2>
+            <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
+              {sync?.message ?? "No sync activity yet. Activate or manually run the campaign to start processing."}
+            </p>
+            {sync?.lastError ? (
+              <p className="mt-3 text-[14px] leading-6 text-[#f3727f]">{sync.lastError}</p>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={sync?.status ?? "IDLE"} />
-            <StageBadge stage={sync?.stage ?? "NONE"} />
-            {isPending && isLive ? <span className="text-xs uppercase tracking-[0.22em] text-[#71717a]">Refreshing</span> : null}
+            {isPending && isLive ? (
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                Refreshing
+              </span>
+            ) : null}
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-6 p-6">
-        <div className="rounded-[24px] border border-[#27272a] bg-[#111113]/80 p-5">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs uppercase tracking-[0.26em] text-[#d4d4d8]">Current update</p>
-              <p className="mt-3 text-base leading-7 text-[#fafafa]">
-                {sync?.message ?? "No sync activity yet. Create or activate a campaign to queue work."}
+
+        <div className="mt-5 rounded-[20px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                Processing
               </p>
-              {sync?.lastError ? <p className="mt-3 text-sm leading-6 text-[#fca5a5]">{sync.lastError}</p> : null}
+              <p className="mt-2 text-[28px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">
+                {progress}%
+              </p>
             </div>
-            <div className="grid min-w-full gap-3 text-sm lg:min-w-[290px]">
-              <TimeRow label="Queued" value={sync?.queuedAt} />
-              <TimeRow label="Started" value={sync?.startedAt} />
-              <TimeRow label="Heartbeat" value={sync?.lastHeartbeat} />
-              <TimeRow label="Finished" value={sync?.completedAt ?? sync?.failedAt} />
-            </div>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+              {getProgressLabel(sync, nextSyncLabel)}
+            </p>
+          </div>
+
+          <div className="mt-4 h-2 rounded-full bg-[#121212]">
+            <div
+              className={`h-2 rounded-full transition-all ${
+                sync?.status === "FAILED" ? "bg-[#f3727f]" : "bg-[#1ed760]"
+              }`}
+              style={{ width: `${progress}%` }}
+            />
           </div>
         </div>
-
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {stageOrder.map((stage, index) => (
-            <StageStep key={stage} stage={stage} sync={sync} index={index + 1} />
-          ))}
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {visibleStats.length > 0 ? (
-            visibleStats.map((stat) => <StatTile key={stat.label} label={stat.label} value={String(stat.value)} />)
-          ) : (
-            <div className="rounded-2xl border border-dashed border-[#27272a] bg-[#111113]/70 px-4 py-6 text-sm leading-6 text-[#a1a1aa] md:col-span-2 xl:col-span-4">
-              No worker metrics stored yet for this campaign.
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      </section>
+    </section>
   );
 }
 
-function StageStep({
-  stage,
-  sync,
-  index,
-}: {
-  stage: (typeof stageOrder)[number];
-  sync: CampaignSync;
-  index: number;
-}) {
-  const state = getStageState(stage, sync);
-  const tone =
-    state === "complete"
-      ? "border-[#52525b] bg-[#18181b] text-[#fafafa]"
-      : state === "active"
-        ? "border-[#3f3f46] bg-[#141416] text-[#e4e4e7]"
-        : state === "failed"
-          ? "border-[#7f1d1d] bg-[#241313] text-[#fca5a5]"
-          : "border-[#27272a] bg-[#111113] text-[#71717a]";
-
+function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className={`rounded-2xl border p-4 ${tone}`}>
-      <div className="text-[11px] uppercase tracking-[0.24em]">Step {index}</div>
-      <div className="mt-3 text-sm font-medium uppercase tracking-[0.16em]">{formatStage(stage)}</div>
-      <div className="mt-3 text-xs uppercase tracking-[0.2em]">
-        {state === "complete" ? "Done" : state === "active" ? "In progress" : state === "failed" ? "Failed" : "Waiting"}
-      </div>
-    </div>
-  );
-}
-
-function StatTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-[#27272a] bg-[#111113]/75 p-4">
-      <div className="text-[11px] uppercase tracking-[0.22em] text-[#71717a]">{label}</div>
-      <div className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[#fafafa]">{value}</div>
-    </div>
-  );
-}
-
-function TimeRow({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-[#27272a] pb-2 last:border-b-0 last:pb-0">
-      <span className="text-xs uppercase tracking-[0.22em] text-[#71717a]">{label}</span>
-      <span className="text-sm text-[#d4d4d8]">{value ? formatDateTime(value) : "Not set"}</span>
+    <div className="rounded-[20px] bg-[#181818] px-5 py-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">{label}</div>
+      <div className="mt-3 text-[2rem] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">{value}</div>
     </div>
   );
 }
@@ -226,77 +182,72 @@ function StatusBadge({
 }) {
   const tone =
     status === "COMPLETED"
-      ? "border-[#52525b] bg-[#18181b] text-[#fafafa]"
+      ? "bg-[#121212] text-[#1ed760]"
       : status === "FAILED"
-        ? "border-[#7f1d1d] bg-[#241313] text-[#fca5a5]"
+        ? "bg-[#121212] text-[#f3727f]"
         : status === "PROCESSING"
-          ? "border-[#3f3f46] bg-[#141416] text-[#e4e4e7]"
-          : "border-[#27272a] bg-[#18181b] text-[#d4d4d8]";
+          ? "bg-[#121212] text-[#ffffff]"
+          : "bg-[#121212] text-[#cbcbcb]";
 
-  return <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] ${tone}`}>{status}</span>;
-}
-
-function StageBadge({
-  stage,
-}: {
-  stage: NonNullable<CampaignSync>["stage"];
-}) {
   return (
-    <span className="inline-flex items-center rounded-full border border-[#27272a] bg-[#111113] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[#a1a1aa]">
-      {formatStage(stage)}
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${tone}`}>
+      {status}
     </span>
   );
 }
 
-function getStageState(stage: (typeof stageOrder)[number], sync: CampaignSync) {
+function getProgress(sync: CampaignSync) {
   if (!sync) {
-    return "pending";
+    return 0;
   }
 
-  const currentIndex = stageOrder.indexOf(
-    sync.stage === "FAILED" || sync.stage === "NONE" ? "QUEUED" : (sync.stage as (typeof stageOrder)[number]),
-  );
-  const targetIndex = stageOrder.indexOf(stage);
-
-  if (sync.status === "FAILED" && targetIndex === currentIndex) {
-    return "failed";
+  if (sync.status === "COMPLETED") {
+    return 100;
   }
 
-  if (targetIndex < currentIndex || sync.status === "COMPLETED") {
-    return "complete";
+  if (sync.status === "FAILED") {
+    return sync.stage === "CLASSIFYING" ? 82 : sync.stage === "FETCHING_POSTS" ? 45 : 12;
   }
 
-  if (targetIndex === currentIndex && (sync.status === "QUEUED" || sync.status === "PROCESSING")) {
-    return "active";
+  if (sync.status === "QUEUED") {
+    return 12;
   }
 
-  return "pending";
+  if (sync.stage === "FETCHING_POSTS") {
+    return 45;
+  }
+
+  if (sync.stage === "CLASSIFYING") {
+    return 82;
+  }
+
+  return 0;
 }
 
-function formatStage(stage: NonNullable<CampaignSync>["stage"]) {
-  if (stage === "CLASSIFYING") {
-    return "PROCESSING LEADS";
+function getProgressLabel(sync: CampaignSync, nextSyncLabel: string) {
+  if (!sync || sync.status === "IDLE") {
+    return nextSyncLabel;
   }
 
-  return stage.replace(/_/g, " ");
-}
-
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
-
-function formatDuration(durationMs: number) {
-  const seconds = Math.max(1, Math.round(durationMs / 1000));
-  if (seconds < 60) {
-    return `${seconds}s`;
+  if (sync.status === "FAILED") {
+    return "Needs attention";
   }
 
-  const minutes = Math.floor(seconds / 60);
-  const remainderSeconds = seconds % 60;
-  return `${minutes}m ${remainderSeconds}s`;
+  if (sync.status === "COMPLETED") {
+    return "Finished";
+  }
+
+  if (sync.status === "QUEUED") {
+    return "Queued";
+  }
+
+  if (sync.stage === "FETCHING_POSTS") {
+    return "Fetching";
+  }
+
+  if (sync.stage === "CLASSIFYING") {
+    return "Classifying";
+  }
+
+  return "Running";
 }

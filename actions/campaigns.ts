@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
-import { enqueueInitialIngest } from "@/worker/queues";
+import { enqueueInitialIngest, getInitialIngestQueueFailureMessage } from "@/worker/queues";
 
 const singleWordKeyword = z
   .string()
@@ -150,24 +150,15 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     } catch (error) {
       console.error("Campaign queue failed", error);
 
-      try {
-        await prisma.campaign.delete({
-          where: {
-            id: campaignId,
-          },
-        });
-      } catch (rollbackError) {
-        console.error("Campaign rollback failed after queue failure", rollbackError);
-      }
-
       revalidatePath("/campaigns");
+      revalidatePath(`/campaigns/${campaignId}`);
 
       return {
-        status: "error",
+        status: "success",
         message:
           error instanceof Error
-            ? `Campaign was not created because initial sync queueing failed: ${error.message}`
-            : "Campaign was not created because initial sync queueing failed.",
+            ? `Campaign created, but initial sync could not be queued: ${getInitialIngestQueueFailureMessage(error)}`
+            : "Campaign created, but initial sync could not be queued.",
       };
     }
   }
@@ -489,9 +480,15 @@ export async function manualSyncCampaign(formData: FormData): Promise<CampaignAc
   } catch (error) {
     console.error("Manual campaign sync failed", error);
 
+    revalidatePath("/campaigns");
+    revalidatePath(`/campaigns/${campaign.id}`);
+
     return {
       status: "error",
-      message: error instanceof Error ? `Manual sync failed: ${error.message}` : "Manual sync failed.",
+      message:
+        error instanceof Error
+          ? `Manual sync failed: ${getInitialIngestQueueFailureMessage(error)}`
+          : "Manual sync failed.",
     };
   }
 

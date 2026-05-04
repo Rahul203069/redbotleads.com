@@ -1,6 +1,6 @@
 import { Queue } from "bullmq";
 
-import { markCampaignQueued } from "./campaign-sync";
+import { markCampaignFailed, markCampaignQueued } from "./campaign-sync";
 import { workerRedisConnection } from "./config";
 
 export const ingestionQueueName = "ingestion";
@@ -51,6 +51,12 @@ export type NotificationJobData = {
   channel: "EMAIL" | "SLACK";
 };
 
+export type InitialIngestQueueFailureCode =
+  | "REDIS_UNAVAILABLE"
+  | "WORKER_UNAVAILABLE"
+  | "QUEUE_ADD_FAILED"
+  | "QUEUE_TIMEOUT";
+
 export const ingestionQueue = new Queue(ingestionQueueName, {
   connection: workerRedisConnection,
 });
@@ -77,14 +83,159 @@ function buildJobId(...parts: string[]) {
     .join("--");
 }
 
-export async function enqueueInitialIngest(data: InitialIngestJobData) {
-  await markCampaignQueued(data.campaignId, "Campaign queued for first Reddit sync.");
+class InitialIngestQueueError extends Error {
+  code: InitialIngestQueueFailureCode;
 
-  return ingestionQueue.add("INITIAL_INGEST", data, {
-    jobId: buildJobId("initial-ingest", data.campaignId),
-    removeOnComplete: 100,
-    removeOnFail: 200,
+  constructor(code: InitialIngestQueueFailureCode, message: string) {
+    super(message);
+    this.code = code;
+    this.name = "InitialIngestQueueError";
+  }
+}
+
+function isInitialIngestQueueError(error: unknown): error is InitialIngestQueueError {
+  return error instanceof InitialIngestQueueError;
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string, code: InitialIngestQueueFailureCode) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new InitialIngestQueueError(code, `${label} timed out after ${ms}ms.`));
+    }, ms);
   });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  });
+}
+
+export async function checkRedisHealth() {
+  try {
+    await withTimeout(
+      ingestionQueue.waitUntilReady(),
+      5000,
+      "Redis queue readiness check",
+      "QUEUE_TIMEOUT",
+    );
+
+    const client = await ingestionQueue.client;
+    const redisResponse = await withTimeout(client.ping(), 5000, "Redis ping", "QUEUE_TIMEOUT");
+
+    if (redisResponse !== "PONG") {
+      throw new InitialIngestQueueError(
+        "REDIS_UNAVAILABLE",
+        "Redis is connected but did not return a healthy PONG response.",
+      );
+    }
+  } catch (error) {
+    if (isInitialIngestQueueError(error)) {
+      throw error;
+    }
+
+    throw new InitialIngestQueueError(
+      "REDIS_UNAVAILABLE",
+      error instanceof Error ? error.message : "Redis is not reachable.",
+    );
+  }
+}
+
+export async function checkIngestionWorkerHealth() {
+  try {
+    const workersCount = await withTimeout(
+      ingestionQueue.getWorkersCount(),
+      5000,
+      "Ingestion worker availability check",
+      "QUEUE_TIMEOUT",
+    );
+
+    if (workersCount < 1) {
+      throw new InitialIngestQueueError(
+        "WORKER_UNAVAILABLE",
+        "No live ingestion workers are connected to the queue.",
+      );
+    }
+  } catch (error) {
+    if (isInitialIngestQueueError(error)) {
+      throw error;
+    }
+
+    throw new InitialIngestQueueError(
+      "WORKER_UNAVAILABLE",
+      error instanceof Error ? error.message : "Ingestion workers are not reachable.",
+    );
+  }
+}
+
+export async function enqueueInitialIngest(data: InitialIngestJobData) {
+  try {
+    await checkRedisHealth();
+    await checkIngestionWorkerHealth();
+
+    let job;
+
+    try {
+      job = await withTimeout(
+        ingestionQueue.add("INITIAL_INGEST", data, {
+          jobId: buildJobId("initial-ingest", data.campaignId),
+          removeOnComplete: 100,
+          removeOnFail: 200,
+        }),
+        5000,
+        "Initial ingest enqueue",
+        "QUEUE_TIMEOUT",
+      );
+    } catch (error) {
+      if (isInitialIngestQueueError(error)) {
+        throw error;
+      }
+
+      throw new InitialIngestQueueError(
+        "QUEUE_ADD_FAILED",
+        error instanceof Error ? error.message : "The initial ingest job could not be added to the queue.",
+      );
+    }
+
+    await markCampaignQueued(data.campaignId, "Campaign queued for first Reddit sync.");
+
+    return job;
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? `Initial sync queueing failed: ${error.message}`
+        : "Initial sync queueing failed before the job could be added.";
+
+    try {
+      await markCampaignFailed(data.campaignId, "FAILED", message);
+    } catch (statusError) {
+      console.error("Campaign sync status update failed after queue failure", statusError);
+    }
+
+    throw error;
+  }
+}
+
+export function getInitialIngestQueueFailureMessage(error: unknown) {
+  if (!isInitialIngestQueueError(error)) {
+    return error instanceof Error ? error.message : "The initial sync queue is unavailable.";
+  }
+
+  if (error.code === "REDIS_UNAVAILABLE") {
+    return "Redis server is not reachable.";
+  }
+
+  if (error.code === "WORKER_UNAVAILABLE") {
+    return "The ingestion worker is not live.";
+  }
+
+  if (error.code === "QUEUE_ADD_FAILED") {
+    return "The initial sync job could not be added to the queue.";
+  }
+
+  return error.message;
 }
 
 export async function enqueueLeadClassification(data: ClassificationJobData) {

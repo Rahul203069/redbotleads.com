@@ -2,8 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
 export type ClassifiedLead = {
   id: string;
   score: number;
@@ -74,16 +72,18 @@ export function ClassifiedLeadsPanel({
   );
 
   return (
-    <Card>
-      <CardHeader>
+    <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
+      <div className="border-b border-white/8 pb-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <CardTitle>Classified leads</CardTitle>
-            <CardDescription>All leads scored for this campaign, with quick filters for label and workflow status.</CardDescription>
+            <h2 className="text-[24px] font-bold tracking-tight text-[#ffffff]">Classified leads</h2>
+            <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
+              All leads scored for this campaign, with quick filters for label and workflow status.
+            </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             {isRefreshing ? (
-              <div className="self-end text-xs uppercase tracking-[0.22em] text-[#71717a] sm:self-auto">
+              <div className="self-end text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3] sm:self-auto">
                 Refreshing
               </div>
             ) : null}
@@ -114,36 +114,58 @@ export function ClassifiedLeadsPanel({
             />
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </div>
+      <div className="space-y-4 pt-5">
         {classifiedLeads.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#27272a] bg-[#111113] px-4 py-8 text-sm leading-6 text-[#a1a1aa]">
+          <div className="rounded-[20px] bg-[#1f1f1f] px-4 py-8 text-[14px] leading-6 text-[#cbcbcb]">
             No classified leads yet. Once the worker finishes scoring, they will appear here.
           </div>
         ) : filteredLeads.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#27272a] bg-[#111113] px-4 py-8 text-sm leading-6 text-[#a1a1aa]">
+          <div className="rounded-[20px] bg-[#1f1f1f] px-4 py-8 text-[14px] leading-6 text-[#cbcbcb]">
             No classified leads match the active filters.
           </div>
         ) : (
           filteredLeads.map((lead) => (
-            <article key={lead.id} className="rounded-2xl border border-[#27272a] bg-[#111113] p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="neutral">{lead.redditItem.type}</Badge>
-                    <Badge tone={lead.label === "HIGH" ? "good" : lead.label === "MED" ? "neutral" : "muted"}>{lead.label}</Badge>
-                    <Badge tone="muted">{lead.status}</Badge>
-                    {lead.ai?.category ? <Badge tone="neutral">{lead.ai.category}</Badge> : null}
-                    {lead.ai?.intentType ? <Badge tone="neutral">{formatEnumLabel(lead.ai.intentType)}</Badge> : null}
-                    {lead.ai?.buyerStage ? <Badge tone="neutral">{formatEnumLabel(lead.ai.buyerStage)}</Badge> : null}
+            <article
+              key={lead.id}
+              className="rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] transition hover:bg-[linear-gradient(180deg,#252525_0%,#1f1f1f_100%)]"
+            >
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0 flex-1 space-y-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge tone="neutral">{lead.redditItem.type}</Badge>
+                        <Badge tone={lead.label === "HIGH" ? "good" : lead.label === "MED" ? "neutral" : "muted"}>{lead.label}</Badge>
+                        <Badge tone="muted">{lead.status}</Badge>
+                        {lead.ai?.category ? <Badge tone="neutral">{lead.ai.category}</Badge> : null}
+                      </div>
+                      <p className="mt-3 text-[16px] font-semibold leading-6 text-[#fdfdfd]">
+                        {lead.redditItem.title || lead.redditItem.body || "Untitled Reddit item"}
+                      </p>
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                        <span>r/{lead.redditItem.subreddit}</span>
+                        <span>Scored {formatDate(lead.createdAt)}</span>
+                        {lead.ai?.intentType ? <span>{formatEnumLabel(lead.ai.intentType)}</span> : null}
+                        {lead.ai?.buyerStage ? <span>{formatEnumLabel(lead.ai.buyerStage)}</span> : null}
+                      </div>
+                    </div>
+                    <div className="rounded-[18px] bg-[#121212] px-4 py-3 text-right shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Score</div>
+                      <div className="mt-2 text-[30px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">{lead.score}</div>
+                    </div>
                   </div>
-                  <p className="mt-3 text-sm font-medium leading-6 text-[#fafafa]">
-                    {lead.redditItem.title || lead.redditItem.body || "Untitled Reddit item"}
-                  </p>
+
+                  <div className="rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+                    <p className="text-[14px] leading-6 text-[#cbcbcb]">
+                      {lead.ai?.summary?.trim() || "No summary available yet for this lead."}
+                    </p>
+                  </div>
+
                   {getContentPreview(lead.redditItem.body, lead.redditItem.description) ? (
-                    <div className="mt-3 rounded-2xl border border-[#27272a] bg-[#161618] px-3 py-3">
-                      <div className="text-[11px] uppercase tracking-[0.18em] text-[#71717a]">Post content</div>
-                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#d4d4d8]">
+                    <div className="border-t border-white/8 pt-4">
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Source text</div>
+                      <p className="mt-2 text-[14px] leading-6 text-[#bdbdbd]">
                         {getContentPreview(
                           lead.redditItem.body,
                           lead.redditItem.description,
@@ -152,7 +174,7 @@ export function ClassifiedLeadsPanel({
                       </p>
                       {hasLongContent(lead.redditItem.body, lead.redditItem.description) ? (
                         <button
-                          className="mt-3 text-xs uppercase tracking-[0.18em] text-[#fafafa] transition-colors hover:text-[#d4d4d8]"
+                          className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#fdfdfd] transition-colors hover:text-[#cbcbcb]"
                           onClick={() =>
                             setExpandedLeadIds((current) =>
                               current.includes(lead.id)
@@ -167,61 +189,26 @@ export function ClassifiedLeadsPanel({
                       ) : null}
                     </div>
                   ) : null}
-                  <div className="mt-3 rounded-2xl border border-[#27272a] bg-[#18181b] px-3 py-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-[#71717a]">Summary</div>
-                    <p className="mt-2 text-sm leading-6 text-[#d4d4d8]">
-                      {lead.ai?.summary?.trim() || "No summary available yet for this lead."}
-                    </p>
-                  </div>
-                  {lead.ai?.disqualifier?.trim() ? (
-                    <div className="mt-3 rounded-2xl border border-[#27272a] bg-[#18181b] px-3 py-3">
-                      <div className="text-[11px] uppercase tracking-[0.18em] text-[#71717a]">Disqualifier</div>
-                      <p className="mt-2 text-sm leading-6 text-[#d4d4d8]">{lead.ai.disqualifier}</p>
-                    </div>
-                  ) : null}
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-[#71717a]">
-                    <span>r/{lead.redditItem.subreddit}</span>
-                    <span>Scored {formatDate(lead.createdAt)}</span>
-                  </div>
-                  {lead.redditItem.url ? (
-                    <div className="mt-3">
+
+                  <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
+                    {lead.redditItem.url ? (
                       <a
-                        className="inline-flex items-center rounded-md border border-[#52525b] bg-[#18181b] px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] text-[#fafafa] transition-colors hover:border-[#71717a] hover:bg-[#212124] hover:text-[#e4e4e7]"
+                        className="inline-flex items-center rounded-full bg-[#1ed760] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#121212] transition hover:scale-[1.02] hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
                         href={lead.redditItem.url}
                         rel="noreferrer"
                         target="_blank"
                       >
                         View on Reddit
                       </a>
-                    </div>
-                  ) : null}
-                  {lead.ai?.painPoints.length ? (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {lead.ai.painPoints.map((painPoint) => (
-                        <span
-                          key={painPoint}
-                          className="rounded-full border border-[#27272a] bg-[#18181b] px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] text-[#a1a1aa]"
-                        >
-                          {painPoint}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-                <div className="shrink-0 text-right">
-                  <div className="text-xs uppercase tracking-[0.2em] text-[#71717a]">Score</div>
-                  <div className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#fafafa]">{lead.score}</div>
-                  <div className="mt-3 text-xs uppercase tracking-[0.2em] text-[#71717a]">Semantic</div>
-                  <div className="mt-1 text-sm font-medium text-[#d4d4d8]">
-                    {lead.semanticScore !== null ? lead.semanticScore.toFixed(3) : "N/A"}
+                    ) : null}
                   </div>
                 </div>
               </div>
             </article>
           ))
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }
 
@@ -240,9 +227,9 @@ function FilterGroup<T extends string>({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-xs uppercase tracking-[0.22em] text-[#71717a]">{label}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">{label}</span>
       <select
-        className="flex h-11 min-w-[140px] rounded-xl border border-[#27272a] bg-[#09090b] px-3 text-sm text-[#fafafa] outline-none transition-colors focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10"
+        className="flex h-11 min-w-[160px] rounded-full border-none bg-[#121212] px-4 text-sm text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/10"
         onChange={(event) => onChange(event.target.value as T)}
         value={value}
       >
@@ -265,13 +252,13 @@ function Badge({
 }) {
   const className =
     tone === "good"
-      ? "border-[#52525b] bg-[#18181b] text-[#fafafa]"
+      ? "bg-[#121212] text-[#1ed760]"
       : tone === "muted"
-        ? "border-[#27272a] bg-[#18181b] text-[#a1a1aa]"
-        : "border-[#27272a] bg-[#18181b] text-[#fafafa]";
+        ? "bg-[#121212] text-[#b3b3b3]"
+        : "bg-[#121212] text-[#fdfdfd]";
 
   return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.18em] ${className}`}>
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${className}`}>
       {children}
     </span>
   );

@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { AppHeader } from "@/components/app/app-header";
 import { SettingsBackLink } from "@/components/settings/settings-back-link";
 import { auth } from "@/lib/auth";
 
@@ -12,12 +11,20 @@ export default async function ProfileSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <AppHeader
-        eyebrow="Profile"
-        title="Profile settings"
-        description="Your account identity inside this workspace."
-      />
+    <div className="space-y-5">
+      <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
+        <div className="max-w-2xl">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#b3b3b3]">
+            Profile
+          </p>
+          <h1 className="mt-3 text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.5rem]">
+            Profile settings
+          </h1>
+          <p className="mt-3 text-[15px] leading-6 text-[#cbcbcb]">
+            Your account identity inside this workspace.
+          </p>
+        </div>
+      </section>
 
       <SettingsBackLink />
 
@@ -31,9 +38,9 @@ export default async function ProfileSettingsPage() {
 
 function ProfileField({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[24px] border border-[#27272a] bg-[#111113] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.28)]">
-      <div className="text-xs uppercase tracking-[0.24em] text-[#71717a]">{label}</div>
-      <div className="mt-4 text-lg font-medium text-[#fafafa]">{value}</div>
+    <div className="rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">{label}</div>
+      <div className="mt-4 text-[18px] font-semibold text-[#fdfdfd]">{value}</div>
     </div>
   );
 }

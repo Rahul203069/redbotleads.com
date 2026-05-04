@@ -8,7 +8,6 @@ import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog"
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
 import { ManualSyncButton } from "@/components/campaigns/manual-sync-button";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
@@ -69,62 +68,84 @@ export default async function CampaignDetailPage({
     notFound();
   }
 
-  const lastSyncSource = campaign.sync?.completedAt ?? campaign.sync?.failedAt ?? campaign.sync?.lastHeartbeat ?? campaign.updatedAt;
+  const lastSyncSource =
+    campaign.sync?.completedAt ??
+    campaign.sync?.failedAt ??
+    campaign.sync?.lastHeartbeat ??
+    campaign.updatedAt;
   const lastSync = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
   }).format(lastSyncSource);
-  const nextSync = campaign.isActive ? "Awaiting worker" : "Paused";
+  const nextSyncSource = new Date(lastSyncSource.getTime() + 24 * 60 * 60 * 1000);
+  const nextSync = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(nextSyncSource);
   const initialLeads = await getCampaignLeadViewsForUser({
     campaignId: campaign.id,
     userId: session.user.id,
   });
+  const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null);
+  const leadCount = classifiedLeads.length;
+  const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-[28px] border border-[#27312E] bg-[#111716]/92 p-6 shadow-[0_24px_64px_rgba(0,0,0,0.28)] lg:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs uppercase tracking-[0.3em] text-[#d4d4d8]">Campaign detail</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#F3F5F4] lg:text-4xl">{campaign.name}</h1>
-            <p className="mt-3 max-w-3xl truncate text-sm leading-7 text-[#9DA9A4] lg:text-base">
-              {campaign.description || "No campaign description added yet."}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-stretch gap-3 lg:max-w-[50%] lg:justify-end">
+    <div className="space-y-5">
+      <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <Link className="w-full sm:w-auto" href="/campaigns">
-              <Button className="w-full sm:w-auto" variant="secondary">
+              <Button
+                className="w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
+                variant="secondary"
+              >
                 <BackIcon />
                 Back to campaigns
               </Button>
             </Link>
-            <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
-            <ManualSyncButton campaignId={campaign.id} disabled={!campaign.isActive} />
-            <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
-            <EditCampaignDialog
-              campaign={{
-                id: campaign.id,
-                name: campaign.name,
-                leadType: campaign.leadType,
-                description: campaign.description,
-                keywords: campaign.keywords,
-                negativeKeywords: campaign.negativeKeywords,
-                subreddits: campaign.subreddits,
-                recentDays: campaign.recentDays,
-                minScoreToAlert: campaign.minScoreToAlert,
-                isActive: campaign.isActive,
-              }}
-            />
+            <div className="flex flex-wrap items-stretch gap-3 lg:justify-end">
+              <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
+              <ManualSyncButton campaignId={campaign.id} disabled={!campaign.isActive} />
+              <EditCampaignDialog
+                campaign={{
+                  id: campaign.id,
+                  name: campaign.name,
+                  leadType: campaign.leadType,
+                  description: campaign.description,
+                  keywords: campaign.keywords,
+                  negativeKeywords: campaign.negativeKeywords,
+                  subreddits: campaign.subreddits,
+                  recentDays: campaign.recentDays,
+                  minScoreToAlert: campaign.minScoreToAlert,
+                  isActive: campaign.isActive,
+                }}
+              />
+              <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0 max-w-3xl">
+            <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
+              {campaign.name}
+            </h1>
+            <p className="mt-3 max-w-[60ch] truncate text-[15px] leading-6 text-[#cbcbcb]">
+              {campaign.description || "No campaign description added yet."}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
+              <HeroChip label={`${leadCount} lead${leadCount === 1 ? "" : "s"} tracked`} />
+              <HeroChip label={`${highIntentCount} strong match${highIntentCount === 1 ? "" : "es"}`} />
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="grid gap-5 xl:grid-cols-[1fr_1fr_1fr_1fr]">
-        <MetricCard label="Last sync" value={lastSync} />
-        <MetricCard label="Next sync" value={nextSync} />
-      </div>
+        </div>
+      </section>
 
       <CampaignSyncPanel
         campaignId={campaign.id}
@@ -157,25 +178,29 @@ export default async function CampaignDetailPage({
               }
             : null
         }
+        nextSyncLabel={nextSync}
+        summaryMetrics={{
+          lastSync,
+          nextSync,
+          leadCount,
+          highIntentCount,
+        }}
       />
 
       <CampaignLeadsLiveSection
         campaignId={campaign.id}
-        initialLeads={initialLeads}
+        initialLeads={classifiedLeads}
         initialSyncStatus={campaign.sync?.status ?? "IDLE"}
       />
     </div>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function HeroChip({ label }: { label: string }) {
   return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="text-xs uppercase tracking-[0.24em] text-[#6F7C77]">{label}</div>
-        <div className="mt-3 text-3xl font-semibold tracking-[-0.03em] text-[#F3F5F4]">{value}</div>
-      </CardContent>
-    </Card>
+    <span className="inline-flex items-center rounded-full bg-[#121212] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+      {label}
+    </span>
   );
 }
 

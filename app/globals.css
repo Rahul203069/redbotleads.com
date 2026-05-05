@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
 @import "tailwindcss";
 
 :root {
@@ -81,4 +83,25 @@ input {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+@theme {
+  --color-brand-green: #1ed760;
+  --color-brand-green-hover: #3be477;
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* body {
+  background-color: #050505;
+  color: #fafafa;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+} */
+
+::selection {
+  background: rgba(30, 215, 96, 0.3);
+  color: white;
 }

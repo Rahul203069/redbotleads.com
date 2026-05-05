@@ -34,11 +34,9 @@ const MIN_VISIBLE_LEAD_SCORE = 40;
 
 export function ClassifiedLeadsPanel({
   leads,
-  isRefreshing = false,
   syncStatus = "IDLE",
 }: {
   leads: ClassifiedLead[];
-  isRefreshing?: boolean;
   syncStatus?: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 }) {
   const [labelFilter, setLabelFilter] = useState<(typeof labelFilters)[number]>("ALL");
@@ -90,11 +88,6 @@ export function ClassifiedLeadsPanel({
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            {isRefreshing ? (
-              <div className="self-end text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3] sm:self-auto">
-                Refreshing
-              </div>
-            ) : null}
             {!isProcessing ? (
               <>
                 <FilterGroup

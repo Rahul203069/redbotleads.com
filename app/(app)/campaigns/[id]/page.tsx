@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
+import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
 
@@ -69,10 +70,12 @@ export default async function CampaignDetailPage({
     notFound();
   }
 
+  const sync = await reconcileCampaignSyncState(campaign.id);
+
   const lastSyncSource =
-    campaign.sync?.completedAt ??
-    campaign.sync?.failedAt ??
-    campaign.sync?.lastHeartbeat ??
+    sync?.completedAt ??
+    sync?.failedAt ??
+    sync?.lastHeartbeat ??
     campaign.updatedAt;
   const nextSyncSource = new Date(lastSyncSource.getTime() + 24 * 60 * 60 * 1000);
   const nextSync = new Intl.DateTimeFormat("en-US", {
@@ -146,18 +149,18 @@ export default async function CampaignDetailPage({
         campaignId={campaign.id}
         initialLeads={classifiedLeads}
         initialSync={
-          campaign.sync
+          sync
             ? {
-                status: campaign.sync.status,
-                stage: campaign.sync.stage,
-                message: campaign.sync.message,
-                lastError: campaign.sync.lastError,
-                queuedAt: campaign.sync.queuedAt?.toISOString() ?? null,
-                startedAt: campaign.sync.startedAt?.toISOString() ?? null,
-                completedAt: campaign.sync.completedAt?.toISOString() ?? null,
-                failedAt: campaign.sync.failedAt?.toISOString() ?? null,
-                lastHeartbeat: campaign.sync.lastHeartbeat?.toISOString() ?? null,
-                statsJson: campaign.sync.statsJson as {
+                status: sync.status,
+                stage: sync.stage,
+                message: sync.message,
+                lastError: sync.lastError,
+                queuedAt: sync.queuedAt?.toISOString() ?? null,
+                startedAt: sync.startedAt?.toISOString() ?? null,
+                completedAt: sync.completedAt?.toISOString() ?? null,
+                failedAt: sync.failedAt?.toISOString() ?? null,
+                lastHeartbeat: sync.lastHeartbeat?.toISOString() ?? null,
+                statsJson: sync.statsJson as {
                   fetchedPosts?: number;
                   promisingPosts?: number;
                   fetchedComments?: number;
@@ -170,7 +173,7 @@ export default async function CampaignDetailPage({
                   classifiedLeads?: number;
                   durationMs?: number;
                 } | null,
-                updatedAt: campaign.sync.updatedAt.toISOString(),
+                updatedAt: sync.updatedAt.toISOString(),
               }
             : null
         }

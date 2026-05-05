@@ -14,7 +14,7 @@ export function CampaignLeadsLiveSection({
   initialLeads: ClassifiedLead[];
   initialSyncStatus: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 }) {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [leads, setLeads] = useState(initialLeads);
   const [syncStatus, setSyncStatus] = useState(initialSyncStatus);
 
@@ -53,5 +53,5 @@ export function CampaignLeadsLiveSection({
     };
   }, [campaignId, shouldPoll]);
 
-  return <ClassifiedLeadsPanel isRefreshing={isPending} leads={leads} syncStatus={syncStatus} />;
+  return <ClassifiedLeadsPanel leads={leads} syncStatus={syncStatus} />;
 }

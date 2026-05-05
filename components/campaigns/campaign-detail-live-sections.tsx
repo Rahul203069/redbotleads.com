@@ -47,7 +47,7 @@ export function CampaignDetailLiveSections({
   initialSync: CampaignSync;
   nextSyncLabel: string;
 }) {
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [leads, setLeads] = useState(initialLeads);
   const [sync, setSync] = useState<CampaignSync>(initialSync);
 
@@ -78,7 +78,7 @@ export function CampaignDetailLiveSections({
       });
     };
 
-    const intervalId = window.setInterval(poll, 5000);
+    const intervalId = window.setInterval(poll, 10000);
 
     return () => {
       window.clearInterval(intervalId);
@@ -114,7 +114,6 @@ export function CampaignDetailLiveSections({
   return (
     <>
       <CampaignSyncPanel
-        isRefreshing={isPending && isLive}
         nextSyncLabel={nextSyncLabel}
         summaryMetrics={{
           lastSync,
@@ -124,7 +123,7 @@ export function CampaignDetailLiveSections({
         }}
         sync={sync}
       />
-      <ClassifiedLeadsPanel isRefreshing={isPending && isLive} leads={classifiedLeads} syncStatus={sync?.status ?? "IDLE"} />
+      <ClassifiedLeadsPanel leads={classifiedLeads} syncStatus={sync?.status ?? "IDLE"} />
     </>
   );
 }

@@ -30,7 +30,6 @@ export function CampaignSyncPanel({
   sync,
   nextSyncLabel,
   summaryMetrics,
-  isRefreshing = false,
 }: {
   sync: CampaignSync;
   nextSyncLabel: string;
@@ -40,9 +39,7 @@ export function CampaignSyncPanel({
     leadCount: number;
     highIntentCount: number;
   };
-  isRefreshing?: boolean;
 }) {
-  const isLive = sync?.status === "QUEUED" || sync?.status === "PROCESSING";
   const progress = getProgress(sync);
 
   return (
@@ -71,11 +68,6 @@ export function CampaignSyncPanel({
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={sync?.status ?? "IDLE"} />
-            {isRefreshing && isLive ? (
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
-                Refreshing
-              </span>
-            ) : null}
           </div>
         </div>
 

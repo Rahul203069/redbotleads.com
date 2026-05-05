@@ -9,6 +9,7 @@ import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { enqueueInitialIngest, getInitialIngestQueueFailureMessage } from "@/worker/queues";
+import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const singleWordKeyword = z
   .string()
@@ -568,7 +569,7 @@ export async function getCampaignSyncStatuses(campaignIds: string[]) {
     return [];
   }
 
-  const campaigns = await prisma.campaign.findMany({
+  const accessibleCampaigns = await prisma.campaign.findMany({
     where: {
       userId: session.user.id,
       id: {
@@ -577,23 +578,15 @@ export async function getCampaignSyncStatuses(campaignIds: string[]) {
     },
     select: {
       id: true,
-      sync: {
-        select: {
-          status: true,
-          stage: true,
-          message: true,
-          lastError: true,
-          queuedAt: true,
-          startedAt: true,
-          completedAt: true,
-          failedAt: true,
-          lastHeartbeat: true,
-          statsJson: true,
-          updatedAt: true,
-        },
-      },
     },
   });
+
+  const campaigns = await Promise.all(
+    accessibleCampaigns.map(async (campaign) => ({
+      id: campaign.id,
+      sync: await reconcileCampaignSyncState(campaign.id),
+    })),
+  );
 
   return campaigns.map((campaign) => ({
     campaignId: campaign.id,

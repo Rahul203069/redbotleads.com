@@ -95,6 +95,12 @@ export const UserScalarFieldEnum = {
   plan: 'plan',
   emailAlertsEnabled: 'emailAlertsEnabled',
   slackWebhookUrl: 'slackWebhookUrl',
+  slackTeamId: 'slackTeamId',
+  slackTeamName: 'slackTeamName',
+  slackChannelId: 'slackChannelId',
+  slackChannelName: 'slackChannelName',
+  slackConfigurationUrl: 'slackConfigurationUrl',
+  slackAuthedUserId: 'slackAuthedUserId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

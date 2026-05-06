@@ -17,6 +17,8 @@ export default async function SlackNotificationTestPage() {
       id: session.user.id,
     },
     select: {
+      slackChannelName: true,
+      slackTeamName: true,
       slackWebhookUrl: true,
     },
   });
@@ -48,7 +50,12 @@ export default async function SlackNotificationTestPage() {
       <div className="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
         <SlackTestForm
           hasWebhook={hasWebhook}
-          webhookLabel={hasWebhook ? "Connected" : "Not connected"}
+          webhookLabel={
+            hasWebhook
+              ? [user.slackTeamName, user.slackChannelName ? `#${user.slackChannelName}` : null].filter(Boolean).join(" / ") ||
+                "Connected"
+              : "Not connected"
+          }
         />
 
         <div className="rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
@@ -56,9 +63,9 @@ export default async function SlackNotificationTestPage() {
             What this tests
           </div>
           <div className="mt-4 space-y-3 text-[14px] leading-6 text-[#cbcbcb]">
-            <p>This sends a message straight from a server action to the Slack incoming webhook saved on your account.</p>
+            <p>This sends a message straight from a server action to the Slack channel connected through OAuth.</p>
             <p>It is useful for checking whether Slack delivery reaches your desktop and mobile app before waiting for a real lead alert.</p>
-            <p>If no webhook is saved yet, go back and connect Slack first.</p>
+            <p>If Slack is not connected yet, go back and connect Slack first.</p>
           </div>
         </div>
       </div>

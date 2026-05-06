@@ -58,7 +58,7 @@ export function SlackTestForm({
           </span>
         </div>
         <div className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
-          Send a manual test notification to your saved Slack webhook and confirm it arrives on mobile.
+          Send a manual test notification to your connected Slack channel and confirm it arrives on mobile.
         </div>
       </div>
 
@@ -66,7 +66,7 @@ export function SlackTestForm({
         <span className="text-sm font-medium text-[#fdfdfd]">Message</span>
         <textarea
           className="min-h-[140px] rounded-[18px] border-none bg-[#121212] px-4 py-4 text-sm text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors placeholder:text-[#71717a] focus-visible:ring-2 focus-visible:ring-white/10"
-          defaultValue="Test notification from Redbot Leads. If this appears in Slack, webhook delivery is working."
+          defaultValue="Test notification from Redbot Leads. If this appears in Slack, OAuth delivery is working."
           name="message"
           placeholder="Type any message to send to Slack..."
         />
@@ -86,7 +86,7 @@ export function SlackTestForm({
 
       <div className="flex items-center justify-between gap-4 border-t border-white/8 pt-5">
         <div className="text-sm leading-6 text-[#b3b3b3]">
-          The test uses the webhook already saved on your account. No worker queue is involved.
+          The test uses the Slack connection already saved on your account. No worker queue is involved.
         </div>
         <Button
           disabled={isPending || !hasWebhook}

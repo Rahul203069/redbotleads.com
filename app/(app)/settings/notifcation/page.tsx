@@ -5,8 +5,15 @@ import { SettingsBackLink } from "@/components/settings/settings-back-link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export default async function NotificationSettingsPage() {
+export default async function NotificationSettingsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    slack?: string;
+  }>;
+}) {
   const session = await auth();
+  const params = await searchParams;
 
   if (!session?.user?.id) {
     redirect("/login");
@@ -19,6 +26,9 @@ export default async function NotificationSettingsPage() {
     select: {
       email: true,
       emailAlertsEnabled: true,
+      slackChannelName: true,
+      slackConfigurationUrl: true,
+      slackTeamName: true,
       slackWebhookUrl: true,
     },
   });
@@ -38,12 +48,24 @@ export default async function NotificationSettingsPage() {
             Notification settings
           </h1>
           <p className="mt-3 text-[15px] leading-6 text-[#cbcbcb]">
-            Manage email alerts and Slack delivery preferences.
+            Manage Slack alerts and email fallback delivery.
           </p>
         </div>
       </section>
 
       <SettingsBackLink />
+
+      {params?.slack ? (
+        <div
+          className={
+            params.slack === "connected"
+              ? "rounded-[18px] bg-[#102414] px-4 py-3 text-sm text-[#d1fae5] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
+              : "rounded-[18px] bg-[#241313] px-4 py-3 text-sm text-[#fee2e2] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
+          }
+        >
+          {getSlackStatusMessage(params.slack)}
+        </div>
+      ) : null}
 
       <div className="flex items-center justify-start">
         <a
@@ -58,7 +80,9 @@ export default async function NotificationSettingsPage() {
         <NotificationSettingsForm
           deliveryEmail={user.email ?? "your account email"}
           defaultEmailAlertsEnabled={user.emailAlertsEnabled}
-          defaultSlackWebhookUrl={user.slackWebhookUrl ?? ""}
+          slackChannelName={user.slackChannelName}
+          slackConfigurationUrl={user.slackConfigurationUrl}
+          slackTeamName={user.slackTeamName}
         />
 
         <div className="rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
@@ -66,12 +90,21 @@ export default async function NotificationSettingsPage() {
             What this does
           </div>
           <div className="mt-4 space-y-3 text-[14px] leading-6 text-[#cbcbcb]">
-            <p>Email alerts control whether this user can receive notification deliveries when lead alerts are enabled.</p>
-            <p>The Slack field stores an incoming webhook URL used for lead alerts that cross the campaign threshold.</p>
-            <p>You can leave Slack empty and still use email-only alerts.</p>
+            <p>Email alerts control whether this user receives fallback lead alerts when Slack is not connected.</p>
+            <p>Slack OAuth lets you choose a workspace channel without pasting webhook URLs manually.</p>
+            <p>You can leave Slack empty and receive alerts at the email address on this account.</p>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+function getSlackStatusMessage(status: string) {
+  if (status === "connected") return "Slack connected. Lead alerts will use the selected Slack channel first.";
+  if (status === "denied") return "Slack connection was cancelled.";
+  if (status === "missing_config") return "Slack OAuth is not configured on this app.";
+  if (status === "invalid_state") return "Slack connection could not be verified. Please try again.";
+  if (status === "missing_webhook") return "Slack did not return an incoming webhook. Check the Slack app scopes.";
+  return `Slack connection failed: ${status}`;
 }

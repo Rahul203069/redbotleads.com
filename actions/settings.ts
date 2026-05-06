@@ -23,15 +23,7 @@ export async function updateNotificationSettings(
     };
   }
 
-  const slackWebhookUrl = String(formData.get("slackWebhookUrl") ?? "").trim();
   const emailAlertsEnabled = formData.get("emailAlertsEnabled") === "on";
-
-  if (slackWebhookUrl && !isValidSlackWebhookUrl(slackWebhookUrl)) {
-    return {
-      status: "error",
-      message: "Enter a valid Slack webhook URL.",
-    };
-  }
 
   try {
     await prisma.user.update({
@@ -40,7 +32,6 @@ export async function updateNotificationSettings(
       },
       data: {
         emailAlertsEnabled,
-        slackWebhookUrl: slackWebhookUrl || null,
       },
     });
   } catch (error) {
@@ -57,6 +48,53 @@ export async function updateNotificationSettings(
   return {
     status: "success",
     message: "Notification settings updated.",
+  };
+}
+
+export async function disconnectSlack(
+  _prevState: SettingsActionState,
+): Promise<SettingsActionState> {
+  void _prevState;
+
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to disconnect Slack.",
+    };
+  }
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: session.user.id,
+      },
+      data: {
+        slackAuthedUserId: null,
+        slackChannelId: null,
+        slackChannelName: null,
+        slackConfigurationUrl: null,
+        slackTeamId: null,
+        slackTeamName: null,
+        slackWebhookUrl: null,
+      },
+    });
+  } catch (error) {
+    console.error("Slack disconnect failed", error);
+
+    return {
+      status: "error",
+      message: error instanceof Error ? `Disconnect failed: ${error.message}` : "Could not disconnect Slack.",
+    };
+  }
+
+  revalidatePath("/settings");
+  revalidatePath("/settings/notifcation");
+
+  return {
+    status: "success",
+    message: "Slack disconnected.",
   };
 }
 

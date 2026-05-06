@@ -37,6 +37,8 @@ Required environment variables:
 ```env
 DATABASE_URL=
 REDIS_URL=
+RESEND_API_KEY=
+EMAIL_FROM=
 ```
 
 Current status:

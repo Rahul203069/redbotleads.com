@@ -33,6 +33,12 @@ export type UserMinAggregateOutputType = {
   plan: string | null
   emailAlertsEnabled: boolean | null
   slackWebhookUrl: string | null
+  slackTeamId: string | null
+  slackTeamName: string | null
+  slackChannelId: string | null
+  slackChannelName: string | null
+  slackConfigurationUrl: string | null
+  slackAuthedUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +52,12 @@ export type UserMaxAggregateOutputType = {
   plan: string | null
   emailAlertsEnabled: boolean | null
   slackWebhookUrl: string | null
+  slackTeamId: string | null
+  slackTeamName: string | null
+  slackChannelId: string | null
+  slackChannelName: string | null
+  slackConfigurationUrl: string | null
+  slackAuthedUserId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +71,12 @@ export type UserCountAggregateOutputType = {
   plan: number
   emailAlertsEnabled: number
   slackWebhookUrl: number
+  slackTeamId: number
+  slackTeamName: number
+  slackChannelId: number
+  slackChannelName: number
+  slackConfigurationUrl: number
+  slackAuthedUserId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +92,12 @@ export type UserMinAggregateInputType = {
   plan?: true
   emailAlertsEnabled?: true
   slackWebhookUrl?: true
+  slackTeamId?: true
+  slackTeamName?: true
+  slackChannelId?: true
+  slackChannelName?: true
+  slackConfigurationUrl?: true
+  slackAuthedUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +111,12 @@ export type UserMaxAggregateInputType = {
   plan?: true
   emailAlertsEnabled?: true
   slackWebhookUrl?: true
+  slackTeamId?: true
+  slackTeamName?: true
+  slackChannelId?: true
+  slackChannelName?: true
+  slackConfigurationUrl?: true
+  slackAuthedUserId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +130,12 @@ export type UserCountAggregateInputType = {
   plan?: true
   emailAlertsEnabled?: true
   slackWebhookUrl?: true
+  slackTeamId?: true
+  slackTeamName?: true
+  slackChannelId?: true
+  slackChannelName?: true
+  slackConfigurationUrl?: true
+  slackAuthedUserId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +222,12 @@ export type UserGroupByOutputType = {
   plan: string
   emailAlertsEnabled: boolean
   slackWebhookUrl: string | null
+  slackTeamId: string | null
+  slackTeamName: string | null
+  slackChannelId: string | null
+  slackChannelName: string | null
+  slackConfigurationUrl: string | null
+  slackAuthedUserId: string | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -220,6 +262,12 @@ export type UserWhereInput = {
   plan?: Prisma.StringFilter<"User"> | string
   emailAlertsEnabled?: Prisma.BoolFilter<"User"> | boolean
   slackWebhookUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  slackTeamId?: Prisma.StringNullableFilter<"User"> | string | null
+  slackTeamName?: Prisma.StringNullableFilter<"User"> | string | null
+  slackChannelId?: Prisma.StringNullableFilter<"User"> | string | null
+  slackChannelName?: Prisma.StringNullableFilter<"User"> | string | null
+  slackConfigurationUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  slackAuthedUserId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -239,6 +287,12 @@ export type UserOrderByWithRelationInput = {
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackTeamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackTeamName?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackChannelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackChannelName?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackConfigurationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackAuthedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
@@ -261,6 +315,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   plan?: Prisma.StringFilter<"User"> | string
   emailAlertsEnabled?: Prisma.BoolFilter<"User"> | boolean
   slackWebhookUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  slackTeamId?: Prisma.StringNullableFilter<"User"> | string | null
+  slackTeamName?: Prisma.StringNullableFilter<"User"> | string | null
+  slackChannelId?: Prisma.StringNullableFilter<"User"> | string | null
+  slackChannelName?: Prisma.StringNullableFilter<"User"> | string | null
+  slackConfigurationUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  slackAuthedUserId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -280,6 +340,12 @@ export type UserOrderByWithAggregationInput = {
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackTeamId?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackTeamName?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackChannelId?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackChannelName?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackConfigurationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  slackAuthedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -299,6 +365,12 @@ export type UserScalarWhereWithAggregatesInput = {
   plan?: Prisma.StringWithAggregatesFilter<"User"> | string
   emailAlertsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   slackWebhookUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  slackTeamId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  slackTeamName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  slackChannelId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  slackChannelName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  slackConfigurationUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  slackAuthedUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -312,6 +384,12 @@ export type UserCreateInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -331,6 +409,12 @@ export type UserUncheckedCreateInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -350,6 +434,12 @@ export type UserUpdateInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -369,6 +459,12 @@ export type UserUncheckedUpdateInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -388,6 +484,12 @@ export type UserCreateManyInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -401,6 +503,12 @@ export type UserUpdateManyMutationInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -414,6 +522,12 @@ export type UserUncheckedUpdateManyInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -427,6 +541,12 @@ export type UserCountOrderByAggregateInput = {
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrder
+  slackTeamId?: Prisma.SortOrder
+  slackTeamName?: Prisma.SortOrder
+  slackChannelId?: Prisma.SortOrder
+  slackChannelName?: Prisma.SortOrder
+  slackConfigurationUrl?: Prisma.SortOrder
+  slackAuthedUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -440,6 +560,12 @@ export type UserMaxOrderByAggregateInput = {
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrder
+  slackTeamId?: Prisma.SortOrder
+  slackTeamName?: Prisma.SortOrder
+  slackChannelId?: Prisma.SortOrder
+  slackChannelName?: Prisma.SortOrder
+  slackConfigurationUrl?: Prisma.SortOrder
+  slackAuthedUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -453,6 +579,12 @@ export type UserMinOrderByAggregateInput = {
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrder
+  slackTeamId?: Prisma.SortOrder
+  slackTeamName?: Prisma.SortOrder
+  slackChannelId?: Prisma.SortOrder
+  slackChannelName?: Prisma.SortOrder
+  slackConfigurationUrl?: Prisma.SortOrder
+  slackAuthedUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -575,6 +707,12 @@ export type UserCreateWithoutPasswordInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -593,6 +731,12 @@ export type UserUncheckedCreateWithoutPasswordInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -627,6 +771,12 @@ export type UserUpdateWithoutPasswordInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -645,6 +795,12 @@ export type UserUncheckedUpdateWithoutPasswordInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -663,6 +819,12 @@ export type UserCreateWithoutAccountsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
@@ -681,6 +843,12 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
@@ -715,6 +883,12 @@ export type UserUpdateWithoutAccountsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
@@ -733,6 +907,12 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -751,6 +931,12 @@ export type UserCreateWithoutSessionsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -769,6 +955,12 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -803,6 +995,12 @@ export type UserUpdateWithoutSessionsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -821,6 +1019,12 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -839,6 +1043,12 @@ export type UserCreateWithoutRedditAccountsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -857,6 +1067,12 @@ export type UserUncheckedCreateWithoutRedditAccountsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -891,6 +1107,12 @@ export type UserUpdateWithoutRedditAccountsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -909,6 +1131,12 @@ export type UserUncheckedUpdateWithoutRedditAccountsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -927,6 +1155,12 @@ export type UserCreateWithoutCampaignsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -945,6 +1179,12 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -979,6 +1219,12 @@ export type UserUpdateWithoutCampaignsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -997,6 +1243,12 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1015,6 +1267,12 @@ export type UserCreateWithoutLeadsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1033,6 +1291,12 @@ export type UserUncheckedCreateWithoutLeadsInput = {
   plan?: string
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1067,6 +1331,12 @@ export type UserUpdateWithoutLeadsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1085,6 +1355,12 @@ export type UserUncheckedUpdateWithoutLeadsInput = {
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1170,6 +1446,12 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   plan?: boolean
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: boolean
+  slackTeamId?: boolean
+  slackTeamName?: boolean
+  slackChannelId?: boolean
+  slackChannelName?: boolean
+  slackConfigurationUrl?: boolean
+  slackAuthedUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -1190,6 +1472,12 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   plan?: boolean
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: boolean
+  slackTeamId?: boolean
+  slackTeamName?: boolean
+  slackChannelId?: boolean
+  slackChannelName?: boolean
+  slackConfigurationUrl?: boolean
+  slackAuthedUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1203,6 +1491,12 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   plan?: boolean
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: boolean
+  slackTeamId?: boolean
+  slackTeamName?: boolean
+  slackChannelId?: boolean
+  slackChannelName?: boolean
+  slackConfigurationUrl?: boolean
+  slackAuthedUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1216,11 +1510,17 @@ export type UserSelectScalar = {
   plan?: boolean
   emailAlertsEnabled?: boolean
   slackWebhookUrl?: boolean
+  slackTeamId?: boolean
+  slackTeamName?: boolean
+  slackChannelId?: boolean
+  slackChannelName?: boolean
+  slackConfigurationUrl?: boolean
+  slackAuthedUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "plan" | "emailAlertsEnabled" | "slackWebhookUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "plan" | "emailAlertsEnabled" | "slackWebhookUrl" | "slackTeamId" | "slackTeamName" | "slackChannelId" | "slackChannelName" | "slackConfigurationUrl" | "slackAuthedUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -1252,6 +1552,12 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     plan: string
     emailAlertsEnabled: boolean
     slackWebhookUrl: string | null
+    slackTeamId: string | null
+    slackTeamName: string | null
+    slackChannelId: string | null
+    slackChannelName: string | null
+    slackConfigurationUrl: string | null
+    slackAuthedUserId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1691,6 +1997,12 @@ export interface UserFieldRefs {
   readonly plan: Prisma.FieldRef<"User", 'String'>
   readonly emailAlertsEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly slackWebhookUrl: Prisma.FieldRef<"User", 'String'>
+  readonly slackTeamId: Prisma.FieldRef<"User", 'String'>
+  readonly slackTeamName: Prisma.FieldRef<"User", 'String'>
+  readonly slackChannelId: Prisma.FieldRef<"User", 'String'>
+  readonly slackChannelName: Prisma.FieldRef<"User", 'String'>
+  readonly slackConfigurationUrl: Prisma.FieldRef<"User", 'String'>
+  readonly slackAuthedUserId: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

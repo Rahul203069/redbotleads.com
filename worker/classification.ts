@@ -65,6 +65,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       },
       user: {
         select: {
+          email: true,
           emailAlertsEnabled: true,
           slackWebhookUrl: true,
         },
@@ -168,7 +169,11 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
 
     const crossedAlertThreshold = result.score >= lead.campaign.minScoreToAlert;
 
-    if (crossedAlertThreshold && lead.user.slackWebhookUrl && !lead.notifications.some((notification) => notification.channel === "SLACK")) {
+    const hasSlackWebhook = Boolean(lead.user.slackWebhookUrl?.trim());
+    const hasSlackNotification = lead.notifications.some((notification) => notification.channel === "SLACK");
+    const hasEmailNotification = lead.notifications.some((notification) => notification.channel === "EMAIL");
+
+    if (crossedAlertThreshold && hasSlackWebhook && !hasSlackNotification) {
       const notification = await prisma.notification.create({
         data: {
           leadId: lead.id,
@@ -184,6 +189,29 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         notificationId: notification.id,
         leadId: lead.id,
         channel: "SLACK",
+      });
+    } else if (
+      crossedAlertThreshold &&
+      !hasSlackWebhook &&
+      lead.user.emailAlertsEnabled &&
+      lead.user.email?.trim() &&
+      !hasEmailNotification
+    ) {
+      const notification = await prisma.notification.create({
+        data: {
+          leadId: lead.id,
+          channel: "EMAIL",
+          status: "PENDING",
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await enqueueNotification({
+        notificationId: notification.id,
+        leadId: lead.id,
+        channel: "EMAIL",
       });
     }
 
@@ -218,7 +246,8 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         label: result.label,
         category: result.category,
         crossedAlertThreshold,
-        slackNotificationsEnabled: Boolean(lead.user.slackWebhookUrl),
+        emailFallbackEnabled: Boolean(!hasSlackWebhook && lead.user.emailAlertsEnabled && lead.user.email?.trim()),
+        slackNotificationsEnabled: hasSlackWebhook,
       },
       "Lead classified with OpenAI",
     );

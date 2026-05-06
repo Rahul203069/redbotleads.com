@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 
 import { disconnectSlack, updateNotificationSettings, type SettingsActionState } from "@/actions/settings";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ export function NotificationSettingsForm({
   slackTeamName?: string | null;
 }) {
   const { toast } = useToast();
+  const emailFormRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(updateNotificationSettings, initialState);
   const [disconnectState, disconnectAction, isDisconnecting] = useActionState(disconnectSlack, initialState);
   const isSlackConnected = Boolean(slackTeamName || slackChannelName || slackConfigurationUrl);
@@ -65,7 +66,7 @@ export function NotificationSettingsForm({
 
   return (
     <div className="grid gap-5 rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-      <form action={formAction} className="grid gap-5">
+      <form ref={emailFormRef} action={formAction} className="grid gap-5">
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
             Notifications
@@ -80,10 +81,12 @@ export function NotificationSettingsForm({
             <input
               className="h-4 w-4 rounded border-[#27272a] bg-[#121212] accent-[#1ed760]"
               defaultChecked={defaultEmailAlertsEnabled}
+              disabled={isPending}
               name="emailAlertsEnabled"
+              onChange={() => emailFormRef.current?.requestSubmit()}
               type="checkbox"
             />
-            Email alerts enabled
+            {isPending ? "Saving email alerts..." : "Email alerts enabled"}
           </label>
           <div className="pl-7 text-sm text-[#b3b3b3]">
             When Slack is not connected, lead alerts will be sent to{" "}
@@ -97,17 +100,10 @@ export function NotificationSettingsForm({
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between gap-4 border-t border-white/8 pt-5">
+        <div className="border-t border-white/8 pt-5">
           <div className="text-sm leading-6 text-[#b3b3b3]">
-            Slack is used when connected. Email is used only as the fallback channel.
+            Email preference saves automatically. Slack is used when connected; email is only the fallback channel.
           </div>
-          <Button
-            disabled={isPending}
-            type="submit"
-            className="rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-none hover:bg-[#3be477]"
-          >
-            {isPending ? "Saving..." : "Save notifications"}
-          </Button>
         </div>
       </form>
 

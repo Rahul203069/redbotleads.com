@@ -47,7 +47,7 @@ export async function updateNotificationSettings(
 
   return {
     status: "success",
-    message: "Notification settings updated.",
+    message: "Email notification preference updated.",
   };
 }
 

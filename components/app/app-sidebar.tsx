@@ -29,10 +29,11 @@ const navItems = [
 ];
 
 type AppSidebarProps = {
+  shouldShowSlackConnect?: boolean;
   userLabel: string;
 };
 
-export function AppSidebar({ userLabel }: AppSidebarProps) {
+export function AppSidebar({ shouldShowSlackConnect = false, userLabel }: AppSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -100,6 +101,7 @@ export function AppSidebar({ userLabel }: AppSidebarProps) {
 
       <div className="mt-4 -m-5 -mb-4 rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Utility</p>
+        {shouldShowSlackConnect ? <SlackConnectCard /> : null}
         <div className="mt-4 rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
           <div className="min-w-0">
             <p className="text-[13px] font-bold text-[#ffffff]">Session active</p>
@@ -109,6 +111,75 @@ export function AppSidebar({ userLabel }: AppSidebarProps) {
         </div>
       </div>
     </aside>
+  );
+}
+
+function SlackConnectCard() {
+  return (
+    <div className="mt-4 overflow-hidden rounded-[20px] bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+      <div className="relative p-4">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(54,197,240,0.18),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(236,178,46,0.14),transparent_34%)]" />
+        <div className="relative">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[14px] bg-[#ffffff]">
+              <SlackLogo />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[13px] font-bold text-[#ffffff]">Slack alerts</p>
+              <p className="text-[11px] text-[#b3b3b3]">Not connected</p>
+            </div>
+          </div>
+          <p className="mt-3 text-[12px] leading-5 text-[#cbcbcb]">
+            Send high-intent lead alerts to your Slack channel.
+          </p>
+          <a
+            className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-full bg-[#ffffff] px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] transition hover:bg-[#e8e8e8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
+            href="/api/slack/install"
+          >
+            Connect Slack
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SlackLogo() {
+  return (
+    <svg aria-hidden="true" className="h-6 w-6" viewBox="0 0 122.8 122.8">
+      <path
+        d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9Z"
+        fill="#E01E5A"
+      />
+      <path
+        d="M32.3 77.6c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6Z"
+        fill="#E01E5A"
+      />
+      <path
+        d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2Z"
+        fill="#36C5F0"
+      />
+      <path
+        d="M45.2 32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3Z"
+        fill="#36C5F0"
+      />
+      <path
+        d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2Z"
+        fill="#2EB67D"
+      />
+      <path
+        d="M90.5 45.2c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3Z"
+        fill="#2EB67D"
+      />
+      <path
+        d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9Z"
+        fill="#ECB22E"
+      />
+      <path
+        d="M77.6 90.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6Z"
+        fill="#ECB22E"
+      />
+    </svg>
   );
 }
 

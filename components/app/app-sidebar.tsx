@@ -118,10 +118,10 @@ function SlackConnectCard() {
   return (
     <div className="mt-4 overflow-hidden rounded-[20px] bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
       <div className="relative p-4">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(54,197,240,0.18),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(236,178,46,0.14),transparent_34%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(30,215,96,0.12),transparent_38%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent)]" />
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[14px] bg-[#ffffff]">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1f1f1f] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
               <SlackLogo />
             </div>
             <div className="min-w-0">
@@ -133,7 +133,7 @@ function SlackConnectCard() {
             Send high-intent lead alerts to your Slack channel.
           </p>
           <a
-            className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-full bg-[#ffffff] px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] transition hover:bg-[#e8e8e8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
+            className="mt-4 inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-full bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] transition-colors duration-200 hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
             href="/api/slack/install"
           >
             Connect Slack

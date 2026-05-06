@@ -108,7 +108,7 @@ export function NotificationSettingsForm({
       </form>
 
       <div className="grid gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="text-sm font-medium text-[#fdfdfd]">Slack workspace</div>
             <div className="mt-1 text-sm text-[#b3b3b3]">
@@ -126,16 +126,16 @@ export function NotificationSettingsForm({
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center">
           <a
-            className="inline-flex h-10 items-center rounded-full bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] transition hover:bg-[#3be477]"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] transition hover:bg-[#3be477]"
             href="/api/slack/install"
           >
             {isSlackConnected ? "Reconnect Slack" : "Connect Slack"}
           </a>
           {slackConfigurationUrl ? (
             <a
-              className="inline-flex h-10 items-center rounded-full bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition hover:bg-[#252525]"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition hover:bg-[#252525]"
               href={slackConfigurationUrl}
               rel="noreferrer"
               target="_blank"
@@ -148,7 +148,7 @@ export function NotificationSettingsForm({
               <Button
                 disabled={isDisconnecting}
                 type="submit"
-                className="rounded-full border-none bg-[#2a1515] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#fecaca] shadow-none hover:bg-[#3a1c1c]"
+                className="w-full rounded-full border-none bg-[#2a1515] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#fecaca] shadow-none hover:bg-[#3a1c1c]"
               >
                 {isDisconnecting ? "Disconnecting..." : "Disconnect Slack"}
               </Button>

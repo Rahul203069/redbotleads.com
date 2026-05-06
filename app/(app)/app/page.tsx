@@ -255,9 +255,9 @@ export default async function AppHomePage() {
                   <p className="mt-3 line-clamp-2 text-[13px] leading-6 text-[#cbcbcb]">
                     {lead.ai?.summary || "Lead classified and ready for review."}
                   </p>
-                  <div className="mt-4 flex items-center justify-between">
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <span className="text-[12px] text-[#b3b3b3]">{formatDate(lead.createdAt)}</span>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <MiniLink href={`/campaigns/${lead.campaign.id}`}>Open</MiniLink>
                       {lead.redditItem.url ? (
                         <MiniExternalLink href={lead.redditItem.url}>Reddit</MiniExternalLink>

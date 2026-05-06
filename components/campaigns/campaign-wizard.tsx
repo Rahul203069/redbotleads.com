@@ -376,8 +376,8 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
           variant={triggerVariant}
           className={
             triggerVariant === "default"
-              ? "rounded-full border-none bg-[#1ed760] px-5 text-[13px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-none hover:bg-[#3be477]"
-              : "rounded-full border-none bg-[#1f1f1f] px-5 text-[13px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525]"
+              ? "w-full rounded-full border-none bg-[#1ed760] px-5 text-[13px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-none hover:bg-[#3be477] sm:w-auto"
+              : "w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[13px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
           }
         >
           {triggerLabel}
@@ -446,7 +446,7 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
               <div className="text-[12px] leading-5 text-[#b3b3b3]">
                 All fields are saved only after the final step completes.
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
                 {stepIndex > 0 && !isPending ? (
                   <Button
                     onClick={previousStep}

@@ -112,7 +112,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
       <DialogTrigger asChild>
-        <Button variant="secondary">
+        <Button className="w-full sm:w-auto" variant="secondary">
           <EditIcon />
           Edit campaign
         </Button>
@@ -234,7 +234,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
 
           <DialogFooter className="mt-8 border-t border-[#27312E] pt-5">
             <div className="text-sm text-[#6F7C77]">Changes will update this campaign immediately.</div>
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
               <Button onClick={() => handleOpenChange(false)} type="button" variant="secondary">
                 Cancel
               </Button>

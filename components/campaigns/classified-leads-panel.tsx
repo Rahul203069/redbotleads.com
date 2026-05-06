@@ -87,7 +87,7 @@ export function ClassifiedLeadsPanel({
               Only leads that passed semantic matching and finished LLM classification appear here.
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-3 lg:flex lg:flex-row">
             {!isProcessing ? (
               <>
                 <FilterGroup
@@ -157,7 +157,7 @@ export function ClassifiedLeadsPanel({
                         {lead.ai?.buyerStage ? <span>{formatEnumLabel(lead.ai.buyerStage)}</span> : null}
                       </div>
                     </div>
-                    <div className="rounded-[18px] bg-[#121212] px-4 py-3 text-right shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+                    <div className="w-full rounded-[18px] bg-[#121212] px-4 py-3 text-left shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-auto sm:text-right">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Score</div>
                       <div className="mt-2 text-[30px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">{lead.score}</div>
                     </div>
@@ -197,10 +197,10 @@ export function ClassifiedLeadsPanel({
                     </div>
                   ) : null}
 
-                  <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
+                  <div className="flex flex-wrap items-center gap-3 pt-1 sm:justify-end">
                     {lead.redditItem.url ? (
                       <a
-                        className="inline-flex items-center rounded-full bg-[#1ed760] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#121212] transition hover:scale-[1.02] hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
+                        className="inline-flex w-full items-center justify-center rounded-full bg-[#1ed760] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#121212] transition-colors hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] sm:w-auto"
                         href={lead.redditItem.url}
                         rel="noreferrer"
                         target="_blank"
@@ -222,7 +222,7 @@ export function ClassifiedLeadsPanel({
 function PendingLeadState() {
   return (
     <div className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-      <div className="border-b border-white/8 px-6 py-5">
+      <div className="border-b border-white/8 px-4 py-5 sm:px-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead review in progress</p>
@@ -240,7 +240,7 @@ function PendingLeadState() {
           </div>
         </div>
       </div>
-      <div className="space-y-4 px-6 py-5">
+      <div className="space-y-4 px-4 py-5 sm:px-6">
         <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
           <span className="text-[#ffffff]">What happens next</span>
           <span className="h-px flex-1 bg-white/8" />
@@ -323,7 +323,7 @@ function FilterGroup<T extends string>({
     <label className="grid gap-2">
       <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">{label}</span>
       <select
-        className="flex h-11 min-w-[160px] rounded-full border-none bg-[#121212] px-4 text-sm text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/10"
+        className="flex h-11 w-full rounded-full border-none bg-[#121212] px-4 text-sm text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-white/10 sm:min-w-[160px]"
         onChange={(event) => onChange(event.target.value as T)}
         value={value}
       >

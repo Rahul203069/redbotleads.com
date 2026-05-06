@@ -43,9 +43,9 @@ export function DeleteCampaignDialog({ campaignId, campaignName }: DeleteCampaig
   }
 
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
+      <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button className="text-[#f87171] hover:text-white" variant="secondary">
+        <Button className="w-full text-[#f87171] hover:text-white sm:w-auto" variant="secondary">
           <TrashIcon />
           Delete
         </Button>
@@ -66,7 +66,7 @@ export function DeleteCampaignDialog({ campaignId, campaignName }: DeleteCampaig
 
           <DialogFooter className="mt-6 border-t border-[#27312E] pt-5">
             <div className="text-sm text-[#6F7C77]">You can cancel safely if you only meant to pause or edit the campaign.</div>
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
               <Button onClick={() => setOpen(false)} type="button" variant="secondary">
                 Cancel
               </Button>

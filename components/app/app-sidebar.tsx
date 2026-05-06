@@ -37,7 +37,55 @@ export function AppSidebar({ shouldShowSlackConnect = false, userLabel }: AppSid
   const pathname = usePathname();
 
   return (
-    <aside className="flex h-full w-full flex-col rounded-[24px] bg-[linear-gradient(180deg,#121212_0%,#181818_100%)] p-4 text-[#ffffff] shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:min-h-full lg:p-5">
+    <>
+    <aside className="rounded-[24px] bg-[linear-gradient(180deg,#121212_0%,#181818_100%)] p-3 text-[#ffffff] shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:hidden">
+      <div className="flex items-center justify-between gap-3 rounded-[20px] bg-[#181818] p-3 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+        <div className="min-w-0">
+          <BrandLogo className="block text-[1.45rem] font-semibold tracking-[-0.07em]" />
+          <p className="mt-1 truncate text-[11px] text-[#b3b3b3]">{userLabel}</p>
+        </div>
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1f1f1f] text-[#1ed760] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+          <PulseIcon />
+        </div>
+      </div>
+
+      <nav className="mt-3 grid grid-cols-3 gap-2">
+        {navItems.map((item) => {
+          const active = pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex min-w-0 flex-col items-center gap-2 rounded-[18px] px-2 py-3 text-center transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]",
+                active
+                  ? "bg-[#1f1f1f] text-[#ffffff] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
+                  : "bg-[#181818] text-[#b3b3b3] hover:bg-[#1f1f1f] hover:text-[#ffffff]",
+              )}
+            >
+              <span
+                className={cn(
+                  "grid h-9 w-9 place-items-center rounded-full transition-colors duration-200",
+                  active
+                    ? "bg-[#121212] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
+                    : "bg-[#1f1f1f] text-[#b3b3b3]",
+                )}
+              >
+                <Icon />
+              </span>
+              <span className={cn("truncate text-[11px]", active ? "font-bold" : "font-normal")}>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {shouldShowSlackConnect ? <SlackConnectCard compact /> : null}
+      <LogoutButton className="mt-3 h-10 w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.18em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] focus-visible:ring-white/25 focus-visible:ring-offset-[#121212]" />
+    </aside>
+
+    <aside className="hidden h-full w-full flex-col rounded-[24px] bg-[linear-gradient(180deg,#121212_0%,#181818_100%)] p-4 text-[#ffffff] shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:flex lg:min-h-full lg:p-5">
       <div className="rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-2">
@@ -111,12 +159,13 @@ export function AppSidebar({ shouldShowSlackConnect = false, userLabel }: AppSid
         </div>
       </div>
     </aside>
+    </>
   );
 }
 
-function SlackConnectCard() {
+function SlackConnectCard({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="mt-4 overflow-hidden rounded-[20px] bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+    <div className={cn("overflow-hidden rounded-[20px] bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]", compact ? "mt-3" : "mt-4")}>
       <div className="relative p-4">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(30,215,96,0.12),transparent_38%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent)]" />
         <div className="relative">
@@ -129,7 +178,7 @@ function SlackConnectCard() {
               <p className="text-[11px] text-[#b3b3b3]">Not connected</p>
             </div>
           </div>
-          <p className="mt-3 text-[12px] leading-5 text-[#cbcbcb]">
+          <p className={cn("mt-3 text-[12px] leading-5 text-[#cbcbcb]", compact ? "max-w-[34ch]" : "")}>
             Send high-intent lead alerts to your Slack channel.
           </p>
           <a

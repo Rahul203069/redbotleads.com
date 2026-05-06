@@ -43,7 +43,7 @@ export function ManualSyncButton({
   }
 
   return (
-    <Button disabled={disabled || isPending} onClick={handleSync} variant="secondary">
+    <Button className="w-full sm:w-auto" disabled={disabled || isPending} onClick={handleSync} variant="secondary">
       <SyncIcon />
       {isPending ? "Queueing..." : "Manual sync"}
     </Button>

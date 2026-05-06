@@ -90,12 +90,12 @@ function SettingsCard({
       <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
         {title}
       </div>
-      <div className="mt-4 flex items-center justify-between gap-3">
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="text-[24px] font-bold tracking-[-0.04em] text-[#fdfdfd]">{title}</div>
         {status ? <StatusBadge status={status} /> : null}
       </div>
       <p className="mt-3 text-[14px] leading-6 text-[#cbcbcb]">{description}</p>
-      <div className="mt-6 flex items-center justify-between border-t border-white/8 pt-4">
+      <div className="mt-6 flex flex-col gap-3 border-t border-white/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-[14px] text-[#cbcbcb]">{meta}</span>
         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff]">
           Open

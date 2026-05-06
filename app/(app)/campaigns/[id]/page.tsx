@@ -106,7 +106,7 @@ export default async function CampaignDetailPage({
                 Back to campaigns
               </Button>
             </Link>
-            <div className="flex flex-wrap items-stretch gap-3 lg:justify-end">
+            <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-stretch lg:justify-end">
               <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
               <ManualSyncButton campaignId={campaign.id} disabled={!campaign.isActive} />
               <EditCampaignDialog
@@ -132,7 +132,7 @@ export default async function CampaignDetailPage({
             <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
               {campaign.name}
             </h1>
-            <p className="mt-3 max-w-[60ch] truncate text-[15px] leading-6 text-[#cbcbcb]">
+            <p className="mt-3 max-w-[60ch] text-[15px] leading-6 text-[#cbcbcb] sm:truncate">
               {campaign.description || "No campaign description added yet."}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">

@@ -85,10 +85,27 @@ export const notificationsQueue = new Queue(notificationsQueueName, {
   connection: workerRedisConnection,
 });
 
+const LIVE_JOB_STATES = ["waiting", "active", "delayed", "prioritized"] as const;
+const MAX_JOBS_TO_SCAN_PER_QUEUE = 500;
+
 function buildJobId(...parts: string[]) {
   return parts
     .map((part) => part.replace(/[:\s]+/g, "-"))
     .join("--");
+}
+
+async function getLiveIngestionJobForCampaign(campaignId: string) {
+  const jobs = await ingestionQueue.getJobs(
+    [...LIVE_JOB_STATES],
+    0,
+    MAX_JOBS_TO_SCAN_PER_QUEUE,
+    true,
+  );
+
+  return jobs.find((job) => {
+    const data = job.data as Record<string, unknown> | undefined;
+    return data?.campaignId === campaignId;
+  });
 }
 
 class InitialIngestQueueError extends Error {
@@ -192,12 +209,18 @@ export async function enqueueInitialIngest(data: InitialIngestJobData) {
   try {
     await ensureIngestionQueueReady();
 
+    const existingLiveJob = await getLiveIngestionJobForCampaign(data.campaignId);
+
+    if (existingLiveJob) {
+      await markCampaignQueued(data.campaignId, "Campaign sync is already queued or running.");
+      return existingLiveJob;
+    }
+
     let job;
 
     try {
       job = await withTimeout(
         ingestionQueue.add(initialIngestJobName, data, {
-          jobId: buildJobId("initial-ingest", data.campaignId),
           removeOnComplete: 100,
           removeOnFail: 200,
         }),
@@ -266,8 +289,14 @@ export async function enqueueDailyIngest(
       await ensureIngestionQueueReady();
     }
 
+    const existingLiveJob = await getLiveIngestionJobForCampaign(data.campaignId);
+
+    if (existingLiveJob) {
+      await markCampaignQueued(data.campaignId, "Campaign sync is already queued or running.");
+      return existingLiveJob;
+    }
+
     const job = await ingestionQueue.add(dailyIngestJobName, data, {
-      jobId: buildJobId("daily-ingest", data.campaignId),
       removeOnComplete: 100,
       removeOnFail: 200,
     });

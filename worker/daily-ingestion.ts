@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { pathToFileURL } from "node:url";
 import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
@@ -9,7 +10,7 @@ import {
   markCampaignProcessing,
   updateCampaignProgress,
 } from "./campaign-sync";
-import { workerRedisConnection } from "./config";
+import { workerIngestionConcurrency, workerRedisConnection } from "./config";
 import {
   ensureLeadAndEnqueueEmbedding,
   getCampaignIngestionTarget,
@@ -21,35 +22,38 @@ import { workerLogger } from "./logger";
 import { fetchSubredditPosts } from "./reddit";
 import { dailyIngestJobName, ingestionQueueName, type DailyIngestJobData } from "./queues";
 
-const worker = new Worker<DailyIngestJobData>(
-  ingestionQueueName,
-  async (job) => {
-    if (job.name !== dailyIngestJobName) {
-      return;
+if (isDirectRun()) {
+  const worker = new Worker<DailyIngestJobData>(
+    ingestionQueueName,
+    async (job) => {
+      if (job.name !== dailyIngestJobName) {
+        return;
+      }
+
+      return runDailyIngest(job.data, job.id ?? "unknown");
+    },
+    {
+      connection: workerRedisConnection,
+      concurrency: workerIngestionConcurrency,
+    },
+  );
+
+  worker.on("completed", (job) => {
+    if (job.name === dailyIngestJobName) {
+      workerLogger.info({ jobId: job.id, name: job.name }, "Daily ingestion job completed");
     }
+  });
 
-    return runDailyIngest(job.data, job.id ?? "unknown");
-  },
-  {
-    connection: workerRedisConnection,
-  },
-);
+  worker.on("failed", (job, error) => {
+    if (job?.name === dailyIngestJobName) {
+      workerLogger.error({ jobId: job?.id, name: job?.name, error }, "Daily ingestion job failed");
+    }
+  });
 
-worker.on("completed", (job) => {
-  if (job.name === dailyIngestJobName) {
-    workerLogger.info({ jobId: job.id, name: job.name }, "Daily ingestion job completed");
-  }
-});
+  workerLogger.info("Daily ingestion worker started");
+}
 
-worker.on("failed", (job, error) => {
-  if (job?.name === dailyIngestJobName) {
-    workerLogger.error({ jobId: job?.id, name: job?.name, error }, "Daily ingestion job failed");
-  }
-});
-
-workerLogger.info("Daily ingestion worker started");
-
-async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
+export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
   const campaign = await getCampaignIngestionTarget(data.campaignId);
 
   if (!campaign) {
@@ -244,4 +248,8 @@ function isKnownPostBoundary(
   }
 
   return false;
+}
+
+function isDirectRun() {
+  return Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
 }

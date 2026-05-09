@@ -11,6 +11,51 @@ const OPENAI_REQUEST_TIMEOUT_MS = Number.parseInt(
   process.env.OPENAI_REQUEST_TIMEOUT_MS?.trim() || "45000",
   10,
 );
+const OPENAI_CHAT_CONCURRENCY = parsePositiveInteger(process.env.OPENAI_CHAT_CONCURRENCY, 2);
+const OPENAI_EMBEDDING_CONCURRENCY = parsePositiveInteger(process.env.OPENAI_EMBEDDING_CONCURRENCY, 3);
+
+class RequestLimiter {
+  private active = 0;
+  private readonly waiting: Array<() => void> = [];
+
+  constructor(private readonly concurrency: number) {}
+
+  async run<T>(task: () => Promise<T>): Promise<T> {
+    await this.acquire();
+
+    try {
+      return await task();
+    } finally {
+      this.release();
+    }
+  }
+
+  private acquire() {
+    if (this.active < this.concurrency) {
+      this.active += 1;
+      return Promise.resolve();
+    }
+
+    return new Promise<void>((resolve) => {
+      this.waiting.push(() => {
+        this.active += 1;
+        resolve();
+      });
+    });
+  }
+
+  private release() {
+    this.active = Math.max(0, this.active - 1);
+    const next = this.waiting.shift();
+
+    if (next) {
+      next();
+    }
+  }
+}
+
+const structuredOutputLimiter = new RequestLimiter(OPENAI_CHAT_CONCURRENCY);
+const embeddingLimiter = new RequestLimiter(OPENAI_EMBEDDING_CONCURRENCY);
 
 type WebSearchRequest = {
   enabled?: boolean;
@@ -72,29 +117,31 @@ export async function generateStructuredOutput(
   }
 
   const model = request.model?.trim() || DEFAULT_OPENAI_MODEL;
-  const content = request.webSearch?.enabled
-    ? await requestWithWebSearchRetry({
-        apiKey,
-        attempt: 0,
-        model,
-        schema: request.schema,
-        schemaName: request.schemaName,
-        systemPrompt: request.systemPrompt,
-        temperature: request.temperature ?? 0.1,
-        userPrompt: request.userPrompt,
-        webSearch: request.webSearch,
-      })
-    : await requestWithRetry({
-        apiKey,
-        attempt: 0,
-        model,
-        schema: request.schema,
-        schemaName: request.schemaName,
-        systemPrompt: request.systemPrompt,
-        temperature: request.temperature ?? 0.1,
-        userPrompt: request.userPrompt,
-        webSearch: request.webSearch,
-      });
+  const content = await structuredOutputLimiter.run(() =>
+    request.webSearch?.enabled
+      ? requestWithWebSearchRetry({
+          apiKey,
+          attempt: 0,
+          model,
+          schema: request.schema,
+          schemaName: request.schemaName,
+          systemPrompt: request.systemPrompt,
+          temperature: request.temperature ?? 0.1,
+          userPrompt: request.userPrompt,
+          webSearch: request.webSearch,
+        })
+      : requestWithRetry({
+          apiKey,
+          attempt: 0,
+          model,
+          schema: request.schema,
+          schemaName: request.schemaName,
+          systemPrompt: request.systemPrompt,
+          temperature: request.temperature ?? 0.1,
+          userPrompt: request.userPrompt,
+          webSearch: request.webSearch,
+        }),
+  );
 
   return {
     content,
@@ -125,13 +172,15 @@ export async function generateEmbeddings(request: EmbeddingsRequest): Promise<Em
 
   const model = request.model?.trim() || DEFAULT_OPENAI_EMBEDDING_MODEL;
   const dimensions = request.dimensions ?? DEFAULT_OPENAI_EMBEDDING_DIMENSIONS;
-  const embeddings = await requestEmbeddingWithRetry({
-    apiKey,
-    attempt: 0,
-    dimensions,
-    input: request.input,
-    model,
-  });
+  const embeddings = await embeddingLimiter.run(() =>
+    requestEmbeddingWithRetry({
+      apiKey,
+      attempt: 0,
+      dimensions,
+      input: request.input,
+      model,
+    }),
+  );
 
   return {
     embeddings,
@@ -417,6 +466,11 @@ function getExponentialBackoffDelay(attempt: number) {
   const exponentialMs = Math.min(MAX_BACKOFF_MS, BASE_BACKOFF_MS * 2 ** attempt);
   const jitterMs = Math.floor(Math.random() * 500);
   return exponentialMs + jitterMs;
+}
+
+function parsePositiveInteger(value: string | undefined, fallback: number) {
+  const parsed = Number.parseInt(value?.trim() ?? "", 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function sleep(ms: number) {

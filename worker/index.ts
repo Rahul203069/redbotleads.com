@@ -3,7 +3,6 @@ import "dotenv/config";
 import { workerLogger } from "./logger";
 
 import "./classification";
-import "./daily-ingestion";
 import "./embedding";
 import "./ingestion";
 import "./notifications";

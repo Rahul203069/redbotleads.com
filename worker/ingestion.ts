@@ -8,7 +8,8 @@ import {
   markCampaignProcessing,
   updateCampaignProgress,
 } from "./campaign-sync";
-import { workerRedisConnection } from "./config";
+import { workerIngestionConcurrency, workerRedisConnection } from "./config";
+import { runDailyIngest } from "./daily-ingestion";
 import {
   ensureLeadAndEnqueueEmbedding,
   getCampaignIngestionTarget,
@@ -18,20 +19,33 @@ import {
 } from "./ingestion-shared";
 import { workerLogger } from "./logger";
 import { fetchSubredditPosts } from "./reddit";
-import { type InitialIngestJobData, ingestionQueueName } from "./queues";
+import {
+  dailyIngestJobName,
+  initialIngestJobName,
+  type DailyIngestJobData,
+  type InitialIngestJobData,
+  ingestionQueueName,
+} from "./queues";
 
-const worker = new Worker<InitialIngestJobData>(
+type IngestionJobData = InitialIngestJobData | DailyIngestJobData;
+
+const worker = new Worker<IngestionJobData>(
   ingestionQueueName,
   async (job) => {
-    if (job.name !== "INITIAL_INGEST") {
-      workerLogger.warn({ jobId: job.id, name: job.name }, "Ignoring unsupported ingestion job");
-      return;
+    if (job.name === initialIngestJobName) {
+      return runInitialIngest(job.data as InitialIngestJobData, job.id ?? "unknown");
     }
 
-    return runInitialIngest(job.data, job.id ?? "unknown");
+    if (job.name === dailyIngestJobName) {
+      return runDailyIngest(job.data as DailyIngestJobData, job.id ?? "unknown");
+    }
+
+    workerLogger.warn({ jobId: job.id, name: job.name }, "Ignoring unsupported ingestion job");
+    return;
   },
   {
     connection: workerRedisConnection,
+    concurrency: workerIngestionConcurrency,
   },
 );
 

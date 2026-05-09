@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 import { Resend } from "resend";
 
-import { workerRedisConnection } from "./config";
+import { workerNotificationsConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
 import { notificationsQueueName } from "./queues";
 
@@ -30,6 +30,7 @@ const worker = new Worker(
   },
   {
     connection: workerRedisConnection,
+    concurrency: workerNotificationsConcurrency,
   },
 );
 

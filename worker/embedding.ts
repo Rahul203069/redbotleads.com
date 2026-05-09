@@ -6,7 +6,7 @@ import { Worker } from "bullmq";
 
 import { generateEmbedding } from "@/lib/openai";
 import { updateCampaignProgress } from "./campaign-sync";
-import { workerRedisConnection } from "./config";
+import { workerEmbeddingConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
 import { embeddingQueueName, enqueueLeadSemanticMatch, type EmbeddingJobData } from "./queues";
 
@@ -22,6 +22,7 @@ const worker = new Worker<EmbeddingJobData>(
   },
   {
     connection: workerRedisConnection,
+    concurrency: workerEmbeddingConcurrency,
   },
 );
 

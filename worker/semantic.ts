@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
 import { markCampaignCompleted, updateCampaignProgress } from "./campaign-sync";
-import { workerRedisConnection } from "./config";
+import { workerRedisConnection, workerSemanticConcurrency } from "./config";
 import { workerLogger } from "./logger";
 import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } from "./queues";
 
@@ -30,6 +30,7 @@ const worker = new Worker<SemanticJobData>(
   },
   {
     connection: workerRedisConnection,
+    concurrency: workerSemanticConcurrency,
   },
 );
 

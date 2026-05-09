@@ -9,7 +9,7 @@ import {
   updateCampaignProgress,
 } from "./campaign-sync";
 import { classifyLeadWithOpenAI } from "./classification-ai";
-import { workerRedisConnection } from "./config";
+import { workerClassificationConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
 import { enqueueNotification, type ClassificationJobData, classificationQueueName } from "./queues";
 
@@ -27,7 +27,7 @@ const worker = new Worker<ClassificationJobData>(
   },
   {
     connection: workerRedisConnection,
-    concurrency: 1,
+    concurrency: workerClassificationConcurrency,
   },
 );
 

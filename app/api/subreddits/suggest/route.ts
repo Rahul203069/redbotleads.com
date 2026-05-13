@@ -205,19 +205,20 @@ async function generateSubredditSuggestions(userPrompt: string) {
       schemaName: "campaign_subreddit_suggestions",
       schema: responseSchema,
       systemPrompt: [
-        "You recommend real, current, high-signal subreddits for Reddit lead generation for service businesses.",
+        "You recommend real, current, high-signal subreddits for Reddit lead generation for service businesses, agencies, consultants, and freelancers.",
         "",
         "Your goal is to find communities where people are likely to express:",
-        "- operational pain",
         "- requests for help",
         "- outsourcing intent",
         "- agency/freelancer/consultant needs",
-        "- implementation/setup problems",
-        "- workflow bottlenecks that could turn into service leads",
+        "- implementation or setup problems",
+        "- painful manual workflows",
+        "- broken processes",
+        "- operational bottlenecks that could turn into service leads",
+        "",
+        "Prefer communities where users discuss problems that may lead to hiring outside help, not just communities that are topically related.",
         "",
         "Use live web search evidence to identify real subreddit names that currently exist, are public, and are active.",
-        "",
-        "Prefer communities that are likely to produce actionable leads, not just topical discussion.",
         "",
         "Return only JSON matching the schema.",
       ].join("\n"),
@@ -322,6 +323,8 @@ function buildSubredditUserPrompt(input: {
   requestedCount: number;
 }) {
   return `
+You are helping a Reddit lead generation app recommend subreddits to monitor for possible service leads.
+
 Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.
 
 Return JSON with a "suggestions" array of subreddit names only.
@@ -334,24 +337,34 @@ Rules:
 - real subreddit names only
 - return exactly ${input.requestedCount} subreddits
 
-Prioritization rules:
-- prioritize subreddits where people are likely to ask for help, recommendations, agencies, freelancers, consultants, service providers, implementation help, or outsourcing advice
-- prioritize communities where users describe painful manual work, broken workflows, repetitive tasks, bottlenecks, setup issues, disconnected tools, poor results, or operational frustration
-- include a mix of:
-  - direct buyer-intent communities
-  - operator/practitioner communities
-  - adjacent workflow communities
-  - communities where people ask for recommendations or outside help
-- prefer focused mid-signal and high-signal communities over huge generic communities when both are available
-- prefer communities that are currently active and public
-- infer relevant subreddits from the description even if the exact service category is not named
-- think in terms of likely lead sources, not just topical relevance
-- for services, prefer communities where people discuss problems that often lead to hiring outside help
-- avoid overly generic low-signal communities when more targeted ones exist
-- avoid NSFW communities
-- avoid meme, entertainment, giveaway, and karma-farming communities
+Prioritize subreddits where people are likely to:
+- ask for help
+- ask who can do something
+- ask for agency, freelancer, consultant, or expert recommendations
+- complain about manual work
+- struggle with operations, follow-ups, reporting, integrations, or workflows
+- ask whether they should outsource something
+- ask how to set something up
+- describe a painful process they do not want to handle manually
+
+Include a mix of:
+- direct buyer-intent communities
+- operator/practitioner communities
+- adjacent workflow communities
+- recommendation/help communities
+
+Avoid:
+- meme communities
+- NSFW communities
+- karma-farming communities
+- entertainment communities
+- huge generic communities when focused ones exist
+- communities where people mostly share content instead of asking for help
+
+Think in terms of likely service leads, not just topical relevance.
 
 Service type: ${input.leadType}
+
 Service description:
 ${input.description}
 

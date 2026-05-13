@@ -536,13 +536,13 @@ function renderStep(
         <SuggestionPanel
           busy={options.aiPending && options.aiTarget === "keywords"}
           buttonLabel="Generate keywords with AI"
-          description="Use the campaign description to generate single-word intent and category keywords automatically."
+          description="Use the campaign description to generate service-intent and pain keyword phrases automatically."
           onClick={options.onGenerateKeywords}
           title="Need keyword ideas?"
         />
-        <Field hint="Optional. Add single-word buying-intent or category terms one by one." label="Keywords">
+        <Field hint="Optional. Add buying-intent or category phrases one by one." label="Keywords">
           <TagInput
-            label="Optional. Single word only. Press Enter or comma to add a keyword."
+            label="Optional. Use 1 to 4 words. Press Enter or comma to add a keyword phrase."
             onChange={(values) => updateDraft("keywords", values)}
             placeholder="Type a keyword and press Enter"
             value={draft.keywords}
@@ -652,8 +652,8 @@ function validateStep(stepIndex: number, draft: Draft) {
     return "Campaign name must be at least 2 characters.";
   }
 
-  if (stepIndex === 2 && draft.keywords.some((keyword) => /\s/.test(keyword))) {
-    return "Each keyword must be a single word.";
+  if (stepIndex === 2 && draft.keywords.some((keyword) => keyword.trim().split(/\s+/).filter(Boolean).length > 4)) {
+    return "Each keyword phrase must be 1 to 4 words.";
   }
 
   if (stepIndex === 3 && countItems(draft.subreddits) === 0) {

@@ -158,9 +158,9 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 <div className="mt-2 text-sm text-[#9DA9A4]">Adjust the matching terms and communities this campaign should monitor.</div>
               </div>
 
-              <Field error={errors.keywords} hint="Single-word intent and category keywords only." label="Keywords">
+              <Field error={errors.keywords} hint="Intent and category keyword phrases. Use 1 to 4 words." label="Keywords">
                 <TagInput
-                  label="Single word only."
+                  label="Use 1 to 4 words."
                   onChange={(values) => updateDraft("keywords", values)}
                   placeholder="Type a keyword and press Enter"
                   value={draft.keywords}

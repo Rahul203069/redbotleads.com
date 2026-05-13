@@ -440,7 +440,7 @@ function clampText(value: string, maxLength: number) {
   return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
 }
 
-function mapIntentType(value: "none" | "implicit" | "explicit" | "outsourcing") {
+function mapIntentType(value: "none" | "implicit" | "explicit" | "switching") {
   if (value === "none") return "NONE";
   if (value === "implicit") return "IMPLICIT";
   if (value === "explicit") return "EXPLICIT";

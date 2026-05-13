@@ -13,7 +13,7 @@ export const initialIngestJobName = "INITIAL_INGEST";
 export const dailyIngestJobName = "DAILY_INGEST";
 
 export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName;
-export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_REDDIT_ITEM";
+export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_LEAD_BATCH" | "EMBED_REDDIT_ITEM";
 export type SemanticJobName = "SEMANTIC_MATCH_LEAD" | "SEMANTIC_MATCH_REDDIT_ITEM";
 export type ClassificationJobName = "CLASSIFY_LEAD" | "GENERATE_REPLIES";
 export type NotificationJobName = "SEND_EMAIL" | "SEND_SLACK";
@@ -33,11 +33,20 @@ export type ClassificationJobData = {
   campaignId: string;
 };
 
+export type LeadEmbeddingBatchItem = {
+  leadId: string;
+  redditItemId: string;
+};
+
 export type EmbeddingJobData =
   | {
       leadId: string;
       campaignId: string;
       redditItemId: string;
+    }
+  | {
+      campaignId: string;
+      items: LeadEmbeddingBatchItem[];
     }
   | {
       redditItemId: string;
@@ -336,6 +345,23 @@ export async function enqueueLeadEmbedding(data: Extract<EmbeddingJobData, { lea
   });
 }
 
+export async function enqueueLeadEmbeddingBatch(data: Extract<EmbeddingJobData, { items: LeadEmbeddingBatchItem[] }>) {
+  const firstItem = data.items[0];
+  const lastItem = data.items[data.items.length - 1];
+
+  return embeddingQueue.add("EMBED_LEAD_BATCH", data, {
+    jobId: buildJobId(
+      "embed-lead-batch",
+      data.campaignId,
+      firstItem?.leadId ?? "empty",
+      lastItem?.leadId ?? "empty",
+      String(data.items.length),
+    ),
+    removeOnComplete: 500,
+    removeOnFail: 500,
+  });
+}
+
 export async function enqueueRedditItemEmbedding(data: Extract<EmbeddingJobData, { redditItemId: string }>) {
   return embeddingQueue.add("EMBED_REDDIT_ITEM", data, {
     jobId: buildJobId("embed-item", data.redditItemId),
@@ -350,6 +376,24 @@ export async function enqueueLeadSemanticMatch(data: Extract<SemanticJobData, { 
     removeOnComplete: 500,
     removeOnFail: 500,
   });
+}
+
+export async function enqueueLeadSemanticMatchBatch(items: Array<Extract<SemanticJobData, { leadId: string }>>) {
+  if (items.length === 0) {
+    return [];
+  }
+
+  return semanticQueue.addBulk(
+    items.map((data) => ({
+      name: "SEMANTIC_MATCH_LEAD",
+      data,
+      opts: {
+        jobId: buildJobId("semantic-lead", data.leadId),
+        removeOnComplete: 500,
+        removeOnFail: 500,
+      },
+    })),
+  );
 }
 
 export async function enqueueRedditItemSemanticMatch(data: Extract<SemanticJobData, { redditItemId: string }>) {

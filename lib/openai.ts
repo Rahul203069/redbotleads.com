@@ -11,7 +11,7 @@ const OPENAI_REQUEST_TIMEOUT_MS = Number.parseInt(
   process.env.OPENAI_REQUEST_TIMEOUT_MS?.trim() || "45000",
   10,
 );
-const OPENAI_CHAT_CONCURRENCY = parsePositiveInteger(process.env.OPENAI_CHAT_CONCURRENCY, 2);
+const OPENAI_CHAT_CONCURRENCY = parsePositiveInteger(process.env.OPENAI_CHAT_CONCURRENCY, 10);
 const OPENAI_EMBEDDING_CONCURRENCY = parsePositiveInteger(process.env.OPENAI_EMBEDDING_CONCURRENCY, 3);
 
 class RequestLimiter {

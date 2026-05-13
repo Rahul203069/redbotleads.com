@@ -10,9 +10,10 @@ import {
   markCampaignProcessing,
   updateCampaignProgress,
 } from "./campaign-sync";
-import { workerIngestionConcurrency, workerRedisConnection } from "./config";
+import { workerEmbeddingBatchSize, workerIngestionConcurrency, workerRedisConnection } from "./config";
 import {
-  ensureLeadAndEnqueueEmbedding,
+  enqueueLeadEmbeddingBatches,
+  ensureLeadForEmbedding,
   getCampaignIngestionTarget,
   isOutsideRecencyWindow,
   matchesCampaignText,
@@ -74,7 +75,19 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
   let promisingPosts = 0;
   let matchedItems = 0;
   let createdLeads = 0;
+  let queuedEmbeddingBatches = 0;
+  const pendingEmbeddingItems: Array<{ leadId: string; redditItemId: string }> = [];
   const subredditErrors: Array<{ subreddit: string; message: string }> = [];
+
+  const flushPendingEmbeddingItems = async () => {
+    if (pendingEmbeddingItems.length === 0) {
+      return;
+    }
+
+    const items = pendingEmbeddingItems.slice();
+    queuedEmbeddingBatches += await enqueueLeadEmbeddingBatches(campaign.id, items);
+    pendingEmbeddingItems.splice(0, items.length);
+  };
 
   for (const subreddit of campaign.subreddits) {
     try {
@@ -124,11 +137,20 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
         promisingPosts += 1;
         const redditPost = await upsertRedditPost(post);
         matchedItems += 1;
-        createdLeads += await ensureLeadAndEnqueueEmbedding({
+        const leadEmbeddingItem = await ensureLeadForEmbedding({
           campaignId: campaign.id,
           userId: campaign.userId,
           redditItemId: redditPost.id,
         });
+
+        if (leadEmbeddingItem) {
+          createdLeads += 1;
+          pendingEmbeddingItems.push(leadEmbeddingItem);
+
+          if (pendingEmbeddingItems.length >= workerEmbeddingBatchSize) {
+            await flushPendingEmbeddingItems();
+          }
+        }
       }
 
       if (newestSeenPost) {
@@ -162,6 +184,8 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
     }
   }
 
+  await flushPendingEmbeddingItems();
+
   const durationMs = Date.now() - startedAt;
   const hasErrors = subredditErrors.length > 0;
   const allSubredditsFailed = subredditErrors.length === campaign.subreddits.length;
@@ -174,12 +198,13 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
     await updateCampaignProgress(
       campaign.id,
       "CLASSIFYING",
-      `Daily RSS sync found ${createdLeads} new lead${createdLeads === 1 ? "" : "s"} for AI scoring.${errorSummary}`,
+      `Daily RSS sync found ${createdLeads} new lead${createdLeads === 1 ? "" : "s"} for embedding and semantic filtering.${errorSummary}`,
       {
         fetchedPosts,
         promisingPosts,
         matchedItems,
         createdLeads,
+        queuedEmbeddingBatches,
         durationMs,
       },
     );
@@ -193,6 +218,7 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
         promisingPosts,
         matchedItems,
         createdLeads,
+        queuedEmbeddingBatches,
         durationMs,
       },
     );
@@ -205,6 +231,7 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
         promisingPosts,
         matchedItems,
         createdLeads,
+        queuedEmbeddingBatches,
         durationMs,
       },
     );
@@ -218,6 +245,7 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
       filteredPosts: promisingPosts,
       matchedItems,
       createdLeads,
+      queuedEmbeddingBatches,
       subredditErrors,
       durationMs,
     },
@@ -229,6 +257,7 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
     promisingPosts,
     matchedItems,
     createdLeads,
+    queuedEmbeddingBatches,
     subredditErrors,
     durationMs,
   };

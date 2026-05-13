@@ -4,7 +4,7 @@ import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
-import { markCampaignCompleted, updateCampaignProgress } from "./campaign-sync";
+import { markCampaignCompleted } from "./campaign-sync";
 import { workerRedisConnection, workerSemanticConcurrency } from "./config";
 import { workerLogger } from "./logger";
 import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } from "./queues";
@@ -70,19 +70,6 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
   });
 
   if (campaignQueryCount === 0) {
-    const semanticCounts = await countSemanticProgress(lead.campaignId);
-
-    await updateCampaignProgress(
-      lead.campaignId,
-      "CLASSIFYING",
-      `No semantic queries configured. ${semanticCounts.checked} lead${semanticCounts.checked === 1 ? "" : "s"} checked and passed directly to classification.`,
-      {
-        semanticCheckedLeads: semanticCounts.checked,
-        semanticPassedLeads: semanticCounts.passed,
-        semanticFilteredLeads: semanticCounts.filtered,
-      },
-    );
-
     await enqueueLeadClassification({
       leadId: lead.id,
       campaignId: lead.campaignId,
@@ -124,19 +111,6 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
   }
 
   if (bestMatch.similarity >= SEMANTIC_MATCH_THRESHOLD) {
-    const semanticCounts = await countSemanticProgress(lead.campaignId, "pass");
-
-    await updateCampaignProgress(
-      lead.campaignId,
-      "CLASSIFYING",
-      `${semanticCounts.passed} lead${semanticCounts.passed === 1 ? "" : "s"} passed semantic filtering. Queueing GPT classification.`,
-      {
-        semanticCheckedLeads: semanticCounts.checked,
-        semanticPassedLeads: semanticCounts.passed,
-        semanticFilteredLeads: semanticCounts.filtered,
-      },
-    );
-
     await enqueueLeadClassification({
       leadId: lead.id,
       campaignId: lead.campaignId,
@@ -183,24 +157,14 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
     },
   });
 
-  const semanticCounts = await countSemanticProgress(lead.campaignId, "filter");
   const remainingLeads = await countRemainingLeadProcessing(lead.campaignId);
 
   if (remainingLeads === 0) {
+    const semanticCounts = await countSemanticProgress(lead.campaignId);
+
     await markCampaignCompleted(
       lead.campaignId,
       "Lead processing complete for this campaign sync.",
-      {
-        semanticCheckedLeads: semanticCounts.checked,
-        semanticPassedLeads: semanticCounts.passed,
-        semanticFilteredLeads: semanticCounts.filtered,
-      },
-    );
-  } else {
-    await updateCampaignProgress(
-      lead.campaignId,
-      "CLASSIFYING",
-      `${semanticCounts.filtered} lead${semanticCounts.filtered === 1 ? "" : "s"} filtered out by semantic threshold.`,
       {
         semanticCheckedLeads: semanticCounts.checked,
         semanticPassedLeads: semanticCounts.passed,
@@ -229,7 +193,7 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
   };
 }
 
-async function countSemanticProgress(campaignId: string, outcome?: "pass" | "filter") {
+async function countSemanticProgress(campaignId: string) {
   const embedded = await prisma.lead.count({
     where: {
       campaignId,

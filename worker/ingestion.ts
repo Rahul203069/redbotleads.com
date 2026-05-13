@@ -8,10 +8,11 @@ import {
   markCampaignProcessing,
   updateCampaignProgress,
 } from "./campaign-sync";
-import { workerIngestionConcurrency, workerRedisConnection } from "./config";
+import { workerEmbeddingBatchSize, workerIngestionConcurrency, workerRedisConnection } from "./config";
 import { runDailyIngest } from "./daily-ingestion";
 import {
-  ensureLeadAndEnqueueEmbedding,
+  enqueueLeadEmbeddingBatches,
+  ensureLeadForEmbedding,
   getCampaignIngestionTarget,
   isOutsideRecencyWindow,
   matchesCampaignText,
@@ -81,7 +82,19 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
   const fetchedComments = 0;
   let matchedItems = 0;
   let createdLeads = 0;
+  let queuedEmbeddingBatches = 0;
+  const pendingEmbeddingItems: Array<{ leadId: string; redditItemId: string }> = [];
   const subredditErrors: Array<{ subreddit: string; message: string }> = [];
+
+  const flushPendingEmbeddingItems = async () => {
+    if (pendingEmbeddingItems.length === 0) {
+      return;
+    }
+
+    const items = pendingEmbeddingItems.slice();
+    queuedEmbeddingBatches += await enqueueLeadEmbeddingBatches(campaign.id, items);
+    pendingEmbeddingItems.splice(0, items.length);
+  };
 
   for (const subreddit of campaign.subreddits) {
     try {
@@ -113,11 +126,20 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
         promisingPosts += 1;
         const redditPost = await upsertRedditPost(post);
         matchedItems += 1;
-        createdLeads += await ensureLeadAndEnqueueEmbedding({
+        const leadEmbeddingItem = await ensureLeadForEmbedding({
           campaignId: campaign.id,
           userId: campaign.userId,
           redditItemId: redditPost.id,
         });
+
+        if (leadEmbeddingItem) {
+          createdLeads += 1;
+          pendingEmbeddingItems.push(leadEmbeddingItem);
+
+          if (pendingEmbeddingItems.length >= workerEmbeddingBatchSize) {
+            await flushPendingEmbeddingItems();
+          }
+        }
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Subreddit ingestion failed.";
@@ -134,6 +156,8 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     }
   }
 
+  await flushPendingEmbeddingItems();
+
   const durationMs = Date.now() - startedAt;
   const hasErrors = subredditErrors.length > 0;
   const allSubredditsFailed = subredditErrors.length === campaign.subreddits.length;
@@ -146,13 +170,14 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     await updateCampaignProgress(
       campaign.id,
       "CLASSIFYING",
-      `RSS ingestion complete. ${createdLeads} lead${createdLeads === 1 ? "" : "s"} queued for AI scoring.${errorSummary}`,
+      `RSS ingestion complete. ${createdLeads} lead${createdLeads === 1 ? "" : "s"} queued for embedding and semantic filtering.${errorSummary}`,
       {
         fetchedPosts,
         promisingPosts,
         fetchedComments,
         matchedItems,
         createdLeads,
+        queuedEmbeddingBatches,
         durationMs,
       },
     );
@@ -167,6 +192,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
         fetchedComments,
         matchedItems,
         createdLeads,
+        queuedEmbeddingBatches,
         durationMs,
       },
     );
@@ -180,6 +206,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
         fetchedComments,
         matchedItems,
         createdLeads,
+        queuedEmbeddingBatches,
         durationMs,
       },
     );
@@ -194,6 +221,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       filteredPosts: promisingPosts,
       matchedItems,
       createdLeads,
+      queuedEmbeddingBatches,
       subredditErrors,
       durationMs,
     },
@@ -206,6 +234,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     fetchedComments,
     matchedItems,
     createdLeads,
+    queuedEmbeddingBatches,
     subredditErrors,
     durationMs,
   };

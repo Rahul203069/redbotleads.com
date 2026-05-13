@@ -6,6 +6,7 @@ type SyncStats = {
   fetchedComments?: number;
   matchedItems?: number;
   createdLeads?: number;
+  queuedEmbeddingBatches?: number;
   embeddedLeads?: number;
   semanticCheckedLeads?: number;
   semanticPassedLeads?: number;

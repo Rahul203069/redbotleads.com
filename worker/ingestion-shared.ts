@@ -1,8 +1,13 @@
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
+import { workerEmbeddingBatchSize } from "./config";
 import { fetchSubredditPosts } from "./reddit";
-import { enqueueLeadEmbedding } from "./queues";
+import {
+  enqueueLeadEmbedding,
+  enqueueLeadEmbeddingBatch,
+  type LeadEmbeddingBatchItem,
+} from "./queues";
 
 export async function getCampaignIngestionTarget(campaignId: string) {
   return prisma.campaign.findFirst({
@@ -55,7 +60,7 @@ export async function upsertRedditPost(post: Awaited<ReturnType<typeof fetchSubr
   });
 }
 
-export async function ensureLeadAndEnqueueEmbedding({
+export async function ensureLeadForEmbedding({
   campaignId,
   userId,
   redditItemId,
@@ -63,7 +68,7 @@ export async function ensureLeadAndEnqueueEmbedding({
   campaignId: string;
   userId: string;
   redditItemId: string;
-}) {
+}): Promise<LeadEmbeddingBatchItem | null> {
   try {
     const lead = await prisma.lead.create({
       data: {
@@ -76,20 +81,65 @@ export async function ensureLeadAndEnqueueEmbedding({
       },
     });
 
-    await enqueueLeadEmbedding({
+    return {
       leadId: lead.id,
-      campaignId,
       redditItemId,
-    });
-
-    return 1;
+    };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-      return 0;
+      return null;
     }
 
     throw error;
   }
+}
+
+export async function ensureLeadAndEnqueueEmbedding({
+  campaignId,
+  userId,
+  redditItemId,
+}: {
+  campaignId: string;
+  userId: string;
+  redditItemId: string;
+}) {
+  const item = await ensureLeadForEmbedding({
+    campaignId,
+    userId,
+    redditItemId,
+  });
+
+  if (!item) {
+    return 0;
+  }
+
+  await enqueueLeadEmbedding({
+    leadId: item.leadId,
+    campaignId,
+    redditItemId: item.redditItemId,
+  });
+
+  return 1;
+}
+
+export async function enqueueLeadEmbeddingBatches(campaignId: string, items: LeadEmbeddingBatchItem[]) {
+  let enqueuedBatches = 0;
+
+  for (let index = 0; index < items.length; index += workerEmbeddingBatchSize) {
+    const chunk = items.slice(index, index + workerEmbeddingBatchSize);
+
+    if (chunk.length === 0) {
+      continue;
+    }
+
+    await enqueueLeadEmbeddingBatch({
+      campaignId,
+      items: chunk,
+    });
+    enqueuedBatches += 1;
+  }
+
+  return enqueuedBatches;
 }
 
 export function matchesCampaignText(content: string, keywords: string[], negativeKeywords: string[]) {

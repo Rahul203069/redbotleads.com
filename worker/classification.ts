@@ -228,11 +228,16 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         },
       );
     } else {
+      const semanticCounts = await countSemanticProgress(lead.campaignId);
+
       await markCampaignCompleted(
         lead.campaignId,
         "AI scoring complete for this campaign sync.",
         {
           classifiedLeads: classifiedAfter,
+          semanticCheckedLeads: semanticCounts.checked,
+          semanticPassedLeads: semanticCounts.passed,
+          semanticFilteredLeads: semanticCounts.filtered,
         },
       );
     }
@@ -287,6 +292,35 @@ async function countClassifiedLeads(campaignId: string) {
       },
     },
   });
+}
+
+async function countSemanticProgress(campaignId: string) {
+  const [embedded, filtered] = await Promise.all([
+    prisma.lead.count({
+      where: {
+        campaignId,
+        redditItem: {
+          embedding: {
+            isNot: null,
+          },
+        },
+      },
+    }),
+    prisma.lead.count({
+      where: {
+        campaignId,
+        ai: {
+          model: SEMANTIC_FILTER_MODEL,
+        },
+      },
+    }),
+  ]);
+
+  return {
+    checked: embedded,
+    passed: Math.max(0, embedded - filtered),
+    filtered,
+  };
 }
 
 function mapIntentType(value: "none" | "implicit" | "explicit" | "switching") {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { generateStructuredOutput } from "@/lib/openai";
+import { workerClassificationMinIntervalMs } from "./config";
 
 const classificationResultSchema = z.object({
   score: z.number().int().min(0).max(100),
@@ -40,7 +41,7 @@ type ClassificationResult = z.infer<typeof classificationResultSchema> & {
 
 const PROMPT_VERSION = "lead-classifier-v2";
 const DEFAULT_MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
-const MIN_REQUEST_INTERVAL_MS = 1_000;
+const MIN_REQUEST_INTERVAL_MS = workerClassificationMinIntervalMs;
 
 let lastRequestAt = 0;
 

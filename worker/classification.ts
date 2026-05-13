@@ -14,6 +14,10 @@ import { workerLogger } from "./logger";
 import { enqueueNotification, type ClassificationJobData, classificationQueueName } from "./queues";
 
 const SEMANTIC_FILTER_MODEL = "semantic-threshold-filter";
+const CLASSIFICATION_ERROR_MODEL = "classification-error";
+const CLASSIFICATION_ERROR_PROMPT_VERSION = "classification-error-v1";
+const MAX_ERROR_SUMMARY_LENGTH = 400;
+const MAX_ERROR_DISQUALIFIER_LENGTH = 200;
 
 const worker = new Worker<ClassificationJobData>(
   classificationQueueName,
@@ -127,7 +131,37 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         author: lead.redditItem.author,
         url: lead.redditItem.url,
       },
+    }).catch(async (error: unknown) => {
+      if (isSystemicClassificationError(error)) {
+        throw error;
+      }
+
+      const errorMessage = getErrorMessage(error);
+      await recordLeadClassificationFailure(lead.id, errorMessage);
+      await finalizeCampaignClassificationProgress(
+        lead.campaignId,
+        `${lead.id} could not be scored, so it was marked LOW and skipped.`,
+      );
+
+      workerLogger.warn(
+        {
+          jobId,
+          leadId: lead.id,
+          campaignId: lead.campaignId,
+          error,
+        },
+        "Lead classification failed without failing the campaign",
+      );
+
+      return null;
     });
+
+    if (!result) {
+      return {
+        skipped: true,
+        reason: "classification_failed",
+      };
+    }
 
     await prisma.$transaction([
       prisma.lead.update({
@@ -215,32 +249,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       });
     }
 
-    const remainingAfter = await countPendingLeadClassification(lead.campaignId);
-    const classifiedAfter = await countClassifiedLeads(lead.campaignId);
-
-    if (remainingAfter > 0) {
-      await updateCampaignProgress(
-        lead.campaignId,
-        "CLASSIFYING",
-        `${remainingAfter} lead${remainingAfter === 1 ? "" : "s"} still waiting for AI scoring.`,
-        {
-          classifiedLeads: classifiedAfter,
-        },
-      );
-    } else {
-      const semanticCounts = await countSemanticProgress(lead.campaignId);
-
-      await markCampaignCompleted(
-        lead.campaignId,
-        "AI scoring complete for this campaign sync.",
-        {
-          classifiedLeads: classifiedAfter,
-          semanticCheckedLeads: semanticCounts.checked,
-          semanticPassedLeads: semanticCounts.passed,
-          semanticFilteredLeads: semanticCounts.filtered,
-        },
-      );
-    }
+    await finalizeCampaignClassificationProgress(lead.campaignId);
 
     workerLogger.info(
       {
@@ -263,7 +272,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       category: result.category,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Lead classification failed.";
+    const errorMessage = getErrorMessage(error);
     await markCampaignFailed(lead.campaignId, "CLASSIFYING", errorMessage);
     throw error;
   }
@@ -294,6 +303,101 @@ async function countClassifiedLeads(campaignId: string) {
   });
 }
 
+async function countFailedClassifications(campaignId: string) {
+  return prisma.lead.count({
+    where: {
+      campaignId,
+      ai: {
+        model: CLASSIFICATION_ERROR_MODEL,
+      },
+    },
+  });
+}
+
+async function recordLeadClassificationFailure(leadId: string, errorMessage: string) {
+  const summary = clampText(`Classification failed for this lead: ${errorMessage}`, MAX_ERROR_SUMMARY_LENGTH);
+  const disqualifier = clampText(errorMessage, MAX_ERROR_DISQUALIFIER_LENGTH);
+
+  await prisma.$transaction([
+    prisma.lead.update({
+      where: {
+        id: leadId,
+      },
+      data: {
+        score: 0,
+        label: "LOW",
+      },
+    }),
+    prisma.leadAI.upsert({
+      where: {
+        leadId,
+      },
+      update: {
+        model: CLASSIFICATION_ERROR_MODEL,
+        promptVersion: CLASSIFICATION_ERROR_PROMPT_VERSION,
+        intentType: "NONE",
+        buyerStage: "SOLVED",
+        category: "classification_failed",
+        summary,
+        painPoints: [],
+        disqualifier,
+      },
+      create: {
+        leadId,
+        model: CLASSIFICATION_ERROR_MODEL,
+        promptVersion: CLASSIFICATION_ERROR_PROMPT_VERSION,
+        intentType: "NONE",
+        buyerStage: "SOLVED",
+        category: "classification_failed",
+        summary,
+        painPoints: [],
+        disqualifier,
+      },
+    }),
+  ]);
+}
+
+async function finalizeCampaignClassificationProgress(campaignId: string, skipMessage?: string) {
+  const [remainingAfter, classifiedAfter, failedAfter] = await Promise.all([
+    countPendingLeadClassification(campaignId),
+    countClassifiedLeads(campaignId),
+    countFailedClassifications(campaignId),
+  ]);
+
+  if (remainingAfter > 0) {
+    const skippedText = skipMessage ? `${skipMessage} ` : "";
+
+    await updateCampaignProgress(
+      campaignId,
+      "CLASSIFYING",
+      `${skippedText}${remainingAfter} lead${remainingAfter === 1 ? "" : "s"} still waiting for AI scoring.`,
+      {
+        classifiedLeads: classifiedAfter,
+        classificationFailedLeads: failedAfter,
+      },
+    );
+    return;
+  }
+
+  const semanticCounts = await countSemanticProgress(campaignId);
+  const failedText =
+    failedAfter > 0
+      ? ` ${failedAfter} lead${failedAfter === 1 ? " was" : "s were"} skipped after scoring errors.`
+      : "";
+
+  await markCampaignCompleted(
+    campaignId,
+    `AI scoring complete for this campaign sync.${failedText}`,
+    {
+      classifiedLeads: classifiedAfter,
+      classificationFailedLeads: failedAfter,
+      semanticCheckedLeads: semanticCounts.checked,
+      semanticPassedLeads: semanticCounts.passed,
+      semanticFilteredLeads: semanticCounts.filtered,
+    },
+  );
+}
+
 async function countSemanticProgress(campaignId: string) {
   const [embedded, filtered] = await Promise.all([
     prisma.lead.count({
@@ -321,6 +425,19 @@ async function countSemanticProgress(campaignId: string) {
     passed: Math.max(0, embedded - filtered),
     filtered,
   };
+}
+
+function isSystemicClassificationError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase();
+  return message.includes("openai_api_key") || message.includes("database") || message.includes("prisma");
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Lead classification failed.";
+}
+
+function clampText(value: string, maxLength: number) {
+  return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
 }
 
 function mapIntentType(value: "none" | "implicit" | "explicit" | "switching") {

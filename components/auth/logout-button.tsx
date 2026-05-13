@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signOut } from "next-auth/react";
+import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,10 @@ export function LogoutButton({ className }: LogoutButtonProps) {
           Logging out...
         </>
       ) : (
-        "Log out"
+        <>
+          <LogOut aria-hidden="true" className="h-4 w-4 shrink-0" />
+          Log out
+        </>
       )}
     </Button>
   );

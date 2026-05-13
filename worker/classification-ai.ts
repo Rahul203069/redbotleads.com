@@ -42,6 +42,11 @@ type ClassificationResult = z.infer<typeof classificationResultSchema> & {
 const PROMPT_VERSION = "lead-classifier-v2";
 const DEFAULT_MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
 const MIN_REQUEST_INTERVAL_MS = workerClassificationMinIntervalMs;
+const MAX_CATEGORY_LENGTH = 80;
+const MAX_SUMMARY_LENGTH = 400;
+const MAX_PAIN_POINT_LENGTH = 120;
+const MAX_PAIN_POINTS = 5;
+const MAX_DISQUALIFIER_LENGTH = 200;
 
 let lastRequestAt = 0;
 
@@ -63,7 +68,7 @@ export async function classifyLeadWithOpenAI(input: ClassificationInput): Promis
   });
   const responseText = response.content;
   const parsedJson = parseJsonResponse(responseText);
-  const parsed = classificationResultSchema.parse(parsedJson);
+  const parsed = classificationResultSchema.parse(normalizeClassificationResponse(parsedJson));
 
   return {
     ...parsed,
@@ -183,6 +188,40 @@ function parseJsonResponse(text: string) {
   return JSON.parse(cleaned) as unknown;
 }
 
+function normalizeClassificationResponse(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return value;
+  }
+
+  const record = value as Record<string, unknown>;
+
+  return {
+    ...record,
+    category: clampString(record.category, MAX_CATEGORY_LENGTH),
+    summary: clampString(record.summary, MAX_SUMMARY_LENGTH),
+    painPoints: normalizePainPoints(record.painPoints),
+    disqualifier: clampString(record.disqualifier, MAX_DISQUALIFIER_LENGTH),
+  };
+}
+
+function normalizePainPoints(value: unknown) {
+  if (!Array.isArray(value)) {
+    return value;
+  }
+
+  return value
+    .map((item) => clampString(item, MAX_PAIN_POINT_LENGTH))
+    .filter((item) => item.length > 0)
+    .slice(0, MAX_PAIN_POINTS);
+}
+
+function clampString(value: unknown, maxLength: number) {
+  return String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
 const classificationResponseSchema = {
   type: "object",
   additionalProperties: false,
@@ -207,19 +246,26 @@ const classificationResponseSchema = {
     },
     category: {
       type: "string",
+      minLength: 1,
+      maxLength: MAX_CATEGORY_LENGTH,
     },
     summary: {
       type: "string",
+      minLength: 1,
+      maxLength: MAX_SUMMARY_LENGTH,
     },
     painPoints: {
       type: "array",
       items: {
         type: "string",
+        minLength: 1,
+        maxLength: MAX_PAIN_POINT_LENGTH,
       },
-      maxItems: 5,
+      maxItems: MAX_PAIN_POINTS,
     },
     disqualifier: {
       type: "string",
+      maxLength: MAX_DISQUALIFIER_LENGTH,
     },
   },
 } as const;

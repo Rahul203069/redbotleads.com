@@ -12,6 +12,7 @@ type SyncStats = {
   semanticPassedLeads?: number;
   semanticFilteredLeads?: number;
   classifiedLeads?: number;
+  classificationFailedLeads?: number;
   durationMs?: number;
 };
 

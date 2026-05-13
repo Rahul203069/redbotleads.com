@@ -13,6 +13,7 @@ const envSchema = z.object({
   OPENAI_EMBEDDING_BATCH_SIZE: z.coerce.number().int().positive().optional(),
   OPENAI_EMBEDDING_BATCH_MAX_CHARS: z.coerce.number().int().positive().optional(),
   OPENAI_CLASSIFICATION_MIN_INTERVAL_MS: z.coerce.number().int().nonnegative().optional(),
+  SEMANTIC_MATCH_THRESHOLD: z.coerce.number().min(0).max(1).optional(),
   REDIS_QUEUE_TIMEOUT_MS: z.coerce.number().int().positive().optional(),
   WORKER_INGESTION_CONCURRENCY: z.coerce.number().int().positive().optional(),
   WORKER_EMBEDDING_CONCURRENCY: z.coerce.number().int().positive().optional(),
@@ -37,3 +38,4 @@ export const workerNotificationsConcurrency = workerEnv.WORKER_NOTIFICATIONS_CON
 export const workerEmbeddingBatchSize = workerEnv.OPENAI_EMBEDDING_BATCH_SIZE ?? 64;
 export const workerEmbeddingBatchMaxChars = workerEnv.OPENAI_EMBEDDING_BATCH_MAX_CHARS ?? 200000;
 export const workerClassificationMinIntervalMs = workerEnv.OPENAI_CLASSIFICATION_MIN_INTERVAL_MS ?? 0;
+export const semanticMatchThreshold = workerEnv.SEMANTIC_MATCH_THRESHOLD ?? 0.5;

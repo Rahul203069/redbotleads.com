@@ -5,11 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
 import { markCampaignCompleted } from "./campaign-sync";
-import { workerRedisConnection, workerSemanticConcurrency } from "./config";
+import { semanticMatchThreshold, workerRedisConnection, workerSemanticConcurrency } from "./config";
 import { workerLogger } from "./logger";
 import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } from "./queues";
 
-const SEMANTIC_MATCH_THRESHOLD = 0.55;
 const SEMANTIC_FILTER_MODEL = "semantic-threshold-filter";
 const SEMANTIC_FILTER_PROMPT_VERSION = "semantic-threshold-v1";
 
@@ -110,7 +109,7 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
     throw new Error("Semantic matching could not find embeddings for the lead or campaign queries.");
   }
 
-  if (bestMatch.similarity >= SEMANTIC_MATCH_THRESHOLD) {
+  if (bestMatch.similarity >= semanticMatchThreshold) {
     await enqueueLeadClassification({
       leadId: lead.id,
       campaignId: lead.campaignId,
@@ -144,7 +143,7 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
       model: SEMANTIC_FILTER_MODEL,
       promptVersion: SEMANTIC_FILTER_PROMPT_VERSION,
       category: bestMatch.category ?? "semantic_filtered",
-      summary: `Filtered out by semantic threshold (${bestMatch.similarity.toFixed(3)} < ${SEMANTIC_MATCH_THRESHOLD.toFixed(2)}).`,
+      summary: `Filtered out by semantic threshold (${bestMatch.similarity.toFixed(3)} < ${semanticMatchThreshold.toFixed(2)}).`,
       painPoints: [],
     },
     create: {
@@ -152,7 +151,7 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
       model: SEMANTIC_FILTER_MODEL,
       promptVersion: SEMANTIC_FILTER_PROMPT_VERSION,
       category: bestMatch.category ?? "semantic_filtered",
-      summary: `Filtered out by semantic threshold (${bestMatch.similarity.toFixed(3)} < ${SEMANTIC_MATCH_THRESHOLD.toFixed(2)}).`,
+      summary: `Filtered out by semantic threshold (${bestMatch.similarity.toFixed(3)} < ${semanticMatchThreshold.toFixed(2)}).`,
       painPoints: [],
     },
   });

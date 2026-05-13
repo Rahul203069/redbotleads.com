@@ -7,6 +7,8 @@ import { generateStructuredOutput } from "@/lib/openai";
 const requestSchema = z.object({
   description: z.string().trim().min(10, "Add a more descriptive campaign description first."),
   leadType: z.enum(["PRODUCT", "SERVICE"]),
+  idealClient: z.string().trim().optional(),
+  painPoints: z.array(z.string()).default([]),
   keywords: z.array(z.string()).default([]),
   existing: z.array(z.string()).default([]),
 });
@@ -202,8 +204,23 @@ async function generateSubredditSuggestions(userPrompt: string) {
       model: SUBREDDIT_DISCOVERY_MODEL,
       schemaName: "campaign_subreddit_suggestions",
       schema: responseSchema,
-      systemPrompt:
-        "You recommend real, current, high-signal subreddits for Reddit lead generation. Use live web search evidence to find communities that are active, specific, and commercially relevant to the described offer. Return only JSON matching the schema.",
+      systemPrompt: [
+        "You recommend real, current, high-signal subreddits for Reddit lead generation for service businesses.",
+        "",
+        "Your goal is to find communities where people are likely to express:",
+        "- operational pain",
+        "- requests for help",
+        "- outsourcing intent",
+        "- agency/freelancer/consultant needs",
+        "- implementation/setup problems",
+        "- workflow bottlenecks that could turn into service leads",
+        "",
+        "Use live web search evidence to identify real subreddit names that currently exist, are public, and are active.",
+        "",
+        "Prefer communities that are likely to produce actionable leads, not just topical discussion.",
+        "",
+        "Return only JSON matching the schema.",
+      ].join("\n"),
       temperature: 0.3,
       webSearch: {
         enabled: true,
@@ -225,7 +242,7 @@ async function generateSubredditSuggestions(userPrompt: string) {
       schemaName: "campaign_subreddit_suggestions",
       schema: responseSchema,
       systemPrompt:
-        "You recommend plausible, high-signal subreddits for Reddit lead generation. Return only JSON matching the schema.",
+        "You recommend plausible, high-signal subreddits for Reddit lead generation for service businesses. Return only JSON matching the schema.",
       temperature: 0.3,
       userPrompt: userPrompt.replace(
         "Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.",
@@ -252,8 +269,10 @@ async function collectSubredditSuggestions(
       buildSubredditUserPrompt({
         description: input.description,
         existing: [...existing, ...collected],
+        idealClient: input.idealClient,
         keywords: input.keywords,
         leadType: input.leadType,
+        painPoints: input.painPoints,
         requestedCount: remaining,
       }),
     );
@@ -296,41 +315,51 @@ async function collectSubredditSuggestions(
 function buildSubredditUserPrompt(input: {
   description: string;
   existing: string[];
+  idealClient?: string;
   keywords: string[];
   leadType: "PRODUCT" | "SERVICE";
+  painPoints: string[];
   requestedCount: number;
 }) {
   return `
-You are helping a Reddit lead generation app recommend subreddits to monitor for possible leads.
-
 Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.
 
 Return JSON with a "suggestions" array of subreddit names only.
+
 Rules:
 - no "r/" prefix
 - no explanation
 - no markdown
 - no duplicates
 - real subreddit names only
-- prioritize subreddits likely to produce high-intent leads for the described offer
-- prioritize subreddits where people ask for recommendations, alternatives, vendors, agencies, tools, software, workflows, outsourcing help, or operational advice related to the campaign
+- return exactly ${input.requestedCount} subreddits
+
+Prioritization rules:
+- prioritize subreddits where people are likely to ask for help, recommendations, agencies, freelancers, consultants, service providers, implementation help, or outsourcing advice
+- prioritize communities where users describe painful manual work, broken workflows, repetitive tasks, bottlenecks, setup issues, disconnected tools, poor results, or operational frustration
 - include a mix of:
   - direct buyer-intent communities
-  - operator or practitioner communities
+  - operator/practitioner communities
   - adjacent workflow communities
-  - communities where people ask for recommendations or tool alternatives
+  - communities where people ask for recommendations or outside help
 - prefer focused mid-signal and high-signal communities over huge generic communities when both are available
 - prefer communities that are currently active and public
-- infer relevant subreddits from the description even if the exact product category is not named
+- infer relevant subreddits from the description even if the exact service category is not named
+- think in terms of likely lead sources, not just topical relevance
+- for services, prefer communities where people discuss problems that often lead to hiring outside help
 - avoid overly generic low-signal communities when more targeted ones exist
 - avoid NSFW communities
 - avoid meme, entertainment, giveaway, and karma-farming communities
-- think in terms of likely lead sources, not just topical relevance
-- return exactly ${input.requestedCount} subreddits
 
-Campaign lead type: ${input.leadType}
-Campaign description:
+Service type: ${input.leadType}
+Service description:
 ${input.description}
+
+Ideal client:
+${input.idealClient || "none"}
+
+Problems solved:
+${input.painPoints?.join(", ") || "none"}
 
 Known keywords:
 ${input.keywords.join(", ") || "none"}

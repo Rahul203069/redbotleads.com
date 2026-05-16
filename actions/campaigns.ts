@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Prisma } from "../generated/prisma/client";
 
 import { auth } from "@/lib/auth";
+import { BETA_OWNER_ONLY_MESSAGE, isOwnerEmail } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
@@ -54,6 +55,13 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     return {
       status: "error",
       message: "You must be signed in to create a campaign.",
+    };
+  }
+
+  if (!isOwnerEmail(session.user.email)) {
+    return {
+      status: "error",
+      message: BETA_OWNER_ONLY_MESSAGE,
     };
   }
 
@@ -537,6 +545,13 @@ export async function manualSyncCampaign(formData: FormData): Promise<CampaignAc
     return {
       status: "error",
       message: "You must be signed in to sync a campaign.",
+    };
+  }
+
+  if (!isOwnerEmail(session.user.email)) {
+    return {
+      status: "error",
+      message: BETA_OWNER_ONLY_MESSAGE,
     };
   }
 

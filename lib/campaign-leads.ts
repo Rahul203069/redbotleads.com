@@ -27,6 +27,9 @@ export type CampaignLeadView = {
   };
 };
 
+type NormalizedIntentType = NonNullable<CampaignLeadView["ai"]>["intentType"];
+type NormalizedBuyerStage = NonNullable<CampaignLeadView["ai"]>["buyerStage"];
+
 export async function getCampaignLeadViewsForUser({
   campaignId,
   userId,
@@ -74,12 +77,84 @@ export async function getCampaignLeadViewsForUser({
     return [];
   }
 
+  return buildCampaignLeadViews(campaignId, campaign.leads);
+}
+
+export async function getPublicCampaignLeadViews(campaignId: string): Promise<CampaignLeadView[]> {
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: campaignId,
+    },
+    select: {
+      leads: {
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          ai: {
+            select: {
+              intentType: true,
+              buyerStage: true,
+              category: true,
+              summary: true,
+              painPoints: true,
+              disqualifier: true,
+            },
+          },
+          redditItem: {
+            select: {
+              type: true,
+              subreddit: true,
+              title: true,
+              description: true,
+              body: true,
+              url: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!campaign) {
+    return [];
+  }
+
+  return buildCampaignLeadViews(campaignId, campaign.leads);
+}
+
+async function buildCampaignLeadViews(
+  campaignId: string,
+  leads: Array<{
+    id: string;
+    score: number;
+    label: "HIGH" | "MED" | "LOW";
+    status: "NEW" | "SAVED" | "IGNORED" | "REPLIED";
+    createdAt: Date;
+    ai: {
+      intentType: "NONE" | "IMPLICIT" | "EXPLICIT" | "SWITCHING" | null;
+      buyerStage: "SOLVED" | "PROBLEM_AWARE" | "SOLUTION_AWARE" | "EVALUATING" | null;
+      category: string | null;
+      summary: string | null;
+      painPoints: string[];
+      disqualifier: string | null;
+    } | null;
+    redditItem: {
+      type: "POST" | "COMMENT";
+      subreddit: string;
+      title: string | null;
+      description: string | null;
+      body: string | null;
+      url: string | null;
+    };
+  }>,
+): Promise<CampaignLeadView[]> {
   const semanticScores = await getSemanticScoresForLeads(
     campaignId,
-    campaign.leads.map((lead) => lead.id),
+    leads.map((lead) => lead.id),
   );
 
-  return campaign.leads.map((lead) => ({
+  return leads.map((lead) => ({
     id: lead.id,
     score: lead.score,
     label: lead.label,
@@ -133,7 +208,9 @@ async function getSemanticScoresForLeads(campaignId: string, leadIds: string[]) 
   return new Map(rows.map((row) => [row.leadId, row.semanticScore]));
 }
 
-function normalizeIntentType(value: "NONE" | "IMPLICIT" | "EXPLICIT" | "SWITCHING" | null) {
+function normalizeIntentType(
+  value: "NONE" | "IMPLICIT" | "EXPLICIT" | "SWITCHING" | null,
+): NormalizedIntentType {
   if (value === "NONE") return "none";
   if (value === "IMPLICIT") return "implicit";
   if (value === "EXPLICIT") return "explicit";
@@ -141,7 +218,9 @@ function normalizeIntentType(value: "NONE" | "IMPLICIT" | "EXPLICIT" | "SWITCHIN
   return null;
 }
 
-function normalizeBuyerStage(value: "SOLVED" | "PROBLEM_AWARE" | "SOLUTION_AWARE" | "EVALUATING" | null) {
+function normalizeBuyerStage(
+  value: "SOLVED" | "PROBLEM_AWARE" | "SOLUTION_AWARE" | "EVALUATING" | null,
+): NormalizedBuyerStage {
   if (value === "SOLVED") return "solved";
   if (value === "PROBLEM_AWARE") return "problem_aware";
   if (value === "SOLUTION_AWARE") return "solution_aware";

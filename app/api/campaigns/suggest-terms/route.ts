@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { BETA_OWNER_ONLY_MESSAGE, isOwnerEmail } from "@/lib/beta-access";
 import { generateStructuredOutput } from "@/lib/openai";
 
 const requestSchema = z.object({
@@ -32,6 +33,10 @@ export async function POST(request: Request) {
 
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!isOwnerEmail(session.user.email)) {
+    return NextResponse.json({ error: BETA_OWNER_ONLY_MESSAGE }, { status: 403 });
   }
 
   if (!process.env.OPENAI_API_KEY) {

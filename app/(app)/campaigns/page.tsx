@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 
+import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-access-button";
 import { CampaignList } from "@/components/campaigns/campaign-list";
 import { CampaignWizard } from "@/components/campaigns/campaign-wizard";
 import { auth } from "@/lib/auth";
+import { isOwnerEmail } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
 
 export default async function CampaignsPage() {
@@ -43,6 +45,7 @@ export default async function CampaignsPage() {
 
   const activeCount = campaigns.filter((campaign) => campaign.isActive).length;
   const subredditCount = new Set(campaigns.flatMap((campaign) => campaign.subreddits)).size;
+  const canCreateCampaigns = isOwnerEmail(session.user.email);
 
   return (
     <div className="space-y-5">
@@ -60,7 +63,11 @@ export default async function CampaignsPage() {
               enter your lead pipeline.
             </p>
           </div>
-          <CampaignWizard triggerLabel="Create campaign" />
+          {canCreateCampaigns ? (
+            <CampaignWizard triggerLabel="Create campaign" />
+          ) : (
+            <BetaCampaignAccessButton label="Create campaign" />
+          )}
         </div>
       </section>
 
@@ -84,7 +91,11 @@ export default async function CampaignsPage() {
               and score threshold, then refine from there.
             </p>
             <div className="mt-6">
-              <CampaignWizard triggerLabel="Create first campaign" />
+              {canCreateCampaigns ? (
+                <CampaignWizard triggerLabel="Create first campaign" />
+              ) : (
+                <BetaCampaignAccessButton label="Create first campaign" />
+              )}
             </div>
           </div>
         </section>

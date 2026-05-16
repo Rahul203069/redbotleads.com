@@ -1,3 +1,4 @@
+import { BETA_OWNER_EMAILS, isOwnerEmail } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
 import { enqueueDailyIngest, ensureIngestionQueueReady } from "@/worker/queues";
 
@@ -15,9 +16,20 @@ export async function enqueueDueDailyCampaignSyncs(options?: {
   const campaigns = await prisma.campaign.findMany({
     where: {
       isActive: true,
+      user: {
+        email: {
+          in: [...BETA_OWNER_EMAILS],
+          mode: "insensitive",
+        },
+      },
     },
     select: {
       id: true,
+      user: {
+        select: {
+          email: true,
+        },
+      },
       sync: {
         select: {
           status: true,
@@ -33,6 +45,7 @@ export async function enqueueDueDailyCampaignSyncs(options?: {
   });
 
   const dueCampaigns = campaigns
+    .filter((campaign) => isOwnerEmail(campaign.user.email))
     .filter((campaign) => {
       if (!campaign.sync) {
         return true;

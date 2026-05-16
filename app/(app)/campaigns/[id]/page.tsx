@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-access-button";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
+import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
 import { ManualSyncButton } from "@/components/campaigns/manual-sync-button";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
+import { isOwnerEmail } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
@@ -91,6 +94,7 @@ export default async function CampaignDetailPage({
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
+  const canRunCampaigns = isOwnerEmail(session.user.email);
 
   return (
     <div className="space-y-5">
@@ -107,8 +111,13 @@ export default async function CampaignDetailPage({
               </Button>
             </Link>
             <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-stretch lg:justify-end">
+              <CopyPublicCampaignLinkButton campaignId={campaign.id} />
               <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
-              <ManualSyncButton campaignId={campaign.id} disabled={!campaign.isActive} />
+              {canRunCampaigns ? (
+                <ManualSyncButton campaignId={campaign.id} disabled={!campaign.isActive} />
+              ) : (
+                <BetaCampaignAccessButton label="Manual sync" />
+              )}
               <EditCampaignDialog
                 campaign={{
                   id: campaign.id,

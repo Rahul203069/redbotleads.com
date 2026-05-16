@@ -87,6 +87,11 @@ export async function getPublicCampaignLeadViews(campaignId: string): Promise<Ca
     },
     select: {
       leads: {
+        where: {
+          score: {
+            gt: 0,
+          },
+        },
         orderBy: {
           createdAt: "desc",
         },

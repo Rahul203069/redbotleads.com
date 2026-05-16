@@ -35,13 +35,9 @@ export type CampaignActionState = {
   fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>;
 };
 
-const semanticQueryResponseSchema = z.object({
-  queries: z.array(
-    z.object({
-      text: z.string().trim().min(1).max(300),
-      category: z.string().trim().min(1).max(120),
-    }),
-  ).length(16),
+const semanticQuerySchema = z.object({
+  text: z.string().trim().min(1).max(300),
+  category: z.string().trim().min(1).max(120),
 });
 
 export async function createCampaign(
@@ -118,7 +114,7 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     shouldQueueInitialIngest = campaign.isActive;
 
     if (parsed.data.description) {
-      const semanticQueries = await generateCampaignSemanticQueries(parsed.data.description);
+      const semanticQueries = await generateCampaignSemanticQueries(parsed.data.description, parsed.data.leadType);
       await persistCampaignSemanticQueries(campaign.id, semanticQueries);
     }
   } catch (error) {
@@ -172,7 +168,15 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
   };
 }
 
-async function generateCampaignSemanticQueries(productDescription: string) {
+async function generateCampaignSemanticQueries(
+  productDescription: string,
+  leadType: "PRODUCT" | "SERVICE",
+) {
+  const queryCount = leadType === "PRODUCT" ? 30 : 16;
+  const prompt = leadType === "PRODUCT"
+    ? buildProductSemanticQueryPrompt(productDescription)
+    : buildServiceSemanticQueryPrompt(productDescription);
+
   const response = await generateStructuredOutput({
     model: "gpt-4o-mini",
     schema: {
@@ -182,8 +186,8 @@ async function generateCampaignSemanticQueries(productDescription: string) {
       properties: {
         queries: {
           type: "array",
-          minItems: 16,
-          maxItems: 16,
+          minItems: queryCount,
+          maxItems: queryCount,
           items: {
             type: "object",
             additionalProperties: false,
@@ -197,6 +201,17 @@ async function generateCampaignSemanticQueries(productDescription: string) {
       },
     },
     schemaName: "campaign_semantic_queries",
+    systemPrompt: prompt.systemPrompt,
+    temperature: 0.7,
+    userPrompt: prompt.userPrompt,
+  });
+
+  const parsed = z.object({ queries: z.array(semanticQuerySchema).length(queryCount) }).parse(JSON.parse(response.content));
+  return parsed.queries;
+}
+
+function buildServiceSemanticQueryPrompt(productDescription: string) {
+  return {
     systemPrompt: [
       "Generate high-intent semantic search queries for service-led lead discovery.",
       "",
@@ -204,7 +219,6 @@ async function generateCampaignSemanticQueries(productDescription: string) {
       "",
       "Return only JSON matching the schema.",
     ].join("\n"),
-    temperature: 0.7,
     userPrompt: [
       "Generate 16 semantic search queries representing high-intent service-buying signals in online communities such as Reddit.",
       "",
@@ -279,10 +293,70 @@ async function generateCampaignSemanticQueries(productDescription: string) {
       productDescription,
       '"""',
     ].join("\n"),
-  });
+  };
+}
 
-  const parsed = semanticQueryResponseSchema.parse(JSON.parse(response.content));
-  return parsed.queries;
+function buildProductSemanticQueryPrompt(productDescription: string) {
+  return {
+    systemPrompt: [
+      "Generate high-intent semantic search queries for product-led lead discovery.",
+      "",
+      "Return only JSON matching the schema.",
+    ].join("\n"),
+    userPrompt: [
+      "Generate 30 semantic search queries representing",
+      "high-intent product discovery signals in online",
+      "communities such as Reddit.",
+      "",
+      "The goal is to detect users who are actively",
+      "looking for a solution or struggling with an",
+      "existing workflow.",
+      "",
+      "The queries must represent REAL BUYING INTENT.",
+      "",
+      "Include only situations where a user:",
+      "- is asking for a tool",
+      "- is looking for recommendations",
+      "- is frustrated with their current solution",
+      "- is considering switching tools",
+      "- is struggling with a manual process",
+      "",
+      "Do NOT generate queries where the user is:",
+      "- sharing a tool they built",
+      "- explaining their workflow",
+      "- discussing tools in general",
+      "- promoting products",
+      "- writing case studies",
+      "",
+      "Queries should resemble natural Reddit posts",
+      "or comments.",
+      "",
+      "Examples of correct style:",
+      "",
+      '"looking for a better way to track leads"',
+      '"any good CRM for small teams"',
+      '"what tool do you use for managing prospects"',
+      '"our lead tracking process is a mess"',
+      '"alternatives to hubspot for startups"',
+      "",
+      "Return 30 queries.",
+      "",
+      "Return JSON with:",
+      "{",
+      '  "queries": [',
+      "    {",
+      '      "text": "",',
+      '      "category": ""',
+      "    }",
+      "  ]",
+      "}",
+      "",
+      "Product description:",
+      '"""',
+      productDescription,
+      '"""',
+    ].join("\n"),
+  };
 }
 
 async function persistCampaignSemanticQueries(

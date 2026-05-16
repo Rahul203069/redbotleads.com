@@ -198,36 +198,23 @@ function getSuggestionErrorMessage(error: unknown) {
   return "Could not generate subreddit suggestions right now.";
 }
 
-async function generateSubredditSuggestions(userPrompt: string) {
+async function generateSubredditSuggestions(prompt: {
+  systemPrompt: string;
+  userPrompt: string;
+  fallbackSystemPrompt: string;
+}) {
   try {
     return await generateStructuredOutput({
       model: SUBREDDIT_DISCOVERY_MODEL,
       schemaName: "campaign_subreddit_suggestions",
       schema: responseSchema,
-      systemPrompt: [
-        "You recommend real, current, high-signal subreddits for Reddit lead generation for service businesses, agencies, consultants, and freelancers.",
-        "",
-        "Your goal is to find communities where people are likely to express:",
-        "- requests for help",
-        "- outsourcing intent",
-        "- agency/freelancer/consultant needs",
-        "- implementation or setup problems",
-        "- painful manual workflows",
-        "- broken processes",
-        "- operational bottlenecks that could turn into service leads",
-        "",
-        "Prefer communities where users discuss problems that may lead to hiring outside help, not just communities that are topically related.",
-        "",
-        "Use live web search evidence to identify real subreddit names that currently exist, are public, and are active.",
-        "",
-        "Return only JSON matching the schema.",
-      ].join("\n"),
+      systemPrompt: prompt.systemPrompt,
       temperature: 0.3,
       webSearch: {
         enabled: true,
         searchContextSize: SUBREDDIT_WEB_SEARCH_CONTEXT_SIZE,
       },
-      userPrompt,
+      userPrompt: prompt.userPrompt,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
@@ -242,10 +229,9 @@ async function generateSubredditSuggestions(userPrompt: string) {
       model: "gpt-5.1",
       schemaName: "campaign_subreddit_suggestions",
       schema: responseSchema,
-      systemPrompt:
-        "You recommend plausible, high-signal subreddits for Reddit lead generation for service businesses. Return only JSON matching the schema.",
+      systemPrompt: prompt.fallbackSystemPrompt,
       temperature: 0.3,
-      userPrompt: userPrompt.replace(
+      userPrompt: prompt.userPrompt.replace(
         "Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.",
         "Use your knowledge to infer likely subreddit names, then rely on downstream validation to remove invalid or non-public communities.",
       ),
@@ -267,7 +253,7 @@ async function collectSubredditSuggestions(
     }
 
     const response = await generateSubredditSuggestions(
-      buildSubredditUserPrompt({
+      buildSubredditPrompt({
         description: input.description,
         existing: [...existing, ...collected],
         idealClient: input.idealClient,
@@ -313,7 +299,7 @@ async function collectSubredditSuggestions(
   return Array.from(collected).slice(0, TARGET_SUBREDDIT_SUGGESTIONS);
 }
 
-function buildSubredditUserPrompt(input: {
+function buildSubredditPrompt(input: {
   description: string;
   existing: string[];
   idealClient?: string;
@@ -322,7 +308,44 @@ function buildSubredditUserPrompt(input: {
   painPoints: string[];
   requestedCount: number;
 }) {
-  return `
+  if (input.leadType === "PRODUCT") {
+    return buildProductSubredditPrompt(input);
+  }
+
+  return buildServiceSubredditPrompt(input);
+}
+
+function buildServiceSubredditPrompt(input: {
+  description: string;
+  existing: string[];
+  idealClient?: string;
+  keywords: string[];
+  leadType: "PRODUCT" | "SERVICE";
+  painPoints: string[];
+  requestedCount: number;
+}) {
+  return {
+    systemPrompt: [
+      "You recommend real, current, high-signal subreddits for Reddit lead generation for service businesses, agencies, consultants, and freelancers.",
+      "",
+      "Your goal is to find communities where people are likely to express:",
+      "- requests for help",
+      "- outsourcing intent",
+      "- agency/freelancer/consultant needs",
+      "- implementation or setup problems",
+      "- painful manual workflows",
+      "- broken processes",
+      "- operational bottlenecks that could turn into service leads",
+      "",
+      "Prefer communities where users discuss problems that may lead to hiring outside help, not just communities that are topically related.",
+      "",
+      "Use live web search evidence to identify real subreddit names that currently exist, are public, and are active.",
+      "",
+      "Return only JSON matching the schema.",
+    ].join("\n"),
+    fallbackSystemPrompt:
+      "You recommend plausible, high-signal subreddits for Reddit lead generation for service businesses. Return only JSON matching the schema.",
+    userPrompt: `
 You are helping a Reddit lead generation app recommend subreddits to monitor for possible service leads.
 
 Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.
@@ -379,5 +402,61 @@ ${input.keywords.join(", ") || "none"}
 
 Already selected:
 ${input.existing.join(", ") || "none"}
-  `.trim();
+  `.trim(),
+  };
+}
+
+function buildProductSubredditPrompt(input: {
+  description: string;
+  existing: string[];
+  keywords: string[];
+  leadType: "PRODUCT" | "SERVICE";
+  requestedCount: number;
+}) {
+  return {
+    systemPrompt:
+      "You recommend real, current, high-signal subreddits for Reddit lead generation. Use live web search evidence to find communities that are active, specific, and commercially relevant to the described offer. Return only JSON matching the schema.",
+    fallbackSystemPrompt:
+      "You recommend plausible, high-signal subreddits for Reddit lead generation. Return only JSON matching the schema.",
+    userPrompt: `
+You are helping a Reddit lead generation app recommend subreddits to monitor for possible leads.
+
+Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.
+
+Return JSON with a "suggestions" array of subreddit names only.
+
+Rules:
+- no "r/" prefix
+- no explanation
+- no markdown
+- no duplicates
+- real subreddit names only
+- prioritize subreddits likely to produce high-intent leads for the described offer
+- prioritize subreddits where people ask for recommendations, alternatives, vendors, agencies, tools, software, workflows, outsourcing help, or operational advice related to the campaign
+- include a mix of:
+  - direct buyer-intent communities
+  - operator or practitioner communities
+  - adjacent workflow communities
+  - communities where people ask for recommendations or tool alternatives
+- prefer focused mid-signal and high-signal communities over huge generic communities when both are available
+- prefer communities that are currently active and public
+- infer relevant subreddits from the description even if the exact product category is not named
+- avoid overly generic low-signal communities when more targeted ones exist
+- avoid NSFW communities
+- avoid meme, entertainment, giveaway, and karma-farming communities
+- think in terms of likely lead sources, not just topical relevance
+- return exactly ${input.requestedCount} subreddits
+
+Campaign lead type: ${input.leadType}
+
+Campaign description:
+${input.description}
+
+Known keywords:
+${input.keywords.join(", ") || "none"}
+
+Already selected:
+${input.existing.join(", ") || "none"}
+  `.trim(),
+  };
 }

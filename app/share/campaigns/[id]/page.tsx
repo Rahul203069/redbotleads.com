@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { BrandLogo } from "@/components/app/brand-logo";
 import { getPublicCampaignLeadViews, type CampaignLeadView } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
 
@@ -33,6 +34,7 @@ export default async function PublicCampaignResultsPage({
       sync: {
         select: {
           status: true,
+          statsJson: true,
           updatedAt: true,
           completedAt: true,
         },
@@ -49,11 +51,27 @@ export default async function PublicCampaignResultsPage({
     .sort((left, right) => right.score - left.score);
   const highIntentCount = leads.filter((lead) => lead.label === "HIGH").length;
   const lastUpdated = campaign.sync?.completedAt ?? campaign.sync?.updatedAt ?? campaign.updatedAt;
+  const syncStats = campaign.sync?.statsJson as { fetchedPosts?: number } | null;
+  const scrapedPosts = syncStats?.fetchedPosts ?? 0;
 
   return (
-    <main className="min-h-screen bg-[#050505] px-4 py-5 text-[#fdfdfd] sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#050505] px-3 py-3 text-[#fdfdfd] sm:px-6 sm:py-5 lg:px-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
-        <section className="rounded-[28px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] sm:p-7 lg:p-8">
+        <header className="flex flex-col gap-3 rounded-[20px] bg-[#181818] px-4 py-4 shadow-[rgba(0,0,0,0.35)_0px_8px_16px] sm:flex-row sm:items-center sm:justify-between sm:rounded-[24px] sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="min-w-0">
+              <BrandLogo className="block text-[1.45rem] font-semibold leading-none tracking-[-0.07em] sm:text-[1.65rem]" />
+              <p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                Public campaign report
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex w-fit items-center rounded-full bg-[#121212] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+            Shared view
+          </span>
+        </header>
+
+        <section className="rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] sm:rounded-[28px] sm:p-7 lg:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
@@ -61,20 +79,21 @@ export default async function PublicCampaignResultsPage({
                 <HeroChip label={campaign.leadType.toLowerCase()} />
                 {campaign.sync?.status ? <HeroChip label={campaign.sync.status.toLowerCase()} /> : null}
               </div>
-              <h1 className="mt-5 text-[2rem] font-bold leading-tight tracking-[-0.04em] text-[#fdfdfd] sm:text-[2.5rem] lg:text-[3rem]">
+              <h1 className="mt-5 text-[1.85rem] font-bold leading-tight text-[#fdfdfd] [overflow-wrap:anywhere] sm:text-[2.5rem] lg:text-[3rem]">
                 {campaign.name}
               </h1>
               <p className="mt-4 max-w-[70ch] text-[15px] leading-6 text-[#cbcbcb]">
                 {campaign.description || "No campaign description was added."}
               </p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
+            <div className="grid w-full grid-cols-2 gap-3 lg:min-w-[560px] lg:grid-cols-4">
               <Metric label="Classified leads" value={String(leads.length)} />
               <Metric label="High intent" value={String(highIntentCount)} />
+              <Metric label="Posts scraped" value={String(scrapedPosts)} />
               <Metric label="Subreddits" value={String(campaign.subreddits.length)} />
             </div>
           </div>
-          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-white/8 pt-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+          <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-white/8 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3] sm:gap-3 sm:tracking-[0.18em]">
             <span>Updated {formatDate(lastUpdated.toISOString())}</span>
             {campaign.subreddits.slice(0, 6).map((subreddit) => (
               <span key={subreddit}>r/{subreddit}</span>
@@ -83,7 +102,7 @@ export default async function PublicCampaignResultsPage({
           </div>
         </section>
 
-        <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
+        <section className="rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] sm:rounded-[24px] sm:p-5 lg:p-6">
           <div className="border-b border-white/8 pb-5">
             <h2 className="text-[24px] font-bold tracking-tight text-[#ffffff]">Classified leads</h2>
             <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
@@ -108,7 +127,7 @@ function PublicLeadCard({ lead }: { lead: CampaignLeadView }) {
   const sourceText = getContentPreview(lead.redditItem.body, lead.redditItem.description);
 
   return (
-    <article className="rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+    <article className="rounded-[18px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] sm:rounded-[22px] sm:p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1 space-y-4">
           <div className="flex flex-wrap items-center gap-2">
@@ -117,10 +136,10 @@ function PublicLeadCard({ lead }: { lead: CampaignLeadView }) {
             {lead.ai?.category ? <Badge tone="neutral">{lead.ai.category}</Badge> : null}
           </div>
           <div>
-            <h3 className="text-[17px] font-semibold leading-6 text-[#fdfdfd]">
+            <h3 className="text-[16px] font-semibold leading-6 text-[#fdfdfd] [overflow-wrap:anywhere] sm:text-[17px]">
               {lead.redditItem.title || sourceText || "Untitled Reddit item"}
             </h3>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3] sm:gap-3 sm:tracking-[0.18em]">
               <span>r/{lead.redditItem.subreddit}</span>
               <span>Scored {formatDate(lead.createdAt)}</span>
               {lead.ai?.intentType ? <span>{formatEnumLabel(lead.ai.intentType)}</span> : null}
@@ -165,9 +184,9 @@ function PublicLeadCard({ lead }: { lead: CampaignLeadView }) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">{label}</div>
-      <div className="mt-2 text-[28px] font-bold leading-none tracking-[-0.04em] text-[#ffffff]">{value}</div>
+    <div className="min-w-0 rounded-[16px] bg-[#121212] px-3 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:rounded-[18px] sm:px-4 sm:py-4">
+      <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#b3b3b3] sm:text-[10px] sm:tracking-[0.18em]">{label}</div>
+      <div className="mt-2 text-[24px] font-bold leading-none text-[#ffffff] sm:text-[28px]">{value}</div>
     </div>
   );
 }

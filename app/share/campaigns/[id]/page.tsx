@@ -4,8 +4,6 @@ import { notFound } from "next/navigation";
 import { getPublicCampaignLeadViews, type CampaignLeadView } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
 
-const MIN_VISIBLE_LEAD_SCORE = 40;
-
 export const metadata: Metadata = {
   title: "Shared Campaign Results",
   description: "Public campaign lead results.",
@@ -47,7 +45,7 @@ export default async function PublicCampaignResultsPage({
   }
 
   const leads = (await getPublicCampaignLeadViews(campaign.id))
-    .filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE)
+    .filter((lead) => lead.ai !== null)
     .sort((left, right) => right.score - left.score);
   const highIntentCount = leads.filter((lead) => lead.label === "HIGH").length;
   const lastUpdated = campaign.sync?.completedAt ?? campaign.sync?.updatedAt ?? campaign.updatedAt;
@@ -71,7 +69,7 @@ export default async function PublicCampaignResultsPage({
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
-              <Metric label="Qualified leads" value={String(leads.length)} />
+              <Metric label="Classified leads" value={String(leads.length)} />
               <Metric label="High intent" value={String(highIntentCount)} />
               <Metric label="Subreddits" value={String(campaign.subreddits.length)} />
             </div>
@@ -87,9 +85,9 @@ export default async function PublicCampaignResultsPage({
 
         <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
           <div className="border-b border-white/8 pb-5">
-            <h2 className="text-[24px] font-bold tracking-tight text-[#ffffff]">Qualified leads</h2>
+            <h2 className="text-[24px] font-bold tracking-tight text-[#ffffff]">Classified leads</h2>
             <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
-              These Reddit items passed semantic matching and LLM classification for this campaign.
+              These Reddit items have been scored and classified by the LLM for this campaign.
             </p>
           </div>
 
@@ -206,10 +204,10 @@ function Badge({
 function EmptyState() {
   return (
     <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">No qualified leads</p>
-      <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">No leads are ready to share yet.</h3>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">No classified leads</p>
+      <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">No scored leads are ready to share yet.</h3>
       <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
-        This campaign does not currently have classified leads above the public visibility threshold.
+        This campaign does not currently have leads that finished LLM classification.
       </p>
     </div>
   );

@@ -587,11 +587,11 @@ function renderStep(
           title="Need subreddit ideas?"
         />
 
-        <Field hint="Add subreddit names. `r/` will be normalized automatically." label="Subreddits">
+        <Field hint="Paste a comma-separated list or add names one by one. `r/` will be normalized automatically." label="Subreddits">
           <TagInput
-            label="Example: startups, saas, smallbusiness."
+            label="Example: startups, r/saas, smallbusiness."
             onChange={(values) => updateDraft("subreddits", values)}
-            placeholder="Type a subreddit and press Enter"
+            placeholder="Paste subreddits or type one"
             value={draft.subreddits}
           />
         </Field>

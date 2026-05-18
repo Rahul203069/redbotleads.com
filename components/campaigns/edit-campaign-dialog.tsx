@@ -176,8 +176,13 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 />
               </Field>
 
-              <Field error={errors.subreddits} hint="Communities to monitor." label="Subreddits">
-                <TagInput onChange={(values) => updateDraft("subreddits", values)} placeholder="Type a subreddit and press Enter" value={draft.subreddits} />
+              <Field error={errors.subreddits} hint="Paste a comma-separated list or add communities one by one. `r/` will be normalized automatically." label="Subreddits">
+                <TagInput
+                  label="Example: startups, r/saas, smallbusiness."
+                  onChange={(values) => updateDraft("subreddits", values)}
+                  placeholder="Paste subreddits or type one"
+                  value={draft.subreddits}
+                />
               </Field>
             </section>
 

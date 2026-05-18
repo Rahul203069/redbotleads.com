@@ -108,7 +108,7 @@ export function TagInput({ label, onChange, placeholder, value }: TagInputProps)
 }
 
 function normalizeValue(value: string) {
-  return value.trim().toLowerCase().replace(/^r\//, "");
+  return value.trim().toLowerCase().replace(/^\/?r\//, "");
 }
 
 function splitValues(value: string) {

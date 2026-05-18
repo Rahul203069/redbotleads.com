@@ -745,7 +745,7 @@ function parseList(value: FormDataEntryValue | null) {
 }
 
 function parseSubreddits(value: FormDataEntryValue | null) {
-  return parseList(value).map((item) => item.replace(/^r\//, ""));
+  return parseList(value).map((item) => item.replace(/^\/?r\//, ""));
 }
 
 function normalizeOptionalString(value: FormDataEntryValue | null) {

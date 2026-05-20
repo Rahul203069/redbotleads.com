@@ -180,7 +180,7 @@ async function generateCampaignSemanticQueries(
   productDescription: string,
   leadType: "PRODUCT" | "SERVICE",
 ) {
-  const queryCount = leadType === "PRODUCT" ? 30 : 16;
+  const queryCount = 30;
   const prompt = leadType === "PRODUCT"
     ? buildProductSemanticQueryPrompt(productDescription)
     : buildServiceSemanticQueryPrompt(productDescription);
@@ -228,7 +228,7 @@ function buildServiceSemanticQueryPrompt(productDescription: string) {
       "Return only JSON matching the schema.",
     ].join("\n"),
     userPrompt: [
-      "Generate 16 semantic search queries representing high-intent service-buying signals in online communities such as Reddit.",
+      "Generate 30 semantic search queries representing high-intent service-buying signals in online communities such as Reddit.",
       "",
       "The goal is to detect users who are likely to:",
       "- buy a service",
@@ -262,6 +262,8 @@ function buildServiceSemanticQueryPrompt(productDescription: string) {
       "- looking for a job",
       "",
       "Queries should sound like natural Reddit posts or comments.",
+      "",
+      "Return 30 queries.",
       "",
       "Prefer language like:",
       "- need help with",

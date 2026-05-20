@@ -75,7 +75,7 @@ export async function fetchSubredditPosts(subreddit: string, limit?: number) {
 
 export async function fetchSubredditRss(subreddit: string) {
   const normalizedSubreddit = normalizeSubredditName(subreddit);
-  const response = await fetch(`${REDDIT_RSS_BASE_URL}/r/${encodeURIComponent(normalizedSubreddit)}/.rss`, {
+  const response = await fetch(`${REDDIT_RSS_BASE_URL}/r/${encodeURIComponent(normalizedSubreddit)}/new/.rss`, {
     headers: {
       "User-Agent": process.env.REDDIT_RSS_USER_AGENT?.trim() || DEFAULT_USER_AGENT,
       Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.1",

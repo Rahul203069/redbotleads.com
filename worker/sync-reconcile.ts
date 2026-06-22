@@ -52,7 +52,7 @@ export async function reconcileCampaignSyncState(campaignId: string): Promise<Re
 
   const sync = campaign?.sync ?? null;
 
-  if (!sync || sync.status !== "PROCESSING") {
+  if (!sync || (sync.status !== "PROCESSING" && sync.status !== "QUEUED")) {
     return sync;
   }
 
@@ -62,7 +62,51 @@ export async function reconcileCampaignSyncState(campaignId: string): Promise<Re
     return sync;
   }
 
-  const hasLiveJobs = await hasLiveJobsForCampaign(campaignId);
+  const [hasLiveJobs, hasIngestionWorkers] = await Promise.all([
+    hasLiveJobsForCampaign(campaignId),
+    hasLiveIngestionWorkers(),
+  ]);
+
+  if (sync.status === "QUEUED") {
+    if (hasLiveJobs && hasIngestionWorkers) {
+      return sync;
+    }
+
+    const staleMinutes = Math.max(
+      1,
+      Math.round((Date.now() - heartbeatAt.getTime()) / 60000),
+    );
+    const reason = hasLiveJobs
+      ? "the ingestion worker is not connected"
+      : "no live queue job was found";
+
+    await markCampaignFailed(
+      campaignId,
+      "FAILED",
+      `Sync stayed queued for ${staleMinutes} minute${staleMinutes === 1 ? "" : "s"} because ${reason}.`,
+    );
+
+    const refreshedQueued = await prisma.campaignSync.findUnique({
+      where: {
+        campaignId,
+      },
+      select: {
+        status: true,
+        stage: true,
+        message: true,
+        lastError: true,
+        queuedAt: true,
+        startedAt: true,
+        completedAt: true,
+        failedAt: true,
+        lastHeartbeat: true,
+        statsJson: true,
+        updatedAt: true,
+      },
+    });
+
+    return refreshedQueued;
+  }
 
   if (hasLiveJobs) {
     return sync;
@@ -125,6 +169,14 @@ export async function reconcileCampaignSyncState(campaignId: string): Promise<Re
   });
 
   return refreshed;
+}
+
+async function hasLiveIngestionWorkers() {
+  try {
+    return (await ingestionQueue.getWorkersCount()) > 0;
+  } catch {
+    return false;
+  }
 }
 
 async function hasLiveJobsForCampaign(campaignId: string) {

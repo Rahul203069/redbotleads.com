@@ -8,6 +8,7 @@ import {
   markCampaignFailed,
   updateCampaignProgress,
 } from "./campaign-sync";
+import { markCampaignRunCompleted, markCampaignRunFailed, markCampaignRunProcessing } from "./campaign-runs";
 import { classifyLeadWithOpenAI } from "./classification-ai";
 import { workerClassificationConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
@@ -70,6 +71,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       },
       user: {
         select: {
+          id: true,
           email: true,
           emailAlertsEnabled: true,
           slackWebhookUrl: true,
@@ -114,6 +116,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
           classifiedLeads: classifiedBefore,
         },
       );
+      await markCampaignRunProcessing(data.campaignRunId, "Scoring campaign leads with AI.");
     }
 
     const result = await classifyLeadWithOpenAI({
@@ -134,6 +137,9 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         author: lead.redditItem.author,
         url: lead.redditItem.url,
       },
+      campaignId: lead.campaignId,
+      campaignRunId: data.campaignRunId,
+      userId: lead.user.id,
     }).catch(async (error: unknown) => {
       if (isSystemicClassificationError(error)) {
         throw error;
@@ -145,6 +151,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       if (!isRssPollClassification) {
         await finalizeCampaignClassificationProgress(
           lead.campaignId,
+          data.campaignRunId,
           `${lead.id} could not be scored, so it was marked LOW and skipped.`,
         );
       }
@@ -256,7 +263,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
     }
 
     if (!isRssPollClassification) {
-      await finalizeCampaignClassificationProgress(lead.campaignId);
+      await finalizeCampaignClassificationProgress(lead.campaignId, data.campaignRunId);
     }
 
     workerLogger.info(
@@ -284,6 +291,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
 
     if (!isRssPollClassification) {
       await markCampaignFailed(lead.campaignId, "CLASSIFYING", errorMessage);
+      await markCampaignRunFailed(data.campaignRunId, errorMessage);
     }
 
     throw error;
@@ -369,7 +377,7 @@ async function recordLeadClassificationFailure(leadId: string, errorMessage: str
   ]);
 }
 
-async function finalizeCampaignClassificationProgress(campaignId: string, skipMessage?: string) {
+async function finalizeCampaignClassificationProgress(campaignId: string, campaignRunId?: string, skipMessage?: string) {
   const [remainingAfter, classifiedAfter, failedAfter] = await Promise.all([
     countPendingLeadClassification(campaignId),
     countClassifiedLeads(campaignId),
@@ -388,6 +396,10 @@ async function finalizeCampaignClassificationProgress(campaignId: string, skipMe
         classificationFailedLeads: failedAfter,
       },
     );
+    await markCampaignRunProcessing(campaignRunId, `${skippedText}${remainingAfter} lead${remainingAfter === 1 ? "" : "s"} still waiting for AI scoring.`, {
+      classifiedLeads: classifiedAfter,
+      classificationFailedLeads: failedAfter,
+    });
     return;
   }
 
@@ -397,17 +409,20 @@ async function finalizeCampaignClassificationProgress(campaignId: string, skipMe
       ? ` ${failedAfter} lead${failedAfter === 1 ? " was" : "s were"} skipped after scoring errors.`
       : "";
 
+  const stats = {
+    classifiedLeads: classifiedAfter,
+    classificationFailedLeads: failedAfter,
+    semanticCheckedLeads: semanticCounts.checked,
+    semanticPassedLeads: semanticCounts.passed,
+    semanticFilteredLeads: semanticCounts.filtered,
+  };
+
   await markCampaignCompleted(
     campaignId,
     `AI scoring complete for this campaign sync.${failedText}`,
-    {
-      classifiedLeads: classifiedAfter,
-      classificationFailedLeads: failedAfter,
-      semanticCheckedLeads: semanticCounts.checked,
-      semanticPassedLeads: semanticCounts.passed,
-      semanticFilteredLeads: semanticCounts.filtered,
-    },
+    stats,
   );
+  await markCampaignRunCompleted(campaignRunId, `AI scoring complete for this campaign sync.${failedText}`, stats);
 }
 
 async function countSemanticProgress(campaignId: string) {

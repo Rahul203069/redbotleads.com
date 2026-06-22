@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
 import { markCampaignCompleted } from "./campaign-sync";
+import { markCampaignRunCompleted } from "./campaign-runs";
 import { semanticMatchThreshold, workerRedisConnection, workerSemanticConcurrency } from "./config";
 import { workerLogger } from "./logger";
 import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } from "./queues";
@@ -161,6 +162,7 @@ async function runRssPollSemanticMatch(
   await enqueueLeadClassification({
     leadId: lead.id,
     campaignId: campaign.id,
+    campaignRunId: data.campaignRunId,
     trigger: "rss_poll",
   });
 
@@ -217,6 +219,7 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
     await enqueueLeadClassification({
       leadId: lead.id,
       campaignId: lead.campaignId,
+      campaignRunId: data.campaignRunId,
     });
 
     workerLogger.info(
@@ -240,6 +243,7 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
     await enqueueLeadClassification({
       leadId: lead.id,
       campaignId: lead.campaignId,
+      campaignRunId: data.campaignRunId,
     });
 
     workerLogger.info(
@@ -288,15 +292,18 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
   if (remainingLeads === 0) {
     const semanticCounts = await countSemanticProgress(lead.campaignId);
 
+    const stats = {
+      semanticCheckedLeads: semanticCounts.checked,
+      semanticPassedLeads: semanticCounts.passed,
+      semanticFilteredLeads: semanticCounts.filtered,
+    };
+
     await markCampaignCompleted(
       lead.campaignId,
       "Lead processing complete for this campaign sync.",
-      {
-        semanticCheckedLeads: semanticCounts.checked,
-        semanticPassedLeads: semanticCounts.passed,
-        semanticFilteredLeads: semanticCounts.filtered,
-      },
+      stats,
     );
+    await markCampaignRunCompleted(data.campaignRunId, "Lead processing complete for this campaign sync.", stats);
   }
 
   workerLogger.info(

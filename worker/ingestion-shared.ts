@@ -96,10 +96,12 @@ export async function ensureLeadForEmbedding({
 
 export async function ensureLeadAndEnqueueEmbedding({
   campaignId,
+  campaignRunId,
   userId,
   redditItemId,
 }: {
   campaignId: string;
+  campaignRunId?: string;
   userId: string;
   redditItemId: string;
 }) {
@@ -116,13 +118,14 @@ export async function ensureLeadAndEnqueueEmbedding({
   await enqueueLeadEmbedding({
     leadId: item.leadId,
     campaignId,
+    campaignRunId,
     redditItemId: item.redditItemId,
   });
 
   return 1;
 }
 
-export async function enqueueLeadEmbeddingBatches(campaignId: string, items: LeadEmbeddingBatchItem[]) {
+export async function enqueueLeadEmbeddingBatches(campaignId: string, items: LeadEmbeddingBatchItem[], campaignRunId?: string) {
   let enqueuedBatches = 0;
 
   for (let index = 0; index < items.length; index += workerEmbeddingBatchSize) {
@@ -134,6 +137,7 @@ export async function enqueueLeadEmbeddingBatches(campaignId: string, items: Lea
 
     await enqueueLeadEmbeddingBatch({
       campaignId,
+      campaignRunId,
       items: chunk,
     });
     enqueuedBatches += 1;

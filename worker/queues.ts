@@ -1,6 +1,7 @@
 import { Queue } from "bullmq";
 
 import { markCampaignFailed, markCampaignQueued } from "./campaign-sync";
+import { createCampaignRun } from "./campaign-runs";
 import { redisQueueTimeoutMs, workerRedisConnection } from "./config";
 
 export const ingestionQueueName = "ingestion";
@@ -25,11 +26,13 @@ export type NotificationJobName = "SEND_EMAIL" | "SEND_SLACK";
 export type InitialIngestJobData = {
   campaignId: string;
   trigger: "campaign_created" | "manual_resync";
+  campaignRunId?: string;
 };
 
 export type DailyIngestJobData = {
   campaignId: string;
   trigger: "daily_sync";
+  campaignRunId?: string;
 };
 
 export type PollSubredditRssJobData = {
@@ -39,6 +42,7 @@ export type PollSubredditRssJobData = {
 
 export type MatchCampaignRssPollRunJobData = {
   campaignId: string;
+  campaignRunId?: string;
   runStartedAt: string;
   expectedSubreddits: string[];
   attempt?: number;
@@ -47,6 +51,7 @@ export type MatchCampaignRssPollRunJobData = {
 export type ClassificationJobData = {
   leadId: string;
   campaignId: string;
+  campaignRunId?: string;
   trigger?: "campaign_sync" | "rss_poll";
 };
 
@@ -60,9 +65,11 @@ export type EmbeddingJobData =
       leadId: string;
       campaignId: string;
       redditItemId: string;
+      campaignRunId?: string;
     }
   | {
       campaignId: string;
+      campaignRunId?: string;
       items: LeadEmbeddingBatchItem[];
     }
   | {
@@ -74,11 +81,13 @@ export type SemanticJobData =
       leadId: string;
       campaignId: string;
       redditItemId: string;
+      campaignRunId?: string;
       trigger?: "campaign_sync";
     }
   | {
       redditItemId: string;
       campaignId?: string;
+      campaignRunId?: string;
       trigger?: "rss_poll";
     };
 
@@ -264,11 +273,24 @@ export async function enqueueInitialIngest(data: InitialIngestJobData) {
       return existingLiveJob;
     }
 
+    const campaignRun = data.campaignRunId
+      ? { id: data.campaignRunId }
+      : await createCampaignRun({
+          campaignId: data.campaignId,
+          trigger: data.trigger === "campaign_created" ? "CAMPAIGN_CREATED" : "MANUAL_RESYNC",
+          message: data.trigger === "campaign_created" ? "Initial campaign sync queued." : "Manual campaign sync queued.",
+        });
+
+    const jobData = {
+      ...data,
+      campaignRunId: campaignRun.id,
+    };
+
     let job;
 
     try {
       job = await withTimeout(
-        ingestionQueue.add(initialIngestJobName, data, {
+        ingestionQueue.add(initialIngestJobName, jobData, {
           removeOnComplete: 100,
           removeOnFail: 200,
         }),
@@ -344,7 +366,18 @@ export async function enqueueDailyIngest(
       return existingLiveJob;
     }
 
-    const job = await ingestionQueue.add(dailyIngestJobName, data, {
+    const campaignRun = data.campaignRunId
+      ? { id: data.campaignRunId }
+      : await createCampaignRun({
+          campaignId: data.campaignId,
+          trigger: "DAILY_SYNC",
+          message: "Daily campaign sync queued.",
+        });
+
+    const job = await ingestionQueue.add(dailyIngestJobName, {
+      ...data,
+      campaignRunId: campaignRun.id,
+    }, {
       removeOnComplete: 100,
       removeOnFail: 200,
     });
@@ -406,10 +439,19 @@ export async function enqueueCampaignRssPollRunMatch(
     delayMs?: number;
   },
 ) {
+  const campaignRun = data.campaignRunId
+    ? { id: data.campaignRunId }
+    : await createCampaignRun({
+        campaignId: data.campaignId,
+        trigger: "RSS_POLL_MATCH",
+        message: "Campaign RSS poll match queued.",
+      });
+
   return rssPollingQueue.add(
     matchCampaignRssPollRunJobName,
     {
       ...data,
+      campaignRunId: campaignRun.id,
       expectedSubreddits: data.expectedSubreddits.map(normalizeSubredditName).filter(Boolean),
       attempt: data.attempt ?? 0,
     },

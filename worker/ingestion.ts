@@ -8,6 +8,7 @@ import {
   markCampaignProcessing,
   updateCampaignProgress,
 } from "./campaign-sync";
+import { markCampaignRunCompleted, markCampaignRunFailed, markCampaignRunProcessing } from "./campaign-runs";
 import { workerEmbeddingBatchSize, workerIngestionConcurrency, workerRedisConnection } from "./config";
 import { runDailyIngest } from "./daily-ingestion";
 import {
@@ -70,11 +71,13 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
 
   if (!campaign.isActive) {
     await markCampaignCompleted(campaign.id, "Campaign is paused. Initial sync skipped.");
+    await markCampaignRunCompleted(data.campaignRunId, "Campaign is paused. Initial sync skipped.");
     workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping inactive campaign ingestion");
     return { skipped: true, reason: "campaign_inactive" };
   }
 
   await markCampaignProcessing(campaign.id, "FETCHING_POSTS", "Starting Reddit ingestion for this campaign.");
+  await markCampaignRunProcessing(data.campaignRunId, "Starting Reddit ingestion for this campaign.");
 
   const startedAt = Date.now();
   let fetchedPosts = 0;
@@ -92,7 +95,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     }
 
     const items = pendingEmbeddingItems.slice();
-    queuedEmbeddingBatches += await enqueueLeadEmbeddingBatches(campaign.id, items);
+    queuedEmbeddingBatches += await enqueueLeadEmbeddingBatches(campaign.id, items, data.campaignRunId);
     pendingEmbeddingItems.splice(0, items.length);
   };
 
@@ -169,49 +172,58 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       : "";
 
   if (createdLeads > 0) {
+    const stats = {
+      fetchedPosts,
+      promisingPosts,
+      fetchedComments,
+      matchedItems,
+      createdLeads,
+      queuedEmbeddingBatches,
+      durationMs,
+    };
+
     await updateCampaignProgress(
       campaign.id,
       "CLASSIFYING",
       `RSS ingestion complete. ${createdLeads} lead${createdLeads === 1 ? "" : "s"} queued for embedding and semantic filtering.${errorSummary}`,
-      {
-        fetchedPosts,
-        promisingPosts,
-        fetchedComments,
-        matchedItems,
-        createdLeads,
-        queuedEmbeddingBatches,
-        durationMs,
-      },
+      stats,
     );
+    await markCampaignRunProcessing(data.campaignRunId, "RSS ingestion complete. Leads queued for embedding and semantic filtering.", stats);
   } else if (allSubredditsFailed) {
+    const stats = {
+      fetchedPosts,
+      promisingPosts,
+      fetchedComments,
+      matchedItems,
+      createdLeads,
+      queuedEmbeddingBatches,
+      durationMs,
+    };
+
     await markCampaignFailed(
       campaign.id,
       "FETCHING_POSTS",
       `RSS ingestion completed with no queued leads.${errorSummary}`,
-      {
-        fetchedPosts,
-        promisingPosts,
-        fetchedComments,
-        matchedItems,
-        createdLeads,
-        queuedEmbeddingBatches,
-        durationMs,
-      },
+      stats,
     );
+    await markCampaignRunFailed(data.campaignRunId, `RSS ingestion completed with no queued leads.${errorSummary}`, stats);
   } else {
+    const stats = {
+      fetchedPosts,
+      promisingPosts,
+      fetchedComments,
+      matchedItems,
+      createdLeads,
+      queuedEmbeddingBatches,
+      durationMs,
+    };
+
     await markCampaignCompleted(
       campaign.id,
       `RSS ingestion completed. No matching leads were found.${hasErrors ? errorSummary : ""}`,
-      {
-        fetchedPosts,
-        promisingPosts,
-        fetchedComments,
-        matchedItems,
-        createdLeads,
-        queuedEmbeddingBatches,
-        durationMs,
-      },
+      stats,
     );
+    await markCampaignRunCompleted(data.campaignRunId, `RSS ingestion completed. No matching leads were found.${hasErrors ? errorSummary : ""}`, stats);
   }
 
   workerLogger.info(

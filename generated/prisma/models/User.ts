@@ -276,6 +276,8 @@ export type UserWhereInput = {
   campaigns?: Prisma.CampaignListRelationFilter
   redditAccounts?: Prisma.RedditAccountListRelationFilter
   leads?: Prisma.LeadListRelationFilter
+  campaignRuns?: Prisma.CampaignRunListRelationFilter
+  aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -301,6 +303,8 @@ export type UserOrderByWithRelationInput = {
   campaigns?: Prisma.CampaignOrderByRelationAggregateInput
   redditAccounts?: Prisma.RedditAccountOrderByRelationAggregateInput
   leads?: Prisma.LeadOrderByRelationAggregateInput
+  campaignRuns?: Prisma.CampaignRunOrderByRelationAggregateInput
+  aiUsageEvents?: Prisma.AiUsageEventOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -329,6 +333,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   campaigns?: Prisma.CampaignListRelationFilter
   redditAccounts?: Prisma.RedditAccountListRelationFilter
   leads?: Prisma.LeadListRelationFilter
+  campaignRuns?: Prisma.CampaignRunListRelationFilter
+  aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -398,6 +404,8 @@ export type UserCreateInput = {
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -423,6 +431,8 @@ export type UserUncheckedCreateInput = {
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -448,6 +458,8 @@ export type UserUpdateInput = {
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -473,6 +485,8 @@ export type UserUncheckedUpdateInput = {
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -684,6 +698,34 @@ export type UserUpdateOneRequiredWithoutCampaignsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCampaignsInput, Prisma.UserUpdateWithoutCampaignsInput>, Prisma.UserUncheckedUpdateWithoutCampaignsInput>
 }
 
+export type UserCreateNestedOneWithoutCampaignRunsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCampaignRunsInput, Prisma.UserUncheckedCreateWithoutCampaignRunsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCampaignRunsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCampaignRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCampaignRunsInput, Prisma.UserUncheckedCreateWithoutCampaignRunsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCampaignRunsInput
+  upsert?: Prisma.UserUpsertWithoutCampaignRunsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCampaignRunsInput, Prisma.UserUpdateWithoutCampaignRunsInput>, Prisma.UserUncheckedUpdateWithoutCampaignRunsInput>
+}
+
+export type UserCreateNestedOneWithoutAiUsageEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAiUsageEventsInput, Prisma.UserUncheckedCreateWithoutAiUsageEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAiUsageEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAiUsageEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAiUsageEventsInput, Prisma.UserUncheckedCreateWithoutAiUsageEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAiUsageEventsInput
+  upsert?: Prisma.UserUpsertWithoutAiUsageEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAiUsageEventsInput, Prisma.UserUpdateWithoutAiUsageEventsInput>, Prisma.UserUncheckedUpdateWithoutAiUsageEventsInput>
+}
+
 export type UserCreateNestedOneWithoutLeadsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutLeadsInput, Prisma.UserUncheckedCreateWithoutLeadsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutLeadsInput
@@ -720,6 +762,8 @@ export type UserCreateWithoutPasswordInput = {
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordInput = {
@@ -744,6 +788,8 @@ export type UserUncheckedCreateWithoutPasswordInput = {
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordInput = {
@@ -784,6 +830,8 @@ export type UserUpdateWithoutPasswordInput = {
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordInput = {
@@ -808,6 +856,8 @@ export type UserUncheckedUpdateWithoutPasswordInput = {
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -832,6 +882,8 @@ export type UserCreateWithoutAccountsInput = {
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -856,6 +908,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -896,6 +950,8 @@ export type UserUpdateWithoutAccountsInput = {
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -920,6 +976,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -944,6 +1002,8 @@ export type UserCreateWithoutSessionsInput = {
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -968,6 +1028,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1008,6 +1070,8 @@ export type UserUpdateWithoutSessionsInput = {
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1032,6 +1096,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRedditAccountsInput = {
@@ -1056,6 +1122,8 @@ export type UserCreateWithoutRedditAccountsInput = {
   password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRedditAccountsInput = {
@@ -1080,6 +1148,8 @@ export type UserUncheckedCreateWithoutRedditAccountsInput = {
   password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRedditAccountsInput = {
@@ -1120,6 +1190,8 @@ export type UserUpdateWithoutRedditAccountsInput = {
   password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRedditAccountsInput = {
@@ -1144,6 +1216,8 @@ export type UserUncheckedUpdateWithoutRedditAccountsInput = {
   password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCampaignsInput = {
@@ -1168,6 +1242,8 @@ export type UserCreateWithoutCampaignsInput = {
   password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCampaignsInput = {
@@ -1192,6 +1268,8 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCampaignsInput = {
@@ -1232,6 +1310,8 @@ export type UserUpdateWithoutCampaignsInput = {
   password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignsInput = {
@@ -1256,6 +1336,248 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCampaignRunsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCampaignRunsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCampaignRunsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCampaignRunsInput, Prisma.UserUncheckedCreateWithoutCampaignRunsInput>
+}
+
+export type UserUpsertWithoutCampaignRunsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCampaignRunsInput, Prisma.UserUncheckedUpdateWithoutCampaignRunsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCampaignRunsInput, Prisma.UserUncheckedCreateWithoutCampaignRunsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCampaignRunsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCampaignRunsInput, Prisma.UserUncheckedUpdateWithoutCampaignRunsInput>
+}
+
+export type UserUpdateWithoutCampaignRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCampaignRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAiUsageEventsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAiUsageEventsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAiUsageEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAiUsageEventsInput, Prisma.UserUncheckedCreateWithoutAiUsageEventsInput>
+}
+
+export type UserUpsertWithoutAiUsageEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAiUsageEventsInput, Prisma.UserUncheckedUpdateWithoutAiUsageEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAiUsageEventsInput, Prisma.UserUncheckedCreateWithoutAiUsageEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAiUsageEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAiUsageEventsInput, Prisma.UserUncheckedUpdateWithoutAiUsageEventsInput>
+}
+
+export type UserUpdateWithoutAiUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLeadsInput = {
@@ -1280,6 +1602,8 @@ export type UserCreateWithoutLeadsInput = {
   password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLeadsInput = {
@@ -1304,6 +1628,8 @@ export type UserUncheckedCreateWithoutLeadsInput = {
   password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLeadsInput = {
@@ -1344,6 +1670,8 @@ export type UserUpdateWithoutLeadsInput = {
   password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeadsInput = {
@@ -1368,6 +1696,8 @@ export type UserUncheckedUpdateWithoutLeadsInput = {
   password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1381,6 +1711,8 @@ export type UserCountOutputType = {
   campaigns: number
   redditAccounts: number
   leads: number
+  campaignRuns: number
+  aiUsageEvents: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1389,6 +1721,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   campaigns?: boolean | UserCountOutputTypeCountCampaignsArgs
   redditAccounts?: boolean | UserCountOutputTypeCountRedditAccountsArgs
   leads?: boolean | UserCountOutputTypeCountLeadsArgs
+  campaignRuns?: boolean | UserCountOutputTypeCountCampaignRunsArgs
+  aiUsageEvents?: boolean | UserCountOutputTypeCountAiUsageEventsArgs
 }
 
 /**
@@ -1436,6 +1770,20 @@ export type UserCountOutputTypeCountLeadsArgs<ExtArgs extends runtime.Types.Exte
   where?: Prisma.LeadWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCampaignRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignRunWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAiUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AiUsageEventWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1460,6 +1808,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   campaigns?: boolean | Prisma.User$campaignsArgs<ExtArgs>
   redditAccounts?: boolean | Prisma.User$redditAccountsArgs<ExtArgs>
   leads?: boolean | Prisma.User$leadsArgs<ExtArgs>
+  campaignRuns?: boolean | Prisma.User$campaignRunsArgs<ExtArgs>
+  aiUsageEvents?: boolean | Prisma.User$aiUsageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1528,6 +1878,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   campaigns?: boolean | Prisma.User$campaignsArgs<ExtArgs>
   redditAccounts?: boolean | Prisma.User$redditAccountsArgs<ExtArgs>
   leads?: boolean | Prisma.User$leadsArgs<ExtArgs>
+  campaignRuns?: boolean | Prisma.User$campaignRunsArgs<ExtArgs>
+  aiUsageEvents?: boolean | Prisma.User$aiUsageEventsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1542,6 +1894,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     campaigns: Prisma.$CampaignPayload<ExtArgs>[]
     redditAccounts: Prisma.$RedditAccountPayload<ExtArgs>[]
     leads: Prisma.$LeadPayload<ExtArgs>[]
+    campaignRuns: Prisma.$CampaignRunPayload<ExtArgs>[]
+    aiUsageEvents: Prisma.$AiUsageEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1960,6 +2314,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   campaigns<T extends Prisma.User$campaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   redditAccounts<T extends Prisma.User$redditAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$redditAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RedditAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leads<T extends Prisma.User$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  campaignRuns<T extends Prisma.User$campaignRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$campaignRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  aiUsageEvents<T extends Prisma.User$aiUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2529,6 +2885,54 @@ export type User$leadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.LeadScalarFieldEnum | Prisma.LeadScalarFieldEnum[]
+}
+
+/**
+ * User.campaignRuns
+ */
+export type User$campaignRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignRun
+   */
+  select?: Prisma.CampaignRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignRun
+   */
+  omit?: Prisma.CampaignRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignRunInclude<ExtArgs> | null
+  where?: Prisma.CampaignRunWhereInput
+  orderBy?: Prisma.CampaignRunOrderByWithRelationInput | Prisma.CampaignRunOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignRunScalarFieldEnum | Prisma.CampaignRunScalarFieldEnum[]
+}
+
+/**
+ * User.aiUsageEvents
+ */
+export type User$aiUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AiUsageEvent
+   */
+  select?: Prisma.AiUsageEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AiUsageEvent
+   */
+  omit?: Prisma.AiUsageEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AiUsageEventInclude<ExtArgs> | null
+  where?: Prisma.AiUsageEventWhereInput
+  orderBy?: Prisma.AiUsageEventOrderByWithRelationInput | Prisma.AiUsageEventOrderByWithRelationInput[]
+  cursor?: Prisma.AiUsageEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AiUsageEventScalarFieldEnum | Prisma.AiUsageEventScalarFieldEnum[]
 }
 
 /**

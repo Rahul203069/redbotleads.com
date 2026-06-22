@@ -65,7 +65,7 @@ export async function POST(request: Request) {
 
   try {
     const existing = new Set(parsed.data.existing.map(normalizeSubreddit));
-    const normalizedCandidates = await collectSubredditSuggestions(parsed.data, existing);
+    const normalizedCandidates = await collectSubredditSuggestions(parsed.data, existing, session.user.id);
     console.info("Subreddit suggestion normalized candidates", {
       count: normalizedCandidates.length,
       suggestions: normalizedCandidates,
@@ -207,7 +207,7 @@ async function generateSubredditSuggestions(prompt: {
   systemPrompt: string;
   userPrompt: string;
   fallbackSystemPrompt: string;
-}) {
+}, userId: string) {
   try {
     return await generateStructuredOutput({
       model: SUBREDDIT_DISCOVERY_MODEL,
@@ -220,6 +220,10 @@ async function generateSubredditSuggestions(prompt: {
         searchContextSize: SUBREDDIT_WEB_SEARCH_CONTEXT_SIZE,
       },
       userPrompt: prompt.userPrompt,
+      usage: {
+        userId,
+        operation: "subreddit_suggestion_web_search",
+      },
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
@@ -240,6 +244,10 @@ async function generateSubredditSuggestions(prompt: {
         "Search the web before answering. Use current Reddit pages and recent web references about Reddit communities to identify real subreddit names that still exist now.",
         "Use your knowledge to infer likely subreddit names, then rely on downstream validation to remove invalid or non-public communities.",
       ),
+      usage: {
+        userId,
+        operation: "subreddit_suggestion_fallback",
+      },
     });
   }
 }
@@ -247,6 +255,7 @@ async function generateSubredditSuggestions(prompt: {
 async function collectSubredditSuggestions(
   input: z.infer<typeof requestSchema>,
   existing: Set<string>,
+  userId: string,
 ) {
   const collected = new Set<string>();
 
@@ -267,6 +276,7 @@ async function collectSubredditSuggestions(
         painPoints: input.painPoints,
         requestedCount: remaining,
       }),
+      userId,
     );
     console.info("Subreddit suggestion raw response", {
       attempt: attempt + 1,

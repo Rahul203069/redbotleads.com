@@ -15,6 +15,9 @@ const classificationResultSchema = z.object({
 });
 
 type ClassificationInput = {
+  userId?: string | null;
+  campaignId?: string | null;
+  campaignRunId?: string | null;
   campaign: {
     name: string;
     leadType: "PRODUCT" | "SERVICE";
@@ -65,6 +68,12 @@ export async function classifyLeadWithOpenAI(input: ClassificationInput): Promis
     systemPrompt,
     temperature: 0.1,
     userPrompt,
+    usage: {
+      userId: input.userId,
+      campaignId: input.campaignId,
+      campaignRunId: input.campaignRunId,
+      operation: "lead_classification",
+    },
   });
   const responseText = response.content;
   const parsedJson = parseJsonResponse(responseText);

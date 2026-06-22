@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AppMainShell } from "@/components/app/app-main-shell";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { auth } from "@/lib/auth";
+import { canViewAnalytics } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
 
 export default async function AuthenticatedAppLayout({
@@ -31,7 +32,7 @@ export default async function AuthenticatedAppLayout({
     <div className="min-h-screen bg-transparent px-4 py-4 text-[#F3F5F4] lg:px-0 lg:py-0">
       <div className="grid min-h-screen w-full grid-cols-1 gap-4 lg:grid-cols-[304px_minmax(0,1fr)] lg:gap-0">
         <div className="lg:sticky lg:top-0 lg:h-screen lg:pl-4 lg:pr-0 lg:py-4 xl:pl-6">
-          <AppSidebar shouldShowSlackConnect={shouldShowSlackPrompt} userLabel={userLabel} />
+          <AppSidebar isOwner={canViewAnalytics(session.user.email)} shouldShowSlackConnect={shouldShowSlackPrompt} userLabel={userLabel} />
         </div>
         <main className="min-w-0">
           <AppMainShell>{children}</AppMainShell>

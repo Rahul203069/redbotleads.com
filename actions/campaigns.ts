@@ -122,8 +122,11 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     shouldQueueInitialIngest = campaign.isActive;
 
     if (parsed.data.description) {
-      const semanticQueries = await generateCampaignSemanticQueries(parsed.data.description, parsed.data.leadType);
-      await persistCampaignSemanticQueries(campaign.id, semanticQueries);
+      const semanticQueries = await generateCampaignSemanticQueries(parsed.data.description, parsed.data.leadType, {
+        campaignId: campaign.id,
+        userId: session.user.id,
+      });
+      await persistCampaignSemanticQueries(campaign.id, semanticQueries, session.user.id);
     }
   } catch (error) {
     console.error("Campaign create failed", error);
@@ -179,6 +182,10 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
 async function generateCampaignSemanticQueries(
   productDescription: string,
   leadType: "PRODUCT" | "SERVICE",
+  usage: {
+    campaignId: string;
+    userId: string;
+  },
 ) {
   const queryCount = leadType === "PRODUCT" ? 30 : 16;
   const prompt = leadType === "PRODUCT"
@@ -212,6 +219,11 @@ async function generateCampaignSemanticQueries(
     systemPrompt: prompt.systemPrompt,
     temperature: 0.7,
     userPrompt: prompt.userPrompt,
+    usage: {
+      userId: usage.userId,
+      campaignId: usage.campaignId,
+      operation: "campaign_semantic_query_generation",
+    },
   });
 
   const parsed = z.object({ queries: z.array(semanticQuerySchema).length(queryCount) }).parse(JSON.parse(response.content));
@@ -373,6 +385,7 @@ async function persistCampaignSemanticQueries(
     text: string;
     category: string;
   }>,
+  userId: string,
 ) {
   const normalizedQueries = dedupeSemanticQueries(queries);
 
@@ -384,6 +397,14 @@ async function persistCampaignSemanticQueries(
     input: normalizedQueries.map((query) => query.text),
     model: "text-embedding-3-small",
     dimensions: 1536,
+    usage: {
+      userId,
+      campaignId,
+      operation: "campaign_semantic_query_embedding",
+      metadata: {
+        queryCount: normalizedQueries.length,
+      },
+    },
   });
 
   await prisma.$executeRaw(

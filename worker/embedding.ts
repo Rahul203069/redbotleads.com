@@ -64,6 +64,7 @@ const worker = new Worker<EmbeddingJobData>(
       return runLeadEmbeddingBatch(
         {
           campaignId: job.data.campaignId,
+          campaignRunId: job.data.campaignRunId,
           items: [
             {
               leadId: job.data.leadId,
@@ -148,6 +149,7 @@ async function runLeadEmbeddingBatch(
       semanticItems.push({
         leadId: item.leadId,
         campaignId: data.campaignId,
+        campaignRunId: data.campaignRunId,
         redditItemId: item.redditItemId,
       });
       continue;
@@ -161,8 +163,19 @@ async function runLeadEmbeddingBatch(
   }
 
   for (const chunk of chunkEmbeddingInputs(embeddingInputs)) {
+    const campaignUserId = await getCampaignUserId(data.campaignId);
     const result = await generateEmbeddings({
       input: chunk.map((record) => record.sourceText),
+      usage: {
+        userId: campaignUserId,
+        campaignId: data.campaignId,
+        campaignRunId: data.campaignRunId,
+        operation: "lead_embedding",
+        metadata: {
+          jobId,
+          itemCount: chunk.length,
+        },
+      },
     });
 
     for (let index = 0; index < chunk.length; index += 1) {
@@ -181,6 +194,7 @@ async function runLeadEmbeddingBatch(
       semanticItems.push({
         leadId: record.item.leadId,
         campaignId: data.campaignId,
+        campaignRunId: data.campaignRunId,
         redditItemId: record.item.redditItemId,
       });
     }
@@ -474,4 +488,17 @@ async function countEmbeddedLeads(campaignId: string) {
       },
     },
   });
+}
+
+async function getCampaignUserId(campaignId: string) {
+  const campaign = await prisma.campaign.findUnique({
+    where: {
+      id: campaignId,
+    },
+    select: {
+      userId: true,
+    },
+  });
+
+  return campaign?.userId ?? null;
 }

@@ -28,13 +28,24 @@ const navItems = [
   },
 ];
 
+const ownerNavItems = [
+  {
+    href: "/admin/analytics",
+    label: "Analytics",
+    description: "SaaS metrics",
+    icon: AnalyticsIcon,
+  },
+];
+
 type AppSidebarProps = {
+  isOwner?: boolean;
   shouldShowSlackConnect?: boolean;
   userLabel: string;
 };
 
-export function AppSidebar({ shouldShowSlackConnect = false, userLabel }: AppSidebarProps) {
+export function AppSidebar({ isOwner = false, shouldShowSlackConnect = false, userLabel }: AppSidebarProps) {
   const pathname = usePathname();
+  const visibleNavItems = isOwner ? [...navItems, ...ownerNavItems] : navItems;
 
   return (
     <>
@@ -50,7 +61,7 @@ export function AppSidebar({ shouldShowSlackConnect = false, userLabel }: AppSid
       </div>
 
       <nav className="mt-3 grid grid-cols-3 gap-2">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const active = pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
           const Icon = item.icon;
 
@@ -110,7 +121,7 @@ export function AppSidebar({ shouldShowSlackConnect = false, userLabel }: AppSid
           Navigation
         </p>
         <div className="mt-3 space-y-2">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const active = pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
             const Icon = item.icon;
 
@@ -292,6 +303,20 @@ function SettingsIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth="1.5"
+      />
+    </svg>
+  );
+}
+
+function AnalyticsIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M5 19V9m7 10V5m7 14v-7M4 19h16"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
       />
     </svg>
   );

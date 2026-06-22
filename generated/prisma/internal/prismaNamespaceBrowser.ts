@@ -58,6 +58,8 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
+  CampaignRun: 'CampaignRun',
+  AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
   CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
@@ -188,6 +190,46 @@ export const CampaignScalarFieldEnum = {
 } as const
 
 export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
+
+
+export const CampaignRunScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  trigger: 'trigger',
+  status: 'status',
+  message: 'message',
+  error: 'error',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  statsJson: 'statsJson',
+  totalCostUsd: 'totalCostUsd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignRunScalarFieldEnum = (typeof CampaignRunScalarFieldEnum)[keyof typeof CampaignRunScalarFieldEnum]
+
+
+export const AiUsageEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  campaignRunId: 'campaignRunId',
+  operation: 'operation',
+  provider: 'provider',
+  model: 'model',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  totalTokens: 'totalTokens',
+  costUsd: 'costUsd',
+  metadataJson: 'metadataJson',
+  createdAt: 'createdAt'
+} as const
+
+export type AiUsageEventScalarFieldEnum = (typeof AiUsageEventScalarFieldEnum)[keyof typeof AiUsageEventScalarFieldEnum]
 
 
 export const CampaignSemanticQueryScalarFieldEnum = {

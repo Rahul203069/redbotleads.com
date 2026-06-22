@@ -53,6 +53,16 @@ export type RedditAccount = Prisma.RedditAccountModel
  */
 export type Campaign = Prisma.CampaignModel
 /**
+ * Model CampaignRun
+ * 
+ */
+export type CampaignRun = Prisma.CampaignRunModel
+/**
+ * Model AiUsageEvent
+ * 
+ */
+export type AiUsageEvent = Prisma.AiUsageEventModel
+/**
  * Model CampaignSemanticQuery
  * 
  */

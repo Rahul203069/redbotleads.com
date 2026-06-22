@@ -120,6 +120,8 @@ model User {
   campaigns      Campaign[]
   redditAccounts RedditAccount[]
   leads          Lead[]
+  campaignRuns   CampaignRun[]
+  aiUsageEvents  AiUsageEvent[]
 }
 
 model UserPassword {
@@ -226,9 +228,70 @@ model Campaign {
   leads Lead[]
   sync  CampaignSync?
   semanticQueries CampaignSemanticQuery[]
+  runs CampaignRun[]
+  aiUsageEvents AiUsageEvent[]
 
   @@index([userId, isActive])
   @@index([redditAccountId])
+}
+
+model CampaignRun {
+  id         String @id @default(cuid())
+  userId     String
+  campaignId String
+
+  trigger String
+  status  String @default("QUEUED")
+  message String?
+  error   String?
+
+  queuedAt    DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  failedAt    DateTime?
+
+  statsJson    Json?
+  totalCostUsd Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  usageEvents AiUsageEvent[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([status, updatedAt(sort: Desc)])
+}
+
+model AiUsageEvent {
+  id String @id @default(cuid())
+
+  userId        String
+  campaignId    String?
+  campaignRunId String?
+
+  operation String
+  provider  String @default("openai")
+  model     String
+
+  inputTokens  Int?
+  outputTokens Int?
+  totalTokens  Int?
+  costUsd      Float @default(0)
+  metadataJson Json?
+
+  createdAt DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign    Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([campaignRunId, createdAt(sort: Desc)])
+  @@index([operation, createdAt(sort: Desc)])
 }
 
 model CampaignSemanticQuery {

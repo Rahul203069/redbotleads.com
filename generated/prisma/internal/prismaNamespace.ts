@@ -391,6 +391,8 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
+  CampaignRun: 'CampaignRun',
+  AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
   CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
@@ -416,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -935,6 +937,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CampaignCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CampaignCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignRun: {
+      payload: Prisma.$CampaignRunPayload<ExtArgs>
+      fields: Prisma.CampaignRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>
+        }
+        update: {
+          args: Prisma.CampaignRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignRunPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignRun>
+        }
+        groupBy: {
+          args: Prisma.CampaignRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    AiUsageEvent: {
+      payload: Prisma.$AiUsageEventPayload<ExtArgs>
+      fields: Prisma.AiUsageEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AiUsageEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AiUsageEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        findFirst: {
+          args: Prisma.AiUsageEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AiUsageEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        findMany: {
+          args: Prisma.AiUsageEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>[]
+        }
+        create: {
+          args: Prisma.AiUsageEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        createMany: {
+          args: Prisma.AiUsageEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AiUsageEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>[]
+        }
+        delete: {
+          args: Prisma.AiUsageEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        update: {
+          args: Prisma.AiUsageEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.AiUsageEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AiUsageEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AiUsageEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.AiUsageEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AiUsageEventPayload>
+        }
+        aggregate: {
+          args: Prisma.AiUsageEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAiUsageEvent>
+        }
+        groupBy: {
+          args: Prisma.AiUsageEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AiUsageEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AiUsageEventCountAggregateOutputType> | number
         }
       }
     }
@@ -1821,6 +1971,46 @@ export const CampaignScalarFieldEnum = {
 export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
 
 
+export const CampaignRunScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  trigger: 'trigger',
+  status: 'status',
+  message: 'message',
+  error: 'error',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  statsJson: 'statsJson',
+  totalCostUsd: 'totalCostUsd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignRunScalarFieldEnum = (typeof CampaignRunScalarFieldEnum)[keyof typeof CampaignRunScalarFieldEnum]
+
+
+export const AiUsageEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  campaignRunId: 'campaignRunId',
+  operation: 'operation',
+  provider: 'provider',
+  model: 'model',
+  inputTokens: 'inputTokens',
+  outputTokens: 'outputTokens',
+  totalTokens: 'totalTokens',
+  costUsd: 'costUsd',
+  metadataJson: 'metadataJson',
+  createdAt: 'createdAt'
+} as const
+
+export type AiUsageEventScalarFieldEnum = (typeof AiUsageEventScalarFieldEnum)[keyof typeof AiUsageEventScalarFieldEnum]
+
+
 export const CampaignSemanticQueryScalarFieldEnum = {
   id: 'id',
   campaignId: 'campaignId',
@@ -2107,6 +2297,34 @@ export type ListEnumSourceModeFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
  * Reference to a field of type 'CampaignSyncStatus'
  */
 export type EnumCampaignSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStatus'>
@@ -2131,20 +2349,6 @@ export type EnumCampaignSyncStageFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'CampaignSyncStage[]'
  */
 export type ListEnumCampaignSyncStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStage[]'>
-    
-
-
-/**
- * Reference to a field of type 'Json'
- */
-export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-/**
- * Reference to a field of type 'QueryMode'
- */
-export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -2243,20 +2447,6 @@ export type EnumNotifyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'NotifyStatus[]'
  */
 export type ListEnumNotifyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotifyStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -2361,6 +2551,8 @@ export type GlobalOmitConfig = {
   verificationToken?: Prisma.VerificationTokenOmit
   redditAccount?: Prisma.RedditAccountOmit
   campaign?: Prisma.CampaignOmit
+  campaignRun?: Prisma.CampaignRunOmit
+  aiUsageEvent?: Prisma.AiUsageEventOmit
   campaignSemanticQuery?: Prisma.CampaignSemanticQueryOmit
   campaignSync?: Prisma.CampaignSyncOmit
   redditItem?: Prisma.RedditItemOmit

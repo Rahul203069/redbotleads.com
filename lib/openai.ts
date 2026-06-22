@@ -1,3 +1,5 @@
+import { recordAiUsage, type AiUsageContext } from "@/lib/ai-usage";
+
 const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
 const DEFAULT_OPENAI_EMBEDDING_MODEL = process.env.OPENAI_EMBEDDING_MODEL?.trim() || "text-embedding-3-small";
 const DEFAULT_OPENAI_EMBEDDING_DIMENSIONS = Number.parseInt(
@@ -76,6 +78,7 @@ type StructuredOutputRequest = {
   temperature?: number;
   model?: string;
   webSearch?: WebSearchRequest;
+  usage?: AiUsageContext;
 };
 
 type StructuredOutputResponse = {
@@ -87,6 +90,7 @@ type EmbeddingRequest = {
   input: string;
   model?: string;
   dimensions?: number;
+  usage?: AiUsageContext;
 };
 
 type EmbeddingResponse = {
@@ -99,6 +103,7 @@ type EmbeddingsRequest = {
   input: string[];
   model?: string;
   dimensions?: number;
+  usage?: AiUsageContext;
 };
 
 type EmbeddingsResponse = {
@@ -129,6 +134,7 @@ export async function generateStructuredOutput(
           temperature: request.temperature ?? 0.1,
           userPrompt: request.userPrompt,
           webSearch: request.webSearch,
+          usage: request.usage,
         })
       : requestWithRetry({
           apiKey,
@@ -140,6 +146,7 @@ export async function generateStructuredOutput(
           temperature: request.temperature ?? 0.1,
           userPrompt: request.userPrompt,
           webSearch: request.webSearch,
+          usage: request.usage,
         }),
   );
 
@@ -154,6 +161,7 @@ export async function generateEmbedding(request: EmbeddingRequest): Promise<Embe
     input: [request.input],
     model: request.model,
     dimensions: request.dimensions,
+    usage: request.usage,
   });
 
   return {
@@ -179,6 +187,7 @@ export async function generateEmbeddings(request: EmbeddingsRequest): Promise<Em
       dimensions,
       input: request.input,
       model,
+      usage: request.usage,
     }),
   );
 
@@ -199,6 +208,7 @@ async function requestWithRetry(input: {
   temperature: number;
   userPrompt: string;
   webSearch?: WebSearchRequest;
+  usage?: AiUsageContext;
 }): Promise<string> {
   const webSearchOptions = input.webSearch?.enabled
     ? {
@@ -263,6 +273,11 @@ async function requestWithRetry(input: {
   }
 
   const payload = (await response.json()) as {
+    usage?: {
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+    };
     choices?: Array<{
       message?: {
         content?: string | Array<{ type?: string; text?: string }>;
@@ -289,6 +304,16 @@ async function requestWithRetry(input: {
     throw new Error("OpenAI returned an empty response.");
   }
 
+  await recordAiUsage({
+    context: input.usage,
+    model: input.model,
+    tokens: {
+      inputTokens: payload.usage?.prompt_tokens,
+      outputTokens: payload.usage?.completion_tokens,
+      totalTokens: payload.usage?.total_tokens,
+    },
+  });
+
   return content;
 }
 
@@ -302,6 +327,7 @@ async function requestWithWebSearchRetry(input: {
   temperature: number;
   userPrompt: string;
   webSearch?: WebSearchRequest;
+  usage?: AiUsageContext;
 }): Promise<string> {
   const tool = {
     type: "web_search",
@@ -368,6 +394,11 @@ async function requestWithWebSearchRetry(input: {
     error?: {
       message?: string;
     };
+    usage?: {
+      input_tokens?: number;
+      output_tokens?: number;
+      total_tokens?: number;
+    };
     output_text?: string;
     output?: Array<{
       type?: string;
@@ -383,9 +414,7 @@ async function requestWithWebSearchRetry(input: {
     throw new Error(`OpenAI web search request failed: ${payload.error.message}`);
   }
 
-  if (payload.output_text?.trim()) {
-    return payload.output_text.trim();
-  }
+  const outputText = payload.output_text?.trim();
 
   const refusal = payload.output
     ?.flatMap((item) => item.content ?? [])
@@ -396,7 +425,7 @@ async function requestWithWebSearchRetry(input: {
     throw new Error(`OpenAI refused the request: ${refusal}`);
   }
 
-  const content = payload.output
+  const content = outputText || payload.output
     ?.flatMap((item) => item.content ?? [])
     .filter((part) => part.type === "output_text" || part.type === "text")
     .map((part) => part.text ?? "")
@@ -407,6 +436,16 @@ async function requestWithWebSearchRetry(input: {
     throw new Error("OpenAI returned an empty web search response.");
   }
 
+  await recordAiUsage({
+    context: input.usage,
+    model: input.model,
+    tokens: {
+      inputTokens: payload.usage?.input_tokens,
+      outputTokens: payload.usage?.output_tokens,
+      totalTokens: payload.usage?.total_tokens,
+    },
+  });
+
   return content;
 }
 
@@ -416,6 +455,7 @@ async function requestEmbeddingWithRetry(input: {
   dimensions: number;
   input: string[];
   model: string;
+  usage?: AiUsageContext;
 }): Promise<number[][]> {
   const response = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
@@ -448,6 +488,10 @@ async function requestEmbeddingWithRetry(input: {
   }
 
   const payload = (await response.json()) as {
+    usage?: {
+      prompt_tokens?: number;
+      total_tokens?: number;
+    };
     data?: Array<{
       embedding?: number[];
     }>;
@@ -458,6 +502,15 @@ async function requestEmbeddingWithRetry(input: {
   if (!embeddings || embeddings.length !== input.input.length) {
     throw new Error("OpenAI returned an incomplete embeddings response.");
   }
+
+  await recordAiUsage({
+    context: input.usage,
+    model: input.model,
+    tokens: {
+      inputTokens: payload.usage?.prompt_tokens ?? payload.usage?.total_tokens,
+      totalTokens: payload.usage?.total_tokens,
+    },
+  });
 
   return embeddings;
 }

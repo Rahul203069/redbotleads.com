@@ -154,6 +154,10 @@ ${parsed.data.existing.join(", ") || "none"}
           : "You generate negative keyword phrases for Reddit lead generation campaigns for service businesses. Return only a JSON array matching the schema.",
       temperature: 0.3,
       userPrompt: prompt,
+      usage: {
+        userId: session.user.id,
+        operation: parsed.data.kind === "keywords" ? "keyword_suggestion" : "negative_keyword_suggestion",
+      },
     });
 
     const raw = z

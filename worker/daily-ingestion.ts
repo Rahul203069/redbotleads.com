@@ -10,6 +10,7 @@ import {
   markCampaignProcessing,
   updateCampaignProgress,
 } from "./campaign-sync";
+import { markCampaignRunCompleted, markCampaignRunFailed, markCampaignRunProcessing } from "./campaign-runs";
 import { workerEmbeddingBatchSize, workerIngestionConcurrency, workerRedisConnection } from "./config";
 import {
   enqueueLeadEmbeddingBatches,
@@ -64,11 +65,13 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
 
   if (!campaign.isActive) {
     await markCampaignCompleted(campaign.id, "Campaign is paused. Daily sync skipped.");
+    await markCampaignRunCompleted(data.campaignRunId, "Campaign is paused. Daily sync skipped.");
     workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping inactive campaign daily ingestion");
     return { skipped: true, reason: "campaign_inactive" };
   }
 
   await markCampaignProcessing(campaign.id, "FETCHING_POSTS", "Starting daily Reddit sync for this campaign.");
+  await markCampaignRunProcessing(data.campaignRunId, "Starting daily Reddit sync for this campaign.");
 
   const startedAt = Date.now();
   let fetchedPosts = 0;
@@ -85,7 +88,7 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
     }
 
     const items = pendingEmbeddingItems.slice();
-    queuedEmbeddingBatches += await enqueueLeadEmbeddingBatches(campaign.id, items);
+    queuedEmbeddingBatches += await enqueueLeadEmbeddingBatches(campaign.id, items, data.campaignRunId);
     pendingEmbeddingItems.splice(0, items.length);
   };
 
@@ -195,46 +198,55 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
       : "";
 
   if (createdLeads > 0) {
+    const stats = {
+      fetchedPosts,
+      promisingPosts,
+      matchedItems,
+      createdLeads,
+      queuedEmbeddingBatches,
+      durationMs,
+    };
+
     await updateCampaignProgress(
       campaign.id,
       "CLASSIFYING",
       `Daily RSS sync found ${createdLeads} new lead${createdLeads === 1 ? "" : "s"} for embedding and semantic filtering.${errorSummary}`,
-      {
-        fetchedPosts,
-        promisingPosts,
-        matchedItems,
-        createdLeads,
-        queuedEmbeddingBatches,
-        durationMs,
-      },
+      stats,
     );
+    await markCampaignRunProcessing(data.campaignRunId, "Daily RSS sync found leads for embedding and semantic filtering.", stats);
   } else if (allSubredditsFailed) {
+    const stats = {
+      fetchedPosts,
+      promisingPosts,
+      matchedItems,
+      createdLeads,
+      queuedEmbeddingBatches,
+      durationMs,
+    };
+
     await markCampaignFailed(
       campaign.id,
       "FETCHING_POSTS",
       `Daily RSS sync completed with no queued leads.${errorSummary}`,
-      {
-        fetchedPosts,
-        promisingPosts,
-        matchedItems,
-        createdLeads,
-        queuedEmbeddingBatches,
-        durationMs,
-      },
+      stats,
     );
+    await markCampaignRunFailed(data.campaignRunId, `Daily RSS sync completed with no queued leads.${errorSummary}`, stats);
   } else {
+    const stats = {
+      fetchedPosts,
+      promisingPosts,
+      matchedItems,
+      createdLeads,
+      queuedEmbeddingBatches,
+      durationMs,
+    };
+
     await markCampaignCompleted(
       campaign.id,
       `Daily RSS sync completed. No new matching leads were found.${hasErrors ? errorSummary : ""}`,
-      {
-        fetchedPosts,
-        promisingPosts,
-        matchedItems,
-        createdLeads,
-        queuedEmbeddingBatches,
-        durationMs,
-      },
+      stats,
     );
+    await markCampaignRunCompleted(data.campaignRunId, `Daily RSS sync completed. No new matching leads were found.${hasErrors ? errorSummary : ""}`, stats);
   }
 
   workerLogger.info(

@@ -17,6 +17,7 @@ import {
   type PollSubredditRssJobData,
 } from "./queues";
 import { fetchSubredditPosts, RedditRssFetchError, type RedditPost } from "./reddit";
+import { markCampaignRunCompleted, markCampaignRunProcessing } from "./campaign-runs";
 
 const REDDIT_RATE_LIMIT_BACKOFF_MS = 60 * 60 * 1000;
 const REDDIT_TRANSIENT_BACKOFF_MS = 15 * 60 * 1000;
@@ -228,9 +229,12 @@ async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, 
   });
 
   if (!campaign) {
+    await markCampaignRunCompleted(data.campaignRunId, "Skipping RSS poll match for inactive or missing campaign.");
     workerLogger.info({ jobId, campaignId: data.campaignId }, "Skipping RSS poll match for inactive or missing campaign");
     return { skipped: true, reason: "campaign_missing_or_inactive" };
   }
+
+  await markCampaignRunProcessing(data.campaignRunId, "Matching new RSS posts to this campaign.");
 
   const cursors = await prisma.ingestCursor.findMany({
     where: {
@@ -267,6 +271,7 @@ async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, 
     await enqueueCampaignRssPollRunMatch(
       {
         ...data,
+        campaignRunId: data.campaignRunId,
         expectedSubreddits,
         attempt: attempt + 1,
       },
@@ -333,6 +338,7 @@ async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, 
     await enqueueCampaignRssPollRunMatch(
       {
         ...data,
+        campaignRunId: data.campaignRunId,
         expectedSubreddits,
         attempt: attempt + 1,
       },
@@ -353,6 +359,7 @@ async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, 
     candidateItems.map((item) =>
       enqueueRedditItemSemanticMatch({
         campaignId: campaign.id,
+        campaignRunId: data.campaignRunId,
         redditItemId: item.id,
         trigger: "rss_poll",
       }),
@@ -369,6 +376,11 @@ async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, 
     },
     "Campaign RSS poll match queued semantic candidates",
   );
+
+  await markCampaignRunCompleted(data.campaignRunId, "Campaign RSS poll match queued semantic candidates.", {
+    candidateItems: candidateItems.length,
+    missingEmbeddingCount,
+  });
 
   return {
     campaignId: campaign.id,

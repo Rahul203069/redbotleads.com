@@ -2,6 +2,8 @@
 
 import * as React from "react";
 
+import { playUiSound } from "@/components/ui/sound-effects";
+
 type Toast = {
   id: string;
   title?: string;
@@ -26,6 +28,7 @@ export function ToastContextProvider({ children }: { children: React.ReactNode }
 
   const toast = React.useCallback((value: Omit<Toast, "id">) => {
     const id = crypto.randomUUID();
+    playUiSound(value.variant === "destructive" ? "error" : "success");
     setToasts((current) => [...current, { id, ...value }]);
 
     window.setTimeout(() => {

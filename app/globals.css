@@ -105,3 +105,35 @@ input {
   background: rgba(30, 215, 96, 0.3);
   color: white;
 }
+
+@keyframes shooting-tracer {
+  0% {
+    opacity: 0;
+    transform: translateX(16vw) scaleX(0.05);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-58vw) scaleX(1);
+  }
+}
+
+@keyframes shooting-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}

@@ -8,11 +8,15 @@ export const embeddingQueueName = "embedding";
 export const semanticQueueName = "semantic";
 export const classificationQueueName = "classification";
 export const notificationsQueueName = "notifications";
+export const rssPollingQueueName = "rss-polling";
 
 export const initialIngestJobName = "INITIAL_INGEST";
 export const dailyIngestJobName = "DAILY_INGEST";
+export const pollSubredditRssJobName = "POLL_SUBREDDIT_RSS";
+export const matchCampaignRssPollRunJobName = "MATCH_CAMPAIGN_RSS_POLL_RUN";
 
 export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName;
+export type RssPollingJobName = typeof pollSubredditRssJobName | typeof matchCampaignRssPollRunJobName;
 export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_LEAD_BATCH" | "EMBED_REDDIT_ITEM";
 export type SemanticJobName = "SEMANTIC_MATCH_LEAD" | "SEMANTIC_MATCH_REDDIT_ITEM";
 export type ClassificationJobName = "CLASSIFY_LEAD" | "GENERATE_REPLIES";
@@ -28,9 +32,22 @@ export type DailyIngestJobData = {
   trigger: "daily_sync";
 };
 
+export type PollSubredditRssJobData = {
+  subreddit: string;
+  trigger: "rss_poll";
+};
+
+export type MatchCampaignRssPollRunJobData = {
+  campaignId: string;
+  runStartedAt: string;
+  expectedSubreddits: string[];
+  attempt?: number;
+};
+
 export type ClassificationJobData = {
   leadId: string;
   campaignId: string;
+  trigger?: "campaign_sync" | "rss_poll";
 };
 
 export type LeadEmbeddingBatchItem = {
@@ -57,9 +74,12 @@ export type SemanticJobData =
       leadId: string;
       campaignId: string;
       redditItemId: string;
+      trigger?: "campaign_sync";
     }
   | {
       redditItemId: string;
+      campaignId?: string;
+      trigger?: "rss_poll";
     };
 
 export type NotificationJobData = {
@@ -94,6 +114,10 @@ export const notificationsQueue = new Queue(notificationsQueueName, {
   connection: workerRedisConnection,
 });
 
+export const rssPollingQueue = new Queue(rssPollingQueueName, {
+  connection: workerRedisConnection,
+});
+
 const LIVE_JOB_STATES = ["waiting", "active", "delayed", "prioritized"] as const;
 const MAX_JOBS_TO_SCAN_PER_QUEUE = 500;
 
@@ -114,6 +138,21 @@ async function getLiveIngestionJobForCampaign(campaignId: string) {
   return jobs.find((job) => {
     const data = job.data as Record<string, unknown> | undefined;
     return data?.campaignId === campaignId;
+  });
+}
+
+async function getLiveRssPollingJobForSubreddit(subreddit: string) {
+  const normalizedSubreddit = normalizeSubredditName(subreddit);
+  const jobs = await rssPollingQueue.getJobs(
+    [...LIVE_JOB_STATES],
+    0,
+    MAX_JOBS_TO_SCAN_PER_QUEUE,
+    true,
+  );
+
+  return jobs.find((job) => {
+    const data = job.data as Record<string, unknown> | undefined;
+    return normalizeSubredditName(String(data?.subreddit ?? "")) === normalizedSubreddit;
   });
 }
 
@@ -329,9 +368,63 @@ export async function enqueueDailyIngest(
   }
 }
 
+export async function enqueueSubredditRssPoll(
+  data: PollSubredditRssJobData,
+  options?: {
+    delayMs?: number;
+  },
+) {
+  const subreddit = normalizeSubredditName(data.subreddit);
+
+  if (!subreddit) {
+    throw new Error("Subreddit is required for RSS polling.");
+  }
+
+  const existingLiveJob = await getLiveRssPollingJobForSubreddit(subreddit);
+
+  if (existingLiveJob) {
+    return existingLiveJob;
+  }
+
+  return rssPollingQueue.add(
+    pollSubredditRssJobName,
+    {
+      ...data,
+      subreddit,
+    },
+    {
+      delay: Math.max(0, options?.delayMs ?? 0),
+      removeOnComplete: 500,
+      removeOnFail: 500,
+    },
+  );
+}
+
+export async function enqueueCampaignRssPollRunMatch(
+  data: MatchCampaignRssPollRunJobData,
+  options?: {
+    delayMs?: number;
+  },
+) {
+  return rssPollingQueue.add(
+    matchCampaignRssPollRunJobName,
+    {
+      ...data,
+      expectedSubreddits: data.expectedSubreddits.map(normalizeSubredditName).filter(Boolean),
+      attempt: data.attempt ?? 0,
+    },
+    {
+      delay: Math.max(0, options?.delayMs ?? 0),
+      jobId: buildJobId("rss-run-match", data.campaignId, data.runStartedAt, String(data.attempt ?? 0)),
+      removeOnComplete: 500,
+      removeOnFail: 500,
+    },
+  );
+}
+
 export async function enqueueLeadClassification(data: ClassificationJobData) {
   return classificationQueue.add("CLASSIFY_LEAD", data, {
-    jobId: buildJobId("classify", data.leadId),
+    jobId: buildJobId("classify", data.trigger ?? "campaign-sync", data.leadId),
     removeOnComplete: 500,
     removeOnFail: 500,
   });
@@ -397,8 +490,12 @@ export async function enqueueLeadSemanticMatchBatch(items: Array<Extract<Semanti
 }
 
 export async function enqueueRedditItemSemanticMatch(data: Extract<SemanticJobData, { redditItemId: string }>) {
+  const jobIdParts = data.campaignId
+    ? ["semantic-item", data.trigger ?? "reddit-item", data.campaignId, data.redditItemId]
+    : ["semantic-item", data.redditItemId];
+
   return semanticQueue.add("SEMANTIC_MATCH_REDDIT_ITEM", data, {
-    jobId: buildJobId("semantic-item", data.redditItemId),
+    jobId: buildJobId(...jobIdParts),
     removeOnComplete: 500,
     removeOnFail: 500,
   });
@@ -410,4 +507,13 @@ export async function enqueueNotification(data: NotificationJobData) {
     removeOnComplete: 500,
     removeOnFail: 500,
   });
+}
+
+function normalizeSubredditName(value: string) {
+  return String(value ?? "")
+    .trim()
+    .replace(/^r\//i, "")
+    .replace(/^\/?r\//i, "")
+    .replace(/^\/+|\/+$/g, "")
+    .toLowerCase();
 }

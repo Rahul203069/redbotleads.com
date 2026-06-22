@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/daily-sync",
-      "schedule": "0 0 * * *"
+      "path": "/api/cron/rss-poll",
+      "schedule": "*/30 * * * *"
     }
   ]
 }

@@ -46,6 +46,7 @@ worker.on("failed", (job, error) => {
 workerLogger.info("Classification worker started");
 
 async function runClassification(data: ClassificationJobData, jobId: string) {
+  const isRssPollClassification = data.trigger === "rss_poll";
   const lead = await prisma.lead.findFirst({
     where: {
       id: data.leadId,
@@ -104,14 +105,16 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
     const remainingBefore = await countPendingLeadClassification(lead.campaignId);
     const classifiedBefore = await countClassifiedLeads(lead.campaignId);
 
-    await updateCampaignProgress(
-      lead.campaignId,
-      "CLASSIFYING",
-      `Scoring lead ${Math.max(1, remainingBefore)} of the current campaign batch.`,
-      {
-        classifiedLeads: classifiedBefore,
-      },
-    );
+    if (!isRssPollClassification) {
+      await updateCampaignProgress(
+        lead.campaignId,
+        "CLASSIFYING",
+        `Scoring lead ${Math.max(1, remainingBefore)} of the current campaign batch.`,
+        {
+          classifiedLeads: classifiedBefore,
+        },
+      );
+    }
 
     const result = await classifyLeadWithOpenAI({
       campaign: {
@@ -138,10 +141,13 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
 
       const errorMessage = getErrorMessage(error);
       await recordLeadClassificationFailure(lead.id, errorMessage);
-      await finalizeCampaignClassificationProgress(
-        lead.campaignId,
-        `${lead.id} could not be scored, so it was marked LOW and skipped.`,
-      );
+
+      if (!isRssPollClassification) {
+        await finalizeCampaignClassificationProgress(
+          lead.campaignId,
+          `${lead.id} could not be scored, so it was marked LOW and skipped.`,
+        );
+      }
 
       workerLogger.warn(
         {
@@ -249,7 +255,9 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       });
     }
 
-    await finalizeCampaignClassificationProgress(lead.campaignId);
+    if (!isRssPollClassification) {
+      await finalizeCampaignClassificationProgress(lead.campaignId);
+    }
 
     workerLogger.info(
       {
@@ -273,7 +281,11 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
     };
   } catch (error) {
     const errorMessage = getErrorMessage(error);
-    await markCampaignFailed(lead.campaignId, "CLASSIFYING", errorMessage);
+
+    if (!isRssPollClassification) {
+      await markCampaignFailed(lead.campaignId, "CLASSIFYING", errorMessage);
+    }
+
     throw error;
   }
 }

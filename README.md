@@ -226,18 +226,25 @@ RESEND_API_KEY=
 EMAIL_FROM=
 ```
 
-## Daily Sync Scheduler
+## RSS Poll Scheduler
 
-The repo includes a Vercel Cron job at `/api/cron/daily-sync`.
+The repo includes a Vercel Cron job at `/api/cron/rss-poll`.
 
-- Route: [app/api/cron/daily-sync/route.ts](C:\Users\rs329\goal\my-app\app\api\cron\daily-sync\route.ts)
-- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) currently runs at `0 0 * * *` (midnight UTC)
+- Route: [app/api/cron/rss-poll/route.ts](C:\Users\rs329\goal\my-app\app\api\cron\rss-poll\route.ts)
+- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) currently runs at `*/30 * * * *` (every 30 minutes)
 
 What it does:
 
-- finds active campaigns due for a daily sync
-- skips campaigns already `QUEUED` or `PROCESSING`
-- enqueues `DAILY_INGEST` jobs through BullMQ
+- finds unique subreddits used by active campaigns
+- skips subreddits currently in RSS backoff
+- staggers `POLL_SUBREDDIT_RSS` jobs through BullMQ over the 30-minute window
+- stores brand-new Reddit posts in `RedditItem`
+- enqueues `EMBED_REDDIT_ITEM` for newly stored posts
+- enqueues campaign match jobs after each campaign's tracked subreddits have been polled
+- creates `Lead` records only when a new post passes semantic matching
+- classifies semantic-passed leads and sends notifications when classification crosses the campaign threshold
+
+This scheduler is separate from the campaign-created initial sync. It does not update `CampaignSync`.
 
 Required env on Vercel:
 

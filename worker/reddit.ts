@@ -1,7 +1,12 @@
 import { createHash } from "node:crypto";
 
+import { redditRssMaxRetries, redditRssRequestIntervalMs } from "./config";
+
 const REDDIT_RSS_BASE_URL = "https://www.reddit.com";
 const DEFAULT_USER_AGENT = "my-app-rss-ingestion/0.1";
+const DEFAULT_RETRY_AFTER_MS = 60_000;
+let nextRedditRssRequestAt = 0;
+let redditRssRequestChain = Promise.resolve();
 
 export type RedditPost = {
   fullname: string;
@@ -68,6 +73,20 @@ type ParsedFeedEntry = {
   content: string | null;
 };
 
+export class RedditRssFetchError extends Error {
+  status: number;
+  statusText: string;
+  retryAfterMs: number | null;
+
+  constructor(subreddit: string, status: number, statusText: string, retryAfterMs: number | null) {
+    super(`Could not fetch RSS for r/${subreddit}: ${status} ${statusText}`);
+    this.name = "RedditRssFetchError";
+    this.status = status;
+    this.statusText = statusText;
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
 export async function fetchSubredditPosts(subreddit: string, limit?: number) {
   const xml = await fetchSubredditRss(subreddit);
   return parseSubredditPostsFromRss(xml, { subreddit, limit });
@@ -75,18 +94,40 @@ export async function fetchSubredditPosts(subreddit: string, limit?: number) {
 
 export async function fetchSubredditRss(subreddit: string) {
   const normalizedSubreddit = normalizeSubredditName(subreddit);
-  const response = await fetch(`${REDDIT_RSS_BASE_URL}/r/${encodeURIComponent(normalizedSubreddit)}/.rss`, {
-    headers: {
-      "User-Agent": process.env.REDDIT_RSS_USER_AGENT?.trim() || DEFAULT_USER_AGENT,
-      Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.1",
-    },
-  });
 
-  if (!response.ok) {
-    throw new Error(`Could not fetch RSS for r/${normalizedSubreddit}: ${response.status} ${response.statusText}`);
+  for (let attempt = 0; attempt <= redditRssMaxRetries; attempt += 1) {
+    await waitForRedditRssSlot();
+
+    const response = await fetch(`${REDDIT_RSS_BASE_URL}/r/${encodeURIComponent(normalizedSubreddit)}/.rss`, {
+      headers: {
+        "User-Agent": process.env.REDDIT_RSS_USER_AGENT?.trim() || DEFAULT_USER_AGENT,
+        Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.1",
+      },
+    });
+
+    if (response.ok) {
+      return response.text();
+    }
+
+    const error = new RedditRssFetchError(
+      normalizedSubreddit,
+      response.status,
+      response.statusText,
+      parseRetryAfterMs(response.headers.get("retry-after")),
+    );
+
+    const shouldRetry =
+      attempt < redditRssMaxRetries &&
+      (response.status === 429 || response.status === 408 || response.status >= 500);
+
+    if (!shouldRetry) {
+      throw error;
+    }
+
+    await sleep(error.retryAfterMs ?? DEFAULT_RETRY_AFTER_MS);
   }
 
-  return response.text();
+  throw new Error(`Could not fetch RSS for r/${normalizedSubreddit}.`);
 }
 
 export function parseSubredditPostsFromRss(
@@ -299,6 +340,51 @@ function normalizeRedditUrl(value: string | null | undefined) {
   }
 
   return `${REDDIT_RSS_BASE_URL}/${normalized.replace(/^\/+/, "")}`;
+}
+
+async function waitForRedditRssSlot() {
+  const previousRequest = redditRssRequestChain;
+  let releaseSlot: () => void = () => {};
+  redditRssRequestChain = new Promise((resolve) => {
+    releaseSlot = resolve;
+  });
+
+  try {
+    await previousRequest;
+
+    const now = Date.now();
+    const waitMs = Math.max(0, nextRedditRssRequestAt - now);
+
+    if (waitMs > 0) {
+      await sleep(waitMs);
+    }
+
+    nextRedditRssRequestAt = Date.now() + redditRssRequestIntervalMs;
+  } finally {
+    releaseSlot();
+  }
+}
+
+function parseRetryAfterMs(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return seconds * 1000;
+  }
+
+  const retryAt = Date.parse(value);
+  if (Number.isNaN(retryAt)) {
+    return null;
+  }
+
+  return Math.max(0, retryAt - Date.now());
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function derivePostFullname(id: string | null, permalink: string) {

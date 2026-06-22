@@ -16,7 +16,7 @@ import {
   type MatchCampaignRssPollRunJobData,
   type PollSubredditRssJobData,
 } from "./queues";
-import { fetchSubredditPosts, type RedditPost } from "./reddit";
+import { fetchSubredditPosts, RedditRssFetchError, type RedditPost } from "./reddit";
 
 const REDDIT_RATE_LIMIT_BACKOFF_MS = 60 * 60 * 1000;
 const REDDIT_TRANSIENT_BACKOFF_MS = 15 * 60 * 1000;
@@ -196,7 +196,7 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
       {
         jobId,
         subreddit,
-        error,
+        error: serializeError(error),
         backoffUntil,
       },
       "Subreddit RSS polling failed and backoff was applied",
@@ -441,8 +441,29 @@ function isKnownPostBoundary(
 }
 
 function isRedditRateLimitError(error: unknown) {
+  if (error instanceof RedditRssFetchError) {
+    return error.status === 429;
+  }
+
   const message = error instanceof Error ? error.message : String(error ?? "");
   return /\b429\b/.test(message) || message.toLowerCase().includes("too many requests");
+}
+
+function serializeError(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      ...("status" in error && typeof error.status === "number" ? { status: error.status } : {}),
+      ...("statusText" in error && typeof error.statusText === "string" ? { statusText: error.statusText } : {}),
+      ...("retryAfterMs" in error && typeof error.retryAfterMs === "number" ? { retryAfterMs: error.retryAfterMs } : {}),
+    };
+  }
+
+  return {
+    message: String(error ?? "Unknown error"),
+  };
 }
 
 function normalizeSubredditName(value: string) {

@@ -177,7 +177,7 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
           jobId,
           campaignId: campaign.id,
           subreddit,
-          error,
+          error: serializeError(error),
         },
         "Daily subreddit ingestion failed",
       );
@@ -260,6 +260,23 @@ export async function runDailyIngest(data: DailyIngestJobData, jobId: string) {
     queuedEmbeddingBatches,
     subredditErrors,
     durationMs,
+  };
+}
+
+function serializeError(error: unknown) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      ...("status" in error && typeof error.status === "number" ? { status: error.status } : {}),
+      ...("statusText" in error && typeof error.statusText === "string" ? { statusText: error.statusText } : {}),
+      ...("retryAfterMs" in error && typeof error.retryAfterMs === "number" ? { retryAfterMs: error.retryAfterMs } : {}),
+    };
+  }
+
+  return {
+    message: String(error ?? "Unknown error"),
   };
 }
 

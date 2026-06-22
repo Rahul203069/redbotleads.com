@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { Check, Copy } from "lucide-react";
 
 import { updateCampaign } from "@/actions/campaigns";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ type EditCampaignDialogProps = {
 export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [copiedSubreddits, setCopiedSubreddits] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [errors, setErrors] = useState<Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>>({});
   const initialDraft = useMemo<Draft>(
@@ -63,6 +65,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
     if (!nextOpen) {
       setDraft(initialDraft);
       setErrors({});
+      setCopiedSubreddits(false);
     }
   }
 
@@ -107,6 +110,34 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
         variant: "destructive",
       });
     });
+  }
+
+  async function handleCopySubreddits() {
+    const subredditList = draft.subreddits.join("\n");
+
+    if (!subredditList) {
+      toast({
+        title: "No subreddits to copy",
+        description: "Add at least one subreddit before copying.",
+      });
+      return;
+    }
+
+    try {
+      await copyToClipboard(subredditList);
+      setCopiedSubreddits(true);
+      toast({
+        title: "Subreddits copied",
+        description: `${draft.subreddits.length} subreddit${draft.subreddits.length === 1 ? "" : "s"} copied as a paste-ready list.`,
+      });
+      window.setTimeout(() => setCopiedSubreddits(false), 2000);
+    } catch {
+      toast({
+        title: "Could not copy subreddits",
+        description: subredditList,
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -176,7 +207,24 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 />
               </Field>
 
-              <Field error={errors.subreddits} hint="Communities to monitor." label="Subreddits">
+              <Field
+                action={
+                  <Button
+                    aria-label="Copy subreddit list"
+                    disabled={draft.subreddits.length === 0}
+                    onClick={handleCopySubreddits}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                  >
+                    {copiedSubreddits ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    {copiedSubreddits ? "Copied" : "Copy list"}
+                  </Button>
+                }
+                error={errors.subreddits}
+                hint="Communities to monitor."
+                label="Subreddits"
+              >
                 <TagInput onChange={(values) => updateDraft("subreddits", values)} placeholder="Type a subreddit and press Enter" value={draft.subreddits} />
               </Field>
             </section>
@@ -285,22 +333,44 @@ function areArraysEqual(left: string[], right: string[]) {
   return left.every((value, index) => value === right[index]);
 }
 
+async function copyToClipboard(value: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const input = document.createElement("textarea");
+  input.value = value;
+  input.setAttribute("readonly", "");
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("copy");
+  input.remove();
+}
+
 function Field({
+  action,
   children,
   error,
   hint,
   label,
 }: {
+  action?: React.ReactNode;
   children: React.ReactNode;
   error?: string;
   hint: string;
   label: string;
 }) {
   return (
-    <label className="grid gap-2">
-      <span className="text-sm font-medium text-[#F3F5F4]">{label}</span>
+    <div className="grid gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-sm font-medium text-[#F3F5F4]">{label}</span>
+        {action}
+      </div>
       {children}
       <span className={error ? "text-sm text-[#F87171]" : "text-sm text-[#6F7C77]"}>{error ?? hint}</span>
-    </label>
+    </div>
   );
 }

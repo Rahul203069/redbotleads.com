@@ -16,6 +16,7 @@ const envSchema = z.object({
   SEMANTIC_MATCH_THRESHOLD: z.coerce.number().min(0).max(1).optional(),
   REDDIT_RSS_REQUEST_INTERVAL_MS: z.coerce.number().int().nonnegative().optional(),
   REDDIT_RSS_MAX_RETRIES: z.coerce.number().int().nonnegative().optional(),
+  REDDIT_RSS_RETRY_BACKOFF_MS: z.coerce.number().int().nonnegative().optional(),
   REDIS_QUEUE_TIMEOUT_MS: z.coerce.number().int().positive().optional(),
   WORKER_INGESTION_CONCURRENCY: z.coerce.number().int().positive().optional(),
   WORKER_EMBEDDING_CONCURRENCY: z.coerce.number().int().positive().optional(),
@@ -41,5 +42,6 @@ export const workerEmbeddingBatchSize = workerEnv.OPENAI_EMBEDDING_BATCH_SIZE ??
 export const workerEmbeddingBatchMaxChars = workerEnv.OPENAI_EMBEDDING_BATCH_MAX_CHARS ?? 200000;
 export const workerClassificationMinIntervalMs = workerEnv.OPENAI_CLASSIFICATION_MIN_INTERVAL_MS ?? 0;
 export const semanticMatchThreshold = workerEnv.SEMANTIC_MATCH_THRESHOLD ?? 0.5;
-export const redditRssRequestIntervalMs = workerEnv.REDDIT_RSS_REQUEST_INTERVAL_MS ?? 45000;
+export const redditRssRequestIntervalMs = workerEnv.REDDIT_RSS_REQUEST_INTERVAL_MS ?? 10000;
 export const redditRssMaxRetries = workerEnv.REDDIT_RSS_MAX_RETRIES ?? 2;
+export const redditRssRetryBackoffMs = workerEnv.REDDIT_RSS_RETRY_BACKOFF_MS ?? 30000;

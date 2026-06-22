@@ -141,6 +141,8 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
           }
         }
       }
+
+      await flushPendingEmbeddingItems();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Subreddit ingestion failed.";
       subredditErrors.push({ subreddit, message: errorMessage });

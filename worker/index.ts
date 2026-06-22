@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { redditRssMaxRetries, redditRssRequestIntervalMs, redditRssRetryBackoffMs } from "./config";
 import { workerLogger } from "./logger";
 
 import "./classification";
@@ -9,4 +10,11 @@ import "./notifications";
 import "./rss-polling";
 import "./semantic";
 
-workerLogger.info("All worker processes started in single-process dev mode");
+workerLogger.info(
+  {
+    redditRssRequestIntervalMs,
+    redditRssMaxRetries,
+    redditRssRetryBackoffMs,
+  },
+  "All worker processes started in single-process dev mode",
+);

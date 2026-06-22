@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 
-import { redditRssMaxRetries, redditRssRequestIntervalMs } from "./config";
+import { redditRssMaxRetries, redditRssRequestIntervalMs, redditRssRetryBackoffMs } from "./config";
+import { workerLogger } from "./logger";
 
 const REDDIT_RSS_BASE_URL = "https://www.reddit.com";
 const DEFAULT_USER_AGENT = "my-app-rss-ingestion/0.1";
-const DEFAULT_RETRY_AFTER_MS = 60_000;
 let nextRedditRssRequestAt = 0;
 let redditRssRequestChain = Promise.resolve();
 
@@ -96,7 +96,19 @@ export async function fetchSubredditRss(subreddit: string) {
   const normalizedSubreddit = normalizeSubredditName(subreddit);
 
   for (let attempt = 0; attempt <= redditRssMaxRetries; attempt += 1) {
-    await waitForRedditRssSlot();
+    const slotWaitMs = await waitForRedditRssSlot();
+
+    if (slotWaitMs > 0) {
+      workerLogger.info(
+        {
+          subreddit: normalizedSubreddit,
+          attempt,
+          waitMs: slotWaitMs,
+          requestIntervalMs: redditRssRequestIntervalMs,
+        },
+        "Waiting for Reddit RSS request slot",
+      );
+    }
 
     const response = await fetch(`${REDDIT_RSS_BASE_URL}/r/${encodeURIComponent(normalizedSubreddit)}/.rss`, {
       headers: {
@@ -124,7 +136,22 @@ export async function fetchSubredditRss(subreddit: string) {
       throw error;
     }
 
-    await sleep(error.retryAfterMs ?? DEFAULT_RETRY_AFTER_MS);
+    const retryWaitMs = error.retryAfterMs ?? redditRssRetryBackoffMs;
+
+    workerLogger.warn(
+      {
+        subreddit: normalizedSubreddit,
+        attempt,
+        status: response.status,
+        statusText: response.statusText,
+        retryWaitMs,
+        retryAfterMs: error.retryAfterMs,
+        retryBackoffMs: redditRssRetryBackoffMs,
+      },
+      "Retrying Reddit RSS fetch after transient response",
+    );
+
+    await sleep(retryWaitMs);
   }
 
   throw new Error(`Could not fetch RSS for r/${normalizedSubreddit}.`);
@@ -360,6 +387,7 @@ async function waitForRedditRssSlot() {
     }
 
     nextRedditRssRequestAt = Date.now() + redditRssRequestIntervalMs;
+    return waitMs;
   } finally {
     releaseSlot();
   }

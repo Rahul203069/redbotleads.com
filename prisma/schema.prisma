@@ -301,6 +301,10 @@ model CampaignInitialRssPollEvent {
   httpStatus   Int?
   statusText   String?
   errorMessage String?
+  ratelimitUsed      String?
+  ratelimitRemaining String?
+  ratelimitReset     String?
+  retryAfter         String?
 
   retryAfterMs Int?
   retryWaitMs  Int?

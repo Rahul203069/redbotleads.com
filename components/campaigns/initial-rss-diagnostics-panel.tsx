@@ -112,6 +112,9 @@ function RssRunInspectorDialog({
                           <Th>Requested</Th>
                           <Th>Gap</Th>
                           <Th>HTTP</Th>
+                          <Th>RL used</Th>
+                          <Th>RL remaining</Th>
+                          <Th>RL reset</Th>
                           <Th>Slot wait</Th>
                           <Th>Next planned</Th>
                           <Th>Retry</Th>
@@ -134,6 +137,9 @@ function RssRunInspectorDialog({
                             <Td>{formatDateTime(event.requestedAt)}</Td>
                             <Td>{formatGap(events[index - 1], event)}</Td>
                             <Td>{event.httpStatus ? `${event.httpStatus} ${event.statusText ?? ""}`.trim() : "Pending"}</Td>
+                            <Td>{event.ratelimitUsed ?? "-"}</Td>
+                            <Td>{event.ratelimitRemaining ?? "-"}</Td>
+                            <Td>{event.ratelimitReset ?? "-"}</Td>
                             <Td>{formatDuration(event.waitMs)}</Td>
                             <Td>{event.nextRequestAt ? formatDateTime(event.nextRequestAt) : "Not set"}</Td>
                             <Td>{event.retryUntil ? formatDateTime(event.retryUntil) : "-"}</Td>
@@ -159,8 +165,12 @@ function RssRunInspectorDialog({
 }
 
 function EventDetail({ event }: { event: EventRow }) {
-  if (event.retryUntil) {
-    return <span className="text-[#f8c15c]">Retry at {formatDateTime(event.retryUntil)}</span>;
+  if (event.retryUntil || event.retryAfter) {
+    return (
+      <span className="text-[#f8c15c]">
+        {event.retryUntil ? `Retry at ${formatDateTime(event.retryUntil)}` : `Retry after ${event.retryAfter}`}
+      </span>
+    );
   }
 
   if (event.errorMessage) {

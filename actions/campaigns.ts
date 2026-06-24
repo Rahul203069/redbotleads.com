@@ -786,6 +786,10 @@ export type CampaignInitialRssDiagnostics = {
     httpStatus: number | null;
     statusText: string | null;
     errorMessage: string | null;
+    ratelimitUsed: string | null;
+    ratelimitRemaining: string | null;
+    ratelimitReset: string | null;
+    retryAfter: string | null;
     retryAfterMs: number | null;
     retryWaitMs: number | null;
     retryUntil: string | null;
@@ -870,6 +874,10 @@ export async function getCampaignInitialRssDiagnostics(campaignId: string): Prom
       httpStatus: event.httpStatus,
       statusText: event.statusText,
       errorMessage: event.errorMessage,
+      ratelimitUsed: event.ratelimitUsed,
+      ratelimitRemaining: event.ratelimitRemaining,
+      ratelimitReset: event.ratelimitReset,
+      retryAfter: event.retryAfter,
       retryAfterMs: event.retryAfterMs,
       retryWaitMs: event.retryWaitMs,
       retryUntil: event.retryUntil?.toISOString() ?? null,

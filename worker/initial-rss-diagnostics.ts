@@ -83,6 +83,12 @@ export function createInitialRssDiagnostics(context: InitialRssDiagnosticsContex
             completedAt: Date;
             durationMs: number;
             retryAfterMs: number | null;
+            rateLimitHeaders: {
+              ratelimitUsed: string | null;
+              ratelimitRemaining: string | null;
+              ratelimitReset: string | null;
+              retryAfter: string | null;
+            };
             retryWaitMs?: number;
             retryUntil?: Date;
             errorMessage?: string;
@@ -94,6 +100,10 @@ export function createInitialRssDiagnostics(context: InitialRssDiagnosticsContex
               httpStatus: event.httpStatus,
               statusText: event.statusText,
               errorMessage: event.errorMessage,
+              ratelimitUsed: event.rateLimitHeaders.ratelimitUsed,
+              ratelimitRemaining: event.rateLimitHeaders.ratelimitRemaining,
+              ratelimitReset: event.rateLimitHeaders.ratelimitReset,
+              retryAfter: event.rateLimitHeaders.retryAfter,
               retryAfterMs: event.retryAfterMs,
               retryWaitMs: event.retryWaitMs,
               retryUntil: event.retryUntil,
@@ -129,6 +139,10 @@ export function createInitialRssDiagnostics(context: InitialRssDiagnosticsContex
     httpStatus?: number;
     statusText?: string;
     errorMessage?: string;
+    ratelimitUsed?: string | null;
+    ratelimitRemaining?: string | null;
+    ratelimitReset?: string | null;
+    retryAfter?: string | null;
     retryAfterMs?: number | null;
     retryWaitMs?: number;
     retryUntil?: Date;

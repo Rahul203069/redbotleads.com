@@ -96,6 +96,7 @@ type RedditRssFetchObserver = {
     completedAt: Date;
     durationMs: number;
     retryAfterMs: number | null;
+    rateLimitHeaders: RedditRateLimitHeaders;
     retryWaitMs?: number;
     retryUntil?: Date;
     errorMessage?: string;
@@ -112,6 +113,13 @@ type RedditRssFetchObserver = {
 type FetchSubredditPostsOptions = {
   limit?: number;
   observer?: RedditRssFetchObserver;
+};
+
+type RedditRateLimitHeaders = {
+  ratelimitUsed: string | null;
+  ratelimitRemaining: string | null;
+  ratelimitReset: string | null;
+  retryAfter: string | null;
 };
 
 export class RedditRssFetchError extends Error {
@@ -186,6 +194,17 @@ export async function fetchSubredditRss(subreddit: string, observer?: RedditRssF
 
     const completedAt = new Date();
     const durationMs = completedAt.getTime() - requestedAt.getTime();
+    const rateLimitHeaders = getRedditRateLimitHeaders(response);
+
+    workerLogger.info(
+      {
+        subreddit: normalizedSubreddit,
+        attempt,
+        status: response.status,
+        ...rateLimitHeaders,
+      },
+      "Reddit RSS response headers",
+    );
 
     if (response.ok) {
       const text = await response.text();
@@ -198,6 +217,7 @@ export async function fetchSubredditRss(subreddit: string, observer?: RedditRssF
         completedAt,
         durationMs,
         retryAfterMs: null,
+        rateLimitHeaders,
       });
       return text;
     }
@@ -225,6 +245,7 @@ export async function fetchSubredditRss(subreddit: string, observer?: RedditRssF
       completedAt,
       durationMs,
       retryAfterMs,
+      rateLimitHeaders,
       retryWaitMs,
       retryUntil,
       errorMessage: error.message,
@@ -515,6 +536,15 @@ function getFailedResponseStatus(status: number, shouldRetry: boolean) {
   }
 
   return "HTTP_ERROR";
+}
+
+function getRedditRateLimitHeaders(response: Response): RedditRateLimitHeaders {
+  return {
+    ratelimitUsed: response.headers.get("x-ratelimit-used"),
+    ratelimitRemaining: response.headers.get("x-ratelimit-remaining"),
+    ratelimitReset: response.headers.get("x-ratelimit-reset"),
+    retryAfter: response.headers.get("retry-after"),
+  };
 }
 
 function parseRetryAfterMs(value: string | null) {

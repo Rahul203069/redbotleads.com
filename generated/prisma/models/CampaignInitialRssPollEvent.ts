@@ -73,6 +73,10 @@ export type CampaignInitialRssPollEventMinAggregateOutputType = {
   httpStatus: number | null
   statusText: string | null
   errorMessage: string | null
+  ratelimitUsed: string | null
+  ratelimitRemaining: string | null
+  ratelimitReset: string | null
+  retryAfter: string | null
   retryAfterMs: number | null
   retryWaitMs: number | null
   retryUntil: Date | null
@@ -102,6 +106,10 @@ export type CampaignInitialRssPollEventMaxAggregateOutputType = {
   httpStatus: number | null
   statusText: string | null
   errorMessage: string | null
+  ratelimitUsed: string | null
+  ratelimitRemaining: string | null
+  ratelimitReset: string | null
+  retryAfter: string | null
   retryAfterMs: number | null
   retryWaitMs: number | null
   retryUntil: Date | null
@@ -131,6 +139,10 @@ export type CampaignInitialRssPollEventCountAggregateOutputType = {
   httpStatus: number
   statusText: number
   errorMessage: number
+  ratelimitUsed: number
+  ratelimitRemaining: number
+  ratelimitReset: number
+  retryAfter: number
   retryAfterMs: number
   retryWaitMs: number
   retryUntil: number
@@ -190,6 +202,10 @@ export type CampaignInitialRssPollEventMinAggregateInputType = {
   httpStatus?: true
   statusText?: true
   errorMessage?: true
+  ratelimitUsed?: true
+  ratelimitRemaining?: true
+  ratelimitReset?: true
+  retryAfter?: true
   retryAfterMs?: true
   retryWaitMs?: true
   retryUntil?: true
@@ -219,6 +235,10 @@ export type CampaignInitialRssPollEventMaxAggregateInputType = {
   httpStatus?: true
   statusText?: true
   errorMessage?: true
+  ratelimitUsed?: true
+  ratelimitRemaining?: true
+  ratelimitReset?: true
+  retryAfter?: true
   retryAfterMs?: true
   retryWaitMs?: true
   retryUntil?: true
@@ -248,6 +268,10 @@ export type CampaignInitialRssPollEventCountAggregateInputType = {
   httpStatus?: true
   statusText?: true
   errorMessage?: true
+  ratelimitUsed?: true
+  ratelimitRemaining?: true
+  ratelimitReset?: true
+  retryAfter?: true
   retryAfterMs?: true
   retryWaitMs?: true
   retryUntil?: true
@@ -364,6 +388,10 @@ export type CampaignInitialRssPollEventGroupByOutputType = {
   httpStatus: number | null
   statusText: string | null
   errorMessage: string | null
+  ratelimitUsed: string | null
+  ratelimitRemaining: string | null
+  ratelimitReset: string | null
+  retryAfter: string | null
   retryAfterMs: number | null
   retryWaitMs: number | null
   retryUntil: Date | null
@@ -416,6 +444,10 @@ export type CampaignInitialRssPollEventWhereInput = {
   httpStatus?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   statusText?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitUsed?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitRemaining?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitReset?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  retryAfter?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
   retryAfterMs?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   retryWaitMs?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   retryUntil?: Prisma.DateTimeNullableFilter<"CampaignInitialRssPollEvent"> | Date | string | null
@@ -447,6 +479,10 @@ export type CampaignInitialRssPollEventOrderByWithRelationInput = {
   httpStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   statusText?: Prisma.SortOrderInput | Prisma.SortOrder
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratelimitUsed?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratelimitRemaining?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratelimitReset?: Prisma.SortOrderInput | Prisma.SortOrder
+  retryAfter?: Prisma.SortOrderInput | Prisma.SortOrder
   retryAfterMs?: Prisma.SortOrderInput | Prisma.SortOrder
   retryWaitMs?: Prisma.SortOrderInput | Prisma.SortOrder
   retryUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -481,6 +517,10 @@ export type CampaignInitialRssPollEventWhereUniqueInput = Prisma.AtLeast<{
   httpStatus?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   statusText?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitUsed?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitRemaining?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitReset?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  retryAfter?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
   retryAfterMs?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   retryWaitMs?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   retryUntil?: Prisma.DateTimeNullableFilter<"CampaignInitialRssPollEvent"> | Date | string | null
@@ -512,6 +552,10 @@ export type CampaignInitialRssPollEventOrderByWithAggregationInput = {
   httpStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   statusText?: Prisma.SortOrderInput | Prisma.SortOrder
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratelimitUsed?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratelimitRemaining?: Prisma.SortOrderInput | Prisma.SortOrder
+  ratelimitReset?: Prisma.SortOrderInput | Prisma.SortOrder
+  retryAfter?: Prisma.SortOrderInput | Prisma.SortOrder
   retryAfterMs?: Prisma.SortOrderInput | Prisma.SortOrder
   retryWaitMs?: Prisma.SortOrderInput | Prisma.SortOrder
   retryUntil?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -549,6 +593,10 @@ export type CampaignInitialRssPollEventScalarWhereWithAggregatesInput = {
   httpStatus?: Prisma.IntNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | number | null
   statusText?: Prisma.StringNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | string | null
   errorMessage?: Prisma.StringNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitUsed?: Prisma.StringNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitRemaining?: Prisma.StringNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitReset?: Prisma.StringNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | string | null
+  retryAfter?: Prisma.StringNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | string | null
   retryAfterMs?: Prisma.IntNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | number | null
   retryWaitMs?: Prisma.IntNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | number | null
   retryUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"CampaignInitialRssPollEvent"> | Date | string | null
@@ -576,6 +624,10 @@ export type CampaignInitialRssPollEventCreateInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -607,6 +659,10 @@ export type CampaignInitialRssPollEventUncheckedCreateInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -634,6 +690,10 @@ export type CampaignInitialRssPollEventUpdateInput = {
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -665,6 +725,10 @@ export type CampaignInitialRssPollEventUncheckedUpdateInput = {
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -694,6 +758,10 @@ export type CampaignInitialRssPollEventCreateManyInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -721,6 +789,10 @@ export type CampaignInitialRssPollEventUpdateManyMutationInput = {
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -750,6 +822,10 @@ export type CampaignInitialRssPollEventUncheckedUpdateManyInput = {
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -789,6 +865,10 @@ export type CampaignInitialRssPollEventCountOrderByAggregateInput = {
   httpStatus?: Prisma.SortOrder
   statusText?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
+  ratelimitUsed?: Prisma.SortOrder
+  ratelimitRemaining?: Prisma.SortOrder
+  ratelimitReset?: Prisma.SortOrder
+  retryAfter?: Prisma.SortOrder
   retryAfterMs?: Prisma.SortOrder
   retryWaitMs?: Prisma.SortOrder
   retryUntil?: Prisma.SortOrder
@@ -832,6 +912,10 @@ export type CampaignInitialRssPollEventMaxOrderByAggregateInput = {
   httpStatus?: Prisma.SortOrder
   statusText?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
+  ratelimitUsed?: Prisma.SortOrder
+  ratelimitRemaining?: Prisma.SortOrder
+  ratelimitReset?: Prisma.SortOrder
+  retryAfter?: Prisma.SortOrder
   retryAfterMs?: Prisma.SortOrder
   retryWaitMs?: Prisma.SortOrder
   retryUntil?: Prisma.SortOrder
@@ -861,6 +945,10 @@ export type CampaignInitialRssPollEventMinOrderByAggregateInput = {
   httpStatus?: Prisma.SortOrder
   statusText?: Prisma.SortOrder
   errorMessage?: Prisma.SortOrder
+  ratelimitUsed?: Prisma.SortOrder
+  ratelimitRemaining?: Prisma.SortOrder
+  ratelimitReset?: Prisma.SortOrder
+  retryAfter?: Prisma.SortOrder
   retryAfterMs?: Prisma.SortOrder
   retryWaitMs?: Prisma.SortOrder
   retryUntil?: Prisma.SortOrder
@@ -990,6 +1078,10 @@ export type CampaignInitialRssPollEventCreateWithoutCampaignInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -1019,6 +1111,10 @@ export type CampaignInitialRssPollEventUncheckedCreateWithoutCampaignInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -1077,6 +1173,10 @@ export type CampaignInitialRssPollEventScalarWhereInput = {
   httpStatus?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   statusText?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitUsed?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitRemaining?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  ratelimitReset?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
+  retryAfter?: Prisma.StringNullableFilter<"CampaignInitialRssPollEvent"> | string | null
   retryAfterMs?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   retryWaitMs?: Prisma.IntNullableFilter<"CampaignInitialRssPollEvent"> | number | null
   retryUntil?: Prisma.DateTimeNullableFilter<"CampaignInitialRssPollEvent"> | Date | string | null
@@ -1104,6 +1204,10 @@ export type CampaignInitialRssPollEventCreateWithoutCampaignRunInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -1133,6 +1237,10 @@ export type CampaignInitialRssPollEventUncheckedCreateWithoutCampaignRunInput = 
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -1187,6 +1295,10 @@ export type CampaignInitialRssPollEventCreateManyCampaignInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -1214,6 +1326,10 @@ export type CampaignInitialRssPollEventUpdateWithoutCampaignInput = {
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1243,6 +1359,10 @@ export type CampaignInitialRssPollEventUncheckedUpdateWithoutCampaignInput = {
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1271,6 +1391,10 @@ export type CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignInput =
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1299,6 +1423,10 @@ export type CampaignInitialRssPollEventCreateManyCampaignRunInput = {
   httpStatus?: number | null
   statusText?: string | null
   errorMessage?: string | null
+  ratelimitUsed?: string | null
+  ratelimitRemaining?: string | null
+  ratelimitReset?: string | null
+  retryAfter?: string | null
   retryAfterMs?: number | null
   retryWaitMs?: number | null
   retryUntil?: Date | string | null
@@ -1326,6 +1454,10 @@ export type CampaignInitialRssPollEventUpdateWithoutCampaignRunInput = {
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1355,6 +1487,10 @@ export type CampaignInitialRssPollEventUncheckedUpdateWithoutCampaignRunInput = 
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1383,6 +1519,10 @@ export type CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunInpu
   httpStatus?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   statusText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitUsed?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitRemaining?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ratelimitReset?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  retryAfter?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   retryAfterMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryWaitMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   retryUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1414,6 +1554,10 @@ export type CampaignInitialRssPollEventSelect<ExtArgs extends runtime.Types.Exte
   httpStatus?: boolean
   statusText?: boolean
   errorMessage?: boolean
+  ratelimitUsed?: boolean
+  ratelimitRemaining?: boolean
+  ratelimitReset?: boolean
+  retryAfter?: boolean
   retryAfterMs?: boolean
   retryWaitMs?: boolean
   retryUntil?: boolean
@@ -1445,6 +1589,10 @@ export type CampaignInitialRssPollEventSelectCreateManyAndReturn<ExtArgs extends
   httpStatus?: boolean
   statusText?: boolean
   errorMessage?: boolean
+  ratelimitUsed?: boolean
+  ratelimitRemaining?: boolean
+  ratelimitReset?: boolean
+  retryAfter?: boolean
   retryAfterMs?: boolean
   retryWaitMs?: boolean
   retryUntil?: boolean
@@ -1476,6 +1624,10 @@ export type CampaignInitialRssPollEventSelectUpdateManyAndReturn<ExtArgs extends
   httpStatus?: boolean
   statusText?: boolean
   errorMessage?: boolean
+  ratelimitUsed?: boolean
+  ratelimitRemaining?: boolean
+  ratelimitReset?: boolean
+  retryAfter?: boolean
   retryAfterMs?: boolean
   retryWaitMs?: boolean
   retryUntil?: boolean
@@ -1507,6 +1659,10 @@ export type CampaignInitialRssPollEventSelectScalar = {
   httpStatus?: boolean
   statusText?: boolean
   errorMessage?: boolean
+  ratelimitUsed?: boolean
+  ratelimitRemaining?: boolean
+  ratelimitReset?: boolean
+  retryAfter?: boolean
   retryAfterMs?: boolean
   retryWaitMs?: boolean
   retryUntil?: boolean
@@ -1517,7 +1673,7 @@ export type CampaignInitialRssPollEventSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CampaignInitialRssPollEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignId" | "campaignRunId" | "subreddit" | "sequence" | "attempt" | "jobId" | "status" | "requestedAt" | "fetchStartedAt" | "completedAt" | "durationMs" | "waitMs" | "nextRequestDelayMs" | "nextRequestAt" | "httpStatus" | "statusText" | "errorMessage" | "retryAfterMs" | "retryWaitMs" | "retryUntil" | "fetchedPosts" | "matchedItems" | "createdLeads" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignInitialRssPollEvent"]>
+export type CampaignInitialRssPollEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignId" | "campaignRunId" | "subreddit" | "sequence" | "attempt" | "jobId" | "status" | "requestedAt" | "fetchStartedAt" | "completedAt" | "durationMs" | "waitMs" | "nextRequestDelayMs" | "nextRequestAt" | "httpStatus" | "statusText" | "errorMessage" | "ratelimitUsed" | "ratelimitRemaining" | "ratelimitReset" | "retryAfter" | "retryAfterMs" | "retryWaitMs" | "retryUntil" | "fetchedPosts" | "matchedItems" | "createdLeads" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignInitialRssPollEvent"]>
 export type CampaignInitialRssPollEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   campaignRun?: boolean | Prisma.CampaignRunDefaultArgs<ExtArgs>
@@ -1556,6 +1712,10 @@ export type $CampaignInitialRssPollEventPayload<ExtArgs extends runtime.Types.Ex
     httpStatus: number | null
     statusText: string | null
     errorMessage: string | null
+    ratelimitUsed: string | null
+    ratelimitRemaining: string | null
+    ratelimitReset: string | null
+    retryAfter: string | null
     retryAfterMs: number | null
     retryWaitMs: number | null
     retryUntil: Date | null
@@ -2007,6 +2167,10 @@ export interface CampaignInitialRssPollEventFieldRefs {
   readonly httpStatus: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'Int'>
   readonly statusText: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'String'>
   readonly errorMessage: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'String'>
+  readonly ratelimitUsed: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'String'>
+  readonly ratelimitRemaining: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'String'>
+  readonly ratelimitReset: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'String'>
+  readonly retryAfter: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'String'>
   readonly retryAfterMs: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'Int'>
   readonly retryWaitMs: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'Int'>
   readonly retryUntil: Prisma.FieldRef<"CampaignInitialRssPollEvent", 'DateTime'>

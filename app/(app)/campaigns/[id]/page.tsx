@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { BarChart3 } from "lucide-react";
 
 import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-access-button";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
@@ -113,6 +114,17 @@ export default async function CampaignDetailPage({
               </Button>
             </Link>
             <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-stretch lg:justify-end">
+              {sync?.status === "COMPLETED" ? (
+                <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/analytics`}>
+                  <Button
+                    className="w-full rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477] sm:w-auto"
+                    variant="secondary"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    Analytics
+                  </Button>
+                </Link>
+              ) : null}
               <CopyPublicCampaignLinkButton campaignId={campaign.id} />
               <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
               {canRunCampaigns ? (

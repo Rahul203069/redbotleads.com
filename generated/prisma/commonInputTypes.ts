@@ -314,6 +314,23 @@ export type FloatWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
 }
 
+export type EnumCampaignInitialRssPollStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignInitialRssPollStatus | Prisma.EnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel> | $Enums.CampaignInitialRssPollStatus
+}
+
+export type EnumCampaignInitialRssPollStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignInitialRssPollStatus | Prisma.EnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignInitialRssPollStatusWithAggregatesFilter<$PrismaModel> | $Enums.CampaignInitialRssPollStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel>
+}
+
 export type EnumCampaignSyncStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.CampaignSyncStatus | Prisma.EnumCampaignSyncStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CampaignSyncStatus[] | Prisma.ListEnumCampaignSyncStatusFieldRefInput<$PrismaModel>
@@ -767,6 +784,23 @@ export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedFloatFilter<$PrismaModel>
   _min?: Prisma.NestedFloatFilter<$PrismaModel>
   _max?: Prisma.NestedFloatFilter<$PrismaModel>
+}
+
+export type NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignInitialRssPollStatus | Prisma.EnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel> | $Enums.CampaignInitialRssPollStatus
+}
+
+export type NestedEnumCampaignInitialRssPollStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignInitialRssPollStatus | Prisma.EnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignInitialRssPollStatus[] | Prisma.ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignInitialRssPollStatusWithAggregatesFilter<$PrismaModel> | $Enums.CampaignInitialRssPollStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumCampaignSyncStatusFilter<$PrismaModel = never> = {

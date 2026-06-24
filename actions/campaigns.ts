@@ -758,6 +758,128 @@ export async function getCampaignLeads(campaignId: string) {
   });
 }
 
+export type CampaignInitialRssDiagnostics = {
+  run: {
+    id: string;
+    status: string;
+    message: string | null;
+    error: string | null;
+    queuedAt: string;
+    startedAt: string | null;
+    completedAt: string | null;
+    failedAt: string | null;
+    updatedAt: string;
+  };
+  events: Array<{
+    id: string;
+    subreddit: string;
+    sequence: number;
+    attempt: number;
+    status: string;
+    requestedAt: string;
+    fetchStartedAt: string | null;
+    completedAt: string | null;
+    durationMs: number | null;
+    waitMs: number | null;
+    nextRequestDelayMs: number | null;
+    nextRequestAt: string | null;
+    httpStatus: number | null;
+    statusText: string | null;
+    errorMessage: string | null;
+    retryAfterMs: number | null;
+    retryWaitMs: number | null;
+    retryUntil: string | null;
+    fetchedPosts: number | null;
+    matchedItems: number | null;
+    createdLeads: number | null;
+  }>;
+} | null;
+
+export async function getCampaignInitialRssDiagnostics(campaignId: string): Promise<CampaignInitialRssDiagnostics> {
+  const session = await auth();
+
+  if (!session?.user?.id || !campaignId) {
+    return null;
+  }
+
+  const campaign = await prisma.campaign.findFirst({
+    where: {
+      id: campaignId,
+      userId: session.user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!campaign) {
+    return null;
+  }
+
+  const run = await prisma.campaignRun.findFirst({
+    where: {
+      campaignId,
+      trigger: "CAMPAIGN_CREATED",
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      initialRssPollEvents: {
+        orderBy: [
+          {
+            sequence: "asc",
+          },
+          {
+            attempt: "asc",
+          },
+        ],
+      },
+    },
+  });
+
+  if (!run) {
+    return null;
+  }
+
+  return {
+    run: {
+      id: run.id,
+      status: run.status,
+      message: run.message,
+      error: run.error,
+      queuedAt: run.queuedAt.toISOString(),
+      startedAt: run.startedAt?.toISOString() ?? null,
+      completedAt: run.completedAt?.toISOString() ?? null,
+      failedAt: run.failedAt?.toISOString() ?? null,
+      updatedAt: run.updatedAt.toISOString(),
+    },
+    events: run.initialRssPollEvents.map((event) => ({
+      id: event.id,
+      subreddit: event.subreddit,
+      sequence: event.sequence,
+      attempt: event.attempt,
+      status: event.status,
+      requestedAt: event.requestedAt.toISOString(),
+      fetchStartedAt: event.fetchStartedAt?.toISOString() ?? null,
+      completedAt: event.completedAt?.toISOString() ?? null,
+      durationMs: event.durationMs,
+      waitMs: event.waitMs,
+      nextRequestDelayMs: event.nextRequestDelayMs,
+      nextRequestAt: event.nextRequestAt?.toISOString() ?? null,
+      httpStatus: event.httpStatus,
+      statusText: event.statusText,
+      errorMessage: event.errorMessage,
+      retryAfterMs: event.retryAfterMs,
+      retryWaitMs: event.retryWaitMs,
+      retryUntil: event.retryUntil?.toISOString() ?? null,
+      fetchedPosts: event.fetchedPosts,
+      matchedItems: event.matchedItems,
+      createdLeads: event.createdLeads,
+    })),
+  };
+}
+
 function parseList(value: FormDataEntryValue | null) {
   return String(value ?? "")
     .split(/\r?\n|,/)

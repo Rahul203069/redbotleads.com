@@ -59,6 +59,7 @@ export const ModelName = {
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
   CampaignRun: 'CampaignRun',
+  CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
   CampaignSync: 'CampaignSync',
@@ -211,6 +212,38 @@ export const CampaignRunScalarFieldEnum = {
 } as const
 
 export type CampaignRunScalarFieldEnum = (typeof CampaignRunScalarFieldEnum)[keyof typeof CampaignRunScalarFieldEnum]
+
+
+export const CampaignInitialRssPollEventScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  campaignRunId: 'campaignRunId',
+  subreddit: 'subreddit',
+  sequence: 'sequence',
+  attempt: 'attempt',
+  jobId: 'jobId',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  fetchStartedAt: 'fetchStartedAt',
+  completedAt: 'completedAt',
+  durationMs: 'durationMs',
+  waitMs: 'waitMs',
+  nextRequestDelayMs: 'nextRequestDelayMs',
+  nextRequestAt: 'nextRequestAt',
+  httpStatus: 'httpStatus',
+  statusText: 'statusText',
+  errorMessage: 'errorMessage',
+  retryAfterMs: 'retryAfterMs',
+  retryWaitMs: 'retryWaitMs',
+  retryUntil: 'retryUntil',
+  fetchedPosts: 'fetchedPosts',
+  matchedItems: 'matchedItems',
+  createdLeads: 'createdLeads',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignInitialRssPollEventScalarFieldEnum = (typeof CampaignInitialRssPollEventScalarFieldEnum)[keyof typeof CampaignInitialRssPollEventScalarFieldEnum]
 
 
 export const AiUsageEventScalarFieldEnum = {

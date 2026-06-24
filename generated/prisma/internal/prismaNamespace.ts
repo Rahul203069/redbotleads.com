@@ -392,6 +392,7 @@ export const ModelName = {
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
   CampaignRun: 'CampaignRun',
+  CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
   CampaignSync: 'CampaignSync',
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1011,6 +1012,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CampaignRunCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CampaignRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignInitialRssPollEvent: {
+      payload: Prisma.$CampaignInitialRssPollEventPayload<ExtArgs>
+      fields: Prisma.CampaignInitialRssPollEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignInitialRssPollEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignInitialRssPollEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignInitialRssPollEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignInitialRssPollEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignInitialRssPollEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignInitialRssPollEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignInitialRssPollEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignInitialRssPollEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignInitialRssPollEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>
+        }
+        update: {
+          args: Prisma.CampaignInitialRssPollEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignInitialRssPollEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignInitialRssPollEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignInitialRssPollEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignInitialRssPollEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignInitialRssPollEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignInitialRssPollEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignInitialRssPollEvent>
+        }
+        groupBy: {
+          args: Prisma.CampaignInitialRssPollEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignInitialRssPollEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignInitialRssPollEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignInitialRssPollEventCountAggregateOutputType> | number
         }
       }
     }
@@ -1992,6 +2067,38 @@ export const CampaignRunScalarFieldEnum = {
 export type CampaignRunScalarFieldEnum = (typeof CampaignRunScalarFieldEnum)[keyof typeof CampaignRunScalarFieldEnum]
 
 
+export const CampaignInitialRssPollEventScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  campaignRunId: 'campaignRunId',
+  subreddit: 'subreddit',
+  sequence: 'sequence',
+  attempt: 'attempt',
+  jobId: 'jobId',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  fetchStartedAt: 'fetchStartedAt',
+  completedAt: 'completedAt',
+  durationMs: 'durationMs',
+  waitMs: 'waitMs',
+  nextRequestDelayMs: 'nextRequestDelayMs',
+  nextRequestAt: 'nextRequestAt',
+  httpStatus: 'httpStatus',
+  statusText: 'statusText',
+  errorMessage: 'errorMessage',
+  retryAfterMs: 'retryAfterMs',
+  retryWaitMs: 'retryWaitMs',
+  retryUntil: 'retryUntil',
+  fetchedPosts: 'fetchedPosts',
+  matchedItems: 'matchedItems',
+  createdLeads: 'createdLeads',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignInitialRssPollEventScalarFieldEnum = (typeof CampaignInitialRssPollEventScalarFieldEnum)[keyof typeof CampaignInitialRssPollEventScalarFieldEnum]
+
+
 export const AiUsageEventScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -2325,6 +2432,20 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
+ * Reference to a field of type 'CampaignInitialRssPollStatus'
+ */
+export type EnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignInitialRssPollStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignInitialRssPollStatus[]'
+ */
+export type ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignInitialRssPollStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'CampaignSyncStatus'
  */
 export type EnumCampaignSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStatus'>
@@ -2552,6 +2673,7 @@ export type GlobalOmitConfig = {
   redditAccount?: Prisma.RedditAccountOmit
   campaign?: Prisma.CampaignOmit
   campaignRun?: Prisma.CampaignRunOmit
+  campaignInitialRssPollEvent?: Prisma.CampaignInitialRssPollEventOmit
   aiUsageEvent?: Prisma.AiUsageEventOmit
   campaignSemanticQuery?: Prisma.CampaignSemanticQueryOmit
   campaignSync?: Prisma.CampaignSyncOmit

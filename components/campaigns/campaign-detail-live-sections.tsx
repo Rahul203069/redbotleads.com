@@ -2,9 +2,15 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 
-import { getCampaignLeads, getCampaignSyncStatuses } from "@/actions/campaigns";
+import {
+  getCampaignInitialRssDiagnostics,
+  getCampaignLeads,
+  getCampaignSyncStatuses,
+  type CampaignInitialRssDiagnostics,
+} from "@/actions/campaigns";
 import { ClassifiedLeadsPanel, type ClassifiedLead } from "@/components/campaigns/classified-leads-panel";
 import { CampaignSyncPanel, type CampaignSync } from "@/components/campaigns/campaign-sync-panel";
+import { InitialRssDiagnosticsPanel } from "@/components/campaigns/initial-rss-diagnostics-panel";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
 
@@ -38,11 +44,13 @@ function normalizeSync(sync: unknown): CampaignSync {
 
 export function CampaignDetailLiveSections({
   campaignId,
+  initialDiagnostics,
   initialLeads,
   initialSync,
   nextSyncLabel,
 }: {
   campaignId: string;
+  initialDiagnostics: CampaignInitialRssDiagnostics;
   initialLeads: ClassifiedLead[];
   initialSync: CampaignSync;
   nextSyncLabel: string;
@@ -50,6 +58,7 @@ export function CampaignDetailLiveSections({
   const [, startTransition] = useTransition();
   const [leads, setLeads] = useState(initialLeads);
   const [sync, setSync] = useState<CampaignSync>(initialSync);
+  const [diagnostics, setDiagnostics] = useState<CampaignInitialRssDiagnostics>(initialDiagnostics);
 
   useEffect(() => {
     setLeads(initialLeads);
@@ -58,6 +67,10 @@ export function CampaignDetailLiveSections({
   useEffect(() => {
     setSync(initialSync);
   }, [initialSync]);
+
+  useEffect(() => {
+    setDiagnostics(initialDiagnostics);
+  }, [initialDiagnostics]);
 
   const isLive = sync?.status === "QUEUED" || sync?.status === "PROCESSING";
 
@@ -68,13 +81,15 @@ export function CampaignDetailLiveSections({
 
     const poll = () => {
       startTransition(async () => {
-        const [latestSync, latestLeads] = await Promise.all([
+        const [latestSync, latestLeads, latestDiagnostics] = await Promise.all([
           getCampaignSyncStatuses([campaignId]),
           getCampaignLeads(campaignId),
+          getCampaignInitialRssDiagnostics(campaignId),
         ]);
 
         setSync(normalizeSync(latestSync[0]?.sync ?? null));
         setLeads(latestLeads);
+        setDiagnostics(latestDiagnostics);
       });
     };
 
@@ -123,6 +138,7 @@ export function CampaignDetailLiveSections({
         }}
         sync={sync}
       />
+      <InitialRssDiagnosticsPanel diagnostics={diagnostics} />
       <ClassifiedLeadsPanel leads={classifiedLeads} syncStatus={sync?.status ?? "IDLE"} />
     </>
   );

@@ -1,6 +1,11 @@
 import "dotenv/config";
 
-import { redditRssMaxRetries, redditRssRequestIntervalMs, redditRssRetryBackoffMs } from "./config";
+import {
+  redditRssMaxRetries,
+  redditRssRequestIntervalMs,
+  redditRssRequestJitterMs,
+  redditRssRetryBackoffMs,
+} from "./config";
 import { workerLogger } from "./logger";
 
 import "./classification";
@@ -13,6 +18,7 @@ import "./semantic";
 workerLogger.info(
   {
     redditRssRequestIntervalMs,
+    redditRssRequestJitterMs,
     redditRssMaxRetries,
     redditRssRetryBackoffMs,
   },

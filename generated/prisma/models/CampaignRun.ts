@@ -295,6 +295,7 @@ export type CampaignRunWhereInput = {
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   usageEvents?: Prisma.AiUsageEventListRelationFilter
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventListRelationFilter
 }
 
 export type CampaignRunOrderByWithRelationInput = {
@@ -316,6 +317,7 @@ export type CampaignRunOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   campaign?: Prisma.CampaignOrderByWithRelationInput
   usageEvents?: Prisma.AiUsageEventOrderByRelationAggregateInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventOrderByRelationAggregateInput
 }
 
 export type CampaignRunWhereUniqueInput = Prisma.AtLeast<{
@@ -340,6 +342,7 @@ export type CampaignRunWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   usageEvents?: Prisma.AiUsageEventListRelationFilter
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventListRelationFilter
 }, "id">
 
 export type CampaignRunOrderByWithAggregationInput = {
@@ -403,6 +406,7 @@ export type CampaignRunCreateInput = {
   user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
   campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
   usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateInput = {
@@ -422,6 +426,7 @@ export type CampaignRunUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUpdateInput = {
@@ -441,6 +446,7 @@ export type CampaignRunUpdateInput = {
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
   usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateInput = {
@@ -460,6 +466,7 @@ export type CampaignRunUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunCreateManyInput = {
@@ -584,6 +591,11 @@ export type CampaignRunSumOrderByAggregateInput = {
   totalCostUsd?: Prisma.SortOrder
 }
 
+export type CampaignRunScalarRelationFilter = {
+  is?: Prisma.CampaignRunWhereInput
+  isNot?: Prisma.CampaignRunWhereInput
+}
+
 export type CampaignRunNullableScalarRelationFilter = {
   is?: Prisma.CampaignRunWhereInput | null
   isNot?: Prisma.CampaignRunWhereInput | null
@@ -681,6 +693,20 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type CampaignRunCreateNestedOneWithoutInitialRssPollEventsInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutInitialRssPollEventsInput, Prisma.CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput>
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutInitialRssPollEventsInput
+  connect?: Prisma.CampaignRunWhereUniqueInput
+}
+
+export type CampaignRunUpdateOneRequiredWithoutInitialRssPollEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutInitialRssPollEventsInput, Prisma.CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput>
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutInitialRssPollEventsInput
+  upsert?: Prisma.CampaignRunUpsertWithoutInitialRssPollEventsInput
+  connect?: Prisma.CampaignRunWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignRunUpdateToOneWithWhereWithoutInitialRssPollEventsInput, Prisma.CampaignRunUpdateWithoutInitialRssPollEventsInput>, Prisma.CampaignRunUncheckedUpdateWithoutInitialRssPollEventsInput>
+}
+
 export type CampaignRunCreateNestedOneWithoutUsageEventsInput = {
   create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutUsageEventsInput, Prisma.CampaignRunUncheckedCreateWithoutUsageEventsInput>
   connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutUsageEventsInput
@@ -713,6 +739,7 @@ export type CampaignRunCreateWithoutUserInput = {
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
   usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateWithoutUserInput = {
@@ -731,6 +758,7 @@ export type CampaignRunUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunCreateOrConnectWithoutUserInput = {
@@ -796,6 +824,7 @@ export type CampaignRunCreateWithoutCampaignInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
   usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateWithoutCampaignInput = {
@@ -814,6 +843,7 @@ export type CampaignRunUncheckedCreateWithoutCampaignInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunCreateOrConnectWithoutCampaignInput = {
@@ -842,6 +872,98 @@ export type CampaignRunUpdateManyWithWhereWithoutCampaignInput = {
   data: Prisma.XOR<Prisma.CampaignRunUpdateManyMutationInput, Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignInput>
 }
 
+export type CampaignRunCreateWithoutInitialRssPollEventsInput = {
+  id?: string
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
+  campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput = {
+  id?: string
+  userId: string
+  campaignId: string
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunCreateOrConnectWithoutInitialRssPollEventsInput = {
+  where: Prisma.CampaignRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutInitialRssPollEventsInput, Prisma.CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput>
+}
+
+export type CampaignRunUpsertWithoutInitialRssPollEventsInput = {
+  update: Prisma.XOR<Prisma.CampaignRunUpdateWithoutInitialRssPollEventsInput, Prisma.CampaignRunUncheckedUpdateWithoutInitialRssPollEventsInput>
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutInitialRssPollEventsInput, Prisma.CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput>
+  where?: Prisma.CampaignRunWhereInput
+}
+
+export type CampaignRunUpdateToOneWithWhereWithoutInitialRssPollEventsInput = {
+  where?: Prisma.CampaignRunWhereInput
+  data: Prisma.XOR<Prisma.CampaignRunUpdateWithoutInitialRssPollEventsInput, Prisma.CampaignRunUncheckedUpdateWithoutInitialRssPollEventsInput>
+}
+
+export type CampaignRunUpdateWithoutInitialRssPollEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+}
+
+export type CampaignRunUncheckedUpdateWithoutInitialRssPollEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+}
+
 export type CampaignRunCreateWithoutUsageEventsInput = {
   id?: string
   trigger: string
@@ -858,6 +980,7 @@ export type CampaignRunCreateWithoutUsageEventsInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
   campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateWithoutUsageEventsInput = {
@@ -876,6 +999,7 @@ export type CampaignRunUncheckedCreateWithoutUsageEventsInput = {
   totalCostUsd?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunCreateOrConnectWithoutUsageEventsInput = {
@@ -910,6 +1034,7 @@ export type CampaignRunUpdateWithoutUsageEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateWithoutUsageEventsInput = {
@@ -928,6 +1053,7 @@ export type CampaignRunUncheckedUpdateWithoutUsageEventsInput = {
   totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunCreateManyUserInput = {
@@ -963,6 +1089,7 @@ export type CampaignRunUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
   usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateWithoutUserInput = {
@@ -981,6 +1108,7 @@ export type CampaignRunUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateManyWithoutUserInput = {
@@ -1033,6 +1161,7 @@ export type CampaignRunUpdateWithoutCampaignInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
   usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateWithoutCampaignInput = {
@@ -1051,6 +1180,7 @@ export type CampaignRunUncheckedUpdateWithoutCampaignInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateManyWithoutCampaignInput = {
@@ -1077,10 +1207,12 @@ export type CampaignRunUncheckedUpdateManyWithoutCampaignInput = {
 
 export type CampaignRunCountOutputType = {
   usageEvents: number
+  initialRssPollEvents: number
 }
 
 export type CampaignRunCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   usageEvents?: boolean | CampaignRunCountOutputTypeCountUsageEventsArgs
+  initialRssPollEvents?: boolean | CampaignRunCountOutputTypeCountInitialRssPollEventsArgs
 }
 
 /**
@@ -1098,6 +1230,13 @@ export type CampaignRunCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.
  */
 export type CampaignRunCountOutputTypeCountUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AiUsageEventWhereInput
+}
+
+/**
+ * CampaignRunCountOutputType without action
+ */
+export type CampaignRunCountOutputTypeCountInitialRssPollEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignInitialRssPollEventWhereInput
 }
 
 
@@ -1120,6 +1259,7 @@ export type CampaignRunSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   usageEvents?: boolean | Prisma.CampaignRun$usageEventsArgs<ExtArgs>
+  initialRssPollEvents?: boolean | Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignRunCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["campaignRun"]>
 
@@ -1186,6 +1326,7 @@ export type CampaignRunInclude<ExtArgs extends runtime.Types.Extensions.Internal
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   usageEvents?: boolean | Prisma.CampaignRun$usageEventsArgs<ExtArgs>
+  initialRssPollEvents?: boolean | Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignRunCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CampaignRunIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1203,6 +1344,7 @@ export type $CampaignRunPayload<ExtArgs extends runtime.Types.Extensions.Interna
     user: Prisma.$UserPayload<ExtArgs>
     campaign: Prisma.$CampaignPayload<ExtArgs>
     usageEvents: Prisma.$AiUsageEventPayload<ExtArgs>[]
+    initialRssPollEvents: Prisma.$CampaignInitialRssPollEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1617,6 +1759,7 @@ export interface Prisma__CampaignRunClient<T, Null = never, ExtArgs extends runt
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   campaign<T extends Prisma.CampaignDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignDefaultArgs<ExtArgs>>): Prisma.Prisma__CampaignClient<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   usageEvents<T extends Prisma.CampaignRun$usageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignRun$usageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  initialRssPollEvents<T extends Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignInitialRssPollEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2078,6 +2221,30 @@ export type CampaignRun$usageEventsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.AiUsageEventScalarFieldEnum | Prisma.AiUsageEventScalarFieldEnum[]
+}
+
+/**
+ * CampaignRun.initialRssPollEvents
+ */
+export type CampaignRun$initialRssPollEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignInitialRssPollEvent
+   */
+  select?: Prisma.CampaignInitialRssPollEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignInitialRssPollEvent
+   */
+  omit?: Prisma.CampaignInitialRssPollEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignInitialRssPollEventInclude<ExtArgs> | null
+  where?: Prisma.CampaignInitialRssPollEventWhereInput
+  orderBy?: Prisma.CampaignInitialRssPollEventOrderByWithRelationInput | Prisma.CampaignInitialRssPollEventOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignInitialRssPollEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignInitialRssPollEventScalarFieldEnum | Prisma.CampaignInitialRssPollEventScalarFieldEnum[]
 }
 
 /**

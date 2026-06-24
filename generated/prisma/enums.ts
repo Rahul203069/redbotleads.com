@@ -112,3 +112,16 @@ export const CampaignSyncStage = {
 } as const
 
 export type CampaignSyncStage = (typeof CampaignSyncStage)[keyof typeof CampaignSyncStage]
+
+
+export const CampaignInitialRssPollStatus = {
+  FETCHING: 'FETCHING',
+  SUCCESS: 'SUCCESS',
+  RATE_LIMIT_RETRYING: 'RATE_LIMIT_RETRYING',
+  RATE_LIMITED: 'RATE_LIMITED',
+  NOT_FOUND: 'NOT_FOUND',
+  HTTP_ERROR: 'HTTP_ERROR',
+  NETWORK_ERROR: 'NETWORK_ERROR'
+} as const
+
+export type CampaignInitialRssPollStatus = (typeof CampaignInitialRssPollStatus)[keyof typeof CampaignInitialRssPollStatus]

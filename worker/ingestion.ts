@@ -19,6 +19,7 @@ import {
   matchesCampaignText,
   upsertRedditPost,
 } from "./ingestion-shared";
+import { createInitialRssDiagnostics } from "./initial-rss-diagnostics";
 import { workerLogger } from "./logger";
 import { fetchSubredditPosts } from "./reddit";
 import {
@@ -99,7 +100,19 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     pendingEmbeddingItems.splice(0, items.length);
   };
 
-  for (const subreddit of campaign.subreddits) {
+  for (const [subredditIndex, subreddit] of campaign.subreddits.entries()) {
+    const diagnostics = createInitialRssDiagnostics(
+      data.trigger === "campaign_created" && data.campaignRunId
+        ? {
+            campaignId: campaign.id,
+            campaignRunId: data.campaignRunId,
+            jobId,
+            sequence: subredditIndex,
+            subreddit,
+          }
+        : null,
+    );
+
     try {
       await updateCampaignProgress(
         campaign.id,
@@ -108,8 +121,12 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
         { fetchedPosts, promisingPosts, fetchedComments, matchedItems, createdLeads },
       );
 
-      const posts = await fetchSubredditPosts(subreddit);
+      const posts = await fetchSubredditPosts(subreddit, {
+        observer: diagnostics.observer,
+      });
       fetchedPosts += posts.length;
+      let subredditMatchedItems = 0;
+      let subredditCreatedLeads = 0;
 
       for (const post of posts) {
         if (isOutsideRecencyWindow(post.createdUtc, campaign.recentDays)) {
@@ -129,6 +146,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
         promisingPosts += 1;
         const redditPost = await upsertRedditPost(post);
         matchedItems += 1;
+        subredditMatchedItems += 1;
         const leadEmbeddingItem = await ensureLeadForEmbedding({
           campaignId: campaign.id,
           userId: campaign.userId,
@@ -137,6 +155,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
 
         if (leadEmbeddingItem) {
           createdLeads += 1;
+          subredditCreatedLeads += 1;
           pendingEmbeddingItems.push(leadEmbeddingItem);
 
           if (pendingEmbeddingItems.length >= workerEmbeddingBatchSize) {
@@ -144,6 +163,12 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
           }
         }
       }
+
+      await diagnostics.recordOutcome({
+        fetchedPosts: posts.length,
+        matchedItems: subredditMatchedItems,
+        createdLeads: subredditCreatedLeads,
+      });
 
       await flushPendingEmbeddingItems();
     } catch (error) {

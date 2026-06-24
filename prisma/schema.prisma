@@ -84,6 +84,16 @@ enum CampaignSyncStage {
   FAILED
 }
 
+enum CampaignInitialRssPollStatus {
+  FETCHING
+  SUCCESS
+  RATE_LIMIT_RETRYING
+  RATE_LIMITED
+  NOT_FOUND
+  HTTP_ERROR
+  NETWORK_ERROR
+}
+
 /* =========================
    NextAuth Models
    (Prisma Adapter)
@@ -230,6 +240,7 @@ model Campaign {
   semanticQueries CampaignSemanticQuery[]
   runs CampaignRun[]
   aiUsageEvents AiUsageEvent[]
+  initialRssPollEvents CampaignInitialRssPollEvent[]
 
   @@index([userId, isActive])
   @@index([redditAccountId])
@@ -259,10 +270,56 @@ model CampaignRun {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   usageEvents AiUsageEvent[]
+  initialRssPollEvents CampaignInitialRssPollEvent[]
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([campaignId, createdAt(sort: Desc)])
   @@index([status, updatedAt(sort: Desc)])
+}
+
+model CampaignInitialRssPollEvent {
+  id            String @id @default(cuid())
+  campaignId    String
+  campaignRunId String
+
+  subreddit String
+  sequence  Int
+  attempt   Int
+  jobId     String?
+
+  status CampaignInitialRssPollStatus @default(FETCHING)
+
+  requestedAt    DateTime
+  fetchStartedAt DateTime?
+  completedAt    DateTime?
+  durationMs     Int?
+
+  waitMs             Int?
+  nextRequestDelayMs Int?
+  nextRequestAt      DateTime?
+
+  httpStatus   Int?
+  statusText   String?
+  errorMessage String?
+
+  retryAfterMs Int?
+  retryWaitMs  Int?
+  retryUntil   DateTime?
+
+  fetchedPosts Int?
+  matchedItems Int?
+  createdLeads Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignRun CampaignRun @relation(fields: [campaignRunId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, requestedAt(sort: Desc)])
+  @@index([campaignRunId, sequence, attempt])
+  @@index([subreddit, requestedAt(sort: Desc)])
+  @@index([status, requestedAt(sort: Desc)])
 }
 
 model AiUsageEvent {

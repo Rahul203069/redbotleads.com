@@ -10,6 +10,7 @@ import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaig
 import { ManualSyncButton } from "@/components/campaigns/manual-sync-button";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
+import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
 import { isOwnerEmail } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { prisma } from "@/lib/prisma";
@@ -91,6 +92,7 @@ export default async function CampaignDetailPage({
     campaignId: campaign.id,
     userId: session.user.id,
   });
+  const initialDiagnostics = await getCampaignInitialRssDiagnostics(campaign.id);
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
@@ -156,6 +158,7 @@ export default async function CampaignDetailPage({
 
       <CampaignDetailLiveSections
         campaignId={campaign.id}
+        initialDiagnostics={initialDiagnostics}
         initialLeads={classifiedLeads}
         initialSync={
           sync

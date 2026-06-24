@@ -1,10 +1,15 @@
 import { createHash } from "node:crypto";
 
-import { redditRssMaxRetries, redditRssRequestIntervalMs, redditRssRetryBackoffMs } from "./config";
+import {
+  redditRssMaxRetries,
+  redditRssRequestIntervalMs,
+  redditRssRequestJitterMs,
+  redditRssRetryBackoffMs,
+} from "./config";
 import { workerLogger } from "./logger";
 
 const REDDIT_RSS_BASE_URL = "https://www.reddit.com";
-const DEFAULT_USER_AGENT = "my-app-rss-ingestion/0.1";
+const DEFAULT_USER_AGENT = "script:reddit-leads-rss-worker:v1.0.0 (by /u/Comfortable-Pop-9050)";
 let nextRedditRssRequestAt = 0;
 let redditRssRequestChain = Promise.resolve();
 
@@ -73,6 +78,42 @@ type ParsedFeedEntry = {
   content: string | null;
 };
 
+type RedditRssFetchObserver = {
+  onRequestStart?: (event: {
+    subreddit: string;
+    attempt: number;
+    requestedAt: Date;
+    waitMs: number;
+    nextRequestDelayMs: number;
+    nextRequestAt: Date;
+  }) => Promise<void> | void;
+  onResponse?: (event: {
+    subreddit: string;
+    attempt: number;
+    status: "SUCCESS" | "RATE_LIMIT_RETRYING" | "RATE_LIMITED" | "NOT_FOUND" | "HTTP_ERROR";
+    httpStatus: number;
+    statusText: string;
+    completedAt: Date;
+    durationMs: number;
+    retryAfterMs: number | null;
+    retryWaitMs?: number;
+    retryUntil?: Date;
+    errorMessage?: string;
+  }) => Promise<void> | void;
+  onNetworkError?: (event: {
+    subreddit: string;
+    attempt: number;
+    completedAt: Date;
+    durationMs: number;
+    errorMessage: string;
+  }) => Promise<void> | void;
+};
+
+type FetchSubredditPostsOptions = {
+  limit?: number;
+  observer?: RedditRssFetchObserver;
+};
+
 export class RedditRssFetchError extends Error {
   status: number;
   statusText: string;
@@ -87,56 +128,113 @@ export class RedditRssFetchError extends Error {
   }
 }
 
-export async function fetchSubredditPosts(subreddit: string, limit?: number) {
-  const xml = await fetchSubredditRss(subreddit);
-  return parseSubredditPostsFromRss(xml, { subreddit, limit });
+export async function fetchSubredditPosts(subreddit: string, limitOrOptions?: number | FetchSubredditPostsOptions) {
+  const options = typeof limitOrOptions === "number" ? { limit: limitOrOptions } : limitOrOptions;
+  const xml = await fetchSubredditRss(subreddit, options?.observer);
+  return parseSubredditPostsFromRss(xml, { subreddit, limit: options?.limit });
 }
 
-export async function fetchSubredditRss(subreddit: string) {
+export async function fetchSubredditRss(subreddit: string, observer?: RedditRssFetchObserver) {
   const normalizedSubreddit = normalizeSubredditName(subreddit);
 
   for (let attempt = 0; attempt <= redditRssMaxRetries; attempt += 1) {
-    const slotWaitMs = await waitForRedditRssSlot();
+    const slot = await waitForRedditRssSlot();
+    const requestedAt = new Date();
+    await observer?.onRequestStart?.({
+      subreddit: normalizedSubreddit,
+      attempt,
+      requestedAt,
+      waitMs: slot.waitMs,
+      nextRequestDelayMs: slot.nextRequestDelayMs,
+      nextRequestAt: slot.nextRequestAt,
+    });
 
-    if (slotWaitMs > 0) {
+    if (slot.waitMs > 0) {
       workerLogger.info(
         {
           subreddit: normalizedSubreddit,
           attempt,
-          waitMs: slotWaitMs,
+          waitMs: slot.waitMs,
           requestIntervalMs: redditRssRequestIntervalMs,
+          requestJitterMs: redditRssRequestJitterMs,
+          nextRequestDelayMs: slot.nextRequestDelayMs,
         },
         "Waiting for Reddit RSS request slot",
       );
     }
 
-    const response = await fetch(`${REDDIT_RSS_BASE_URL}/r/${encodeURIComponent(normalizedSubreddit)}/.rss`, {
-      headers: {
-        "User-Agent": process.env.REDDIT_RSS_USER_AGENT?.trim() || DEFAULT_USER_AGENT,
-        Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.1",
-      },
-    });
+    let response: Response;
 
-    if (response.ok) {
-      return response.text();
+    try {
+      response = await fetch(`${REDDIT_RSS_BASE_URL}/r/${encodeURIComponent(normalizedSubreddit)}/.rss`, {
+        headers: {
+          "User-Agent": process.env.REDDIT_RSS_USER_AGENT?.trim() || DEFAULT_USER_AGENT,
+          Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.1",
+        },
+      });
+    } catch (error) {
+      const completedAt = new Date();
+      await observer?.onNetworkError?.({
+        subreddit: normalizedSubreddit,
+        attempt,
+        completedAt,
+        durationMs: completedAt.getTime() - requestedAt.getTime(),
+        errorMessage: error instanceof Error ? error.message : String(error ?? "Network error"),
+      });
+      throw error;
     }
 
+    const completedAt = new Date();
+    const durationMs = completedAt.getTime() - requestedAt.getTime();
+
+    if (response.ok) {
+      const text = await response.text();
+      await observer?.onResponse?.({
+        subreddit: normalizedSubreddit,
+        attempt,
+        status: "SUCCESS",
+        httpStatus: response.status,
+        statusText: response.statusText,
+        completedAt,
+        durationMs,
+        retryAfterMs: null,
+      });
+      return text;
+    }
+
+    const retryAfterMs = parseRetryAfterMs(response.headers.get("retry-after"));
     const error = new RedditRssFetchError(
       normalizedSubreddit,
       response.status,
       response.statusText,
-      parseRetryAfterMs(response.headers.get("retry-after")),
+      retryAfterMs,
     );
 
     const shouldRetry =
       attempt < redditRssMaxRetries &&
       (response.status === 429 || response.status === 408 || response.status >= 500);
+    const retryWaitMs = shouldRetry ? error.retryAfterMs ?? redditRssRetryBackoffMs : undefined;
+    const retryUntil = typeof retryWaitMs === "number" ? new Date(Date.now() + retryWaitMs) : undefined;
+
+    await observer?.onResponse?.({
+      subreddit: normalizedSubreddit,
+      attempt,
+      status: getFailedResponseStatus(response.status, shouldRetry),
+      httpStatus: response.status,
+      statusText: response.statusText,
+      completedAt,
+      durationMs,
+      retryAfterMs,
+      retryWaitMs,
+      retryUntil,
+      errorMessage: error.message,
+    });
 
     if (!shouldRetry) {
       throw error;
     }
 
-    const retryWaitMs = error.retryAfterMs ?? redditRssRetryBackoffMs;
+    const retryDelayMs = retryWaitMs ?? redditRssRetryBackoffMs;
 
     workerLogger.warn(
       {
@@ -144,14 +242,14 @@ export async function fetchSubredditRss(subreddit: string) {
         attempt,
         status: response.status,
         statusText: response.statusText,
-        retryWaitMs,
+        retryWaitMs: retryDelayMs,
         retryAfterMs: error.retryAfterMs,
         retryBackoffMs: redditRssRetryBackoffMs,
       },
       "Retrying Reddit RSS fetch after transient response",
     );
 
-    await sleep(retryWaitMs);
+    await sleep(retryDelayMs);
   }
 
   throw new Error(`Could not fetch RSS for r/${normalizedSubreddit}.`);
@@ -386,11 +484,37 @@ async function waitForRedditRssSlot() {
       await sleep(waitMs);
     }
 
-    nextRedditRssRequestAt = Date.now() + redditRssRequestIntervalMs;
-    return waitMs;
+    const nextRequestDelayMs = getNextRedditRssRequestDelayMs();
+    const nextRequestAtMs = Date.now() + nextRequestDelayMs;
+    nextRedditRssRequestAt = nextRequestAtMs;
+    return { waitMs, nextRequestDelayMs, nextRequestAt: new Date(nextRequestAtMs) };
   } finally {
     releaseSlot();
   }
+}
+
+function getNextRedditRssRequestDelayMs() {
+  if (redditRssRequestJitterMs <= 0) {
+    return redditRssRequestIntervalMs;
+  }
+
+  return redditRssRequestIntervalMs + Math.floor(Math.random() * (redditRssRequestJitterMs + 1));
+}
+
+function getFailedResponseStatus(status: number, shouldRetry: boolean) {
+  if (shouldRetry && status === 429) {
+    return "RATE_LIMIT_RETRYING";
+  }
+
+  if (status === 429) {
+    return "RATE_LIMITED";
+  }
+
+  if (status === 404) {
+    return "NOT_FOUND";
+  }
+
+  return "HTTP_ERROR";
 }
 
 function parseRetryAfterMs(value: string | null) {

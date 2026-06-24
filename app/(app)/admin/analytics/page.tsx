@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { SubredditPerformanceDialog } from "@/components/admin/subreddit-performance-dialog";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
@@ -154,7 +155,10 @@ export default async function AdminAnalyticsPage({
               Owner-only view of users, campaigns, run history, and tracked OpenAI API cost.
             </p>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
+            <div className="flex justify-end">
+              <SubredditPerformanceDialog />
+            </div>
             <div className="flex rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
               {(["gpt-4o-mini", "gpt-5-mini"] as const).map((model) => (
                 <Link

@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 type RunTrigger = "CAMPAIGN_CREATED" | "MANUAL_RESYNC" | "DAILY_SYNC" | "RSS_POLL_MATCH";
 type RunStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export async function createCampaignRun({
   campaignId,
   message,
@@ -85,6 +89,24 @@ async function updateCampaignRun(
   }
 
   try {
+    const existing = data.statsJson === undefined
+      ? null
+      : await prisma.campaignRun.findUnique({
+          where: {
+            id: campaignRunId,
+          },
+          select: {
+            statsJson: true,
+          },
+        });
+    const statsJson =
+      data.statsJson === undefined
+        ? undefined
+        : ({
+            ...(isJsonObject(existing?.statsJson) ? existing.statsJson : {}),
+            ...(isJsonObject(data.statsJson) ? data.statsJson : {}),
+          } as Prisma.InputJsonValue);
+
     return await prisma.campaignRun.update({
       where: {
         id: campaignRunId,
@@ -96,7 +118,7 @@ async function updateCampaignRun(
         startedAt: data.startedAt,
         completedAt: data.completedAt,
         failedAt: data.failedAt,
-        statsJson: data.statsJson === undefined ? undefined : (data.statsJson as Prisma.InputJsonValue),
+        statsJson,
       },
     });
   } catch {

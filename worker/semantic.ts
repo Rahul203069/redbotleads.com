@@ -4,8 +4,7 @@ import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
-import { markCampaignCompleted } from "./campaign-sync";
-import { markCampaignRunCompleted } from "./campaign-runs";
+import { finalizeCampaignLeadProcessing } from "./campaign-finalization";
 import { semanticMatchThreshold, workerRedisConnection, workerSemanticConcurrency } from "./config";
 import { workerLogger } from "./logger";
 import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } from "./queues";
@@ -287,24 +286,18 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
     },
   });
 
-  const remainingLeads = await countRemainingLeadProcessing(lead.campaignId);
+  const semanticCounts = await countSemanticProgress(lead.campaignId);
 
-  if (remainingLeads === 0) {
-    const semanticCounts = await countSemanticProgress(lead.campaignId);
-
-    const stats = {
+  await finalizeCampaignLeadProcessing({
+    campaignId: lead.campaignId,
+    campaignRunId: data.campaignRunId,
+    completeMessage: "Lead processing complete for this campaign sync.",
+    stats: {
       semanticCheckedLeads: semanticCounts.checked,
       semanticPassedLeads: semanticCounts.passed,
       semanticFilteredLeads: semanticCounts.filtered,
-    };
-
-    await markCampaignCompleted(
-      lead.campaignId,
-      "Lead processing complete for this campaign sync.",
-      stats,
-    );
-    await markCampaignRunCompleted(data.campaignRunId, "Lead processing complete for this campaign sync.", stats);
-  }
+    },
+  });
 
   workerLogger.info(
     {
@@ -435,13 +428,4 @@ async function countSemanticProgress(campaignId: string) {
     passed,
     filtered,
   };
-}
-
-async function countRemainingLeadProcessing(campaignId: string) {
-  return prisma.lead.count({
-    where: {
-      campaignId,
-      ai: null,
-    },
-  });
 }

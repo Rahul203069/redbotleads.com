@@ -4,11 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
 import {
-  markCampaignCompleted,
   markCampaignFailed,
   updateCampaignProgress,
 } from "./campaign-sync";
-import { markCampaignRunCompleted, markCampaignRunFailed, markCampaignRunProcessing } from "./campaign-runs";
+import { finalizeCampaignLeadProcessing } from "./campaign-finalization";
+import { markCampaignRunFailed, markCampaignRunProcessing } from "./campaign-runs";
 import { classifyLeadWithOpenAI } from "./classification-ai";
 import { workerClassificationConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
@@ -378,32 +378,11 @@ async function recordLeadClassificationFailure(leadId: string, errorMessage: str
 }
 
 async function finalizeCampaignClassificationProgress(campaignId: string, campaignRunId?: string, skipMessage?: string) {
-  const [remainingAfter, classifiedAfter, failedAfter] = await Promise.all([
-    countPendingLeadClassification(campaignId),
+  const [classifiedAfter, failedAfter, semanticCounts] = await Promise.all([
     countClassifiedLeads(campaignId),
     countFailedClassifications(campaignId),
+    countSemanticProgress(campaignId),
   ]);
-
-  if (remainingAfter > 0) {
-    const skippedText = skipMessage ? `${skipMessage} ` : "";
-
-    await updateCampaignProgress(
-      campaignId,
-      "CLASSIFYING",
-      `${skippedText}${remainingAfter} lead${remainingAfter === 1 ? "" : "s"} still waiting for AI scoring.`,
-      {
-        classifiedLeads: classifiedAfter,
-        classificationFailedLeads: failedAfter,
-      },
-    );
-    await markCampaignRunProcessing(campaignRunId, `${skippedText}${remainingAfter} lead${remainingAfter === 1 ? "" : "s"} still waiting for AI scoring.`, {
-      classifiedLeads: classifiedAfter,
-      classificationFailedLeads: failedAfter,
-    });
-    return;
-  }
-
-  const semanticCounts = await countSemanticProgress(campaignId);
   const failedText =
     failedAfter > 0
       ? ` ${failedAfter} lead${failedAfter === 1 ? " was" : "s were"} skipped after scoring errors.`
@@ -417,12 +396,16 @@ async function finalizeCampaignClassificationProgress(campaignId: string, campai
     semanticFilteredLeads: semanticCounts.filtered,
   };
 
-  await markCampaignCompleted(
+  await finalizeCampaignLeadProcessing({
     campaignId,
-    `AI scoring complete for this campaign sync.${failedText}`,
+    campaignRunId,
+    completeMessage: `AI scoring complete for this campaign sync.${failedText}`,
+    pendingMessage: (remainingAfter) => {
+      const skippedText = skipMessage ? `${skipMessage} ` : "";
+      return `${skippedText}${remainingAfter} lead${remainingAfter === 1 ? "" : "s"} still waiting for AI scoring.`;
+    },
     stats,
-  );
-  await markCampaignRunCompleted(campaignRunId, `AI scoring complete for this campaign sync.${failedText}`, stats);
+  });
 }
 
 async function countSemanticProgress(campaignId: string) {

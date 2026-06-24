@@ -79,6 +79,13 @@ type ParsedFeedEntry = {
 };
 
 type RedditRssFetchObserver = {
+  onRequestWait?: (event: {
+    subreddit: string;
+    attempt: number;
+    waitMs: number;
+    nextRequestDelayMs: number;
+    nextRequestAt: Date;
+  }) => Promise<void> | void;
   onRequestStart?: (event: {
     subreddit: string;
     attempt: number;
@@ -146,7 +153,28 @@ export async function fetchSubredditRss(subreddit: string, observer?: RedditRssF
   const normalizedSubreddit = normalizeSubredditName(subreddit);
 
   for (let attempt = 0; attempt <= redditRssMaxRetries; attempt += 1) {
-    const slot = await waitForRedditRssSlot();
+    const slot = await waitForRedditRssSlot(async (slotEvent) => {
+      await observer?.onRequestWait?.({
+        subreddit: normalizedSubreddit,
+        attempt,
+        waitMs: slotEvent.waitMs,
+        nextRequestDelayMs: slotEvent.nextRequestDelayMs,
+        nextRequestAt: slotEvent.nextRequestAt,
+      });
+
+      workerLogger.info(
+        {
+          subreddit: normalizedSubreddit,
+          attempt,
+          waitMs: slotEvent.waitMs,
+          requestIntervalMs: redditRssRequestIntervalMs,
+          requestJitterMs: redditRssRequestJitterMs,
+          nextRequestDelayMs: slotEvent.nextRequestDelayMs,
+        },
+        "Waiting for Reddit RSS request slot",
+      );
+    });
+
     const requestedAt = new Date();
     await observer?.onRequestStart?.({
       subreddit: normalizedSubreddit,
@@ -156,20 +184,6 @@ export async function fetchSubredditRss(subreddit: string, observer?: RedditRssF
       nextRequestDelayMs: slot.nextRequestDelayMs,
       nextRequestAt: slot.nextRequestAt,
     });
-
-    if (slot.waitMs > 0) {
-      workerLogger.info(
-        {
-          subreddit: normalizedSubreddit,
-          attempt,
-          waitMs: slot.waitMs,
-          requestIntervalMs: redditRssRequestIntervalMs,
-          requestJitterMs: redditRssRequestJitterMs,
-          nextRequestDelayMs: slot.nextRequestDelayMs,
-        },
-        "Waiting for Reddit RSS request slot",
-      );
-    }
 
     let response: Response;
 
@@ -488,7 +502,13 @@ function normalizeRedditUrl(value: string | null | undefined) {
   return `${REDDIT_RSS_BASE_URL}/${normalized.replace(/^\/+/, "")}`;
 }
 
-async function waitForRedditRssSlot() {
+async function waitForRedditRssSlot(
+  onWait?: (event: {
+    waitMs: number;
+    nextRequestDelayMs: number;
+    nextRequestAt: Date;
+  }) => Promise<void> | void,
+) {
   const previousRequest = redditRssRequestChain;
   let releaseSlot: () => void = () => {};
   redditRssRequestChain = new Promise((resolve) => {
@@ -500,14 +520,19 @@ async function waitForRedditRssSlot() {
 
     const now = Date.now();
     const waitMs = Math.max(0, nextRedditRssRequestAt - now);
+    const nextRequestDelayMs = getNextRedditRssRequestDelayMs();
+    const nextRequestAtMs = now + waitMs + nextRequestDelayMs;
+    nextRedditRssRequestAt = nextRequestAtMs;
 
     if (waitMs > 0) {
+      await onWait?.({
+        waitMs,
+        nextRequestDelayMs,
+        nextRequestAt: new Date(nextRequestAtMs),
+      });
       await sleep(waitMs);
     }
 
-    const nextRequestDelayMs = getNextRedditRssRequestDelayMs();
-    const nextRequestAtMs = Date.now() + nextRequestDelayMs;
-    nextRedditRssRequestAt = nextRequestAtMs;
     return { waitMs, nextRequestDelayMs, nextRequestAt: new Date(nextRequestAtMs) };
   } finally {
     releaseSlot();

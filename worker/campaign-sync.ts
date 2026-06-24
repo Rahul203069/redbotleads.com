@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-type SyncStats = {
+export type SyncStats = {
   fetchedPosts?: number;
   promisingPosts?: number;
   fetchedComments?: number;
@@ -13,6 +13,8 @@ type SyncStats = {
   semanticFilteredLeads?: number;
   classifiedLeads?: number;
   classificationFailedLeads?: number;
+  rssIngestionCompleted?: boolean;
+  rssIngestionCompletedAt?: string;
   durationMs?: number;
 };
 

@@ -9,6 +9,7 @@ import {
   updateCampaignProgress,
 } from "./campaign-sync";
 import { markCampaignRunCompleted, markCampaignRunFailed, markCampaignRunProcessing } from "./campaign-runs";
+import { finalizeCampaignLeadProcessing, withRssIngestionCompleted } from "./campaign-finalization";
 import { workerEmbeddingBatchSize, workerIngestionConcurrency, workerRedisConnection } from "./config";
 import { runDailyIngest } from "./daily-ingestion";
 import {
@@ -122,7 +123,17 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       );
 
       const posts = await fetchSubredditPosts(subreddit, {
-        observer: diagnostics.observer,
+        observer: {
+          ...diagnostics.observer,
+          onRequestWait: async (event) => {
+            await updateCampaignProgress(
+              campaign.id,
+              "FETCHING_POSTS",
+              `Waiting ${Math.ceil(event.waitMs / 1000)}s before fetching recent RSS posts from r/${subreddit}.`,
+              { fetchedPosts, promisingPosts, fetchedComments, matchedItems, createdLeads },
+            );
+          },
+        },
       });
       fetchedPosts += posts.length;
       let subredditMatchedItems = 0;
@@ -197,7 +208,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       : "";
 
   if (createdLeads > 0) {
-    const stats = {
+    const stats = withRssIngestionCompleted({
       fetchedPosts,
       promisingPosts,
       fetchedComments,
@@ -205,17 +216,18 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       createdLeads,
       queuedEmbeddingBatches,
       durationMs,
-    };
+    });
 
-    await updateCampaignProgress(
-      campaign.id,
-      "CLASSIFYING",
-      `RSS ingestion complete. ${createdLeads} lead${createdLeads === 1 ? "" : "s"} queued for embedding and semantic filtering.${errorSummary}`,
+    await finalizeCampaignLeadProcessing({
+      campaignId: campaign.id,
+      campaignRunId: data.campaignRunId,
       stats,
-    );
-    await markCampaignRunProcessing(data.campaignRunId, "RSS ingestion complete. Leads queued for embedding and semantic filtering.", stats);
+      completeMessage: `RSS ingestion and lead processing complete for this campaign sync.${errorSummary}`,
+      pendingMessage: (remainingLeads) =>
+        `RSS ingestion complete. ${createdLeads} lead${createdLeads === 1 ? "" : "s"} queued for embedding and semantic filtering; ${remainingLeads} lead${remainingLeads === 1 ? "" : "s"} still waiting for AI processing.${errorSummary}`,
+    });
   } else if (allSubredditsFailed) {
-    const stats = {
+    const stats = withRssIngestionCompleted({
       fetchedPosts,
       promisingPosts,
       fetchedComments,
@@ -223,7 +235,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       createdLeads,
       queuedEmbeddingBatches,
       durationMs,
-    };
+    });
 
     await markCampaignFailed(
       campaign.id,
@@ -233,7 +245,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
     );
     await markCampaignRunFailed(data.campaignRunId, `RSS ingestion completed with no queued leads.${errorSummary}`, stats);
   } else {
-    const stats = {
+    const stats = withRssIngestionCompleted({
       fetchedPosts,
       promisingPosts,
       fetchedComments,
@@ -241,7 +253,7 @@ async function runInitialIngest(data: InitialIngestJobData, jobId: string) {
       createdLeads,
       queuedEmbeddingBatches,
       durationMs,
-    };
+    });
 
     await markCampaignCompleted(
       campaign.id,

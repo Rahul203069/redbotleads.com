@@ -10,6 +10,22 @@ const STRONG_LEAD_SCORE = 80;
 type AnalyticsSearchParams = {
   userId?: string;
   campaignId?: string;
+  priceModel?: string;
+};
+
+type PricingModel = "gpt-4o-mini" | "gpt-5-mini";
+
+const LEAD_SCORING_PRICING: Record<PricingModel, { inputPerMillion: number; outputPerMillion: number; label: string }> = {
+  "gpt-4o-mini": {
+    inputPerMillion: 0.15,
+    outputPerMillion: 0.6,
+    label: "GPT-4o mini",
+  },
+  "gpt-5-mini": {
+    inputPerMillion: 0.25,
+    outputPerMillion: 2,
+    label: "GPT-5 mini",
+  },
 };
 
 export default async function AdminAnalyticsPage({
@@ -28,8 +44,9 @@ export default async function AdminAnalyticsPage({
   }
 
   const params = await Promise.resolve(searchParams ?? {});
+  const selectedPriceModel = normalizePricingModel(params.priceModel ?? process.env.OPENAI_MODEL);
 
-  const [users, campaigns, leads, userCosts, campaignCosts, campaignRunCounts] = await Promise.all([
+  const [users, campaigns, leads, usageEvents, campaignRunCounts] = await Promise.all([
     prisma.user.findMany({
       select: {
         id: true,
@@ -78,20 +95,15 @@ export default async function AdminAnalyticsPage({
         },
       },
     }),
-    prisma.aiUsageEvent.groupBy({
-      by: ["userId"],
-      _sum: {
-        costUsd: true,
-      },
-    }),
-    prisma.aiUsageEvent.groupBy({
-      by: ["campaignId"],
-      where: {
-        campaignId: {
-          not: null,
-        },
-      },
-      _sum: {
+    prisma.aiUsageEvent.findMany({
+      select: {
+        userId: true,
+        campaignId: true,
+        campaignRunId: true,
+        operation: true,
+        inputTokens: true,
+        outputTokens: true,
+        totalTokens: true,
         costUsd: true,
       },
     }),
@@ -106,8 +118,9 @@ export default async function AdminAnalyticsPage({
   const campaignsByUser = groupBy(campaigns, (campaign) => campaign.userId);
   const leadsByUser = groupBy(leads, (lead) => lead.userId);
   const leadsByCampaign = groupBy(leads, (lead) => lead.campaignId);
-  const userCostById = new Map(userCosts.map((entry) => [entry.userId, entry._sum.costUsd ?? 0]));
-  const campaignCostById = new Map(campaignCosts.map((entry) => [entry.campaignId, entry._sum.costUsd ?? 0]));
+  const userCostById = sumUsageCosts(usageEvents, selectedPriceModel, (event) => event.userId);
+  const campaignCostById = sumUsageCosts(usageEvents, selectedPriceModel, (event) => event.campaignId);
+  const runCostById = sumUsageCosts(usageEvents, selectedPriceModel, (event) => event.campaignRunId);
   const runCountByCampaignId = new Map(campaignRunCounts.map((entry) => [entry.campaignId, entry._count._all]));
 
   const selectedUser = users.find((user) => user.id === params.userId) ?? users[0] ?? null;
@@ -127,7 +140,7 @@ export default async function AdminAnalyticsPage({
       })
     : [];
 
-  const totalCost = userCosts.reduce((sum, entry) => sum + (entry._sum.costUsd ?? 0), 0);
+  const totalCost = usageEvents.reduce((sum, event) => sum + calculateDisplayCost(event, selectedPriceModel), 0);
   const totalStrongLeads = leads.filter(isStrongClassifiedLead).length;
 
   return (
@@ -141,8 +154,27 @@ export default async function AdminAnalyticsPage({
               Owner-only view of users, campaigns, run history, and tracked OpenAI API cost.
             </p>
           </div>
-          <div className="rounded-full bg-[#121212] px-3 py-1.5 text-[12px] font-bold text-[#1ed760] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-            Costs tracked forward only
+          <div className="space-y-2">
+            <div className="flex rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+              {(["gpt-4o-mini", "gpt-5-mini"] as const).map((model) => (
+                <Link
+                  className={`rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
+                    selectedPriceModel === model ? "bg-[#1ed760] text-[#121212]" : "text-[#b3b3b3] hover:text-[#ffffff]"
+                  }`}
+                  href={buildAnalyticsHref({
+                    campaignId: selectedCampaign?.id,
+                    priceModel: model,
+                    userId: selectedUser?.id,
+                  })}
+                  key={model}
+                >
+                  {LEAD_SCORING_PRICING[model].label}
+                </Link>
+              ))}
+            </div>
+            <p className="text-right text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
+              Lead scoring cost model
+            </p>
           </div>
         </div>
       </section>
@@ -169,7 +201,7 @@ export default async function AdminAnalyticsPage({
                       ? "border-[#1ed760]/40 bg-[#1f1f1f] text-[#ffffff] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
                       : "border-transparent bg-[#121212] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#1f1f1f]"
                   }`}
-                  href={`/admin/analytics?userId=${user.id}`}
+                  href={buildAnalyticsHref({ priceModel: selectedPriceModel, userId: user.id })}
                   key={user.id}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -206,7 +238,7 @@ export default async function AdminAnalyticsPage({
                         ? "border-[#1ed760]/40 bg-[#1f1f1f] text-[#ffffff] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
                         : "border-transparent bg-[#121212] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#1f1f1f]"
                     }`}
-                    href={`/admin/analytics?userId=${campaign.userId}&campaignId=${campaign.id}`}
+                    href={buildAnalyticsHref({ campaignId: campaign.id, priceModel: selectedPriceModel, userId: campaign.userId })}
                     key={campaign.id}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -267,7 +299,7 @@ export default async function AdminAnalyticsPage({
                             <p className="mt-1 text-[#b3b3b3]">{formatDate(run.createdAt)}</p>
                           </div>
                           <StatusPill label={run.status} />
-                          <div className="text-right font-semibold text-[#1ed760]">{formatCurrency(run.totalCostUsd)}</div>
+                          <div className="text-right font-semibold text-[#1ed760]">{formatCurrency(runCostById.get(run.id) ?? run.totalCostUsd)}</div>
                         </div>
                       ))}
                     </div>
@@ -291,6 +323,88 @@ function groupBy<T>(items: T[], getKey: (item: T) => string) {
   }
 
   return grouped;
+}
+
+function sumUsageCosts<T extends {
+  campaignId: string | null;
+  campaignRunId: string | null;
+  costUsd: number;
+  inputTokens: number | null;
+  operation: string;
+  outputTokens: number | null;
+  totalTokens: number | null;
+  userId: string;
+}>(items: T[], priceModel: PricingModel, getKey: (item: T) => string | null) {
+  const costs = new Map<string, number>();
+
+  for (const item of items) {
+    const key = getKey(item);
+
+    if (!key) {
+      continue;
+    }
+
+    costs.set(key, (costs.get(key) ?? 0) + calculateDisplayCost(item, priceModel));
+  }
+
+  return costs;
+}
+
+function calculateDisplayCost(
+  event: {
+    costUsd: number;
+    inputTokens: number | null;
+    operation: string;
+    outputTokens: number | null;
+    totalTokens: number | null;
+  },
+  priceModel: PricingModel,
+) {
+  if (event.operation !== "lead_classification") {
+    return event.costUsd;
+  }
+
+  const pricing = LEAD_SCORING_PRICING[priceModel];
+  const inputTokens = normalizeTokenCount(event.inputTokens);
+  const outputTokens = normalizeTokenCount(event.outputTokens);
+  const totalTokens = normalizeTokenCount(event.totalTokens);
+  const billableInputTokens = inputTokens > 0 ? inputTokens : Math.max(0, totalTokens - outputTokens);
+  const inputCost = (billableInputTokens / 1_000_000) * pricing.inputPerMillion;
+  const outputCost = (outputTokens / 1_000_000) * pricing.outputPerMillion;
+
+  return Number((inputCost + outputCost).toFixed(8));
+}
+
+function normalizeTokenCount(value: number | null | undefined) {
+  return Number.isFinite(value) && value && value > 0 ? Math.round(value) : 0;
+}
+
+function normalizePricingModel(value: string | undefined): PricingModel {
+  return value === "gpt-4o-mini" || value === "gpt-5-mini" ? value : "gpt-5-mini";
+}
+
+function buildAnalyticsHref({
+  campaignId,
+  priceModel,
+  userId,
+}: {
+  campaignId?: string | null;
+  priceModel: PricingModel;
+  userId?: string | null;
+}) {
+  const params = new URLSearchParams();
+
+  if (userId) {
+    params.set("userId", userId);
+  }
+
+  if (campaignId) {
+    params.set("campaignId", campaignId);
+  }
+
+  params.set("priceModel", priceModel);
+
+  return `/admin/analytics?${params.toString()}`;
 }
 
 function isStrongClassifiedLead(lead: { ai: { model: string | null } | null; label: string; score: number }) {

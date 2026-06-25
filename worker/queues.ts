@@ -21,7 +21,7 @@ export type RssPollingJobName = typeof pollSubredditRssJobName | typeof matchCam
 export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_LEAD_BATCH" | "EMBED_REDDIT_ITEM";
 export type SemanticJobName = "SEMANTIC_MATCH_LEAD" | "SEMANTIC_MATCH_REDDIT_ITEM";
 export type ClassificationJobName = "CLASSIFY_LEAD" | "GENERATE_REPLIES";
-export type NotificationJobName = "SEND_EMAIL" | "SEND_SLACK";
+export type NotificationJobName = "SEND_EMAIL" | "SEND_SLACK" | "SEND_TELEGRAM";
 
 export type InitialIngestJobData = {
   campaignId: string;
@@ -94,7 +94,7 @@ export type SemanticJobData =
 export type NotificationJobData = {
   notificationId: string;
   leadId: string;
-  channel: "EMAIL" | "SLACK";
+  channel: "EMAIL" | "SLACK" | "TELEGRAM";
 };
 
 export type InitialIngestQueueFailureCode =
@@ -544,7 +544,10 @@ export async function enqueueRedditItemSemanticMatch(data: Extract<SemanticJobDa
 }
 
 export async function enqueueNotification(data: NotificationJobData) {
-  return notificationsQueue.add(data.channel === "EMAIL" ? "SEND_EMAIL" : "SEND_SLACK", data, {
+  const jobName: NotificationJobName =
+    data.channel === "EMAIL" ? "SEND_EMAIL" : data.channel === "SLACK" ? "SEND_SLACK" : "SEND_TELEGRAM";
+
+  return notificationsQueue.add(jobName, data, {
     jobId: buildJobId("notify", data.channel.toLowerCase(), data.notificationId),
     removeOnComplete: 500,
     removeOnFail: 500,

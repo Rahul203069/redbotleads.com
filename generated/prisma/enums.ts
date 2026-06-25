@@ -66,7 +66,8 @@ export type BuyerStage = (typeof BuyerStage)[keyof typeof BuyerStage]
 
 export const NotifyChannel = {
   EMAIL: 'EMAIL',
-  SLACK: 'SLACK'
+  SLACK: 'SLACK',
+  TELEGRAM: 'TELEGRAM'
 } as const
 
 export type NotifyChannel = (typeof NotifyChannel)[keyof typeof NotifyChannel]

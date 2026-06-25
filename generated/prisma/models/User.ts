@@ -32,6 +32,7 @@ export type UserMinAggregateOutputType = {
   image: string | null
   plan: string | null
   emailAlertsEnabled: boolean | null
+  preferredAlertChannel: $Enums.NotifyChannel | null
   slackWebhookUrl: string | null
   slackTeamId: string | null
   slackTeamName: string | null
@@ -39,6 +40,9 @@ export type UserMinAggregateOutputType = {
   slackChannelName: string | null
   slackConfigurationUrl: string | null
   slackAuthedUserId: string | null
+  telegramChatId: string | null
+  telegramUsername: string | null
+  telegramConnectedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -51,6 +55,7 @@ export type UserMaxAggregateOutputType = {
   image: string | null
   plan: string | null
   emailAlertsEnabled: boolean | null
+  preferredAlertChannel: $Enums.NotifyChannel | null
   slackWebhookUrl: string | null
   slackTeamId: string | null
   slackTeamName: string | null
@@ -58,6 +63,9 @@ export type UserMaxAggregateOutputType = {
   slackChannelName: string | null
   slackConfigurationUrl: string | null
   slackAuthedUserId: string | null
+  telegramChatId: string | null
+  telegramUsername: string | null
+  telegramConnectedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -70,6 +78,7 @@ export type UserCountAggregateOutputType = {
   image: number
   plan: number
   emailAlertsEnabled: number
+  preferredAlertChannel: number
   slackWebhookUrl: number
   slackTeamId: number
   slackTeamName: number
@@ -77,6 +86,9 @@ export type UserCountAggregateOutputType = {
   slackChannelName: number
   slackConfigurationUrl: number
   slackAuthedUserId: number
+  telegramChatId: number
+  telegramUsername: number
+  telegramConnectedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -91,6 +103,7 @@ export type UserMinAggregateInputType = {
   image?: true
   plan?: true
   emailAlertsEnabled?: true
+  preferredAlertChannel?: true
   slackWebhookUrl?: true
   slackTeamId?: true
   slackTeamName?: true
@@ -98,6 +111,9 @@ export type UserMinAggregateInputType = {
   slackChannelName?: true
   slackConfigurationUrl?: true
   slackAuthedUserId?: true
+  telegramChatId?: true
+  telegramUsername?: true
+  telegramConnectedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -110,6 +126,7 @@ export type UserMaxAggregateInputType = {
   image?: true
   plan?: true
   emailAlertsEnabled?: true
+  preferredAlertChannel?: true
   slackWebhookUrl?: true
   slackTeamId?: true
   slackTeamName?: true
@@ -117,6 +134,9 @@ export type UserMaxAggregateInputType = {
   slackChannelName?: true
   slackConfigurationUrl?: true
   slackAuthedUserId?: true
+  telegramChatId?: true
+  telegramUsername?: true
+  telegramConnectedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -129,6 +149,7 @@ export type UserCountAggregateInputType = {
   image?: true
   plan?: true
   emailAlertsEnabled?: true
+  preferredAlertChannel?: true
   slackWebhookUrl?: true
   slackTeamId?: true
   slackTeamName?: true
@@ -136,6 +157,9 @@ export type UserCountAggregateInputType = {
   slackChannelName?: true
   slackConfigurationUrl?: true
   slackAuthedUserId?: true
+  telegramChatId?: true
+  telegramUsername?: true
+  telegramConnectedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -221,6 +245,7 @@ export type UserGroupByOutputType = {
   image: string | null
   plan: string
   emailAlertsEnabled: boolean
+  preferredAlertChannel: $Enums.NotifyChannel
   slackWebhookUrl: string | null
   slackTeamId: string | null
   slackTeamName: string | null
@@ -228,6 +253,9 @@ export type UserGroupByOutputType = {
   slackChannelName: string | null
   slackConfigurationUrl: string | null
   slackAuthedUserId: string | null
+  telegramChatId: string | null
+  telegramUsername: string | null
+  telegramConnectedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -261,6 +289,7 @@ export type UserWhereInput = {
   image?: Prisma.StringNullableFilter<"User"> | string | null
   plan?: Prisma.StringFilter<"User"> | string
   emailAlertsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFilter<"User"> | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.StringNullableFilter<"User"> | string | null
   slackTeamId?: Prisma.StringNullableFilter<"User"> | string | null
   slackTeamName?: Prisma.StringNullableFilter<"User"> | string | null
@@ -268,6 +297,9 @@ export type UserWhereInput = {
   slackChannelName?: Prisma.StringNullableFilter<"User"> | string | null
   slackConfigurationUrl?: Prisma.StringNullableFilter<"User"> | string | null
   slackAuthedUserId?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramChatId?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramUsername?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramConnectedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -278,6 +310,7 @@ export type UserWhereInput = {
   leads?: Prisma.LeadListRelationFilter
   campaignRuns?: Prisma.CampaignRunListRelationFilter
   aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
+  telegramPairings?: Prisma.TelegramPairingListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -288,6 +321,7 @@ export type UserOrderByWithRelationInput = {
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
+  preferredAlertChannel?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   slackTeamId?: Prisma.SortOrderInput | Prisma.SortOrder
   slackTeamName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -295,6 +329,9 @@ export type UserOrderByWithRelationInput = {
   slackChannelName?: Prisma.SortOrderInput | Prisma.SortOrder
   slackConfigurationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   slackAuthedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramChatId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramUsername?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramConnectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   accounts?: Prisma.AccountOrderByRelationAggregateInput
@@ -305,6 +342,7 @@ export type UserOrderByWithRelationInput = {
   leads?: Prisma.LeadOrderByRelationAggregateInput
   campaignRuns?: Prisma.CampaignRunOrderByRelationAggregateInput
   aiUsageEvents?: Prisma.AiUsageEventOrderByRelationAggregateInput
+  telegramPairings?: Prisma.TelegramPairingOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -318,6 +356,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   image?: Prisma.StringNullableFilter<"User"> | string | null
   plan?: Prisma.StringFilter<"User"> | string
   emailAlertsEnabled?: Prisma.BoolFilter<"User"> | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFilter<"User"> | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.StringNullableFilter<"User"> | string | null
   slackTeamId?: Prisma.StringNullableFilter<"User"> | string | null
   slackTeamName?: Prisma.StringNullableFilter<"User"> | string | null
@@ -325,6 +364,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   slackChannelName?: Prisma.StringNullableFilter<"User"> | string | null
   slackConfigurationUrl?: Prisma.StringNullableFilter<"User"> | string | null
   slackAuthedUserId?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramChatId?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramUsername?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramConnectedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   accounts?: Prisma.AccountListRelationFilter
@@ -335,6 +377,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   leads?: Prisma.LeadListRelationFilter
   campaignRuns?: Prisma.CampaignRunListRelationFilter
   aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
+  telegramPairings?: Prisma.TelegramPairingListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -345,6 +388,7 @@ export type UserOrderByWithAggregationInput = {
   image?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
+  preferredAlertChannel?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   slackTeamId?: Prisma.SortOrderInput | Prisma.SortOrder
   slackTeamName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -352,6 +396,9 @@ export type UserOrderByWithAggregationInput = {
   slackChannelName?: Prisma.SortOrderInput | Prisma.SortOrder
   slackConfigurationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   slackAuthedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramChatId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramUsername?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramConnectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -370,6 +417,7 @@ export type UserScalarWhereWithAggregatesInput = {
   image?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   plan?: Prisma.StringWithAggregatesFilter<"User"> | string
   emailAlertsEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelWithAggregatesFilter<"User"> | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   slackTeamId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   slackTeamName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -377,6 +425,9 @@ export type UserScalarWhereWithAggregatesInput = {
   slackChannelName?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   slackConfigurationUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   slackAuthedUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  telegramChatId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  telegramUsername?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  telegramConnectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -389,6 +440,7 @@ export type UserCreateInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -396,6 +448,9 @@ export type UserCreateInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -406,6 +461,7 @@ export type UserCreateInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -416,6 +472,7 @@ export type UserUncheckedCreateInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -423,6 +480,9 @@ export type UserUncheckedCreateInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -433,6 +493,7 @@ export type UserUncheckedCreateInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -443,6 +504,7 @@ export type UserUpdateInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -450,6 +512,9 @@ export type UserUpdateInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -460,6 +525,7 @@ export type UserUpdateInput = {
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -470,6 +536,7 @@ export type UserUncheckedUpdateInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -477,6 +544,9 @@ export type UserUncheckedUpdateInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -487,6 +557,7 @@ export type UserUncheckedUpdateInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -497,6 +568,7 @@ export type UserCreateManyInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -504,6 +576,9 @@ export type UserCreateManyInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -516,6 +591,7 @@ export type UserUpdateManyMutationInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -523,6 +599,9 @@ export type UserUpdateManyMutationInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -535,6 +614,7 @@ export type UserUncheckedUpdateManyInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -542,6 +622,9 @@ export type UserUncheckedUpdateManyInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -554,6 +637,7 @@ export type UserCountOrderByAggregateInput = {
   image?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
+  preferredAlertChannel?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrder
   slackTeamId?: Prisma.SortOrder
   slackTeamName?: Prisma.SortOrder
@@ -561,6 +645,9 @@ export type UserCountOrderByAggregateInput = {
   slackChannelName?: Prisma.SortOrder
   slackConfigurationUrl?: Prisma.SortOrder
   slackAuthedUserId?: Prisma.SortOrder
+  telegramChatId?: Prisma.SortOrder
+  telegramUsername?: Prisma.SortOrder
+  telegramConnectedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -573,6 +660,7 @@ export type UserMaxOrderByAggregateInput = {
   image?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
+  preferredAlertChannel?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrder
   slackTeamId?: Prisma.SortOrder
   slackTeamName?: Prisma.SortOrder
@@ -580,6 +668,9 @@ export type UserMaxOrderByAggregateInput = {
   slackChannelName?: Prisma.SortOrder
   slackConfigurationUrl?: Prisma.SortOrder
   slackAuthedUserId?: Prisma.SortOrder
+  telegramChatId?: Prisma.SortOrder
+  telegramUsername?: Prisma.SortOrder
+  telegramConnectedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -592,6 +683,7 @@ export type UserMinOrderByAggregateInput = {
   image?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   emailAlertsEnabled?: Prisma.SortOrder
+  preferredAlertChannel?: Prisma.SortOrder
   slackWebhookUrl?: Prisma.SortOrder
   slackTeamId?: Prisma.SortOrder
   slackTeamName?: Prisma.SortOrder
@@ -599,6 +691,9 @@ export type UserMinOrderByAggregateInput = {
   slackChannelName?: Prisma.SortOrder
   slackConfigurationUrl?: Prisma.SortOrder
   slackAuthedUserId?: Prisma.SortOrder
+  telegramChatId?: Prisma.SortOrder
+  telegramUsername?: Prisma.SortOrder
+  telegramConnectedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -624,8 +719,26 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type EnumNotifyChannelFieldUpdateOperationsInput = {
+  set?: $Enums.NotifyChannel
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type UserCreateNestedOneWithoutTelegramPairingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramPairingsInput, Prisma.UserUncheckedCreateWithoutTelegramPairingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramPairingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTelegramPairingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramPairingsInput, Prisma.UserUncheckedCreateWithoutTelegramPairingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramPairingsInput
+  upsert?: Prisma.UserUpsertWithoutTelegramPairingsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTelegramPairingsInput, Prisma.UserUpdateWithoutTelegramPairingsInput>, Prisma.UserUncheckedUpdateWithoutTelegramPairingsInput>
 }
 
 export type UserCreateNestedOneWithoutPasswordInput = {
@@ -740,6 +853,146 @@ export type UserUpdateOneRequiredWithoutLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLeadsInput, Prisma.UserUpdateWithoutLeadsInput>, Prisma.UserUncheckedUpdateWithoutLeadsInput>
 }
 
+export type UserCreateWithoutTelegramPairingsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutTelegramPairingsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutTelegramPairingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramPairingsInput, Prisma.UserUncheckedCreateWithoutTelegramPairingsInput>
+}
+
+export type UserUpsertWithoutTelegramPairingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTelegramPairingsInput, Prisma.UserUncheckedUpdateWithoutTelegramPairingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramPairingsInput, Prisma.UserUncheckedCreateWithoutTelegramPairingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTelegramPairingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTelegramPairingsInput, Prisma.UserUncheckedUpdateWithoutTelegramPairingsInput>
+}
+
+export type UserUpdateWithoutTelegramPairingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTelegramPairingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutPasswordInput = {
   id?: string
   name?: string | null
@@ -748,6 +1001,7 @@ export type UserCreateWithoutPasswordInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -755,6 +1009,9 @@ export type UserCreateWithoutPasswordInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -764,6 +1021,7 @@ export type UserCreateWithoutPasswordInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPasswordInput = {
@@ -774,6 +1032,7 @@ export type UserUncheckedCreateWithoutPasswordInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -781,6 +1040,9 @@ export type UserUncheckedCreateWithoutPasswordInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -790,6 +1052,7 @@ export type UserUncheckedCreateWithoutPasswordInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPasswordInput = {
@@ -816,6 +1079,7 @@ export type UserUpdateWithoutPasswordInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -823,6 +1087,9 @@ export type UserUpdateWithoutPasswordInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -832,6 +1099,7 @@ export type UserUpdateWithoutPasswordInput = {
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordInput = {
@@ -842,6 +1110,7 @@ export type UserUncheckedUpdateWithoutPasswordInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -849,6 +1118,9 @@ export type UserUncheckedUpdateWithoutPasswordInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -858,6 +1130,7 @@ export type UserUncheckedUpdateWithoutPasswordInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -868,6 +1141,7 @@ export type UserCreateWithoutAccountsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -875,6 +1149,9 @@ export type UserCreateWithoutAccountsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
@@ -884,6 +1161,7 @@ export type UserCreateWithoutAccountsInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -894,6 +1172,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -901,6 +1180,9 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
@@ -910,6 +1192,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -936,6 +1219,7 @@ export type UserUpdateWithoutAccountsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -943,6 +1227,9 @@ export type UserUpdateWithoutAccountsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
@@ -952,6 +1239,7 @@ export type UserUpdateWithoutAccountsInput = {
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -962,6 +1250,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -969,6 +1258,9 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
@@ -978,6 +1270,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -988,6 +1281,7 @@ export type UserCreateWithoutSessionsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -995,6 +1289,9 @@ export type UserCreateWithoutSessionsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1004,6 +1301,7 @@ export type UserCreateWithoutSessionsInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1014,6 +1312,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1021,6 +1320,9 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1030,6 +1332,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1056,6 +1359,7 @@ export type UserUpdateWithoutSessionsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1063,6 +1367,9 @@ export type UserUpdateWithoutSessionsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1072,6 +1379,7 @@ export type UserUpdateWithoutSessionsInput = {
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1082,6 +1390,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1089,6 +1398,9 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1098,6 +1410,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRedditAccountsInput = {
@@ -1108,6 +1421,7 @@ export type UserCreateWithoutRedditAccountsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1115,6 +1429,9 @@ export type UserCreateWithoutRedditAccountsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1124,6 +1441,7 @@ export type UserCreateWithoutRedditAccountsInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRedditAccountsInput = {
@@ -1134,6 +1452,7 @@ export type UserUncheckedCreateWithoutRedditAccountsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1141,6 +1460,9 @@ export type UserUncheckedCreateWithoutRedditAccountsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1150,6 +1472,7 @@ export type UserUncheckedCreateWithoutRedditAccountsInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRedditAccountsInput = {
@@ -1176,6 +1499,7 @@ export type UserUpdateWithoutRedditAccountsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1183,6 +1507,9 @@ export type UserUpdateWithoutRedditAccountsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1192,6 +1519,7 @@ export type UserUpdateWithoutRedditAccountsInput = {
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRedditAccountsInput = {
@@ -1202,6 +1530,7 @@ export type UserUncheckedUpdateWithoutRedditAccountsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1209,6 +1538,9 @@ export type UserUncheckedUpdateWithoutRedditAccountsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1218,6 +1550,7 @@ export type UserUncheckedUpdateWithoutRedditAccountsInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCampaignsInput = {
@@ -1228,6 +1561,7 @@ export type UserCreateWithoutCampaignsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1235,6 +1569,9 @@ export type UserCreateWithoutCampaignsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1244,6 +1581,7 @@ export type UserCreateWithoutCampaignsInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCampaignsInput = {
@@ -1254,6 +1592,7 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1261,6 +1600,9 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1270,6 +1612,7 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCampaignsInput = {
@@ -1296,6 +1639,7 @@ export type UserUpdateWithoutCampaignsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1303,6 +1647,9 @@ export type UserUpdateWithoutCampaignsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1312,6 +1659,7 @@ export type UserUpdateWithoutCampaignsInput = {
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignsInput = {
@@ -1322,6 +1670,7 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1329,6 +1678,9 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1338,6 +1690,7 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCampaignRunsInput = {
@@ -1348,6 +1701,7 @@ export type UserCreateWithoutCampaignRunsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1355,6 +1709,9 @@ export type UserCreateWithoutCampaignRunsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1364,6 +1721,7 @@ export type UserCreateWithoutCampaignRunsInput = {
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCampaignRunsInput = {
@@ -1374,6 +1732,7 @@ export type UserUncheckedCreateWithoutCampaignRunsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1381,6 +1740,9 @@ export type UserUncheckedCreateWithoutCampaignRunsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1390,6 +1752,7 @@ export type UserUncheckedCreateWithoutCampaignRunsInput = {
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCampaignRunsInput = {
@@ -1416,6 +1779,7 @@ export type UserUpdateWithoutCampaignRunsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1423,6 +1787,9 @@ export type UserUpdateWithoutCampaignRunsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1432,6 +1799,7 @@ export type UserUpdateWithoutCampaignRunsInput = {
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignRunsInput = {
@@ -1442,6 +1810,7 @@ export type UserUncheckedUpdateWithoutCampaignRunsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1449,6 +1818,9 @@ export type UserUncheckedUpdateWithoutCampaignRunsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1458,6 +1830,7 @@ export type UserUncheckedUpdateWithoutCampaignRunsInput = {
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiUsageEventsInput = {
@@ -1468,6 +1841,7 @@ export type UserCreateWithoutAiUsageEventsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1475,6 +1849,9 @@ export type UserCreateWithoutAiUsageEventsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1484,6 +1861,7 @@ export type UserCreateWithoutAiUsageEventsInput = {
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiUsageEventsInput = {
@@ -1494,6 +1872,7 @@ export type UserUncheckedCreateWithoutAiUsageEventsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1501,6 +1880,9 @@ export type UserUncheckedCreateWithoutAiUsageEventsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1510,6 +1892,7 @@ export type UserUncheckedCreateWithoutAiUsageEventsInput = {
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiUsageEventsInput = {
@@ -1536,6 +1919,7 @@ export type UserUpdateWithoutAiUsageEventsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1543,6 +1927,9 @@ export type UserUpdateWithoutAiUsageEventsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1552,6 +1939,7 @@ export type UserUpdateWithoutAiUsageEventsInput = {
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
@@ -1562,6 +1950,7 @@ export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1569,6 +1958,9 @@ export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1578,6 +1970,7 @@ export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLeadsInput = {
@@ -1588,6 +1981,7 @@ export type UserCreateWithoutLeadsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1595,6 +1989,9 @@ export type UserCreateWithoutLeadsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
@@ -1604,6 +2001,7 @@ export type UserCreateWithoutLeadsInput = {
   redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLeadsInput = {
@@ -1614,6 +2012,7 @@ export type UserUncheckedCreateWithoutLeadsInput = {
   image?: string | null
   plan?: string
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
   slackWebhookUrl?: string | null
   slackTeamId?: string | null
   slackTeamName?: string | null
@@ -1621,6 +2020,9 @@ export type UserUncheckedCreateWithoutLeadsInput = {
   slackChannelName?: string | null
   slackConfigurationUrl?: string | null
   slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
@@ -1630,6 +2032,7 @@ export type UserUncheckedCreateWithoutLeadsInput = {
   redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLeadsInput = {
@@ -1656,6 +2059,7 @@ export type UserUpdateWithoutLeadsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1663,6 +2067,9 @@ export type UserUpdateWithoutLeadsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
@@ -1672,6 +2079,7 @@ export type UserUpdateWithoutLeadsInput = {
   redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeadsInput = {
@@ -1682,6 +2090,7 @@ export type UserUncheckedUpdateWithoutLeadsInput = {
   image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.StringFieldUpdateOperationsInput | string
   emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1689,6 +2098,9 @@ export type UserUncheckedUpdateWithoutLeadsInput = {
   slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
@@ -1698,6 +2110,7 @@ export type UserUncheckedUpdateWithoutLeadsInput = {
   redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1713,6 +2126,7 @@ export type UserCountOutputType = {
   leads: number
   campaignRuns: number
   aiUsageEvents: number
+  telegramPairings: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1723,6 +2137,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   leads?: boolean | UserCountOutputTypeCountLeadsArgs
   campaignRuns?: boolean | UserCountOutputTypeCountCampaignRunsArgs
   aiUsageEvents?: boolean | UserCountOutputTypeCountAiUsageEventsArgs
+  telegramPairings?: boolean | UserCountOutputTypeCountTelegramPairingsArgs
 }
 
 /**
@@ -1784,6 +2199,13 @@ export type UserCountOutputTypeCountAiUsageEventsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.AiUsageEventWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTelegramPairingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TelegramPairingWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1793,6 +2215,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   image?: boolean
   plan?: boolean
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: boolean
   slackWebhookUrl?: boolean
   slackTeamId?: boolean
   slackTeamName?: boolean
@@ -1800,6 +2223,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   slackChannelName?: boolean
   slackConfigurationUrl?: boolean
   slackAuthedUserId?: boolean
+  telegramChatId?: boolean
+  telegramUsername?: boolean
+  telegramConnectedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
@@ -1810,6 +2236,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   leads?: boolean | Prisma.User$leadsArgs<ExtArgs>
   campaignRuns?: boolean | Prisma.User$campaignRunsArgs<ExtArgs>
   aiUsageEvents?: boolean | Prisma.User$aiUsageEventsArgs<ExtArgs>
+  telegramPairings?: boolean | Prisma.User$telegramPairingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1821,6 +2248,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   image?: boolean
   plan?: boolean
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: boolean
   slackWebhookUrl?: boolean
   slackTeamId?: boolean
   slackTeamName?: boolean
@@ -1828,6 +2256,9 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   slackChannelName?: boolean
   slackConfigurationUrl?: boolean
   slackAuthedUserId?: boolean
+  telegramChatId?: boolean
+  telegramUsername?: boolean
+  telegramConnectedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1840,6 +2271,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   image?: boolean
   plan?: boolean
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: boolean
   slackWebhookUrl?: boolean
   slackTeamId?: boolean
   slackTeamName?: boolean
@@ -1847,6 +2279,9 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   slackChannelName?: boolean
   slackConfigurationUrl?: boolean
   slackAuthedUserId?: boolean
+  telegramChatId?: boolean
+  telegramUsername?: boolean
+  telegramConnectedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1859,6 +2294,7 @@ export type UserSelectScalar = {
   image?: boolean
   plan?: boolean
   emailAlertsEnabled?: boolean
+  preferredAlertChannel?: boolean
   slackWebhookUrl?: boolean
   slackTeamId?: boolean
   slackTeamName?: boolean
@@ -1866,11 +2302,14 @@ export type UserSelectScalar = {
   slackChannelName?: boolean
   slackConfigurationUrl?: boolean
   slackAuthedUserId?: boolean
+  telegramChatId?: boolean
+  telegramUsername?: boolean
+  telegramConnectedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "plan" | "emailAlertsEnabled" | "slackWebhookUrl" | "slackTeamId" | "slackTeamName" | "slackChannelId" | "slackChannelName" | "slackConfigurationUrl" | "slackAuthedUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "plan" | "emailAlertsEnabled" | "preferredAlertChannel" | "slackWebhookUrl" | "slackTeamId" | "slackTeamName" | "slackChannelId" | "slackChannelName" | "slackConfigurationUrl" | "slackAuthedUserId" | "telegramChatId" | "telegramUsername" | "telegramConnectedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
@@ -1880,6 +2319,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   leads?: boolean | Prisma.User$leadsArgs<ExtArgs>
   campaignRuns?: boolean | Prisma.User$campaignRunsArgs<ExtArgs>
   aiUsageEvents?: boolean | Prisma.User$aiUsageEventsArgs<ExtArgs>
+  telegramPairings?: boolean | Prisma.User$telegramPairingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1896,6 +2336,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     leads: Prisma.$LeadPayload<ExtArgs>[]
     campaignRuns: Prisma.$CampaignRunPayload<ExtArgs>[]
     aiUsageEvents: Prisma.$AiUsageEventPayload<ExtArgs>[]
+    telegramPairings: Prisma.$TelegramPairingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1905,6 +2346,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     image: string | null
     plan: string
     emailAlertsEnabled: boolean
+    preferredAlertChannel: $Enums.NotifyChannel
     slackWebhookUrl: string | null
     slackTeamId: string | null
     slackTeamName: string | null
@@ -1912,6 +2354,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     slackChannelName: string | null
     slackConfigurationUrl: string | null
     slackAuthedUserId: string | null
+    telegramChatId: string | null
+    telegramUsername: string | null
+    telegramConnectedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -2316,6 +2761,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   leads<T extends Prisma.User$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   campaignRuns<T extends Prisma.User$campaignRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$campaignRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   aiUsageEvents<T extends Prisma.User$aiUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  telegramPairings<T extends Prisma.User$telegramPairingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$telegramPairingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TelegramPairingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2352,6 +2798,7 @@ export interface UserFieldRefs {
   readonly image: Prisma.FieldRef<"User", 'String'>
   readonly plan: Prisma.FieldRef<"User", 'String'>
   readonly emailAlertsEnabled: Prisma.FieldRef<"User", 'Boolean'>
+  readonly preferredAlertChannel: Prisma.FieldRef<"User", 'NotifyChannel'>
   readonly slackWebhookUrl: Prisma.FieldRef<"User", 'String'>
   readonly slackTeamId: Prisma.FieldRef<"User", 'String'>
   readonly slackTeamName: Prisma.FieldRef<"User", 'String'>
@@ -2359,6 +2806,9 @@ export interface UserFieldRefs {
   readonly slackChannelName: Prisma.FieldRef<"User", 'String'>
   readonly slackConfigurationUrl: Prisma.FieldRef<"User", 'String'>
   readonly slackAuthedUserId: Prisma.FieldRef<"User", 'String'>
+  readonly telegramChatId: Prisma.FieldRef<"User", 'String'>
+  readonly telegramUsername: Prisma.FieldRef<"User", 'String'>
+  readonly telegramConnectedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -2933,6 +3383,30 @@ export type User$aiUsageEventsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.AiUsageEventScalarFieldEnum | Prisma.AiUsageEventScalarFieldEnum[]
+}
+
+/**
+ * User.telegramPairings
+ */
+export type User$telegramPairingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramPairing
+   */
+  select?: Prisma.TelegramPairingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramPairing
+   */
+  omit?: Prisma.TelegramPairingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramPairingInclude<ExtArgs> | null
+  where?: Prisma.TelegramPairingWhereInput
+  orderBy?: Prisma.TelegramPairingOrderByWithRelationInput | Prisma.TelegramPairingOrderByWithRelationInput[]
+  cursor?: Prisma.TelegramPairingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TelegramPairingScalarFieldEnum | Prisma.TelegramPairingScalarFieldEnum[]
 }
 
 /**

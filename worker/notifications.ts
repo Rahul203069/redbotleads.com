@@ -1,12 +1,19 @@
 import "dotenv/config";
 
 import { prisma } from "@/lib/prisma";
+import { isTelegramRateLimitError, sendTelegramMessage } from "@/lib/telegram";
 import { Worker } from "bullmq";
+import Redis from "ioredis";
 import { Resend } from "resend";
 
-import { workerNotificationsConcurrency, workerRedisConnection } from "./config";
+import { telegramNotificationIntervalMs, workerNotificationsConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
 import { notificationsQueueName } from "./queues";
+
+const telegramThrottleKey = "redbot:notifications:telegram:next-send-at";
+const telegramThrottleRedis = new Redis(workerRedisConnection.url, {
+  maxRetriesPerRequest: null,
+});
 
 const worker = new Worker(
   notificationsQueueName,
@@ -21,6 +28,13 @@ const worker = new Worker(
     if (job.name === "SEND_EMAIL") {
       return runEmailNotification(
         job.data as { notificationId: string; leadId: string; channel: "EMAIL" },
+        job.id ?? "unknown",
+      );
+    }
+
+    if (job.name === "SEND_TELEGRAM") {
+      return runTelegramNotification(
+        job.data as { notificationId: string; leadId: string; channel: "TELEGRAM" },
         job.id ?? "unknown",
       );
     }
@@ -236,6 +250,199 @@ function escapeSlackText(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+async function runTelegramNotification(
+  data: {
+    notificationId: string;
+    leadId: string;
+    channel: "TELEGRAM";
+  },
+  jobId: string,
+) {
+  const notification = await prisma.notification.findFirst({
+    where: {
+      id: data.notificationId,
+      leadId: data.leadId,
+      channel: "TELEGRAM",
+    },
+    select: {
+      id: true,
+      lead: {
+        select: {
+          id: true,
+          score: true,
+          label: true,
+          campaign: {
+            select: {
+              name: true,
+            },
+          },
+          ai: {
+            select: {
+              summary: true,
+              category: true,
+            },
+          },
+          redditItem: {
+            select: {
+              subreddit: true,
+              title: true,
+              url: true,
+            },
+          },
+          user: {
+            select: {
+              telegramChatId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!notification) {
+    workerLogger.warn({ jobId, notificationId: data.notificationId }, "Telegram notification record not found");
+    return { skipped: true, reason: "notification_not_found" };
+  }
+
+  const chatId = notification.lead.user.telegramChatId?.trim();
+
+  if (!chatId) {
+    await failNotification(notification.id, "Telegram chat is not configured.");
+    return { skipped: true, reason: "missing_chat_id" };
+  }
+
+  const title = notification.lead.redditItem.title?.trim() || "New high-intent Reddit lead";
+  const redditUrl = notification.lead.redditItem.url?.trim() || "https://www.reddit.com";
+  const summary = notification.lead.ai?.summary?.trim() || "A lead crossed the alert threshold and is ready for review.";
+  const category = notification.lead.ai?.category?.trim() || "General";
+
+  try {
+    await waitForTelegramSendSlot(jobId, notification.id);
+
+    await sendTelegramMessage({
+      chatId,
+      disableWebPagePreview: false,
+      text: buildLeadAlertText({
+        campaignName: notification.lead.campaign.name,
+        category,
+        label: notification.lead.label,
+        redditUrl,
+        score: notification.lead.score,
+        subreddit: notification.lead.redditItem.subreddit,
+        summary,
+        title,
+      }),
+    });
+
+    await prisma.notification.update({
+      where: {
+        id: notification.id,
+      },
+      data: {
+        status: "SENT",
+        error: null,
+        sentAt: new Date(),
+      },
+    });
+
+    workerLogger.info(
+      {
+        jobId,
+        notificationId: notification.id,
+        leadId: notification.lead.id,
+        campaignName: notification.lead.campaign.name,
+      },
+      "Telegram notification sent",
+    );
+
+    return { sent: true };
+  } catch (error) {
+    if (isTelegramRateLimitError(error)) {
+      const retryAfterMs = Math.max(1000, error.retryAfterSeconds * 1000);
+
+      await keepNotificationPending(notification.id, `Telegram rate limit hit. Retrying after ${error.retryAfterSeconds}s.`);
+      await worker.rateLimit(retryAfterMs);
+
+      workerLogger.warn(
+        {
+          jobId,
+          notificationId: notification.id,
+          retryAfterMs,
+          error,
+        },
+        "Telegram notification rate limited; job returned to waiting",
+      );
+
+      throw Worker.RateLimitError();
+    }
+
+    const message = error instanceof Error ? error.message : "Telegram delivery failed.";
+
+    await failNotification(notification.id, message);
+
+    workerLogger.error(
+      {
+        jobId,
+        notificationId: notification.id,
+        error,
+      },
+      "Telegram notification failed",
+    );
+
+    throw error;
+  }
+}
+
+async function waitForTelegramSendSlot(jobId: string, notificationId: string) {
+  if (telegramNotificationIntervalMs <= 0) {
+    return;
+  }
+
+  while (true) {
+    const delayMs = await reserveTelegramSendSlot();
+
+    if (delayMs <= 0) {
+      return;
+    }
+
+    workerLogger.info(
+      {
+        jobId,
+        notificationId,
+        waitMs: delayMs,
+        telegramNotificationIntervalMs,
+      },
+      "Waiting for Telegram notification send slot",
+    );
+
+    await sleep(delayMs);
+  }
+}
+
+async function reserveTelegramSendSlot() {
+  const result = await telegramThrottleRedis.eval(
+    `
+      local key = KEYS[1]
+      local interval = tonumber(ARGV[1])
+      local time = redis.call("TIME")
+      local now = tonumber(time[1]) * 1000 + math.floor(tonumber(time[2]) / 1000)
+      local nextSendAt = tonumber(redis.call("GET", key) or "0")
+
+      if nextSendAt <= now then
+        redis.call("SET", key, now + interval, "PX", math.max(interval * 4, 10000))
+        return 0
+      end
+
+      return nextSendAt - now
+    `,
+    1,
+    telegramThrottleKey,
+    String(telegramNotificationIntervalMs),
+  );
+
+  return typeof result === "number" ? result : Number(result);
+}
+
 async function runEmailNotification(
   data: {
     notificationId: string;
@@ -392,6 +599,22 @@ async function failNotification(notificationId: string, error: string) {
       error,
     },
   });
+}
+
+async function keepNotificationPending(notificationId: string, error: string) {
+  await prisma.notification.update({
+    where: {
+      id: notificationId,
+    },
+    data: {
+      status: "PENDING",
+      error,
+    },
+  });
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
 }
 
 type LeadAlertEmail = {

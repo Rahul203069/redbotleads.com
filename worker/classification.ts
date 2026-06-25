@@ -74,7 +74,9 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
           id: true,
           email: true,
           emailAlertsEnabled: true,
+          preferredAlertChannel: true,
           slackWebhookUrl: true,
+          telegramChatId: true,
         },
       },
       notifications: {
@@ -216,15 +218,22 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
 
     const crossedAlertThreshold = result.score >= lead.campaign.minScoreToAlert;
 
-    const hasSlackWebhook = Boolean(lead.user.slackWebhookUrl?.trim());
-    const hasSlackNotification = lead.notifications.some((notification) => notification.channel === "SLACK");
-    const hasEmailNotification = lead.notifications.some((notification) => notification.channel === "EMAIL");
+    const notificationChannel = crossedAlertThreshold
+      ? chooseNotificationChannel({
+          existingChannels: lead.notifications.map((notification) => notification.channel),
+          email: lead.user.email,
+          emailAlertsEnabled: lead.user.emailAlertsEnabled,
+          preferredAlertChannel: lead.user.preferredAlertChannel,
+          slackWebhookUrl: lead.user.slackWebhookUrl,
+          telegramChatId: lead.user.telegramChatId,
+        })
+      : null;
 
-    if (crossedAlertThreshold && hasSlackWebhook && !hasSlackNotification) {
+    if (notificationChannel) {
       const notification = await prisma.notification.create({
         data: {
           leadId: lead.id,
-          channel: "SLACK",
+          channel: notificationChannel,
           status: "PENDING",
         },
         select: {
@@ -235,30 +244,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       await enqueueNotification({
         notificationId: notification.id,
         leadId: lead.id,
-        channel: "SLACK",
-      });
-    } else if (
-      crossedAlertThreshold &&
-      !hasSlackWebhook &&
-      lead.user.emailAlertsEnabled &&
-      lead.user.email?.trim() &&
-      !hasEmailNotification
-    ) {
-      const notification = await prisma.notification.create({
-        data: {
-          leadId: lead.id,
-          channel: "EMAIL",
-          status: "PENDING",
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      await enqueueNotification({
-        notificationId: notification.id,
-        leadId: lead.id,
-        channel: "EMAIL",
+        channel: notificationChannel,
       });
     }
 
@@ -275,8 +261,10 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         label: result.label,
         category: result.category,
         crossedAlertThreshold,
-        emailFallbackEnabled: Boolean(!hasSlackWebhook && lead.user.emailAlertsEnabled && lead.user.email?.trim()),
-        slackNotificationsEnabled: hasSlackWebhook,
+        selectedNotificationChannel: notificationChannel,
+        emailAlertsEnabled: Boolean(lead.user.emailAlertsEnabled && lead.user.email?.trim()),
+        slackNotificationsEnabled: Boolean(lead.user.slackWebhookUrl?.trim()),
+        telegramNotificationsEnabled: Boolean(lead.user.telegramChatId?.trim()),
       },
       "Lead classified with OpenAI",
     );
@@ -448,6 +436,42 @@ function getErrorMessage(error: unknown) {
 
 function clampText(value: string, maxLength: number) {
   return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
+}
+
+type AlertChannel = "EMAIL" | "SLACK" | "TELEGRAM";
+
+function chooseNotificationChannel(input: {
+  existingChannels: AlertChannel[];
+  email: string | null;
+  emailAlertsEnabled: boolean;
+  preferredAlertChannel: AlertChannel;
+  slackWebhookUrl: string | null;
+  telegramChatId: string | null;
+}) {
+  const orderedChannels = [
+    input.preferredAlertChannel,
+    "SLACK",
+    "TELEGRAM",
+    "EMAIL",
+  ].filter((channel, index, channels): channel is AlertChannel => {
+    return channels.indexOf(channel) === index;
+  });
+
+  return orderedChannels.find((channel) => {
+    if (input.existingChannels.includes(channel)) {
+      return false;
+    }
+
+    if (channel === "SLACK") {
+      return Boolean(input.slackWebhookUrl?.trim());
+    }
+
+    if (channel === "TELEGRAM") {
+      return Boolean(input.telegramChatId?.trim());
+    }
+
+    return input.emailAlertsEnabled && Boolean(input.email?.trim());
+  }) ?? null;
 }
 
 function mapIntentType(value: "none" | "implicit" | "explicit" | "switching") {

@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  TelegramPairing: 'TelegramPairing',
   UserPassword: 'UserPassword',
   Account: 'Account',
   Session: 'Session',
@@ -97,6 +98,7 @@ export const UserScalarFieldEnum = {
   image: 'image',
   plan: 'plan',
   emailAlertsEnabled: 'emailAlertsEnabled',
+  preferredAlertChannel: 'preferredAlertChannel',
   slackWebhookUrl: 'slackWebhookUrl',
   slackTeamId: 'slackTeamId',
   slackTeamName: 'slackTeamName',
@@ -104,11 +106,26 @@ export const UserScalarFieldEnum = {
   slackChannelName: 'slackChannelName',
   slackConfigurationUrl: 'slackConfigurationUrl',
   slackAuthedUserId: 'slackAuthedUserId',
+  telegramChatId: 'telegramChatId',
+  telegramUsername: 'telegramUsername',
+  telegramConnectedAt: 'telegramConnectedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const TelegramPairingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  code: 'code',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TelegramPairingScalarFieldEnum = (typeof TelegramPairingScalarFieldEnum)[keyof typeof TelegramPairingScalarFieldEnum]
 
 
 export const UserPasswordScalarFieldEnum = {

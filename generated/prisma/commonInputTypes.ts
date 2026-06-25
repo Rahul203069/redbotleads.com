@@ -60,6 +60,13 @@ export type BoolFilter<$PrismaModel = never> = {
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
 }
 
+export type EnumNotifyChannelFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel> | $Enums.NotifyChannel
+}
+
 export type DateTimeFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel>
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel>
@@ -132,6 +139,16 @@ export type BoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type EnumNotifyChannelWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotifyChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotifyChannel
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
 }
 
 export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -450,28 +467,11 @@ export type EnumBuyerStageNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumBuyerStageNullableFilter<$PrismaModel>
 }
 
-export type EnumNotifyChannelFilter<$PrismaModel = never> = {
-  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
-  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel> | $Enums.NotifyChannel
-}
-
 export type EnumNotifyStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.NotifyStatus | Prisma.EnumNotifyStatusFieldRefInput<$PrismaModel>
   in?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumNotifyStatusFilter<$PrismaModel> | $Enums.NotifyStatus
-}
-
-export type EnumNotifyChannelWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
-  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumNotifyChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotifyChannel
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
 }
 
 export type EnumNotifyStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -553,6 +553,13 @@ export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
 export type NestedBoolFilter<$PrismaModel = never> = {
   equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel>
   not?: Prisma.NestedBoolFilter<$PrismaModel> | boolean
+}
+
+export type NestedEnumNotifyChannelFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel> | $Enums.NotifyChannel
 }
 
 export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -642,6 +649,16 @@ export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedBoolFilter<$PrismaModel>
   _max?: Prisma.NestedBoolFilter<$PrismaModel>
+}
+
+export type NestedEnumNotifyChannelWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotifyChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotifyChannel
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
 }
 
 export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -922,28 +939,11 @@ export type NestedEnumBuyerStageNullableWithAggregatesFilter<$PrismaModel = neve
   _max?: Prisma.NestedEnumBuyerStageNullableFilter<$PrismaModel>
 }
 
-export type NestedEnumNotifyChannelFilter<$PrismaModel = never> = {
-  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
-  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel> | $Enums.NotifyChannel
-}
-
 export type NestedEnumNotifyStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.NotifyStatus | Prisma.EnumNotifyStatusFieldRefInput<$PrismaModel>
   in?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumNotifyStatusFilter<$PrismaModel> | $Enums.NotifyStatus
-}
-
-export type NestedEnumNotifyChannelWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.NotifyChannel | Prisma.EnumNotifyChannelFieldRefInput<$PrismaModel>
-  in?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  notIn?: $Enums.NotifyChannel[] | Prisma.ListEnumNotifyChannelFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumNotifyChannelWithAggregatesFilter<$PrismaModel> | $Enums.NotifyChannel
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumNotifyChannelFilter<$PrismaModel>
 }
 
 export type NestedEnumNotifyStatusWithAggregatesFilter<$PrismaModel = never> = {

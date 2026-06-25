@@ -24,9 +24,10 @@ export default async function AuthenticatedAppLayout({
     },
     select: {
       slackWebhookUrl: true,
+      telegramChatId: true,
     },
   });
-  const shouldShowSlackPrompt = !user?.slackWebhookUrl?.trim();
+  const shouldShowSlackPrompt = !user?.slackWebhookUrl?.trim() && !user?.telegramChatId?.trim();
 
   return (
     <div className="min-h-screen bg-transparent px-4 py-4 text-[#F3F5F4] lg:px-0 lg:py-0">

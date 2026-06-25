@@ -24,6 +24,7 @@ const envSchema = z.object({
   WORKER_SEMANTIC_CONCURRENCY: z.coerce.number().int().positive().optional(),
   WORKER_CLASSIFICATION_CONCURRENCY: z.coerce.number().int().positive().optional(),
   WORKER_NOTIFICATIONS_CONCURRENCY: z.coerce.number().int().positive().optional(),
+  TELEGRAM_NOTIFICATION_INTERVAL_MS: z.coerce.number().int().nonnegative().optional(),
 });
 
 export const workerEnv = envSchema.parse(process.env);
@@ -47,3 +48,4 @@ export const redditRssRequestIntervalMs = workerEnv.REDDIT_RSS_REQUEST_INTERVAL_
 export const redditRssRequestJitterMs = workerEnv.REDDIT_RSS_REQUEST_JITTER_MS ?? 30000;
 export const redditRssMaxRetries = workerEnv.REDDIT_RSS_MAX_RETRIES ?? 1;
 export const redditRssRetryBackoffMs = workerEnv.REDDIT_RSS_RETRY_BACKOFF_MS ?? 60000;
+export const telegramNotificationIntervalMs = workerEnv.TELEGRAM_NOTIFICATION_INTERVAL_MS ?? 2000;

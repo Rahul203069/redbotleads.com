@@ -23,6 +23,11 @@ export * from './enums';
  */
 export type User = Prisma.UserModel
 /**
+ * Model TelegramPairing
+ * 
+ */
+export type TelegramPairing = Prisma.TelegramPairingModel
+/**
  * Model UserPassword
  * 
  */

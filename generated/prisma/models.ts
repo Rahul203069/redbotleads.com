@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
+export type * from './models/TelegramPairing'
 export type * from './models/UserPassword'
 export type * from './models/Account'
 export type * from './models/Session'

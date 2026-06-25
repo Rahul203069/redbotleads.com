@@ -26,10 +26,13 @@ export default async function NotificationSettingsPage({
     select: {
       email: true,
       emailAlertsEnabled: true,
+      preferredAlertChannel: true,
       slackChannelName: true,
       slackConfigurationUrl: true,
       slackTeamName: true,
       slackWebhookUrl: true,
+      telegramConnectedAt: true,
+      telegramUsername: true,
     },
   });
 
@@ -48,7 +51,7 @@ export default async function NotificationSettingsPage({
             Notification settings
           </h1>
           <p className="mt-3 text-[15px] leading-6 text-[#cbcbcb]">
-            Manage Slack alerts and email fallback delivery.
+            Manage Slack, Telegram, and email lead alert delivery.
           </p>
         </div>
       </section>
@@ -80,9 +83,12 @@ export default async function NotificationSettingsPage({
         <NotificationSettingsForm
           deliveryEmail={user.email ?? "your account email"}
           defaultEmailAlertsEnabled={user.emailAlertsEnabled}
+          defaultPreferredAlertChannel={user.preferredAlertChannel}
           slackChannelName={user.slackChannelName}
           slackConfigurationUrl={user.slackConfigurationUrl}
           slackTeamName={user.slackTeamName}
+          telegramConnectedAt={user.telegramConnectedAt?.toISOString() ?? null}
+          telegramUsername={user.telegramUsername}
         />
 
         <div className="rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
@@ -90,9 +96,10 @@ export default async function NotificationSettingsPage({
             What this does
           </div>
           <div className="mt-4 space-y-3 text-[14px] leading-6 text-[#cbcbcb]">
-            <p>Email alerts control whether this user receives fallback lead alerts when Slack is not connected.</p>
+            <p>The primary channel controls where high-score lead alerts are sent first.</p>
             <p>Slack OAuth lets you choose a workspace channel without pasting webhook URLs manually.</p>
-            <p>You can leave Slack empty and receive alerts at the email address on this account.</p>
+            <p>Telegram opens the shared bot with a secure one-time pairing link, then stores your chat automatically.</p>
+            <p>Email remains available as a fallback channel when enabled.</p>
           </div>
         </div>
       </div>

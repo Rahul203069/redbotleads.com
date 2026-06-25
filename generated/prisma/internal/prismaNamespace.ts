@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  TelegramPairing: 'TelegramPairing',
   UserPassword: 'UserPassword',
   Account: 'Account',
   Session: 'Session',
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -494,6 +495,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    TelegramPairing: {
+      payload: Prisma.$TelegramPairingPayload<ExtArgs>
+      fields: Prisma.TelegramPairingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TelegramPairingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TelegramPairingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>
+        }
+        findFirst: {
+          args: Prisma.TelegramPairingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TelegramPairingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>
+        }
+        findMany: {
+          args: Prisma.TelegramPairingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>[]
+        }
+        create: {
+          args: Prisma.TelegramPairingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>
+        }
+        createMany: {
+          args: Prisma.TelegramPairingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TelegramPairingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>[]
+        }
+        delete: {
+          args: Prisma.TelegramPairingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>
+        }
+        update: {
+          args: Prisma.TelegramPairingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>
+        }
+        deleteMany: {
+          args: Prisma.TelegramPairingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TelegramPairingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TelegramPairingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>[]
+        }
+        upsert: {
+          args: Prisma.TelegramPairingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramPairingPayload>
+        }
+        aggregate: {
+          args: Prisma.TelegramPairingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTelegramPairing>
+        }
+        groupBy: {
+          args: Prisma.TelegramPairingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TelegramPairingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TelegramPairingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TelegramPairingCountAggregateOutputType> | number
         }
       }
     }
@@ -1950,6 +2025,7 @@ export const UserScalarFieldEnum = {
   image: 'image',
   plan: 'plan',
   emailAlertsEnabled: 'emailAlertsEnabled',
+  preferredAlertChannel: 'preferredAlertChannel',
   slackWebhookUrl: 'slackWebhookUrl',
   slackTeamId: 'slackTeamId',
   slackTeamName: 'slackTeamName',
@@ -1957,11 +2033,26 @@ export const UserScalarFieldEnum = {
   slackChannelName: 'slackChannelName',
   slackConfigurationUrl: 'slackConfigurationUrl',
   slackAuthedUserId: 'slackAuthedUserId',
+  telegramChatId: 'telegramChatId',
+  telegramUsername: 'telegramUsername',
+  telegramConnectedAt: 'telegramConnectedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const TelegramPairingScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  code: 'code',
+  expiresAt: 'expiresAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type TelegramPairingScalarFieldEnum = (typeof TelegramPairingScalarFieldEnum)[keyof typeof TelegramPairingScalarFieldEnum]
 
 
 export const UserPasswordScalarFieldEnum = {
@@ -2366,6 +2457,20 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'NotifyChannel'
+ */
+export type EnumNotifyChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotifyChannel'>
+    
+
+
+/**
+ * Reference to a field of type 'NotifyChannel[]'
+ */
+export type ListEnumNotifyChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotifyChannel[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -2548,20 +2653,6 @@ export type ListEnumBuyerStageFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'NotifyChannel'
- */
-export type EnumNotifyChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotifyChannel'>
-    
-
-
-/**
- * Reference to a field of type 'NotifyChannel[]'
- */
-export type ListEnumNotifyChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotifyChannel[]'>
-    
-
-
-/**
  * Reference to a field of type 'NotifyStatus'
  */
 export type EnumNotifyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotifyStatus'>
@@ -2670,6 +2761,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  telegramPairing?: Prisma.TelegramPairingOmit
   userPassword?: Prisma.UserPasswordOmit
   account?: Prisma.AccountOmit
   session?: Prisma.SessionOmit

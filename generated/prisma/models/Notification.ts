@@ -403,10 +403,6 @@ export type NotificationUncheckedUpdateManyWithoutLeadNestedInput = {
   deleteMany?: Prisma.NotificationScalarWhereInput | Prisma.NotificationScalarWhereInput[]
 }
 
-export type EnumNotifyChannelFieldUpdateOperationsInput = {
-  set?: $Enums.NotifyChannel
-}
-
 export type EnumNotifyStatusFieldUpdateOperationsInput = {
   set?: $Enums.NotifyStatus
 }

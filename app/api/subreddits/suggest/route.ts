@@ -4,6 +4,8 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { BETA_OWNER_ONLY_MESSAGE, isOwnerEmail } from "@/lib/beta-access";
 import { generateStructuredOutput } from "@/lib/openai";
+import { DEFAULT_SUBREDDIT_SUGGESTION_COUNT } from "@/lib/saas-config-constants";
+import { getSaasConfig } from "@/lib/saas-config";
 
 const requestSchema = z.object({
   description: z.string().trim().min(10, "Add a more descriptive campaign description first."),
@@ -14,7 +16,6 @@ const requestSchema = z.object({
   existing: z.array(z.string()).default([]),
 });
 
-const TARGET_SUBREDDIT_SUGGESTIONS = 40;
 const MAX_SUBREDDIT_SUGGESTION_ATTEMPTS = 3;
 const SUBREDDIT_DISCOVERY_MODEL =
   process.env.OPENAI_SUBREDDIT_MODEL?.trim() || process.env.OPENAI_WEB_SEARCH_MODEL?.trim() || "gpt-5-mini";
@@ -64,17 +65,23 @@ export async function POST(request: Request) {
   }
 
   try {
+    const targetSuggestionCount = await getSaasConfig()
+      .then((config) => config.subredditSuggestionCount)
+      .catch((error) => {
+        console.error("SaaS config lookup failed for subreddit suggestions", error);
+        return DEFAULT_SUBREDDIT_SUGGESTION_COUNT;
+      });
     const existing = new Set(parsed.data.existing.map(normalizeSubreddit));
-    const normalizedCandidates = await collectSubredditSuggestions(parsed.data, existing, session.user.id);
+    const normalizedCandidates = await collectSubredditSuggestions(parsed.data, existing, session.user.id, targetSuggestionCount);
     console.info("Subreddit suggestion normalized candidates", {
       count: normalizedCandidates.length,
       suggestions: normalizedCandidates,
     });
-    const validated = await filterReachableSubreddits(normalizedCandidates);
+    const validated = await filterReachableSubreddits(normalizedCandidates, targetSuggestionCount);
     const finalSuggestions =
-      validated.length >= TARGET_SUBREDDIT_SUGGESTIONS
-        ? validated.slice(0, TARGET_SUBREDDIT_SUGGESTIONS)
-        : normalizedCandidates.slice(0, TARGET_SUBREDDIT_SUGGESTIONS);
+      validated.length >= targetSuggestionCount
+        ? validated.slice(0, targetSuggestionCount)
+        : normalizedCandidates.slice(0, targetSuggestionCount);
     console.info("Subreddit suggestion final response", {
       count: finalSuggestions.length,
       suggestions: finalSuggestions,
@@ -100,7 +107,7 @@ function parseSearchContextSize(value: string | undefined) {
   return value === "low" || value === "medium" || value === "high" ? value : "medium";
 }
 
-async function filterReachableSubreddits(subreddits: string[]) {
+async function filterReachableSubreddits(subreddits: string[], targetSuggestionCount: number) {
   if (subreddits.length === 0) {
     console.warn("Subreddit validation skipped because there were no candidates.");
     return [];
@@ -125,16 +132,16 @@ async function filterReachableSubreddits(subreddits: string[]) {
 
   if (hadCompletedValidation) {
     if (reachable.length > 0) {
-      return reachable.slice(0, TARGET_SUBREDDIT_SUGGESTIONS);
+      return reachable.slice(0, targetSuggestionCount);
     }
 
     console.warn("Subreddit validation completed but removed every candidate; returning unvalidated suggestions.");
-    return subreddits.slice(0, TARGET_SUBREDDIT_SUGGESTIONS);
+    return subreddits.slice(0, targetSuggestionCount);
   }
 
   console.warn("Subreddit validation failed for every candidate; returning unvalidated suggestions.");
 
-  return subreddits.slice(0, TARGET_SUBREDDIT_SUGGESTIONS);
+  return subreddits.slice(0, targetSuggestionCount);
 }
 
 async function getPublicSubredditReachability(subreddit: string): Promise<"reachable" | "unreachable" | "error"> {
@@ -256,11 +263,12 @@ async function collectSubredditSuggestions(
   input: z.infer<typeof requestSchema>,
   existing: Set<string>,
   userId: string,
+  targetSuggestionCount: number,
 ) {
   const collected = new Set<string>();
 
   for (let attempt = 0; attempt < MAX_SUBREDDIT_SUGGESTION_ATTEMPTS; attempt += 1) {
-    const remaining = TARGET_SUBREDDIT_SUGGESTIONS - collected.size;
+    const remaining = targetSuggestionCount - collected.size;
 
     if (remaining <= 0) {
       break;
@@ -305,13 +313,13 @@ async function collectSubredditSuggestions(
 
       collected.add(normalized);
 
-      if (collected.size >= TARGET_SUBREDDIT_SUGGESTIONS) {
+      if (collected.size >= targetSuggestionCount) {
         break;
       }
     }
   }
 
-  return Array.from(collected).slice(0, TARGET_SUBREDDIT_SUGGESTIONS);
+  return Array.from(collected).slice(0, targetSuggestionCount);
 }
 
 function buildSubredditPrompt(input: {

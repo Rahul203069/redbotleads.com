@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 import { generateStructuredOutput } from "@/lib/openai";
+import { DEFAULT_LEAD_SCORING_MODEL } from "@/lib/openai-models";
+import { getSaasConfig } from "@/lib/saas-config";
 import { workerClassificationMinIntervalMs } from "./config";
+import { workerLogger } from "./logger";
 
 const classificationResultSchema = z.object({
   score: z.number().int().min(0).max(100),
@@ -43,7 +46,7 @@ type ClassificationResult = z.infer<typeof classificationResultSchema> & {
 };
 
 const PROMPT_VERSION = "lead-classifier-v2";
-const DEFAULT_MODEL = process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
+const ENV_DEFAULT_MODEL = process.env.OPENAI_MODEL?.trim() || DEFAULT_LEAD_SCORING_MODEL;
 const MIN_REQUEST_INTERVAL_MS = workerClassificationMinIntervalMs;
 const MAX_CATEGORY_LENGTH = 80;
 const MAX_SUMMARY_LENGTH = 400;
@@ -61,8 +64,9 @@ export async function classifyLeadWithOpenAI(input: ClassificationInput): Promis
   await waitForRateLimitSlot();
 
   const { systemPrompt, userPrompt } = buildPrompt(input);
+  const model = await getLeadScoringModel();
   const response = await generateStructuredOutput({
-    model: DEFAULT_MODEL,
+    model,
     schema: classificationResponseSchema,
     schemaName: "lead_classification",
     systemPrompt,
@@ -84,6 +88,16 @@ export async function classifyLeadWithOpenAI(input: ClassificationInput): Promis
     model: response.model,
     promptVersion: `${PROMPT_VERSION}-${input.campaign.leadType.toLowerCase()}`,
   };
+}
+
+async function getLeadScoringModel() {
+  try {
+    const config = await getSaasConfig();
+    return config.leadScoringModel;
+  } catch (error) {
+    workerLogger.warn({ error }, "SaaS config lookup failed for lead classification; using env/default model");
+    return ENV_DEFAULT_MODEL;
+  }
 }
 
 async function waitForRateLimitSlot() {

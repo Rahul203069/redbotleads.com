@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   TelegramPairing: 'TelegramPairing',
+  SaasConfig: 'SaasConfig',
   UserPassword: 'UserPassword',
   Account: 'Account',
   Session: 'Session',
@@ -126,6 +127,17 @@ export const TelegramPairingScalarFieldEnum = {
 } as const
 
 export type TelegramPairingScalarFieldEnum = (typeof TelegramPairingScalarFieldEnum)[keyof typeof TelegramPairingScalarFieldEnum]
+
+
+export const SaasConfigScalarFieldEnum = {
+  id: 'id',
+  subredditSuggestionCount: 'subredditSuggestionCount',
+  leadScoringModel: 'leadScoringModel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SaasConfigScalarFieldEnum = (typeof SaasConfigScalarFieldEnum)[keyof typeof SaasConfigScalarFieldEnum]
 
 
 export const UserPasswordScalarFieldEnum = {

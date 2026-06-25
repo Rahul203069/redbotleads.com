@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { SaasSettingsDialog } from "@/components/admin/saas-settings-dialog";
 import { SubredditPerformanceDialog } from "@/components/admin/subreddit-performance-dialog";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
+import { LEAD_SCORING_MODEL_OPTIONS, normalizeLeadScoringModel, type LeadScoringModelId } from "@/lib/openai-models";
 import { prisma } from "@/lib/prisma";
+import { getSaasConfig } from "@/lib/saas-config";
 
 const STRONG_LEAD_SCORE = 80;
 
@@ -12,21 +15,6 @@ type AnalyticsSearchParams = {
   userId?: string;
   campaignId?: string;
   priceModel?: string;
-};
-
-type PricingModel = "gpt-4o-mini" | "gpt-5-mini";
-
-const LEAD_SCORING_PRICING: Record<PricingModel, { inputPerMillion: number; outputPerMillion: number; label: string }> = {
-  "gpt-4o-mini": {
-    inputPerMillion: 0.15,
-    outputPerMillion: 0.6,
-    label: "GPT-4o mini",
-  },
-  "gpt-5-mini": {
-    inputPerMillion: 0.25,
-    outputPerMillion: 2,
-    label: "GPT-5 mini",
-  },
 };
 
 export default async function AdminAnalyticsPage({
@@ -45,7 +33,8 @@ export default async function AdminAnalyticsPage({
   }
 
   const params = await Promise.resolve(searchParams ?? {});
-  const selectedPriceModel = normalizePricingModel(params.priceModel ?? process.env.OPENAI_MODEL);
+  const saasConfig = await getSaasConfig();
+  const selectedPriceModel = normalizeLeadScoringModel(params.priceModel ?? saasConfig.leadScoringModel);
 
   const [users, campaigns, leads, usageEvents, campaignRunCounts] = await Promise.all([
     prisma.user.findMany({
@@ -156,23 +145,27 @@ export default async function AdminAnalyticsPage({
             </p>
           </div>
           <div className="space-y-3">
-            <div className="flex justify-end">
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <SaasSettingsDialog
+                leadScoringModel={saasConfig.leadScoringModel}
+                subredditSuggestionCount={saasConfig.subredditSuggestionCount}
+              />
               <SubredditPerformanceDialog />
             </div>
             <div className="flex rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-              {(["gpt-4o-mini", "gpt-5-mini"] as const).map((model) => (
+              {LEAD_SCORING_MODEL_OPTIONS.map((model) => (
                 <Link
                   className={`rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
-                    selectedPriceModel === model ? "bg-[#1ed760] text-[#121212]" : "text-[#b3b3b3] hover:text-[#ffffff]"
+                    selectedPriceModel === model.id ? "bg-[#1ed760] text-[#121212]" : "text-[#b3b3b3] hover:text-[#ffffff]"
                   }`}
                   href={buildAnalyticsHref({
                     campaignId: selectedCampaign?.id,
-                    priceModel: model,
+                    priceModel: model.id,
                     userId: selectedUser?.id,
                   })}
-                  key={model}
+                  key={model.id}
                 >
-                  {LEAD_SCORING_PRICING[model].label}
+                  {model.label}
                 </Link>
               ))}
             </div>
@@ -338,7 +331,7 @@ function sumUsageCosts<T extends {
   outputTokens: number | null;
   totalTokens: number | null;
   userId: string;
-}>(items: T[], priceModel: PricingModel, getKey: (item: T) => string | null) {
+}>(items: T[], priceModel: LeadScoringModelId, getKey: (item: T) => string | null) {
   const costs = new Map<string, number>();
 
   for (const item of items) {
@@ -362,13 +355,13 @@ function calculateDisplayCost(
     outputTokens: number | null;
     totalTokens: number | null;
   },
-  priceModel: PricingModel,
+  priceModel: LeadScoringModelId,
 ) {
   if (event.operation !== "lead_classification") {
     return event.costUsd;
   }
 
-  const pricing = LEAD_SCORING_PRICING[priceModel];
+  const pricing = LEAD_SCORING_MODEL_OPTIONS.find((model) => model.id === priceModel) ?? LEAD_SCORING_MODEL_OPTIONS[0];
   const inputTokens = normalizeTokenCount(event.inputTokens);
   const outputTokens = normalizeTokenCount(event.outputTokens);
   const totalTokens = normalizeTokenCount(event.totalTokens);
@@ -383,17 +376,13 @@ function normalizeTokenCount(value: number | null | undefined) {
   return Number.isFinite(value) && value && value > 0 ? Math.round(value) : 0;
 }
 
-function normalizePricingModel(value: string | undefined): PricingModel {
-  return value === "gpt-4o-mini" || value === "gpt-5-mini" ? value : "gpt-5-mini";
-}
-
 function buildAnalyticsHref({
   campaignId,
   priceModel,
   userId,
 }: {
   campaignId?: string | null;
-  priceModel: PricingModel;
+  priceModel: LeadScoringModelId;
   userId?: string | null;
 }) {
   const params = new URLSearchParams();

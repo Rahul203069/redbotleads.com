@@ -24,7 +24,6 @@ export default async function NotificationSettingsPage({
       id: session.user.id,
     },
     select: {
-      email: true,
       emailAlertsEnabled: true,
       preferredAlertChannel: true,
       slackChannelName: true,
@@ -51,7 +50,7 @@ export default async function NotificationSettingsPage({
             Notification settings
           </h1>
           <p className="mt-3 text-[15px] leading-6 text-[#cbcbcb]">
-            Manage Slack, Telegram, and email lead alert delivery.
+            Manage Slack and Telegram lead alert delivery.
           </p>
         </div>
       </section>
@@ -81,7 +80,6 @@ export default async function NotificationSettingsPage({
 
       <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <NotificationSettingsForm
-          deliveryEmail={user.email ?? "your account email"}
           defaultEmailAlertsEnabled={user.emailAlertsEnabled}
           defaultPreferredAlertChannel={user.preferredAlertChannel}
           slackChannelName={user.slackChannelName}
@@ -99,7 +97,6 @@ export default async function NotificationSettingsPage({
             <p>The primary channel controls where high-score lead alerts are sent first.</p>
             <p>Slack OAuth lets you choose a workspace channel without pasting webhook URLs manually.</p>
             <p>Telegram opens the shared bot with a secure one-time pairing link, then stores your chat automatically.</p>
-            <p>Email remains available as a fallback channel when enabled.</p>
           </div>
         </div>
       </div>

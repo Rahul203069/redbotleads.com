@@ -1,5 +1,6 @@
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getOpenAiModelPricing, type OpenAiModelPricing } from "@/lib/openai-models";
 
 export type AiUsageContext = {
   userId?: string | null;
@@ -15,16 +16,7 @@ export type AiUsageTokens = {
   totalTokens?: number | null;
 };
 
-type ModelPricing = {
-  inputPerMillion: number;
-  outputPerMillion: number;
-};
-
-const DEFAULT_PRICING: Record<string, ModelPricing> = {
-  "gpt-4o-mini": {
-    inputPerMillion: 0.15,
-    outputPerMillion: 0.6,
-  },
+const EXTRA_DEFAULT_PRICING: Record<string, OpenAiModelPricing> = {
   "text-embedding-3-small": {
     inputPerMillion: 0.02,
     outputPerMillion: 0,
@@ -127,7 +119,7 @@ function calculateOpenAiCostUsd({
 
 function getPricingForModel(model: string) {
   const customPricing = parseCustomPricing(process.env.OPENAI_MODEL_PRICING_JSON);
-  return customPricing[model] ?? DEFAULT_PRICING[model] ?? null;
+  return customPricing[model] ?? getOpenAiModelPricing(model) ?? EXTRA_DEFAULT_PRICING[model] ?? null;
 }
 
 function parseCustomPricing(value: string | undefined) {
@@ -136,7 +128,7 @@ function parseCustomPricing(value: string | undefined) {
   }
 
   try {
-    return JSON.parse(value) as Record<string, ModelPricing>;
+    return JSON.parse(value) as Record<string, OpenAiModelPricing>;
   } catch {
     return {};
   }

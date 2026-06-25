@@ -154,6 +154,14 @@ model TelegramPairing {
   @@index([expiresAt])
 }
 
+model SaasConfig {
+  id                       String   @id @default("global")
+  subredditSuggestionCount Int      @default(40)
+  leadScoringModel         String   @default("gpt-5-mini")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
 model UserPassword {
   userId    String   @id
   hash      String

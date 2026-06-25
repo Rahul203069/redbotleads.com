@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   TelegramPairing: 'TelegramPairing',
+  SaasConfig: 'SaasConfig',
   UserPassword: 'UserPassword',
   Account: 'Account',
   Session: 'Session',
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -569,6 +570,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TelegramPairingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TelegramPairingCountAggregateOutputType> | number
+        }
+      }
+    }
+    SaasConfig: {
+      payload: Prisma.$SaasConfigPayload<ExtArgs>
+      fields: Prisma.SaasConfigFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SaasConfigFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SaasConfigFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>
+        }
+        findFirst: {
+          args: Prisma.SaasConfigFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SaasConfigFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>
+        }
+        findMany: {
+          args: Prisma.SaasConfigFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>[]
+        }
+        create: {
+          args: Prisma.SaasConfigCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>
+        }
+        createMany: {
+          args: Prisma.SaasConfigCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SaasConfigCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>[]
+        }
+        delete: {
+          args: Prisma.SaasConfigDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>
+        }
+        update: {
+          args: Prisma.SaasConfigUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>
+        }
+        deleteMany: {
+          args: Prisma.SaasConfigDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SaasConfigUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SaasConfigUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>[]
+        }
+        upsert: {
+          args: Prisma.SaasConfigUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SaasConfigPayload>
+        }
+        aggregate: {
+          args: Prisma.SaasConfigAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSaasConfig>
+        }
+        groupBy: {
+          args: Prisma.SaasConfigGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SaasConfigGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SaasConfigCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SaasConfigCountAggregateOutputType> | number
         }
       }
     }
@@ -2055,6 +2130,17 @@ export const TelegramPairingScalarFieldEnum = {
 export type TelegramPairingScalarFieldEnum = (typeof TelegramPairingScalarFieldEnum)[keyof typeof TelegramPairingScalarFieldEnum]
 
 
+export const SaasConfigScalarFieldEnum = {
+  id: 'id',
+  subredditSuggestionCount: 'subredditSuggestionCount',
+  leadScoringModel: 'leadScoringModel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SaasConfigScalarFieldEnum = (typeof SaasConfigScalarFieldEnum)[keyof typeof SaasConfigScalarFieldEnum]
+
+
 export const UserPasswordScalarFieldEnum = {
   userId: 'userId',
   hash: 'hash',
@@ -2762,6 +2848,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   telegramPairing?: Prisma.TelegramPairingOmit
+  saasConfig?: Prisma.SaasConfigOmit
   userPassword?: Prisma.UserPasswordOmit
   account?: Prisma.AccountOmit
   session?: Prisma.SessionOmit

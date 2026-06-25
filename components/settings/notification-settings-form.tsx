@@ -18,7 +18,6 @@ const initialState: SettingsActionState = {
 };
 
 export function NotificationSettingsForm({
-  deliveryEmail,
   defaultEmailAlertsEnabled,
   slackChannelName,
   slackConfigurationUrl,
@@ -27,7 +26,6 @@ export function NotificationSettingsForm({
   telegramUsername,
   defaultPreferredAlertChannel,
 }: {
-  deliveryEmail: string;
   defaultEmailAlertsEnabled: boolean;
   defaultPreferredAlertChannel: "EMAIL" | "SLACK" | "TELEGRAM";
   slackChannelName?: string | null;
@@ -47,6 +45,7 @@ export function NotificationSettingsForm({
   const slackLabel = [slackTeamName, slackChannelName ? `#${slackChannelName}` : null].filter(Boolean).join(" / ");
   const isTelegramConnected = Boolean(telegramConnectedAt);
   const telegramLabel = telegramUsername ? `@${telegramUsername}` : "Connected Telegram chat";
+  const visiblePreferredAlertChannel = defaultPreferredAlertChannel === "TELEGRAM" ? "TELEGRAM" : "SLACK";
 
   useEffect(() => {
     if (state.status === "success" && state.message) {
@@ -127,53 +126,37 @@ export function NotificationSettingsForm({
             Notifications
           </div>
           <div className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
-            Choose the primary lead alert channel and configure delivery fallbacks.
+            Choose where lead alerts should arrive.
           </div>
         </div>
+
+        {defaultEmailAlertsEnabled ? <input name="emailAlertsEnabled" type="hidden" value="on" /> : null}
 
         <div className="grid gap-3 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
           <div>
             <div className="text-sm font-medium text-[#fdfdfd]">Primary alert channel</div>
             <div className="mt-1 text-sm text-[#b3b3b3]">
-              Lead alerts use this first, then fall back to another configured channel.
+              Pick Slack or Telegram for high-intent lead notifications.
             </div>
           </div>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {(["SLACK", "TELEGRAM", "EMAIL"] as const).map((channel) => (
+          <div className="grid gap-2 sm:grid-cols-2">
+            {(["SLACK", "TELEGRAM"] as const).map((channel) => (
               <label
-                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl bg-[#1f1f1f] px-3 py-2 text-sm text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
+                className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl bg-[#1f1f1f] px-4 py-3 text-sm text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition hover:bg-[#252525]"
                 key={channel}
               >
                 <input
                   className="h-4 w-4 border-[#27272a] bg-[#121212] accent-[#1ed760]"
-                  defaultChecked={defaultPreferredAlertChannel === channel}
+                  defaultChecked={visiblePreferredAlertChannel === channel}
                   disabled={isPending}
                   name="preferredAlertChannel"
                   onChange={() => emailFormRef.current?.requestSubmit()}
                   type="radio"
                   value={channel}
                 />
-                {channel === "SLACK" ? "Slack" : channel === "TELEGRAM" ? "Telegram" : "Email"}
+                {channel === "SLACK" ? "Slack" : "Telegram"}
               </label>
             ))}
-          </div>
-        </div>
-
-        <div className="grid gap-2 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-          <label className="flex items-center gap-3 text-sm text-[#cbcbcb]">
-            <input
-              className="h-4 w-4 rounded border-[#27272a] bg-[#121212] accent-[#1ed760]"
-              defaultChecked={defaultEmailAlertsEnabled}
-              disabled={isPending}
-              name="emailAlertsEnabled"
-              onChange={() => emailFormRef.current?.requestSubmit()}
-              type="checkbox"
-            />
-            {isPending ? "Saving email alerts..." : "Email alerts enabled"}
-          </label>
-          <div className="pl-7 text-sm text-[#b3b3b3]">
-            When Slack is not connected, lead alerts will be sent to{" "}
-            <span className="text-[#fdfdfd]">{deliveryEmail}</span>.
           </div>
         </div>
 
@@ -185,7 +168,7 @@ export function NotificationSettingsForm({
 
         <div className="border-t border-white/8 pt-5">
           <div className="text-sm leading-6 text-[#b3b3b3]">
-            Notification preferences save automatically. Connect Slack or Telegram before choosing them as primary channels.
+            Preference saves automatically. Connect a channel before using it for real alerts.
           </div>
         </div>
       </form>

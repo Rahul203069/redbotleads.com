@@ -17,6 +17,7 @@ Available queues:
 - `ingestion`
 - `embedding`
 - `semantic`
+- `daily-semantic`
 - `classification`
 - `notifications`
 - `rss-polling`
@@ -27,6 +28,7 @@ Available scripts:
 npm run worker:dev
 npm run worker:ingestion
 npm run worker:daily-ingestion
+npm run worker:daily-semantic
 npm run worker:rss-polling
 npm run worker:embedding
 npm run worker:semantic

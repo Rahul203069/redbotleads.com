@@ -64,6 +64,7 @@ export const ModelName = {
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
+  CampaignDailySemanticScan: 'CampaignDailySemanticScan',
   CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
   RedditItemEmbedding: 'RedditItemEmbedding',
@@ -309,6 +310,21 @@ export const CampaignSemanticQueryScalarFieldEnum = {
 } as const
 
 export type CampaignSemanticQueryScalarFieldEnum = (typeof CampaignSemanticQueryScalarFieldEnum)[keyof typeof CampaignSemanticQueryScalarFieldEnum]
+
+
+export const CampaignDailySemanticScanScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  redditItemId: 'redditItemId',
+  status: 'status',
+  bestScore: 'bestScore',
+  bestQueryId: 'bestQueryId',
+  bestQueryText: 'bestQueryText',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignDailySemanticScanScalarFieldEnum = (typeof CampaignDailySemanticScanScalarFieldEnum)[keyof typeof CampaignDailySemanticScanScalarFieldEnum]
 
 
 export const CampaignSyncScalarFieldEnum = {

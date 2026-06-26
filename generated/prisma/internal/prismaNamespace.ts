@@ -397,6 +397,7 @@ export const ModelName = {
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
+  CampaignDailySemanticScan: 'CampaignDailySemanticScan',
   CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
   RedditItemEmbedding: 'RedditItemEmbedding',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1387,6 +1388,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CampaignDailySemanticScan: {
+      payload: Prisma.$CampaignDailySemanticScanPayload<ExtArgs>
+      fields: Prisma.CampaignDailySemanticScanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignDailySemanticScanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignDailySemanticScanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignDailySemanticScanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignDailySemanticScanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignDailySemanticScanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignDailySemanticScanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignDailySemanticScanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignDailySemanticScanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignDailySemanticScanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>
+        }
+        update: {
+          args: Prisma.CampaignDailySemanticScanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignDailySemanticScanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignDailySemanticScanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignDailySemanticScanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignDailySemanticScanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignDailySemanticScanPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignDailySemanticScanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignDailySemanticScan>
+        }
+        groupBy: {
+          args: Prisma.CampaignDailySemanticScanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignDailySemanticScanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignDailySemanticScanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignDailySemanticScanCountAggregateOutputType> | number
+        }
+      }
+    }
     CampaignSync: {
       payload: Prisma.$CampaignSyncPayload<ExtArgs>
       fields: Prisma.CampaignSyncFieldRefs
@@ -2312,6 +2387,21 @@ export const CampaignSemanticQueryScalarFieldEnum = {
 export type CampaignSemanticQueryScalarFieldEnum = (typeof CampaignSemanticQueryScalarFieldEnum)[keyof typeof CampaignSemanticQueryScalarFieldEnum]
 
 
+export const CampaignDailySemanticScanScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  redditItemId: 'redditItemId',
+  status: 'status',
+  bestScore: 'bestScore',
+  bestQueryId: 'bestQueryId',
+  bestQueryText: 'bestQueryText',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignDailySemanticScanScalarFieldEnum = (typeof CampaignDailySemanticScanScalarFieldEnum)[keyof typeof CampaignDailySemanticScanScalarFieldEnum]
+
+
 export const CampaignSyncScalarFieldEnum = {
   id: 'id',
   campaignId: 'campaignId',
@@ -2641,6 +2731,20 @@ export type ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel> = Fi
 
 
 /**
+ * Reference to a field of type 'CampaignDailySemanticScanStatus'
+ */
+export type EnumCampaignDailySemanticScanStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignDailySemanticScanStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignDailySemanticScanStatus[]'
+ */
+export type ListEnumCampaignDailySemanticScanStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignDailySemanticScanStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'CampaignSyncStatus'
  */
 export type EnumCampaignSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSyncStatus'>
@@ -2859,6 +2963,7 @@ export type GlobalOmitConfig = {
   campaignInitialRssPollEvent?: Prisma.CampaignInitialRssPollEventOmit
   aiUsageEvent?: Prisma.AiUsageEventOmit
   campaignSemanticQuery?: Prisma.CampaignSemanticQueryOmit
+  campaignDailySemanticScan?: Prisma.CampaignDailySemanticScanOmit
   campaignSync?: Prisma.CampaignSyncOmit
   redditItem?: Prisma.RedditItemOmit
   redditItemEmbedding?: Prisma.RedditItemEmbeddingOmit

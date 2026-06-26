@@ -6,6 +6,7 @@ import { Worker } from "bullmq";
 
 import { finalizeCampaignLeadProcessing } from "./campaign-finalization";
 import { semanticMatchThreshold, workerRedisConnection, workerSemanticConcurrency } from "./config";
+import { upsertDailySemanticScan } from "./daily-semantic-scans";
 import { workerLogger } from "./logger";
 import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } from "./queues";
 
@@ -134,6 +135,15 @@ async function runRssPollSemanticMatch(
   }
 
   if (bestMatch.similarity < semanticMatchThreshold) {
+    await upsertDailySemanticScan({
+      campaignId: campaign.id,
+      redditItemId: candidate.id,
+      status: "NO_MATCH",
+      bestScore: bestMatch.similarity,
+      bestQueryId: bestMatch.queryId,
+      bestQueryText: bestMatch.queryText,
+    });
+
     workerLogger.info(
       {
         jobId,
@@ -156,6 +166,15 @@ async function runRssPollSemanticMatch(
     campaignId: campaign.id,
     userId: campaign.userId,
     redditItemId: candidate.id,
+  });
+
+  await upsertDailySemanticScan({
+    campaignId: campaign.id,
+    redditItemId: candidate.id,
+    status: "MATCHED",
+    bestScore: bestMatch.similarity,
+    bestQueryId: bestMatch.queryId,
+    bestQueryText: bestMatch.queryText,
   });
 
   await enqueueLeadClassification({
@@ -239,6 +258,15 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
   }
 
   if (bestMatch.similarity >= semanticMatchThreshold) {
+    await upsertDailySemanticScan({
+      campaignId: lead.campaignId,
+      redditItemId: lead.redditItemId,
+      status: "MATCHED",
+      bestScore: bestMatch.similarity,
+      bestQueryId: bestMatch.queryId,
+      bestQueryText: bestMatch.queryText,
+    });
+
     await enqueueLeadClassification({
       leadId: lead.id,
       campaignId: lead.campaignId,
@@ -284,6 +312,15 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
       summary: `Filtered out by semantic threshold (${bestMatch.similarity.toFixed(3)} < ${semanticMatchThreshold.toFixed(2)}).`,
       painPoints: [],
     },
+  });
+
+  await upsertDailySemanticScan({
+    campaignId: lead.campaignId,
+    redditItemId: lead.redditItemId,
+    status: "NO_MATCH",
+    bestScore: bestMatch.similarity,
+    bestQueryId: bestMatch.queryId,
+    bestQueryText: bestMatch.queryText,
   });
 
   const semanticCounts = await countSemanticProgress(lead.campaignId);

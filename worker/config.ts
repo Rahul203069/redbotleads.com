@@ -24,6 +24,14 @@ const envSchema = z.object({
   WORKER_SEMANTIC_CONCURRENCY: z.coerce.number().int().positive().optional(),
   WORKER_CLASSIFICATION_CONCURRENCY: z.coerce.number().int().positive().optional(),
   WORKER_NOTIFICATIONS_CONCURRENCY: z.coerce.number().int().positive().optional(),
+  SUBREDDIT_DAILY_SCHEDULER_BASE_DELAY_MS: z.coerce.number().int().nonnegative().optional(),
+  SUBREDDIT_DAILY_SCHEDULER_JITTER_MS: z.coerce.number().int().nonnegative().optional(),
+  SUBREDDIT_DAILY_SCHEDULER_EMPTY_SLEEP_MS: z.coerce.number().int().positive().optional(),
+  SUBREDDIT_DAILY_SCHEDULER_LOCK_TTL_MS: z.coerce.number().int().positive().optional(),
+  DAILY_SEMANTIC_LOOKBACK_HOURS: z.coerce.number().int().positive().optional(),
+  DAILY_SEMANTIC_CANDIDATE_BATCH_SIZE: z.coerce.number().int().positive().optional(),
+  DAILY_SEMANTIC_TOP_K_PER_QUERY: z.coerce.number().int().positive().optional(),
+  DAILY_SEMANTIC_MAX_CAMPAIGNS_PER_CRON: z.coerce.number().int().positive().optional(),
   TELEGRAM_NOTIFICATION_INTERVAL_MS: z.coerce.number().int().nonnegative().optional(),
 });
 
@@ -48,4 +56,12 @@ export const redditRssRequestIntervalMs = workerEnv.REDDIT_RSS_REQUEST_INTERVAL_
 export const redditRssRequestJitterMs = workerEnv.REDDIT_RSS_REQUEST_JITTER_MS ?? 30000;
 export const redditRssMaxRetries = workerEnv.REDDIT_RSS_MAX_RETRIES ?? 1;
 export const redditRssRetryBackoffMs = workerEnv.REDDIT_RSS_RETRY_BACKOFF_MS ?? 60000;
+export const subredditDailySchedulerBaseDelayMs = workerEnv.SUBREDDIT_DAILY_SCHEDULER_BASE_DELAY_MS ?? 70000;
+export const subredditDailySchedulerJitterMs = workerEnv.SUBREDDIT_DAILY_SCHEDULER_JITTER_MS ?? 30000;
+export const subredditDailySchedulerEmptySleepMs = workerEnv.SUBREDDIT_DAILY_SCHEDULER_EMPTY_SLEEP_MS ?? 300000;
+export const subredditDailySchedulerLockTtlMs = workerEnv.SUBREDDIT_DAILY_SCHEDULER_LOCK_TTL_MS ?? 120000;
+export const dailySemanticLookbackHours = workerEnv.DAILY_SEMANTIC_LOOKBACK_HOURS ?? 36;
+export const dailySemanticCandidateBatchSize = workerEnv.DAILY_SEMANTIC_CANDIDATE_BATCH_SIZE ?? 1000;
+export const dailySemanticTopKPerQuery = workerEnv.DAILY_SEMANTIC_TOP_K_PER_QUERY ?? 1000;
+export const dailySemanticMaxCampaignsPerCron = workerEnv.DAILY_SEMANTIC_MAX_CAMPAIGNS_PER_CRON ?? 500;
 export const telegramNotificationIntervalMs = workerEnv.TELEGRAM_NOTIFICATION_INTERVAL_MS ?? 2000;

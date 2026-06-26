@@ -7,16 +7,20 @@ import { redisQueueTimeoutMs, workerRedisConnection } from "./config";
 export const ingestionQueueName = "ingestion";
 export const embeddingQueueName = "embedding";
 export const semanticQueueName = "semantic";
+export const dailySemanticQueueName = "daily-semantic";
 export const classificationQueueName = "classification";
 export const notificationsQueueName = "notifications";
 export const rssPollingQueueName = "rss-polling";
 
 export const initialIngestJobName = "INITIAL_INGEST";
 export const dailyIngestJobName = "DAILY_INGEST";
+export const subredditDailyIngestJobName = "SUBREDDIT_DAILY_INGEST";
+export const dailySemanticCampaignJobName = "DAILY_SEMANTIC_CAMPAIGN";
 export const pollSubredditRssJobName = "POLL_SUBREDDIT_RSS";
 export const matchCampaignRssPollRunJobName = "MATCH_CAMPAIGN_RSS_POLL_RUN";
 
-export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName;
+export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName | typeof subredditDailyIngestJobName;
+export type DailySemanticJobName = typeof dailySemanticCampaignJobName;
 export type RssPollingJobName = typeof pollSubredditRssJobName | typeof matchCampaignRssPollRunJobName;
 export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_LEAD_BATCH" | "EMBED_REDDIT_ITEM";
 export type SemanticJobName = "SEMANTIC_MATCH_LEAD" | "SEMANTIC_MATCH_REDDIT_ITEM";
@@ -33,6 +37,16 @@ export type DailyIngestJobData = {
   campaignId: string;
   trigger: "daily_sync";
   campaignRunId?: string;
+};
+
+export type SubredditDailyIngestJobData = {
+  subreddit: string;
+  trigger: "subreddit_daily_scheduler";
+};
+
+export type DailySemanticCampaignJobData = {
+  campaignId: string;
+  queuedAt: string;
 };
 
 export type PollSubredditRssJobData = {
@@ -52,7 +66,7 @@ export type ClassificationJobData = {
   leadId: string;
   campaignId: string;
   campaignRunId?: string;
-  trigger?: "campaign_sync" | "rss_poll";
+  trigger?: "campaign_sync" | "rss_poll" | "daily_semantic";
 };
 
 export type LeadEmbeddingBatchItem = {
@@ -115,6 +129,10 @@ export const semanticQueue = new Queue(semanticQueueName, {
   connection: workerRedisConnection,
 });
 
+export const dailySemanticQueue = new Queue(dailySemanticQueueName, {
+  connection: workerRedisConnection,
+});
+
 export const classificationQueue = new Queue(classificationQueueName, {
   connection: workerRedisConnection,
 });
@@ -162,6 +180,39 @@ async function getLiveRssPollingJobForSubreddit(subreddit: string) {
   return jobs.find((job) => {
     const data = job.data as Record<string, unknown> | undefined;
     return normalizeSubredditName(String(data?.subreddit ?? "")) === normalizedSubreddit;
+  });
+}
+
+async function getLiveIngestionJobForSubreddit(subreddit: string) {
+  const normalizedSubreddit = normalizeSubredditName(subreddit);
+  const jobs = await ingestionQueue.getJobs(
+    [...LIVE_JOB_STATES],
+    0,
+    MAX_JOBS_TO_SCAN_PER_QUEUE,
+    true,
+  );
+
+  return jobs.find((job) => {
+    const data = job.data as Record<string, unknown> | undefined;
+    return job.name === subredditDailyIngestJobName
+      && normalizeSubredditName(String(data?.subreddit ?? "")) === normalizedSubreddit;
+  });
+}
+
+async function getLiveDailySemanticJobForCampaign(campaignId: string, queuedAt: string) {
+  const queuedDay = queuedAt.slice(0, 10);
+  const jobs = await dailySemanticQueue.getJobs(
+    [...LIVE_JOB_STATES],
+    0,
+    MAX_JOBS_TO_SCAN_PER_QUEUE,
+    true,
+  );
+
+  return jobs.find((job) => {
+    const data = job.data as Record<string, unknown> | undefined;
+    return job.name === dailySemanticCampaignJobName
+      && data?.campaignId === campaignId
+      && String(data?.queuedAt ?? "").slice(0, 10) === queuedDay;
   });
 }
 
@@ -399,6 +450,55 @@ export async function enqueueDailyIngest(
 
     throw error;
   }
+}
+
+export async function enqueueSubredditDailyIngest(data: SubredditDailyIngestJobData) {
+  const subreddit = normalizeSubredditName(data.subreddit);
+
+  if (!subreddit) {
+    throw new Error("Subreddit is required for daily subreddit ingestion.");
+  }
+
+  const existingLiveJob = await getLiveIngestionJobForSubreddit(subreddit);
+
+  if (existingLiveJob) {
+    return existingLiveJob;
+  }
+
+  return ingestionQueue.add(subredditDailyIngestJobName, {
+    ...data,
+    subreddit,
+  }, {
+    removeOnComplete: 500,
+    removeOnFail: 500,
+  });
+}
+
+export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJobData) {
+  if (!data.campaignId) {
+    throw new Error("Campaign id is required for daily semantic search.");
+  }
+
+  const queuedAt = new Date(data.queuedAt);
+
+  if (Number.isNaN(queuedAt.getTime())) {
+    throw new Error("A valid queuedAt timestamp is required for daily semantic search.");
+  }
+
+  const existingLiveJob = await getLiveDailySemanticJobForCampaign(data.campaignId, queuedAt.toISOString());
+
+  if (existingLiveJob) {
+    return existingLiveJob;
+  }
+
+  return dailySemanticQueue.add(dailySemanticCampaignJobName, {
+    campaignId: data.campaignId,
+    queuedAt: queuedAt.toISOString(),
+  }, {
+    jobId: buildJobId("daily-semantic", data.campaignId, queuedAt.toISOString().slice(0, 10)),
+    removeOnComplete: 500,
+    removeOnFail: 500,
+  });
 }
 
 export async function enqueueSubredditRssPoll(

@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 
 import type { CampaignInitialRssDiagnostics } from "@/actions/campaigns";
 import { Button } from "@/components/ui/button";
@@ -34,13 +36,25 @@ function RssRunInspectorDialog({
   diagnostics: CampaignInitialRssDiagnostics;
   variant?: "compact" | "button";
 }) {
+  const [openedAtMs] = useState(() => Date.now());
+  const [copiedJson, setCopiedJson] = useState(false);
   const events = diagnostics?.events ?? [];
   const latestEvent = events.at(-1) ?? null;
   const successes = events.filter((event) => event.status === "SUCCESS").length;
   const rateLimits = events.filter((event) => event.status === "RATE_LIMIT_RETRYING" || event.status === "RATE_LIMITED").length;
   const errors = events.filter((event) => ["NOT_FOUND", "HTTP_ERROR", "NETWORK_ERROR"].includes(event.status)).length;
-  const activeRetry = events.find((event) => event.retryUntil && new Date(event.retryUntil).getTime() > Date.now()) ?? null;
+  const activeRetry = events.find((event) => event.retryUntil && new Date(event.retryUntil).getTime() > openedAtMs) ?? null;
   const activeRetryUntil = activeRetry?.retryUntil ?? null;
+
+  async function handleCopyJson() {
+    if (!diagnostics) {
+      return;
+    }
+
+    await copyToClipboard(JSON.stringify(diagnostics, null, 2));
+    setCopiedJson(true);
+    window.setTimeout(() => setCopiedJson(false), 2000);
+  }
 
   return (
     <Dialog>
@@ -83,7 +97,13 @@ function RssRunInspectorDialog({
                       </p>
                     ) : null}
                   </div>
-                  <StatusPill status={diagnostics.run.status} />
+                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                    <Button aria-label="Copy RSS run JSON" onClick={handleCopyJson} size="sm" type="button" variant="secondary">
+                      {copiedJson ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copiedJson ? "Copied" : "Copy JSON"}
+                    </Button>
+                    <StatusPill status={diagnostics.run.status} />
+                  </div>
                 </div>
               </div>
 
@@ -209,6 +229,23 @@ function Th({ children }: { children: ReactNode }) {
 
 function Td({ children }: { children: ReactNode }) {
   return <td className="px-4 py-3 align-top">{children}</td>;
+}
+
+async function copyToClipboard(value: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const input = document.createElement("textarea");
+  input.value = value;
+  input.setAttribute("readonly", "");
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.appendChild(input);
+  input.select();
+  document.execCommand("copy");
+  input.remove();
 }
 
 function getStatusTone(status: string) {

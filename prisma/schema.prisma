@@ -95,6 +95,11 @@ enum CampaignInitialRssPollStatus {
   NETWORK_ERROR
 }
 
+enum CampaignDailySemanticScanStatus {
+  MATCHED
+  NO_MATCH
+}
+
 /* =========================
    NextAuth Models
    (Prisma Adapter)
@@ -266,6 +271,7 @@ model Campaign {
   leads Lead[]
   sync  CampaignSync?
   semanticQueries CampaignSemanticQuery[]
+  dailySemanticScans CampaignDailySemanticScan[]
   runs CampaignRun[]
   aiUsageEvents AiUsageEvent[]
   initialRssPollEvents CampaignInitialRssPollEvent[]
@@ -400,6 +406,27 @@ model CampaignSemanticQuery {
   @@index([campaignId, createdAt(sort: Desc)])
 }
 
+model CampaignDailySemanticScan {
+  id           String @id @default(cuid())
+  campaignId   String
+  redditItemId String
+
+  status        CampaignDailySemanticScanStatus
+  bestScore     Float?
+  bestQueryId   String?
+  bestQueryText String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  redditItem RedditItem @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, redditItemId])
+  @@index([campaignId, status, updatedAt(sort: Desc)])
+  @@index([redditItemId])
+}
+
 model CampaignSync {
   id         String             @id @default(cuid())
   campaignId String             @unique
@@ -446,6 +473,7 @@ model RedditItem {
 
   leads Lead[]
   embedding RedditItemEmbedding?
+  dailySemanticScans CampaignDailySemanticScan[]
 
   @@index([subreddit, createdUtc(sort: Desc)])
   @@index([createdUtc(sort: Desc)])

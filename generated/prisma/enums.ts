@@ -126,3 +126,11 @@ export const CampaignInitialRssPollStatus = {
 } as const
 
 export type CampaignInitialRssPollStatus = (typeof CampaignInitialRssPollStatus)[keyof typeof CampaignInitialRssPollStatus]
+
+
+export const CampaignDailySemanticScanStatus = {
+  MATCHED: 'MATCHED',
+  NO_MATCH: 'NO_MATCH'
+} as const
+
+export type CampaignDailySemanticScanStatus = (typeof CampaignDailySemanticScanStatus)[keyof typeof CampaignDailySemanticScanStatus]

@@ -260,6 +260,7 @@ export type RedditItemWhereInput = {
   rawJson?: Prisma.JsonNullableFilter<"RedditItem">
   leads?: Prisma.LeadListRelationFilter
   embedding?: Prisma.XOR<Prisma.RedditItemEmbeddingNullableScalarRelationFilter, Prisma.RedditItemEmbeddingWhereInput> | null
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanListRelationFilter
 }
 
 export type RedditItemOrderByWithRelationInput = {
@@ -280,6 +281,7 @@ export type RedditItemOrderByWithRelationInput = {
   rawJson?: Prisma.SortOrderInput | Prisma.SortOrder
   leads?: Prisma.LeadOrderByRelationAggregateInput
   embedding?: Prisma.RedditItemEmbeddingOrderByWithRelationInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanOrderByRelationAggregateInput
 }
 
 export type RedditItemWhereUniqueInput = Prisma.AtLeast<{
@@ -303,6 +305,7 @@ export type RedditItemWhereUniqueInput = Prisma.AtLeast<{
   rawJson?: Prisma.JsonNullableFilter<"RedditItem">
   leads?: Prisma.LeadListRelationFilter
   embedding?: Prisma.XOR<Prisma.RedditItemEmbeddingNullableScalarRelationFilter, Prisma.RedditItemEmbeddingWhereInput> | null
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanListRelationFilter
 }, "id" | "fullname">
 
 export type RedditItemOrderByWithAggregationInput = {
@@ -365,6 +368,7 @@ export type RedditItemCreateInput = {
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
   embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
 }
 
 export type RedditItemUncheckedCreateInput = {
@@ -385,6 +389,7 @@ export type RedditItemUncheckedCreateInput = {
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
   embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
 }
 
 export type RedditItemUpdateInput = {
@@ -405,6 +410,7 @@ export type RedditItemUpdateInput = {
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
   embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateInput = {
@@ -425,6 +431,7 @@ export type RedditItemUncheckedUpdateInput = {
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
   embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
 }
 
 export type RedditItemCreateManyInput = {
@@ -481,6 +488,11 @@ export type RedditItemUncheckedUpdateManyInput = {
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
+export type RedditItemScalarRelationFilter = {
+  is?: Prisma.RedditItemWhereInput
+  isNot?: Prisma.RedditItemWhereInput
+}
+
 export type RedditItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fullname?: Prisma.SortOrder
@@ -533,9 +545,18 @@ export type RedditItemMinOrderByAggregateInput = {
   parentFullname?: Prisma.SortOrder
 }
 
-export type RedditItemScalarRelationFilter = {
-  is?: Prisma.RedditItemWhereInput
-  isNot?: Prisma.RedditItemWhereInput
+export type RedditItemCreateNestedOneWithoutDailySemanticScansInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutDailySemanticScansInput, Prisma.RedditItemUncheckedCreateWithoutDailySemanticScansInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutDailySemanticScansInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+}
+
+export type RedditItemUpdateOneRequiredWithoutDailySemanticScansNestedInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutDailySemanticScansInput, Prisma.RedditItemUncheckedCreateWithoutDailySemanticScansInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutDailySemanticScansInput
+  upsert?: Prisma.RedditItemUpsertWithoutDailySemanticScansInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RedditItemUpdateToOneWithWhereWithoutDailySemanticScansInput, Prisma.RedditItemUpdateWithoutDailySemanticScansInput>, Prisma.RedditItemUncheckedUpdateWithoutDailySemanticScansInput>
 }
 
 export type EnumRedditItemTypeFieldUpdateOperationsInput = {
@@ -570,6 +591,102 @@ export type RedditItemUpdateOneRequiredWithoutLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RedditItemUpdateToOneWithWhereWithoutLeadsInput, Prisma.RedditItemUpdateWithoutLeadsInput>, Prisma.RedditItemUncheckedUpdateWithoutLeadsInput>
 }
 
+export type RedditItemCreateWithoutDailySemanticScansInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
+}
+
+export type RedditItemUncheckedCreateWithoutDailySemanticScansInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
+}
+
+export type RedditItemCreateOrConnectWithoutDailySemanticScansInput = {
+  where: Prisma.RedditItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutDailySemanticScansInput, Prisma.RedditItemUncheckedCreateWithoutDailySemanticScansInput>
+}
+
+export type RedditItemUpsertWithoutDailySemanticScansInput = {
+  update: Prisma.XOR<Prisma.RedditItemUpdateWithoutDailySemanticScansInput, Prisma.RedditItemUncheckedUpdateWithoutDailySemanticScansInput>
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutDailySemanticScansInput, Prisma.RedditItemUncheckedCreateWithoutDailySemanticScansInput>
+  where?: Prisma.RedditItemWhereInput
+}
+
+export type RedditItemUpdateToOneWithWhereWithoutDailySemanticScansInput = {
+  where?: Prisma.RedditItemWhereInput
+  data: Prisma.XOR<Prisma.RedditItemUpdateWithoutDailySemanticScansInput, Prisma.RedditItemUncheckedUpdateWithoutDailySemanticScansInput>
+}
+
+export type RedditItemUpdateWithoutDailySemanticScansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
+}
+
+export type RedditItemUncheckedUpdateWithoutDailySemanticScansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
+}
+
 export type RedditItemCreateWithoutEmbeddingInput = {
   id?: string
   fullname: string
@@ -587,6 +704,7 @@ export type RedditItemCreateWithoutEmbeddingInput = {
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
 }
 
 export type RedditItemUncheckedCreateWithoutEmbeddingInput = {
@@ -606,6 +724,7 @@ export type RedditItemUncheckedCreateWithoutEmbeddingInput = {
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
 }
 
 export type RedditItemCreateOrConnectWithoutEmbeddingInput = {
@@ -641,6 +760,7 @@ export type RedditItemUpdateWithoutEmbeddingInput = {
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateWithoutEmbeddingInput = {
@@ -660,6 +780,7 @@ export type RedditItemUncheckedUpdateWithoutEmbeddingInput = {
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
 }
 
 export type RedditItemCreateWithoutLeadsInput = {
@@ -679,6 +800,7 @@ export type RedditItemCreateWithoutLeadsInput = {
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
 }
 
 export type RedditItemUncheckedCreateWithoutLeadsInput = {
@@ -698,6 +820,7 @@ export type RedditItemUncheckedCreateWithoutLeadsInput = {
   parentFullname?: string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
 }
 
 export type RedditItemCreateOrConnectWithoutLeadsInput = {
@@ -733,6 +856,7 @@ export type RedditItemUpdateWithoutLeadsInput = {
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateWithoutLeadsInput = {
@@ -752,6 +876,7 @@ export type RedditItemUncheckedUpdateWithoutLeadsInput = {
   parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
 }
 
 
@@ -761,10 +886,12 @@ export type RedditItemUncheckedUpdateWithoutLeadsInput = {
 
 export type RedditItemCountOutputType = {
   leads: number
+  dailySemanticScans: number
 }
 
 export type RedditItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leads?: boolean | RedditItemCountOutputTypeCountLeadsArgs
+  dailySemanticScans?: boolean | RedditItemCountOutputTypeCountDailySemanticScansArgs
 }
 
 /**
@@ -782,6 +909,13 @@ export type RedditItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
  */
 export type RedditItemCountOutputTypeCountLeadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LeadWhereInput
+}
+
+/**
+ * RedditItemCountOutputType without action
+ */
+export type RedditItemCountOutputTypeCountDailySemanticScansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignDailySemanticScanWhereInput
 }
 
 
@@ -803,6 +937,7 @@ export type RedditItemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   rawJson?: boolean
   leads?: boolean | Prisma.RedditItem$leadsArgs<ExtArgs>
   embedding?: boolean | Prisma.RedditItem$embeddingArgs<ExtArgs>
+  dailySemanticScans?: boolean | Prisma.RedditItem$dailySemanticScansArgs<ExtArgs>
   _count?: boolean | Prisma.RedditItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditItem"]>
 
@@ -864,6 +999,7 @@ export type RedditItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type RedditItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leads?: boolean | Prisma.RedditItem$leadsArgs<ExtArgs>
   embedding?: boolean | Prisma.RedditItem$embeddingArgs<ExtArgs>
+  dailySemanticScans?: boolean | Prisma.RedditItem$dailySemanticScansArgs<ExtArgs>
   _count?: boolean | Prisma.RedditItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RedditItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -874,6 +1010,7 @@ export type $RedditItemPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     leads: Prisma.$LeadPayload<ExtArgs>[]
     embedding: Prisma.$RedditItemEmbeddingPayload<ExtArgs> | null
+    dailySemanticScans: Prisma.$CampaignDailySemanticScanPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1287,6 +1424,7 @@ export interface Prisma__RedditItemClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   leads<T extends Prisma.RedditItem$leadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$leadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   embedding<T extends Prisma.RedditItem$embeddingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$embeddingArgs<ExtArgs>>): Prisma.Prisma__RedditItemEmbeddingClient<runtime.Types.Result.GetResult<Prisma.$RedditItemEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  dailySemanticScans<T extends Prisma.RedditItem$dailySemanticScansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$dailySemanticScansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignDailySemanticScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1759,6 +1897,30 @@ export type RedditItem$embeddingArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.RedditItemEmbeddingInclude<ExtArgs> | null
   where?: Prisma.RedditItemEmbeddingWhereInput
+}
+
+/**
+ * RedditItem.dailySemanticScans
+ */
+export type RedditItem$dailySemanticScansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignDailySemanticScan
+   */
+  select?: Prisma.CampaignDailySemanticScanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignDailySemanticScan
+   */
+  omit?: Prisma.CampaignDailySemanticScanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignDailySemanticScanInclude<ExtArgs> | null
+  where?: Prisma.CampaignDailySemanticScanWhereInput
+  orderBy?: Prisma.CampaignDailySemanticScanOrderByWithRelationInput | Prisma.CampaignDailySemanticScanOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignDailySemanticScanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignDailySemanticScanScalarFieldEnum | Prisma.CampaignDailySemanticScanScalarFieldEnum[]
 }
 
 /**

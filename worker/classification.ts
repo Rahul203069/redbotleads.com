@@ -47,7 +47,7 @@ worker.on("failed", (job, error) => {
 workerLogger.info("Classification worker started");
 
 async function runClassification(data: ClassificationJobData, jobId: string) {
-  const isRssPollClassification = data.trigger === "rss_poll";
+  const isDetachedClassification = data.trigger === "rss_poll" || data.trigger === "daily_semantic";
   const lead = await prisma.lead.findFirst({
     where: {
       id: data.leadId,
@@ -109,7 +109,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
     const remainingBefore = await countPendingLeadClassification(lead.campaignId);
     const classifiedBefore = await countClassifiedLeads(lead.campaignId);
 
-    if (!isRssPollClassification) {
+    if (!isDetachedClassification) {
       await updateCampaignProgress(
         lead.campaignId,
         "CLASSIFYING",
@@ -150,7 +150,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       const errorMessage = getErrorMessage(error);
       await recordLeadClassificationFailure(lead.id, errorMessage);
 
-      if (!isRssPollClassification) {
+      if (!isDetachedClassification) {
         await finalizeCampaignClassificationProgress(
           lead.campaignId,
           data.campaignRunId,
@@ -248,7 +248,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       });
     }
 
-    if (!isRssPollClassification) {
+    if (!isDetachedClassification) {
       await finalizeCampaignClassificationProgress(lead.campaignId, data.campaignRunId);
     }
 
@@ -277,7 +277,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
   } catch (error) {
     const errorMessage = getErrorMessage(error);
 
-    if (!isRssPollClassification) {
+    if (!isDetachedClassification) {
       await markCampaignFailed(lead.campaignId, "CLASSIFYING", errorMessage);
       await markCampaignRunFailed(data.campaignRunId, errorMessage);
     }

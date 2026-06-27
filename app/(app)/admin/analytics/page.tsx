@@ -15,6 +15,32 @@ import { getSaasConfig } from "@/lib/saas-config";
 
 const STRONG_LEAD_SCORE = 80;
 const DAILY_REDDIT_ITEM_EMBEDDING_OPERATION = "daily_reddit_item_embedding";
+const SUBREDDIT_SET_BADGE_STYLES = [
+  {
+    badge: "bg-[#12331f] text-[#73f5a0] shadow-[rgb(30,215,96)_0px_0px_0px_1px_inset]",
+    dot: "bg-[#1ed760]",
+  },
+  {
+    badge: "bg-[#102742] text-[#8fc8ff] shadow-[rgb(78,155,255)_0px_0px_0px_1px_inset]",
+    dot: "bg-[#4e9bff]",
+  },
+  {
+    badge: "bg-[#341b42] text-[#dfa7ff] shadow-[rgb(192,115,255)_0px_0px_0px_1px_inset]",
+    dot: "bg-[#c073ff]",
+  },
+  {
+    badge: "bg-[#3b2d10] text-[#ffd66e] shadow-[rgb(242,201,76)_0px_0px_0px_1px_inset]",
+    dot: "bg-[#f2c94c]",
+  },
+  {
+    badge: "bg-[#3a151b] text-[#ff9aa5] shadow-[rgb(243,114,127)_0px_0px_0px_1px_inset]",
+    dot: "bg-[#f3727f]",
+  },
+  {
+    badge: "bg-[#113332] text-[#85f2ee] shadow-[rgb(72,205,200)_0px_0px_0px_1px_inset]",
+    dot: "bg-[#48cdc8]",
+  },
+] as const;
 
 type AnalyticsSearchParams = {
   userId?: string;
@@ -121,8 +147,11 @@ export default async function AdminAnalyticsPage({
 
   const selectedUser = users.find((user) => user.id === params.userId) ?? users[0] ?? null;
   const selectedUserCampaigns = selectedUser ? campaignsByUser.get(selectedUser.id) ?? [] : [];
+  const groupedSelectedUserCampaigns = buildCampaignSubredditGroups(selectedUserCampaigns);
   const selectedCampaign =
-    selectedUserCampaigns.find((campaign) => campaign.id === params.campaignId) ?? selectedUserCampaigns[0] ?? null;
+    groupedSelectedUserCampaigns.find((item) => item.campaign.id === params.campaignId)?.campaign
+    ?? groupedSelectedUserCampaigns[0]?.campaign
+    ?? null;
   const selectedCampaignLeads = selectedCampaign ? leadsByCampaign.get(selectedCampaign.id) ?? [] : [];
   const selectedCampaignRuns = selectedCampaign
     ? await prisma.campaignRun.findMany({
@@ -242,7 +271,7 @@ export default async function AdminAnalyticsPage({
             <EmptyState text="No campaigns for this user." />
           ) : (
             <div className="space-y-2">
-              {selectedUserCampaigns.map((campaign) => {
+              {groupedSelectedUserCampaigns.map(({ campaign, group }) => {
                 const campaignLeads = leadsByCampaign.get(campaign.id) ?? [];
                 const active = selectedCampaign?.id === campaign.id;
 
@@ -264,6 +293,19 @@ export default async function AdminAnalyticsPage({
                         <p className={`mt-1 text-[12px] ${active ? "text-[#cbcbcb]" : "text-[#b3b3b3]"}`}>
                           {campaign.subreddits.length} subreddit{campaign.subreddits.length === 1 ? "" : "s"}
                         </p>
+                        {group ? (
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <span
+                              className={`inline-flex h-6 items-center gap-1.5 rounded-full px-2 text-[10px] font-bold uppercase tracking-[0.12em] ${group.color.badge}`}
+                            >
+                              <span className={`h-2 w-2 rounded-full ${group.color.dot}`} />
+                              {group.label}
+                            </span>
+                            <span className={`text-[11px] leading-4 ${active ? "text-[#cbcbcb]" : "text-[#b3b3b3]"}`}>
+                              Same {group.subredditCount} subreddit{group.subredditCount === 1 ? "" : "s"} across {group.size} campaigns
+                            </span>
+                          </div>
+                        ) : null}
                       </Link>
                       <div className="flex shrink-0 flex-col items-end gap-2">
                         <StatusPill label={campaign.isActive ? "Active" : "Inactive"} />
@@ -350,6 +392,91 @@ function groupBy<T>(items: T[], getKey: (item: T) => string) {
   }
 
   return grouped;
+}
+
+function buildCampaignSubredditGroups<T extends {
+  id: string;
+  name: string;
+  subreddits: string[];
+  updatedAt: Date;
+}>(campaigns: T[]) {
+  const campaignsBySubredditSet = groupBy(campaigns, (campaign) => buildSubredditSetKey(campaign.subreddits));
+  const duplicateSetKeys = [...campaignsBySubredditSet.entries()]
+    .filter(([, setCampaigns]) => setCampaigns.length > 1)
+    .sort(([, leftCampaigns], [, rightCampaigns]) => {
+      if (rightCampaigns.length !== leftCampaigns.length) {
+        return rightCampaigns.length - leftCampaigns.length;
+      }
+
+      return getLatestUpdatedAt(rightCampaigns) - getLatestUpdatedAt(leftCampaigns);
+    })
+    .map(([key]) => key);
+  const groupByKey = new Map(
+    duplicateSetKeys.map((key, index) => {
+      const setCampaigns = campaignsBySubredditSet.get(key) ?? [];
+
+      return [
+        key,
+        {
+          color: SUBREDDIT_SET_BADGE_STYLES[index % SUBREDDIT_SET_BADGE_STYLES.length],
+          label: formatSubredditSetLabel(index),
+          size: setCampaigns.length,
+          subredditCount: key ? key.split("|").length : 0,
+        },
+      ];
+    }),
+  );
+
+  return [...campaigns]
+    .sort((left, right) => {
+      const leftKey = buildSubredditSetKey(left.subreddits);
+      const rightKey = buildSubredditSetKey(right.subreddits);
+      const leftGroupIndex = duplicateSetKeys.indexOf(leftKey);
+      const rightGroupIndex = duplicateSetKeys.indexOf(rightKey);
+      const leftIsGrouped = leftGroupIndex >= 0;
+      const rightIsGrouped = rightGroupIndex >= 0;
+
+      if (leftIsGrouped && rightIsGrouped && leftGroupIndex !== rightGroupIndex) {
+        return leftGroupIndex - rightGroupIndex;
+      }
+
+      if (leftIsGrouped !== rightIsGrouped) {
+        return leftIsGrouped ? -1 : 1;
+      }
+
+      if (leftIsGrouped && rightIsGrouped && leftKey !== rightKey) {
+        return leftKey.localeCompare(rightKey);
+      }
+
+      return right.updatedAt.getTime() - left.updatedAt.getTime() || left.name.localeCompare(right.name);
+    })
+    .map((campaign) => ({
+      campaign,
+      group: groupByKey.get(buildSubredditSetKey(campaign.subreddits)) ?? null,
+    }));
+}
+
+function buildSubredditSetKey(subreddits: string[]) {
+  return Array.from(new Set(subreddits.map(normalizeSubredditName).filter(Boolean)))
+    .sort()
+    .join("|");
+}
+
+function normalizeSubredditName(value: string) {
+  return String(value ?? "")
+    .trim()
+    .replace(/^r\//i, "")
+    .replace(/^\/?r\//i, "")
+    .replace(/^\/+|\/+$/g, "")
+    .toLowerCase();
+}
+
+function getLatestUpdatedAt<T extends { updatedAt: Date }>(campaigns: T[]) {
+  return Math.max(...campaigns.map((campaign) => campaign.updatedAt.getTime()));
+}
+
+function formatSubredditSetLabel(index: number) {
+  return `Set ${String.fromCharCode(65 + (index % 26))}${index >= 26 ? Math.floor(index / 26) + 1 : ""}`;
 }
 
 function sumUsageCosts<T extends {

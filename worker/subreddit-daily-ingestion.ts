@@ -4,11 +4,18 @@ import { prisma } from "@/lib/prisma";
 import { enqueueRedditItemEmbedding, type SubredditDailyIngestJobData } from "./queues";
 import { fetchSubredditPosts, RedditRssFetchError, type RedditPost } from "./reddit";
 import { workerLogger } from "./logger";
+import { createSubredditRssPollDiagnostics } from "./subreddit-rss-poll-diagnostics";
 
 const REDDIT_RATE_LIMIT_BACKOFF_MS = 60 * 60 * 1000;
 const REDDIT_TRANSIENT_BACKOFF_MS = 15 * 60 * 1000;
 
-export async function runSubredditDailyIngest(data: SubredditDailyIngestJobData, jobId: string) {
+export async function runSubredditDailyIngest(
+  data: SubredditDailyIngestJobData,
+  jobId: string,
+  options?: {
+    useRedditRequestSlot?: boolean;
+  },
+) {
   const subreddit = normalizeSubredditName(data.subreddit);
 
   if (!subreddit) {
@@ -28,8 +35,17 @@ export async function runSubredditDailyIngest(data: SubredditDailyIngestJobData,
   });
 
   const now = new Date();
+  const diagnostics = createSubredditRssPollDiagnostics({
+    jobId,
+    source: "SUBREDDIT_DAILY_INGEST",
+    subreddit,
+  });
 
   if (cursor?.backoffUntil && cursor.backoffUntil.getTime() > now.getTime()) {
+    await diagnostics.recordBackoffSkip({
+      backoffUntil: cursor.backoffUntil,
+    });
+
     workerLogger.info(
       { jobId, subreddit, backoffUntil: cursor.backoffUntil },
       "Skipping daily subreddit ingestion because subreddit is in backoff",
@@ -49,7 +65,10 @@ export async function runSubredditDailyIngest(data: SubredditDailyIngestJobData,
   let queuedEmbeddings = 0;
 
   try {
-    const posts = (await fetchSubredditPosts(subreddit)).sort(
+    const posts = (await fetchSubredditPosts(subreddit, {
+      observer: diagnostics.observer,
+      useRequestSlot: options?.useRedditRequestSlot,
+    })).sort(
       (left, right) => right.createdUtc.getTime() - left.createdUtc.getTime(),
     );
     fetchedPosts = posts.length;
@@ -105,6 +124,13 @@ export async function runSubredditDailyIngest(data: SubredditDailyIngestJobData,
       });
     }
 
+    await diagnostics.recordOutcome({
+      fetchedPosts,
+      existingPosts,
+      createdPosts,
+      queuedEmbeddings,
+    });
+
     const durationMs = Date.now() - startedAt;
 
     workerLogger.info(
@@ -131,6 +157,14 @@ export async function runSubredditDailyIngest(data: SubredditDailyIngestJobData,
   } catch (error) {
     const backoffMs = isRedditRateLimitError(error) ? REDDIT_RATE_LIMIT_BACKOFF_MS : REDDIT_TRANSIENT_BACKOFF_MS;
     const backoffUntil = new Date(Date.now() + backoffMs);
+
+    await diagnostics.recordOutcome({
+      fetchedPosts,
+      existingPosts,
+      createdPosts,
+      queuedEmbeddings,
+      backoffUntil,
+    });
 
     await prisma.ingestCursor.upsert({
       where: {

@@ -62,6 +62,7 @@ export const ModelName = {
   Campaign: 'Campaign',
   CampaignRun: 'CampaignRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
+  SubredditRssPollEvent: 'SubredditRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
   CampaignDailySemanticScan: 'CampaignDailySemanticScan',
@@ -278,6 +279,42 @@ export const CampaignInitialRssPollEventScalarFieldEnum = {
 } as const
 
 export type CampaignInitialRssPollEventScalarFieldEnum = (typeof CampaignInitialRssPollEventScalarFieldEnum)[keyof typeof CampaignInitialRssPollEventScalarFieldEnum]
+
+
+export const SubredditRssPollEventScalarFieldEnum = {
+  id: 'id',
+  subreddit: 'subreddit',
+  source: 'source',
+  attempt: 'attempt',
+  jobId: 'jobId',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  fetchStartedAt: 'fetchStartedAt',
+  completedAt: 'completedAt',
+  durationMs: 'durationMs',
+  waitMs: 'waitMs',
+  nextRequestDelayMs: 'nextRequestDelayMs',
+  nextRequestAt: 'nextRequestAt',
+  httpStatus: 'httpStatus',
+  statusText: 'statusText',
+  errorMessage: 'errorMessage',
+  ratelimitUsed: 'ratelimitUsed',
+  ratelimitRemaining: 'ratelimitRemaining',
+  ratelimitReset: 'ratelimitReset',
+  retryAfter: 'retryAfter',
+  retryAfterMs: 'retryAfterMs',
+  retryWaitMs: 'retryWaitMs',
+  retryUntil: 'retryUntil',
+  fetchedPosts: 'fetchedPosts',
+  existingPosts: 'existingPosts',
+  createdPosts: 'createdPosts',
+  queuedEmbeddings: 'queuedEmbeddings',
+  backoffUntil: 'backoffUntil',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubredditRssPollEventScalarFieldEnum = (typeof SubredditRssPollEventScalarFieldEnum)[keyof typeof SubredditRssPollEventScalarFieldEnum]
 
 
 export const AiUsageEventScalarFieldEnum = {

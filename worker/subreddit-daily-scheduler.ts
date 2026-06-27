@@ -6,6 +6,8 @@ import Redis from "ioredis";
 import { prisma } from "@/lib/prisma";
 
 import {
+  subredditDailySchedulerBatchSize,
+  subredditDailySchedulerBatchSleepMs,
   subredditDailySchedulerBaseDelayMs,
   subredditDailySchedulerEmptySleepMs,
   subredditDailySchedulerJitterMs,
@@ -13,9 +15,9 @@ import {
   workerRedisConnection,
 } from "./config";
 import { workerLogger } from "./logger";
-import { enqueueSubredditDailyIngest } from "./queues";
+import { runSubredditDailyIngest } from "./subreddit-daily-ingestion";
 
-const schedulerLockKey = "redbot:subreddit-daily-scheduler:lock";
+const schedulerLockKey = "redbot:subreddit-daily-poller:lock";
 const schedulerId = randomUUID();
 const schedulerRedis = new Redis(workerRedisConnection.url, {
   maxRetriesPerRequest: null,
@@ -27,13 +29,13 @@ async function startSubredditDailyScheduler() {
   const lockAcquired = await acquireSchedulerLock();
 
   if (!lockAcquired) {
-    workerLogger.info("Subreddit daily scheduler is already active in another worker process");
+    workerLogger.info("Subreddit daily poller is already active in another worker process");
     return;
   }
 
   const renewalInterval = setInterval(() => {
     void renewSchedulerLock().catch((error) => {
-      workerLogger.error({ error }, "Subreddit daily scheduler lock renewal failed");
+      workerLogger.error({ error }, "Subreddit daily poller lock renewal failed");
     });
   }, Math.max(1000, Math.floor(subredditDailySchedulerLockTtlMs / 2)));
 
@@ -44,16 +46,18 @@ async function startSubredditDailyScheduler() {
       schedulerId,
       baseDelayMs: subredditDailySchedulerBaseDelayMs,
       jitterMs: subredditDailySchedulerJitterMs,
+      batchSize: subredditDailySchedulerBatchSize,
+      batchSleepMs: subredditDailySchedulerBatchSleepMs,
       emptySleepMs: subredditDailySchedulerEmptySleepMs,
       lockTtlMs: subredditDailySchedulerLockTtlMs,
     },
-    "Subreddit daily scheduler started",
+    "Subreddit daily poller started",
   );
 
   try {
     await runSchedulerLoop();
   } catch (error) {
-    workerLogger.error({ error }, "Subreddit daily scheduler stopped after an unrecoverable error");
+    workerLogger.error({ error }, "Subreddit daily poller stopped after an unrecoverable error");
   } finally {
     clearInterval(renewalInterval);
     await releaseSchedulerLock();
@@ -61,13 +65,15 @@ async function startSubredditDailyScheduler() {
 }
 
 async function runSchedulerLoop() {
+  let subredditsSinceBatchPause = 0;
+
   while (await ownsSchedulerLock()) {
     const subreddits = await loadActiveCampaignSubreddits();
 
     if (subreddits.length === 0) {
       workerLogger.info(
         { sleepMs: subredditDailySchedulerEmptySleepMs },
-        "Subreddit daily scheduler found no active campaign subreddits",
+        "Subreddit daily poller found no active campaign subreddits",
       );
       await sleep(subredditDailySchedulerEmptySleepMs);
       continue;
@@ -75,25 +81,52 @@ async function runSchedulerLoop() {
 
     for (const subreddit of subreddits) {
       if (!(await ownsSchedulerLock())) {
-        workerLogger.warn({ schedulerId }, "Subreddit daily scheduler lost lock");
+        workerLogger.warn({ schedulerId }, "Subreddit daily poller lost lock");
         return;
       }
 
-      try {
-        await enqueueSubredditDailyIngest({
-          subreddit,
-          trigger: "subreddit_daily_scheduler",
-        });
+      const jobId = `subreddit-daily-poller:${schedulerId}:${Date.now()}:${subreddit}`;
 
-        workerLogger.info({ subreddit }, "Subreddit daily ingestion job enqueued");
+      try {
+        await runSubredditDailyIngest(
+          {
+            subreddit,
+            trigger: "subreddit_daily_scheduler",
+          },
+          jobId,
+          {
+            useRedditRequestSlot: false,
+          },
+        );
+
+        workerLogger.info({ subreddit }, "Subreddit daily poll completed");
       } catch (error) {
         workerLogger.error(
           {
+            jobId,
             subreddit,
             error,
           },
-          "Subreddit daily scheduler failed to enqueue subreddit",
+          "Subreddit daily poll failed",
         );
+      }
+
+      subredditsSinceBatchPause += 1;
+
+      if (
+        subredditDailySchedulerBatchSleepMs > 0
+        && subredditsSinceBatchPause >= subredditDailySchedulerBatchSize
+      ) {
+        subredditsSinceBatchPause = 0;
+        workerLogger.info(
+          {
+            batchSize: subredditDailySchedulerBatchSize,
+            sleepMs: subredditDailySchedulerBatchSleepMs,
+          },
+          "Subreddit daily poller batch pause started",
+        );
+        await sleep(subredditDailySchedulerBatchSleepMs);
+        continue;
       }
 
       await sleep(getNextDelayMs());

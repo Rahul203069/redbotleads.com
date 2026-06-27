@@ -242,25 +242,36 @@ Telegram webhook setup:
 curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=$NEXTAUTH_URL/api/telegram/webhook&secret_token=$TELEGRAM_WEBHOOK_SECRET"
 ```
 
-## RSS Poll Scheduler
+## Daily Semantic Scheduler
 
-The repo includes a Vercel Cron job at `/api/cron/rss-poll`.
+The repo includes a Vercel Cron job at `/api/cron/daily-semantic`.
 
-- Route: [app/api/cron/rss-poll/route.ts](C:\Users\rs329\goal\my-app\app\api\cron\rss-poll\route.ts)
-- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) currently runs at `*/30 * * * *` (every 30 minutes)
+- Route: [app/api/cron/daily-semantic/route.ts](C:\Users\rs329\goal\my-app\app\api\cron\daily-semantic\route.ts)
+- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) runs at `30 2 * * *` (02:30 UTC / 08:00 IST daily)
 
 What it does:
 
-- finds unique subreddits used by active campaigns
-- skips subreddits currently in RSS backoff
-- staggers `POLL_SUBREDDIT_RSS` jobs through BullMQ over the 30-minute window
-- stores brand-new Reddit posts in `RedditItem`
-- enqueues `EMBED_REDDIT_ITEM` for newly stored posts
-- enqueues campaign match jobs after each campaign's tracked subreddits have been polled
-- creates `Lead` records only when a new post passes semantic matching
-- classifies semantic-passed leads and sends notifications when classification crosses the campaign threshold
+- finds active campaigns with subreddits and semantic queries
+- enqueues `DAILY_SEMANTIC_CAMPAIGN` jobs on the `daily-semantic` queue
+- compares embedded Reddit posts already stored in the database against campaign semantic queries
+- records matched and unmatched scan results so each campaign does not rescan the same post
+- creates or reuses `Lead` records for semantic matches above the configured threshold
+- enqueues existing LLM classification jobs for matched leads that have not already been classified
 
-This scheduler is separate from the campaign-created initial sync. It does not update `CampaignSync`.
+Frequent subreddit ingestion is handled by a locked 24/7 worker poller loop, not by Vercel Cron or a scheduler queue. The `/api/cron/rss-poll` and `/api/cron/daily-sync` routes remain available but are not scheduled in `vercel.json`.
+
+Daily subreddit RSS polling defaults:
+
+- poll one unique active-campaign subreddit every `70s + 0-30s` jitter
+- pause for `5 minutes` after every `30` subreddit poll attempts
+- bypass the shared in-process Reddit RSS request slot because the poller loop owns pacing
+- retry a Reddit `429`, `408`, or `5xx` response once
+- wait for Reddit `Retry-After` when provided, otherwise wait `3 minutes` before retrying
+- put a subreddit into DB backoff for `1 hour` after a rate-limit failure, or `15 minutes` after another transient failure
+
+Other RSS callers still use the shared Reddit RSS request slot with `REDDIT_RSS_REQUEST_INTERVAL_MS` and `REDDIT_RSS_REQUEST_JITTER_MS`.
+
+Relevant tuning envs: `SUBREDDIT_DAILY_SCHEDULER_BASE_DELAY_MS`, `SUBREDDIT_DAILY_SCHEDULER_JITTER_MS`, `SUBREDDIT_DAILY_SCHEDULER_BATCH_SIZE`, `SUBREDDIT_DAILY_SCHEDULER_BATCH_SLEEP_MS`, `REDDIT_RSS_MAX_RETRIES`, and `REDDIT_RSS_RETRY_BACKOFF_MS`.
 
 Required env on Vercel:
 

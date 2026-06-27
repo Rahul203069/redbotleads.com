@@ -100,6 +100,22 @@ enum CampaignDailySemanticScanStatus {
   NO_MATCH
 }
 
+enum SubredditRssPollSource {
+  SUBREDDIT_DAILY_INGEST
+  RSS_POLL
+}
+
+enum SubredditRssPollStatus {
+  FETCHING
+  SUCCESS
+  RATE_LIMIT_RETRYING
+  RATE_LIMITED
+  NOT_FOUND
+  HTTP_ERROR
+  NETWORK_ERROR
+  BACKOFF_SKIPPED
+}
+
 /* =========================
    NextAuth Models
    (Prisma Adapter)
@@ -357,6 +373,51 @@ model CampaignInitialRssPollEvent {
   @@index([campaignId, requestedAt(sort: Desc)])
   @@index([campaignRunId, sequence, attempt])
   @@index([subreddit, requestedAt(sort: Desc)])
+  @@index([status, requestedAt(sort: Desc)])
+}
+
+model SubredditRssPollEvent {
+  id        String                 @id @default(cuid())
+  subreddit String
+  source    SubredditRssPollSource
+  attempt   Int                    @default(0)
+  jobId     String?
+
+  status SubredditRssPollStatus @default(FETCHING)
+
+  requestedAt    DateTime
+  fetchStartedAt DateTime?
+  completedAt    DateTime?
+  durationMs     Int?
+
+  waitMs             Int?
+  nextRequestDelayMs Int?
+  nextRequestAt      DateTime?
+
+  httpStatus         Int?
+  statusText         String?
+  errorMessage       String?
+  ratelimitUsed      String?
+  ratelimitRemaining String?
+  ratelimitReset     String?
+  retryAfter         String?
+
+  retryAfterMs Int?
+  retryWaitMs  Int?
+  retryUntil   DateTime?
+
+  fetchedPosts     Int?
+  existingPosts    Int?
+  createdPosts     Int?
+  queuedEmbeddings Int?
+  backoffUntil     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([requestedAt(sort: Desc)])
+  @@index([subreddit, requestedAt(sort: Desc)])
+  @@index([source, requestedAt(sort: Desc)])
   @@index([status, requestedAt(sort: Desc)])
 }
 

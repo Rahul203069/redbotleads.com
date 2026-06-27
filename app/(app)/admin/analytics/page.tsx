@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ScrollText } from "lucide-react";
 
 import { SaasSettingsDialog } from "@/components/admin/saas-settings-dialog";
 import { SubredditPerformanceDialog } from "@/components/admin/subreddit-performance-dialog";
@@ -151,6 +152,13 @@ export default async function AdminAnalyticsPage({
                 subredditSuggestionCount={saasConfig.subredditSuggestionCount}
               />
               <SubredditPerformanceDialog />
+              <Link
+                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] sm:w-auto"
+                href="/admin/analytics/rss-polling"
+              >
+                <ScrollText className="h-4 w-4" />
+                RSS Poll Logs
+              </Link>
             </div>
             <div className="flex rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
               {LEAD_SCORING_MODEL_OPTIONS.map((model) => (

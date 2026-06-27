@@ -134,3 +134,25 @@ export const CampaignDailySemanticScanStatus = {
 } as const
 
 export type CampaignDailySemanticScanStatus = (typeof CampaignDailySemanticScanStatus)[keyof typeof CampaignDailySemanticScanStatus]
+
+
+export const SubredditRssPollSource = {
+  SUBREDDIT_DAILY_INGEST: 'SUBREDDIT_DAILY_INGEST',
+  RSS_POLL: 'RSS_POLL'
+} as const
+
+export type SubredditRssPollSource = (typeof SubredditRssPollSource)[keyof typeof SubredditRssPollSource]
+
+
+export const SubredditRssPollStatus = {
+  FETCHING: 'FETCHING',
+  SUCCESS: 'SUCCESS',
+  RATE_LIMIT_RETRYING: 'RATE_LIMIT_RETRYING',
+  RATE_LIMITED: 'RATE_LIMITED',
+  NOT_FOUND: 'NOT_FOUND',
+  HTTP_ERROR: 'HTTP_ERROR',
+  NETWORK_ERROR: 'NETWORK_ERROR',
+  BACKOFF_SKIPPED: 'BACKOFF_SKIPPED'
+} as const
+
+export type SubredditRssPollStatus = (typeof SubredditRssPollStatus)[keyof typeof SubredditRssPollStatus]

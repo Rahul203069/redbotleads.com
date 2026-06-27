@@ -120,6 +120,7 @@ type RedditRssFetchObserver = {
 type FetchSubredditPostsOptions = {
   limit?: number;
   observer?: RedditRssFetchObserver;
+  useRequestSlot?: boolean;
 };
 
 type RedditRateLimitHeaders = {
@@ -145,35 +146,48 @@ export class RedditRssFetchError extends Error {
 
 export async function fetchSubredditPosts(subreddit: string, limitOrOptions?: number | FetchSubredditPostsOptions) {
   const options = typeof limitOrOptions === "number" ? { limit: limitOrOptions } : limitOrOptions;
-  const xml = await fetchSubredditRss(subreddit, options?.observer);
+  const xml = await fetchSubredditRss(subreddit, {
+    observer: options?.observer,
+    useRequestSlot: options?.useRequestSlot,
+  });
   return parseSubredditPostsFromRss(xml, { subreddit, limit: options?.limit });
 }
 
-export async function fetchSubredditRss(subreddit: string, observer?: RedditRssFetchObserver) {
+export async function fetchSubredditRss(
+  subreddit: string,
+  options?: {
+    observer?: RedditRssFetchObserver;
+    useRequestSlot?: boolean;
+  },
+) {
   const normalizedSubreddit = normalizeSubredditName(subreddit);
+  const observer = options?.observer;
+  const useRequestSlot = options?.useRequestSlot ?? true;
 
   for (let attempt = 0; attempt <= redditRssMaxRetries; attempt += 1) {
-    const slot = await waitForRedditRssSlot(async (slotEvent) => {
-      await observer?.onRequestWait?.({
-        subreddit: normalizedSubreddit,
-        attempt,
-        waitMs: slotEvent.waitMs,
-        nextRequestDelayMs: slotEvent.nextRequestDelayMs,
-        nextRequestAt: slotEvent.nextRequestAt,
-      });
+    const slot = useRequestSlot
+      ? await waitForRedditRssSlot(async (slotEvent) => {
+          await observer?.onRequestWait?.({
+            subreddit: normalizedSubreddit,
+            attempt,
+            waitMs: slotEvent.waitMs,
+            nextRequestDelayMs: slotEvent.nextRequestDelayMs,
+            nextRequestAt: slotEvent.nextRequestAt,
+          });
 
-      workerLogger.info(
-        {
-          subreddit: normalizedSubreddit,
-          attempt,
-          waitMs: slotEvent.waitMs,
-          requestIntervalMs: redditRssRequestIntervalMs,
-          requestJitterMs: redditRssRequestJitterMs,
-          nextRequestDelayMs: slotEvent.nextRequestDelayMs,
-        },
-        "Waiting for Reddit RSS request slot",
-      );
-    });
+          workerLogger.info(
+            {
+              subreddit: normalizedSubreddit,
+              attempt,
+              waitMs: slotEvent.waitMs,
+              requestIntervalMs: redditRssRequestIntervalMs,
+              requestJitterMs: redditRssRequestJitterMs,
+              nextRequestDelayMs: slotEvent.nextRequestDelayMs,
+            },
+            "Waiting for Reddit RSS request slot",
+          );
+        })
+      : getImmediateRedditRssSlot();
 
     const requestedAt = new Date();
     await observer?.onRequestStart?.({
@@ -545,6 +559,16 @@ function getNextRedditRssRequestDelayMs() {
   }
 
   return redditRssRequestIntervalMs + Math.floor(Math.random() * (redditRssRequestJitterMs + 1));
+}
+
+function getImmediateRedditRssSlot() {
+  const now = new Date();
+
+  return {
+    waitMs: 0,
+    nextRequestDelayMs: 0,
+    nextRequestAt: now,
+  };
 }
 
 function getFailedResponseStatus(status: number, shouldRetry: boolean) {

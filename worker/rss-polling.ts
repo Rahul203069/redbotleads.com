@@ -18,6 +18,7 @@ import {
 } from "./queues";
 import { fetchSubredditPosts, RedditRssFetchError, type RedditPost } from "./reddit";
 import { markCampaignRunCompleted, markCampaignRunProcessing } from "./campaign-runs";
+import { createSubredditRssPollDiagnostics } from "./subreddit-rss-poll-diagnostics";
 
 const REDDIT_RATE_LIMIT_BACKOFF_MS = 60 * 60 * 1000;
 const REDDIT_TRANSIENT_BACKOFF_MS = 15 * 60 * 1000;
@@ -76,8 +77,17 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   });
 
   const now = new Date();
+  const diagnostics = createSubredditRssPollDiagnostics({
+    jobId,
+    source: "RSS_POLL",
+    subreddit,
+  });
 
   if (cursor?.backoffUntil && cursor.backoffUntil.getTime() > now.getTime()) {
+    await diagnostics.recordBackoffSkip({
+      backoffUntil: cursor.backoffUntil,
+    });
+
     workerLogger.info(
       { jobId, subreddit, backoffUntil: cursor.backoffUntil },
       "Skipping RSS poll because subreddit is in backoff",
@@ -97,7 +107,9 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   let queuedEmbeddings = 0;
 
   try {
-    const posts = (await fetchSubredditPosts(subreddit)).sort(
+    const posts = (await fetchSubredditPosts(subreddit, {
+      observer: diagnostics.observer,
+    })).sort(
       (left, right) => right.createdUtc.getTime() - left.createdUtc.getTime(),
     );
     fetchedPosts = posts.length;
@@ -153,6 +165,13 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
       });
     }
 
+    await diagnostics.recordOutcome({
+      fetchedPosts,
+      existingPosts,
+      createdPosts,
+      queuedEmbeddings,
+    });
+
     const durationMs = Date.now() - startedAt;
 
     workerLogger.info(
@@ -179,6 +198,14 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   } catch (error) {
     const backoffMs = isRedditRateLimitError(error) ? REDDIT_RATE_LIMIT_BACKOFF_MS : REDDIT_TRANSIENT_BACKOFF_MS;
     const backoffUntil = new Date(Date.now() + backoffMs);
+
+    await diagnostics.recordOutcome({
+      fetchedPosts,
+      existingPosts,
+      createdPosts,
+      queuedEmbeddings,
+      backoffUntil,
+    });
 
     await prisma.ingestCursor.upsert({
       where: {

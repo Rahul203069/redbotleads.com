@@ -97,6 +97,11 @@ export type CampaignRun = Prisma.CampaignRunModel
  */
 export type CampaignInitialRssPollEvent = Prisma.CampaignInitialRssPollEventModel
 /**
+ * Model SubredditRssPollEvent
+ * 
+ */
+export type SubredditRssPollEvent = Prisma.SubredditRssPollEventModel
+/**
  * Model AiUsageEvent
  * 
  */

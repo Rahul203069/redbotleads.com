@@ -395,6 +395,7 @@ export const ModelName = {
   Campaign: 'Campaign',
   CampaignRun: 'CampaignRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
+  SubredditRssPollEvent: 'SubredditRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
   CampaignDailySemanticScan: 'CampaignDailySemanticScan',
@@ -422,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1237,6 +1238,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CampaignInitialRssPollEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CampaignInitialRssPollEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    SubredditRssPollEvent: {
+      payload: Prisma.$SubredditRssPollEventPayload<ExtArgs>
+      fields: Prisma.SubredditRssPollEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubredditRssPollEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubredditRssPollEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>
+        }
+        findFirst: {
+          args: Prisma.SubredditRssPollEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubredditRssPollEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>
+        }
+        findMany: {
+          args: Prisma.SubredditRssPollEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>[]
+        }
+        create: {
+          args: Prisma.SubredditRssPollEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>
+        }
+        createMany: {
+          args: Prisma.SubredditRssPollEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubredditRssPollEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>[]
+        }
+        delete: {
+          args: Prisma.SubredditRssPollEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>
+        }
+        update: {
+          args: Prisma.SubredditRssPollEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubredditRssPollEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubredditRssPollEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubredditRssPollEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubredditRssPollEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubredditRssPollEventPayload>
+        }
+        aggregate: {
+          args: Prisma.SubredditRssPollEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubredditRssPollEvent>
+        }
+        groupBy: {
+          args: Prisma.SubredditRssPollEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubredditRssPollEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubredditRssPollEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubredditRssPollEventCountAggregateOutputType> | number
         }
       }
     }
@@ -2355,6 +2430,42 @@ export const CampaignInitialRssPollEventScalarFieldEnum = {
 export type CampaignInitialRssPollEventScalarFieldEnum = (typeof CampaignInitialRssPollEventScalarFieldEnum)[keyof typeof CampaignInitialRssPollEventScalarFieldEnum]
 
 
+export const SubredditRssPollEventScalarFieldEnum = {
+  id: 'id',
+  subreddit: 'subreddit',
+  source: 'source',
+  attempt: 'attempt',
+  jobId: 'jobId',
+  status: 'status',
+  requestedAt: 'requestedAt',
+  fetchStartedAt: 'fetchStartedAt',
+  completedAt: 'completedAt',
+  durationMs: 'durationMs',
+  waitMs: 'waitMs',
+  nextRequestDelayMs: 'nextRequestDelayMs',
+  nextRequestAt: 'nextRequestAt',
+  httpStatus: 'httpStatus',
+  statusText: 'statusText',
+  errorMessage: 'errorMessage',
+  ratelimitUsed: 'ratelimitUsed',
+  ratelimitRemaining: 'ratelimitRemaining',
+  ratelimitReset: 'ratelimitReset',
+  retryAfter: 'retryAfter',
+  retryAfterMs: 'retryAfterMs',
+  retryWaitMs: 'retryWaitMs',
+  retryUntil: 'retryUntil',
+  fetchedPosts: 'fetchedPosts',
+  existingPosts: 'existingPosts',
+  createdPosts: 'createdPosts',
+  queuedEmbeddings: 'queuedEmbeddings',
+  backoffUntil: 'backoffUntil',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubredditRssPollEventScalarFieldEnum = (typeof SubredditRssPollEventScalarFieldEnum)[keyof typeof SubredditRssPollEventScalarFieldEnum]
+
+
 export const AiUsageEventScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -2731,6 +2842,34 @@ export type ListEnumCampaignInitialRssPollStatusFieldRefInput<$PrismaModel> = Fi
 
 
 /**
+ * Reference to a field of type 'SubredditRssPollSource'
+ */
+export type EnumSubredditRssPollSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubredditRssPollSource'>
+    
+
+
+/**
+ * Reference to a field of type 'SubredditRssPollSource[]'
+ */
+export type ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubredditRssPollSource[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SubredditRssPollStatus'
+ */
+export type EnumSubredditRssPollStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubredditRssPollStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'SubredditRssPollStatus[]'
+ */
+export type ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubredditRssPollStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'CampaignDailySemanticScanStatus'
  */
 export type EnumCampaignDailySemanticScanStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignDailySemanticScanStatus'>
@@ -2961,6 +3100,7 @@ export type GlobalOmitConfig = {
   campaign?: Prisma.CampaignOmit
   campaignRun?: Prisma.CampaignRunOmit
   campaignInitialRssPollEvent?: Prisma.CampaignInitialRssPollEventOmit
+  subredditRssPollEvent?: Prisma.SubredditRssPollEventOmit
   aiUsageEvent?: Prisma.AiUsageEventOmit
   campaignSemanticQuery?: Prisma.CampaignSemanticQueryOmit
   campaignDailySemanticScan?: Prisma.CampaignDailySemanticScanOmit

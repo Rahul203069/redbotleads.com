@@ -348,6 +348,40 @@ export type EnumCampaignInitialRssPollStatusWithAggregatesFilter<$PrismaModel = 
   _max?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel>
 }
 
+export type EnumSubredditRssPollSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollSource | Prisma.EnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollSourceFilter<$PrismaModel> | $Enums.SubredditRssPollSource
+}
+
+export type EnumSubredditRssPollStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollStatus | Prisma.EnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollStatusFilter<$PrismaModel> | $Enums.SubredditRssPollStatus
+}
+
+export type EnumSubredditRssPollSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollSource | Prisma.EnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollSourceWithAggregatesFilter<$PrismaModel> | $Enums.SubredditRssPollSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubredditRssPollSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubredditRssPollSourceFilter<$PrismaModel>
+}
+
+export type EnumSubredditRssPollStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollStatus | Prisma.EnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubredditRssPollStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubredditRssPollStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubredditRssPollStatusFilter<$PrismaModel>
+}
+
 export type EnumCampaignDailySemanticScanStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.CampaignDailySemanticScanStatus | Prisma.EnumCampaignDailySemanticScanStatusFieldRefInput<$PrismaModel>
   in?: $Enums.CampaignDailySemanticScanStatus[] | Prisma.ListEnumCampaignDailySemanticScanStatusFieldRefInput<$PrismaModel>
@@ -835,6 +869,40 @@ export type NestedEnumCampaignInitialRssPollStatusWithAggregatesFilter<$PrismaMo
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCampaignInitialRssPollStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSubredditRssPollSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollSource | Prisma.EnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollSourceFilter<$PrismaModel> | $Enums.SubredditRssPollSource
+}
+
+export type NestedEnumSubredditRssPollStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollStatus | Prisma.EnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollStatusFilter<$PrismaModel> | $Enums.SubredditRssPollStatus
+}
+
+export type NestedEnumSubredditRssPollSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollSource | Prisma.EnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollSource[] | Prisma.ListEnumSubredditRssPollSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollSourceWithAggregatesFilter<$PrismaModel> | $Enums.SubredditRssPollSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubredditRssPollSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubredditRssPollSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumSubredditRssPollStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubredditRssPollStatus | Prisma.EnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubredditRssPollStatus[] | Prisma.ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubredditRssPollStatusWithAggregatesFilter<$PrismaModel> | $Enums.SubredditRssPollStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubredditRssPollStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubredditRssPollStatusFilter<$PrismaModel>
 }
 
 export type NestedEnumCampaignDailySemanticScanStatusFilter<$PrismaModel = never> = {

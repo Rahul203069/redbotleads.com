@@ -92,6 +92,7 @@ export default async function AdminSubredditPerformancePage({
     campaigns.flatMap((campaign) => campaign.leads),
   );
   const summary = summarizeSubredditRows(rows);
+  const affectedCampaignCounts = buildAffectedCampaignCounts(campaigns.map((campaign) => campaign.subreddits));
 
   return (
     <SubredditAnalyticsReport
@@ -116,6 +117,10 @@ export default async function AdminSubredditPerformancePage({
           : []),
       ]}
       description={`Combined subreddit performance for campaigns with names containing "${query}".`}
+      deleteContext={{
+        affectedCampaignCounts,
+        reportName: query,
+      }}
       eyebrow="Admin subreddit performance"
       matchedCampaigns={campaigns.map((campaign) => ({
         id: campaign.id,
@@ -128,6 +133,29 @@ export default async function AdminSubredditPerformancePage({
       title={`Subreddit performance: ${query}`}
     />
   );
+}
+
+function buildAffectedCampaignCounts(campaignSubredditLists: string[][]) {
+  const counts: Record<string, number> = {};
+
+  for (const subreddits of campaignSubredditLists) {
+    const uniqueSubreddits = new Set(subreddits.map(normalizeSubredditName).filter(Boolean));
+
+    for (const subreddit of uniqueSubreddits) {
+      counts[subreddit] = (counts[subreddit] ?? 0) + 1;
+    }
+  }
+
+  return counts;
+}
+
+function normalizeSubredditName(value: string) {
+  return String(value ?? "")
+    .trim()
+    .replace(/^r\//i, "")
+    .replace(/^\/?r\//i, "")
+    .replace(/^\/+|\/+$/g, "")
+    .toLowerCase();
 }
 
 function EmptyReportState({ description, title }: { description: string; title: string }) {

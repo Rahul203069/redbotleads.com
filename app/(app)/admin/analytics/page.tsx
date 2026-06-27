@@ -2,10 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ScrollText } from "lucide-react";
 
+import { DailyRssIngestionControl } from "@/components/admin/daily-rss-ingestion-control";
 import { SaasSettingsDialog } from "@/components/admin/saas-settings-dialog";
 import { SubredditPerformanceDialog } from "@/components/admin/subreddit-performance-dialog";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
+import { getDailyRssPollerPauseState } from "@/lib/daily-rss-poller-control";
 import { LEAD_SCORING_MODEL_OPTIONS, normalizeLeadScoringModel, type LeadScoringModelId } from "@/lib/openai-models";
 import { prisma } from "@/lib/prisma";
 import { getSaasConfig } from "@/lib/saas-config";
@@ -35,6 +37,7 @@ export default async function AdminAnalyticsPage({
 
   const params = await Promise.resolve(searchParams ?? {});
   const saasConfig = await getSaasConfig();
+  const dailyRssPauseState = await getDailyRssPollerPauseState();
   const selectedPriceModel = normalizeLeadScoringModel(params.priceModel ?? saasConfig.leadScoringModel);
 
   const [users, campaigns, leads, usageEvents, campaignRunCounts] = await Promise.all([
@@ -152,6 +155,7 @@ export default async function AdminAnalyticsPage({
                 subredditSuggestionCount={saasConfig.subredditSuggestionCount}
               />
               <SubredditPerformanceDialog />
+              <DailyRssIngestionControl initialState={dailyRssPauseState} />
               <Link
                 className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] sm:w-auto"
                 href="/admin/analytics/rss-polling"

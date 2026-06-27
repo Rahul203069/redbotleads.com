@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { RemoveSubredditFromReportButton } from "@/components/admin/remove-subreddit-from-report-button";
 import { CampaignSubredditAnalyticsCharts } from "@/components/campaigns/campaign-subreddit-analytics-charts";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ export function SubredditAnalyticsReport({
   backHref,
   backLabel,
   badges,
+  deleteContext,
   description,
   matchedCampaigns,
   rows,
@@ -28,6 +30,10 @@ export function SubredditAnalyticsReport({
   backHref: string;
   backLabel: string;
   badges: Array<{ label: string; tone: "good" | "neutral" | "muted" }>;
+  deleteContext?: {
+    affectedCampaignCounts: Record<string, number>;
+    reportName: string;
+  };
   description: string;
   matchedCampaigns?: MatchedCampaignSummary[];
   rows: SubredditAnalyticsRow[];
@@ -99,6 +105,7 @@ export function SubredditAnalyticsReport({
                 <th className="px-4 py-2">Share</th>
                 <th className="px-4 py-2">Latest lead</th>
                 <th className="px-4 py-2">Signal</th>
+                {deleteContext ? <th className="px-4 py-2">Action</th> : null}
               </tr>
             </thead>
             <tbody>
@@ -112,12 +119,21 @@ export function SubredditAnalyticsReport({
                   <td className="px-4 py-4 tabular-nums">{row.averageScore ?? "-"}</td>
                   <td className="px-4 py-4 tabular-nums">{formatPercent(row.shareOfLeads)}</td>
                   <td className="px-4 py-4 text-[#cbcbcb]">{formatDate(row.latestLeadAt)}</td>
-                  <td className="rounded-r-[16px] px-4 py-4">
+                  <td className={deleteContext ? "px-4 py-4" : "rounded-r-[16px] px-4 py-4"}>
                     <StatusChip
                       label={row.status}
                       tone={row.status === "Strong" ? "good" : row.status === "Quiet" ? "muted" : "neutral"}
                     />
                   </td>
+                  {deleteContext ? (
+                    <td className="rounded-r-[16px] px-4 py-4">
+                      <RemoveSubredditFromReportButton
+                        affectedCampaigns={deleteContext.affectedCampaignCounts[row.subreddit] ?? 0}
+                        reportName={deleteContext.reportName}
+                        subreddit={row.subreddit}
+                      />
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>

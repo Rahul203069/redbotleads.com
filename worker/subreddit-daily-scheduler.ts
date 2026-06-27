@@ -3,6 +3,7 @@ import "dotenv/config";
 import { randomUUID } from "node:crypto";
 import Redis from "ioredis";
 
+import { isDailyRssPollerPaused } from "@/lib/daily-rss-poller-control";
 import { prisma } from "@/lib/prisma";
 
 import {
@@ -68,6 +69,15 @@ async function runSchedulerLoop() {
   let subredditsSinceBatchPause = 0;
 
   while (await ownsSchedulerLock()) {
+    if (await isDailyRssPollerPaused()) {
+      workerLogger.info(
+        { sleepMs: subredditDailySchedulerEmptySleepMs },
+        "Subreddit daily poller is paused",
+      );
+      await sleep(subredditDailySchedulerEmptySleepMs);
+      continue;
+    }
+
     const subreddits = await loadActiveCampaignSubreddits();
 
     if (subreddits.length === 0) {
@@ -80,12 +90,32 @@ async function runSchedulerLoop() {
     }
 
     for (const subreddit of subreddits) {
+      if (await isDailyRssPollerPaused()) {
+        workerLogger.info(
+          { sleepMs: subredditDailySchedulerEmptySleepMs },
+          "Subreddit daily poller paused before next subreddit",
+        );
+        await sleep(subredditDailySchedulerEmptySleepMs);
+        break;
+      }
+
       if (!(await ownsSchedulerLock())) {
         workerLogger.warn({ schedulerId }, "Subreddit daily poller lost lock");
         return;
       }
 
       const jobId = `subreddit-daily-poller:${schedulerId}:${Date.now()}:${subreddit}`;
+
+      if (!(await isSubredditTrackedByActiveCampaign(subreddit))) {
+        workerLogger.info(
+          {
+            jobId,
+            subreddit,
+          },
+          "Skipping daily subreddit poll because subreddit is no longer tracked by an active campaign",
+        );
+        continue;
+      }
 
       try {
         await runSubredditDailyIngest(
@@ -150,6 +180,19 @@ async function loadActiveCampaignSubreddits() {
   return Array.from(
     new Set(campaigns.flatMap((campaign) => campaign.subreddits.map(normalizeSubredditName)).filter(Boolean)),
   ).sort();
+}
+
+async function isSubredditTrackedByActiveCampaign(subreddit: string) {
+  const campaignCount = await prisma.campaign.count({
+    where: {
+      isActive: true,
+      subreddits: {
+        has: subreddit,
+      },
+    },
+  });
+
+  return campaignCount > 0;
 }
 
 async function acquireSchedulerLock() {

@@ -23,17 +23,42 @@ const schedulerId = randomUUID();
 const schedulerRedis = new Redis(workerRedisConnection.url, {
   maxRetriesPerRequest: null,
 });
+const schedulerLockRetryMs = Math.min(30000, Math.max(5000, Math.floor(subredditDailySchedulerLockTtlMs / 4)));
 
 void startSubredditDailyScheduler();
 
 async function startSubredditDailyScheduler() {
-  const lockAcquired = await acquireSchedulerLock();
+  while (true) {
+    try {
+      const lockAcquired = await acquireSchedulerLock();
 
-  if (!lockAcquired) {
-    workerLogger.info("Subreddit daily poller is already active in another worker process");
-    return;
+      if (!lockAcquired) {
+        workerLogger.info(
+          {
+            retryMs: schedulerLockRetryMs,
+          },
+          "Subreddit daily poller is already active in another worker process",
+        );
+        await sleep(schedulerLockRetryMs);
+        continue;
+      }
+
+      await runOwnedSchedulerLoop();
+    } catch (error) {
+      workerLogger.error(
+        {
+          error,
+          retryMs: schedulerLockRetryMs,
+        },
+        "Subreddit daily poller startup loop failed; retrying",
+      );
+    }
+
+    await sleep(schedulerLockRetryMs);
   }
+}
 
+async function runOwnedSchedulerLoop() {
   const renewalInterval = setInterval(() => {
     void renewSchedulerLock().catch((error) => {
       workerLogger.error({ error }, "Subreddit daily poller lock renewal failed");

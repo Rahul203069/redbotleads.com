@@ -74,6 +74,8 @@ export type LeadEmbeddingBatchItem = {
   redditItemId: string;
 };
 
+export type RedditItemEmbeddingSource = "subreddit_daily_ingest" | "rss_poll";
+
 export type EmbeddingJobData =
   | {
       leadId: string;
@@ -88,6 +90,7 @@ export type EmbeddingJobData =
     }
   | {
       redditItemId: string;
+      source?: RedditItemEmbeddingSource;
     };
 
 export type SemanticJobData =

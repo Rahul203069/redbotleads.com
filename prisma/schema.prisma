@@ -424,7 +424,7 @@ model SubredditRssPollEvent {
 model AiUsageEvent {
   id String @id @default(cuid())
 
-  userId        String
+  userId        String?
   campaignId    String?
   campaignRunId String?
 
@@ -440,7 +440,7 @@ model AiUsageEvent {
 
   createdAt DateTime @default(now())
 
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   campaign    Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
 

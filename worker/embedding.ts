@@ -18,6 +18,7 @@ import {
   enqueueLeadSemanticMatchBatch,
   type EmbeddingJobData,
   type LeadEmbeddingBatchItem,
+  type RedditItemEmbeddingSource,
   type SemanticJobData,
 } from "./queues";
 
@@ -82,7 +83,8 @@ const worker = new Worker<EmbeddingJobData>(
         return;
       }
 
-      return runRedditItemEmbedding(job.data.redditItemId, job.id ?? "unknown");
+      const source = "source" in job.data ? job.data.source : undefined;
+      return runRedditItemEmbedding(job.data.redditItemId, job.id ?? "unknown", source);
     }
 
     workerLogger.warn({ jobId: job.id, name: job.name }, "Ignoring unsupported embedding job");
@@ -230,7 +232,11 @@ async function runLeadEmbeddingBatch(
   };
 }
 
-async function runRedditItemEmbedding(redditItemId: string, jobId: string) {
+async function runRedditItemEmbedding(
+  redditItemId: string,
+  jobId: string,
+  source?: RedditItemEmbeddingSource,
+) {
   const [redditItem] = await loadRedditItems([redditItemId]);
 
   if (!redditItem) {
@@ -274,6 +280,17 @@ async function runRedditItemEmbedding(redditItemId: string, jobId: string) {
 
   const result = await generateEmbeddings({
     input: [sourceText],
+    usage: source === "subreddit_daily_ingest"
+      ? {
+          operation: "daily_reddit_item_embedding",
+          metadata: {
+            jobId,
+            redditItemId: redditItem.id,
+            source,
+            subreddit: redditItem.subreddit,
+          },
+        }
+      : undefined,
   });
 
   await upsertRedditItemEmbedding({

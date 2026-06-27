@@ -32,7 +32,7 @@ export async function recordAiUsage({
   model: string;
   tokens: AiUsageTokens;
 }) {
-  if (!context?.userId) {
+  if (!context?.operation) {
     return null;
   }
 
@@ -48,7 +48,7 @@ export async function recordAiUsage({
 
   const event = await prisma.aiUsageEvent.create({
     data: {
-      userId: context.userId,
+      userId: context.userId || null,
       campaignId: context.campaignId || null,
       campaignRunId: context.campaignRunId || null,
       operation: context.operation,

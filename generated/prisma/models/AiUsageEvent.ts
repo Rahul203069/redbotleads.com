@@ -237,7 +237,7 @@ export type AiUsageEventGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type AiUsageEventGroupByOutputType = {
   id: string
-  userId: string
+  userId: string | null
   campaignId: string | null
   campaignRunId: string | null
   operation: string
@@ -276,7 +276,7 @@ export type AiUsageEventWhereInput = {
   OR?: Prisma.AiUsageEventWhereInput[]
   NOT?: Prisma.AiUsageEventWhereInput | Prisma.AiUsageEventWhereInput[]
   id?: Prisma.StringFilter<"AiUsageEvent"> | string
-  userId?: Prisma.StringFilter<"AiUsageEvent"> | string
+  userId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   campaignId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   campaignRunId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   operation?: Prisma.StringFilter<"AiUsageEvent"> | string
@@ -288,14 +288,14 @@ export type AiUsageEventWhereInput = {
   costUsd?: Prisma.FloatFilter<"AiUsageEvent"> | number
   metadataJson?: Prisma.JsonNullableFilter<"AiUsageEvent">
   createdAt?: Prisma.DateTimeFilter<"AiUsageEvent"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   campaign?: Prisma.XOR<Prisma.CampaignNullableScalarRelationFilter, Prisma.CampaignWhereInput> | null
   campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
 }
 
 export type AiUsageEventOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   campaignId?: Prisma.SortOrderInput | Prisma.SortOrder
   campaignRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   operation?: Prisma.SortOrder
@@ -317,7 +317,7 @@ export type AiUsageEventWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AiUsageEventWhereInput | Prisma.AiUsageEventWhereInput[]
   OR?: Prisma.AiUsageEventWhereInput[]
   NOT?: Prisma.AiUsageEventWhereInput | Prisma.AiUsageEventWhereInput[]
-  userId?: Prisma.StringFilter<"AiUsageEvent"> | string
+  userId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   campaignId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   campaignRunId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   operation?: Prisma.StringFilter<"AiUsageEvent"> | string
@@ -329,14 +329,14 @@ export type AiUsageEventWhereUniqueInput = Prisma.AtLeast<{
   costUsd?: Prisma.FloatFilter<"AiUsageEvent"> | number
   metadataJson?: Prisma.JsonNullableFilter<"AiUsageEvent">
   createdAt?: Prisma.DateTimeFilter<"AiUsageEvent"> | Date | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   campaign?: Prisma.XOR<Prisma.CampaignNullableScalarRelationFilter, Prisma.CampaignWhereInput> | null
   campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
 }, "id">
 
 export type AiUsageEventOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  userId?: Prisma.SortOrderInput | Prisma.SortOrder
   campaignId?: Prisma.SortOrderInput | Prisma.SortOrder
   campaignRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   operation?: Prisma.SortOrder
@@ -360,7 +360,7 @@ export type AiUsageEventScalarWhereWithAggregatesInput = {
   OR?: Prisma.AiUsageEventScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AiUsageEventScalarWhereWithAggregatesInput | Prisma.AiUsageEventScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AiUsageEvent"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"AiUsageEvent"> | string
+  userId?: Prisma.StringNullableWithAggregatesFilter<"AiUsageEvent"> | string | null
   campaignId?: Prisma.StringNullableWithAggregatesFilter<"AiUsageEvent"> | string | null
   campaignRunId?: Prisma.StringNullableWithAggregatesFilter<"AiUsageEvent"> | string | null
   operation?: Prisma.StringWithAggregatesFilter<"AiUsageEvent"> | string
@@ -385,14 +385,14 @@ export type AiUsageEventCreateInput = {
   costUsd?: number
   metadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutAiUsageEventsInput
+  user?: Prisma.UserCreateNestedOneWithoutAiUsageEventsInput
   campaign?: Prisma.CampaignCreateNestedOneWithoutAiUsageEventsInput
   campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutUsageEventsInput
 }
 
 export type AiUsageEventUncheckedCreateInput = {
   id?: string
-  userId: string
+  userId?: string | null
   campaignId?: string | null
   campaignRunId?: string | null
   operation: string
@@ -417,14 +417,14 @@ export type AiUsageEventUpdateInput = {
   costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   metadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutAiUsageEventsNestedInput
+  user?: Prisma.UserUpdateOneWithoutAiUsageEventsNestedInput
   campaign?: Prisma.CampaignUpdateOneWithoutAiUsageEventsNestedInput
   campaignRun?: Prisma.CampaignRunUpdateOneWithoutUsageEventsNestedInput
 }
 
 export type AiUsageEventUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -440,7 +440,7 @@ export type AiUsageEventUncheckedUpdateInput = {
 
 export type AiUsageEventCreateManyInput = {
   id?: string
-  userId: string
+  userId?: string | null
   campaignId?: string | null
   campaignRunId?: string | null
   operation: string
@@ -469,7 +469,7 @@ export type AiUsageEventUpdateManyMutationInput = {
 
 export type AiUsageEventUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -740,7 +740,7 @@ export type AiUsageEventScalarWhereInput = {
   OR?: Prisma.AiUsageEventScalarWhereInput[]
   NOT?: Prisma.AiUsageEventScalarWhereInput | Prisma.AiUsageEventScalarWhereInput[]
   id?: Prisma.StringFilter<"AiUsageEvent"> | string
-  userId?: Prisma.StringFilter<"AiUsageEvent"> | string
+  userId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   campaignId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   campaignRunId?: Prisma.StringNullableFilter<"AiUsageEvent"> | string | null
   operation?: Prisma.StringFilter<"AiUsageEvent"> | string
@@ -765,13 +765,13 @@ export type AiUsageEventCreateWithoutCampaignInput = {
   costUsd?: number
   metadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutAiUsageEventsInput
+  user?: Prisma.UserCreateNestedOneWithoutAiUsageEventsInput
   campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutUsageEventsInput
 }
 
 export type AiUsageEventUncheckedCreateWithoutCampaignInput = {
   id?: string
-  userId: string
+  userId?: string | null
   campaignRunId?: string | null
   operation: string
   provider?: string
@@ -821,13 +821,13 @@ export type AiUsageEventCreateWithoutCampaignRunInput = {
   costUsd?: number
   metadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutAiUsageEventsInput
+  user?: Prisma.UserCreateNestedOneWithoutAiUsageEventsInput
   campaign?: Prisma.CampaignCreateNestedOneWithoutAiUsageEventsInput
 }
 
 export type AiUsageEventUncheckedCreateWithoutCampaignRunInput = {
   id?: string
-  userId: string
+  userId?: string | null
   campaignId?: string | null
   operation: string
   provider?: string
@@ -928,7 +928,7 @@ export type AiUsageEventUncheckedUpdateManyWithoutUserInput = {
 
 export type AiUsageEventCreateManyCampaignInput = {
   id?: string
-  userId: string
+  userId?: string | null
   campaignRunId?: string | null
   operation: string
   provider?: string
@@ -952,13 +952,13 @@ export type AiUsageEventUpdateWithoutCampaignInput = {
   costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   metadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutAiUsageEventsNestedInput
+  user?: Prisma.UserUpdateOneWithoutAiUsageEventsNestedInput
   campaignRun?: Prisma.CampaignRunUpdateOneWithoutUsageEventsNestedInput
 }
 
 export type AiUsageEventUncheckedUpdateWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
@@ -973,7 +973,7 @@ export type AiUsageEventUncheckedUpdateWithoutCampaignInput = {
 
 export type AiUsageEventUncheckedUpdateManyWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
@@ -988,7 +988,7 @@ export type AiUsageEventUncheckedUpdateManyWithoutCampaignInput = {
 
 export type AiUsageEventCreateManyCampaignRunInput = {
   id?: string
-  userId: string
+  userId?: string | null
   campaignId?: string | null
   operation: string
   provider?: string
@@ -1012,13 +1012,13 @@ export type AiUsageEventUpdateWithoutCampaignRunInput = {
   costUsd?: Prisma.FloatFieldUpdateOperationsInput | number
   metadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutAiUsageEventsNestedInput
+  user?: Prisma.UserUpdateOneWithoutAiUsageEventsNestedInput
   campaign?: Prisma.CampaignUpdateOneWithoutAiUsageEventsNestedInput
 }
 
 export type AiUsageEventUncheckedUpdateWithoutCampaignRunInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1033,7 +1033,7 @@ export type AiUsageEventUncheckedUpdateWithoutCampaignRunInput = {
 
 export type AiUsageEventUncheckedUpdateManyWithoutCampaignRunInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   campaignId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
   provider?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1062,7 +1062,7 @@ export type AiUsageEventSelect<ExtArgs extends runtime.Types.Extensions.Internal
   costUsd?: boolean
   metadataJson?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.AiUsageEvent$userArgs<ExtArgs>
   campaign?: boolean | Prisma.AiUsageEvent$campaignArgs<ExtArgs>
   campaignRun?: boolean | Prisma.AiUsageEvent$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["aiUsageEvent"]>
@@ -1081,7 +1081,7 @@ export type AiUsageEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   costUsd?: boolean
   metadataJson?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.AiUsageEvent$userArgs<ExtArgs>
   campaign?: boolean | Prisma.AiUsageEvent$campaignArgs<ExtArgs>
   campaignRun?: boolean | Prisma.AiUsageEvent$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["aiUsageEvent"]>
@@ -1100,7 +1100,7 @@ export type AiUsageEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   costUsd?: boolean
   metadataJson?: boolean
   createdAt?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.AiUsageEvent$userArgs<ExtArgs>
   campaign?: boolean | Prisma.AiUsageEvent$campaignArgs<ExtArgs>
   campaignRun?: boolean | Prisma.AiUsageEvent$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["aiUsageEvent"]>
@@ -1123,17 +1123,17 @@ export type AiUsageEventSelectScalar = {
 
 export type AiUsageEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "campaignId" | "campaignRunId" | "operation" | "provider" | "model" | "inputTokens" | "outputTokens" | "totalTokens" | "costUsd" | "metadataJson" | "createdAt", ExtArgs["result"]["aiUsageEvent"]>
 export type AiUsageEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.AiUsageEvent$userArgs<ExtArgs>
   campaign?: boolean | Prisma.AiUsageEvent$campaignArgs<ExtArgs>
   campaignRun?: boolean | Prisma.AiUsageEvent$campaignRunArgs<ExtArgs>
 }
 export type AiUsageEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.AiUsageEvent$userArgs<ExtArgs>
   campaign?: boolean | Prisma.AiUsageEvent$campaignArgs<ExtArgs>
   campaignRun?: boolean | Prisma.AiUsageEvent$campaignRunArgs<ExtArgs>
 }
 export type AiUsageEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.AiUsageEvent$userArgs<ExtArgs>
   campaign?: boolean | Prisma.AiUsageEvent$campaignArgs<ExtArgs>
   campaignRun?: boolean | Prisma.AiUsageEvent$campaignRunArgs<ExtArgs>
 }
@@ -1141,13 +1141,13 @@ export type AiUsageEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types
 export type $AiUsageEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AiUsageEvent"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs> | null
     campaign: Prisma.$CampaignPayload<ExtArgs> | null
     campaignRun: Prisma.$CampaignRunPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    userId: string
+    userId: string | null
     campaignId: string | null
     campaignRunId: string | null
     operation: string
@@ -1553,7 +1553,7 @@ readonly fields: AiUsageEventFieldRefs;
  */
 export interface Prisma__AiUsageEventClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.AiUsageEvent$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiUsageEvent$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   campaign<T extends Prisma.AiUsageEvent$campaignArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiUsageEvent$campaignArgs<ExtArgs>>): Prisma.Prisma__CampaignClient<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   campaignRun<T extends Prisma.AiUsageEvent$campaignRunArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AiUsageEvent$campaignRunArgs<ExtArgs>>): Prisma.Prisma__CampaignRunClient<runtime.Types.Result.GetResult<Prisma.$CampaignRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1991,6 +1991,25 @@ export type AiUsageEventDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many AiUsageEvents to delete.
    */
   limit?: number
+}
+
+/**
+ * AiUsageEvent.user
+ */
+export type AiUsageEvent$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

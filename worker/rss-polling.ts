@@ -131,6 +131,7 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
       createdPosts += 1;
       await enqueueRedditItemEmbedding({
         redditItemId: redditItem.id,
+        source: "rss_poll",
       });
       queuedEmbeddings += 1;
     }

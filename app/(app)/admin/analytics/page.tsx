@@ -14,6 +14,7 @@ import { prisma } from "@/lib/prisma";
 import { getSaasConfig } from "@/lib/saas-config";
 
 const STRONG_LEAD_SCORE = 80;
+const DAILY_REDDIT_ITEM_EMBEDDING_OPERATION = "daily_reddit_item_embedding";
 
 type AnalyticsSearchParams = {
   userId?: string;
@@ -136,6 +137,9 @@ export default async function AdminAnalyticsPage({
     : [];
 
   const totalCost = usageEvents.reduce((sum, event) => sum + calculateDisplayCost(event, selectedPriceModel), 0);
+  const dailyIngestCost = usageEvents
+    .filter((event) => event.operation === DAILY_REDDIT_ITEM_EMBEDDING_OPERATION)
+    .reduce((sum, event) => sum + calculateDisplayCost(event, selectedPriceModel), 0);
   const totalStrongLeads = leads.filter(isStrongClassifiedLead).length;
 
   return (
@@ -189,10 +193,11 @@ export default async function AdminAnalyticsPage({
         </div>
       </section>
 
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <MetricCard label="Users" value={String(users.length)} />
         <MetricCard label="Campaigns" value={String(campaigns.length)} />
         <MetricCard label="Strong leads" value={String(totalStrongLeads)} />
+        <MetricCard label="Daily ingest cost" value={formatCurrency(dailyIngestCost)} />
         <MetricCard label="Tracked cost" value={formatCurrency(totalCost)} />
       </section>
 
@@ -355,7 +360,7 @@ function sumUsageCosts<T extends {
   operation: string;
   outputTokens: number | null;
   totalTokens: number | null;
-  userId: string;
+  userId: string | null;
 }>(items: T[], priceModel: LeadScoringModelId, getKey: (item: T) => string | null) {
   const costs = new Map<string, number>();
 

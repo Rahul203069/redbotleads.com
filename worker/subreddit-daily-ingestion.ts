@@ -90,6 +90,7 @@ export async function runSubredditDailyIngest(
       createdPosts += 1;
       await enqueueRedditItemEmbedding({
         redditItemId: redditItem.id,
+        source: "subreddit_daily_ingest",
       });
       queuedEmbeddings += 1;
     }

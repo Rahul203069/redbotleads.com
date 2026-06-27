@@ -1,0 +1,8 @@
+ALTER TABLE "AiUsageEvent" DROP CONSTRAINT "AiUsageEvent_userId_fkey";
+
+ALTER TABLE "AiUsageEvent" ALTER COLUMN "userId" DROP NOT NULL;
+
+ALTER TABLE "AiUsageEvent"
+  ADD CONSTRAINT "AiUsageEvent_userId_fkey"
+  FOREIGN KEY ("userId") REFERENCES "User"("id")
+  ON DELETE SET NULL ON UPDATE CASCADE;

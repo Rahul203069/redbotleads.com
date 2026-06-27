@@ -1,7 +1,7 @@
 "use client";
 
 import { Settings2 } from "lucide-react";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useCallback, useEffect, useState } from "react";
 
 import { updateSaasSettings, type AdminSettingsActionState } from "@/actions/admin-settings";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,16 @@ export function SaasSettingsDialog({
 }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [state, formAction, isPending] = useActionState(updateSaasSettings, initialState);
+  const submitSettings = useCallback(async (_previousState: AdminSettingsActionState, formData: FormData) => {
+    const result = await updateSaasSettings(_previousState, formData);
+
+    if (result.status === "success") {
+      setOpen(false);
+    }
+
+    return result;
+  }, []);
+  const [state, formAction, isPending] = useActionState(submitSettings, initialState);
 
   useEffect(() => {
     if (state.status === "success" && state.message) {
@@ -40,7 +49,6 @@ export function SaasSettingsDialog({
         title: "Settings saved",
         description: state.message,
       });
-      setOpen(false);
     }
 
     if (state.status === "error" && state.message) {

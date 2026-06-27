@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ScrollText } from "lucide-react";
 
+import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { DailyRssIngestionControl } from "@/components/admin/daily-rss-ingestion-control";
 import { SaasSettingsDialog } from "@/components/admin/saas-settings-dialog";
 import { SubredditPerformanceDialog } from "@/components/admin/subreddit-performance-dialog";
@@ -241,31 +242,43 @@ export default async function AdminAnalyticsPage({
                 const active = selectedCampaign?.id === campaign.id;
 
                 return (
-                  <Link
-                    className={`block rounded-[14px] border px-4 py-3 transition-colors ${
+                  <div
+                    className={`rounded-[14px] border px-4 py-3 transition-colors ${
                       active
                         ? "border-[#1ed760]/40 bg-[#1f1f1f] text-[#ffffff] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
                         : "border-transparent bg-[#121212] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#1f1f1f]"
                     }`}
-                    href={buildAnalyticsHref({ campaignId: campaign.id, priceModel: selectedPriceModel, userId: campaign.userId })}
                     key={campaign.id}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
+                      <Link
+                        className="min-w-0 flex-1"
+                        href={buildAnalyticsHref({ campaignId: campaign.id, priceModel: selectedPriceModel, userId: campaign.userId })}
+                      >
                         <p className="truncate text-[13px] font-bold">{campaign.name}</p>
                         <p className={`mt-1 text-[12px] ${active ? "text-[#cbcbcb]" : "text-[#b3b3b3]"}`}>
                           {campaign.subreddits.length} subreddit{campaign.subreddits.length === 1 ? "" : "s"}
                         </p>
+                      </Link>
+                      <div className="flex shrink-0 flex-col items-end gap-2">
+                        <StatusPill label={campaign.isActive ? "Active" : "Inactive"} />
+                        <CampaignActiveToggle
+                          campaignId={campaign.id}
+                          campaignName={campaign.name}
+                          initialIsActive={campaign.isActive}
+                        />
                       </div>
-                      <StatusPill label={campaign.isActive ? "Active" : "Paused"} />
                     </div>
-                    <div className="mt-3 grid grid-cols-4 gap-2 text-[11px]">
+                    <Link
+                      className="mt-3 grid grid-cols-4 gap-2 text-[11px]"
+                      href={buildAnalyticsHref({ campaignId: campaign.id, priceModel: selectedPriceModel, userId: campaign.userId })}
+                    >
                       <SmallStat label="Leads" value={campaignLeads.length} />
                       <SmallStat label="Strong" value={campaignLeads.filter(isStrongClassifiedLead).length} />
                       <SmallStat label="Runs" value={runCountByCampaignId.get(campaign.id) ?? 0} />
                       <SmallStat label="Cost" value={formatCurrency(campaignCostById.get(campaign.id) ?? 0)} />
-                    </div>
-                  </Link>
+                    </Link>
+                  </div>
                 );
               })}
             </div>

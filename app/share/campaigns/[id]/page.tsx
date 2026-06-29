@@ -53,6 +53,9 @@ export default async function PublicCampaignResultsPage({
   const leads = (await getPublicCampaignLeadViews(campaign.id))
     .filter((lead) => lead.ai !== null)
     .sort((left, right) => right.score - left.score);
+  const publicCampaignName = campaign.name.trim().toLowerCase().startsWith("pay")
+    ? "paycron"
+    : campaign.name;
   const lastUpdated = campaign.sync?.completedAt ?? campaign.sync?.updatedAt ?? campaign.updatedAt;
 
   return (
@@ -81,7 +84,7 @@ export default async function PublicCampaignResultsPage({
                 {campaign.sync?.status ? <HeroChip label={campaign.sync.status.toLowerCase()} /> : null}
               </div>
               <h1 className="mt-5 text-[1.85rem] font-bold leading-tight text-[#fdfdfd] [overflow-wrap:anywhere] sm:text-[2.5rem] lg:text-[3rem]">
-                {campaign.name}
+                {publicCampaignName}
               </h1>
               <p className="mt-4 max-w-[70ch] text-[15px] leading-6 text-[#cbcbcb]">
                 {campaign.description || "No campaign description was added."}

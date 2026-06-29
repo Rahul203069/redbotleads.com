@@ -53,10 +53,7 @@ export default async function PublicCampaignResultsPage({
   const leads = (await getPublicCampaignLeadViews(campaign.id))
     .filter((lead) => lead.ai !== null)
     .sort((left, right) => right.score - left.score);
-  const highIntentCount = leads.filter((lead) => lead.label === "HIGH").length;
   const lastUpdated = campaign.sync?.completedAt ?? campaign.sync?.updatedAt ?? campaign.updatedAt;
-  const syncStats = campaign.sync?.statsJson as { fetchedPosts?: number } | null;
-  const scrapedPosts = syncStats?.fetchedPosts ?? 0;
 
   return (
     <main className="min-h-screen bg-[#050505] px-3 py-3 text-[#fdfdfd] sm:px-6 sm:py-5 lg:px-8">
@@ -76,7 +73,7 @@ export default async function PublicCampaignResultsPage({
         </header>
 
         <section className="rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] sm:rounded-[28px] sm:p-7 lg:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
             <div className="min-w-0 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
                 <HeroChip label="Shared results" />
@@ -89,12 +86,6 @@ export default async function PublicCampaignResultsPage({
               <p className="mt-4 max-w-[70ch] text-[15px] leading-6 text-[#cbcbcb]">
                 {campaign.description || "No campaign description was added."}
               </p>
-            </div>
-            <div className="grid w-full grid-cols-2 gap-3 lg:min-w-[560px] lg:grid-cols-4">
-              <Metric label="Classified leads" value={String(leads.length)} />
-              <Metric label="High intent" value={String(highIntentCount)} />
-              <Metric label="Posts scraped" value={String(scrapedPosts)} />
-              <Metric label="Subreddits" value={String(campaign.subreddits.length)} />
             </div>
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-white/8 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3] sm:gap-3 sm:tracking-[0.18em]">
@@ -183,15 +174,6 @@ function PublicLeadCard({ lead }: { lead: CampaignLeadView }) {
         </div>
       </div>
     </article>
-  );
-}
-
-function Metric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0 rounded-[16px] bg-[#121212] px-3 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:rounded-[18px] sm:px-4 sm:py-4">
-      <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#b3b3b3] sm:text-[10px] sm:tracking-[0.18em]">{label}</div>
-      <div className="mt-2 text-[24px] font-bold leading-none text-[#ffffff] sm:text-[28px]">{value}</div>
-    </div>
   );
 }
 

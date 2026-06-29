@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 export const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
 export const DAILY_STRONG_LEAD_SCORE = 75;
 export const DAILY_LEADS_PAGE_SIZE = 50;
+export const DAILY_LEAD_SEMANTIC_STATUS_OPTIONS = ["ALL", "MATCHED", "NO_MATCH"] as const;
 
 export type DailyLeadDateRange = {
   from: Date;
@@ -10,6 +11,7 @@ export type DailyLeadDateRange = {
   source: "query" | "server";
 };
 
+export type DailyLeadSemanticStatusFilter = (typeof DAILY_LEAD_SEMANTIC_STATUS_OPTIONS)[number];
 export type DailyLeadAnalytics = Awaited<ReturnType<typeof getDailyLeadAnalytics>>;
 
 export function parseDailyLeadsPage(value: string | number | undefined) {
@@ -20,6 +22,14 @@ export function parseDailyLeadsPage(value: string | number | undefined) {
   }
 
   return page;
+}
+
+export function parseDailyLeadSemanticStatus(value: string | undefined): DailyLeadSemanticStatusFilter {
+  const normalized = String(value ?? "ALL").trim().toUpperCase();
+
+  return DAILY_LEAD_SEMANTIC_STATUS_OPTIONS.includes(normalized as DailyLeadSemanticStatusFilter)
+    ? normalized as DailyLeadSemanticStatusFilter
+    : "ALL";
 }
 
 export function getDailyLeadDateRange(input: {
@@ -55,6 +65,7 @@ export async function getDailyLeadAnalytics({
   userId,
   page = 1,
   pageSize = DAILY_LEADS_PAGE_SIZE,
+  semanticStatus = "ALL",
 }: {
   campaignId?: string;
   from: Date;
@@ -62,6 +73,7 @@ export async function getDailyLeadAnalytics({
   userId?: string;
   page?: number;
   pageSize?: number;
+  semanticStatus?: DailyLeadSemanticStatusFilter;
 }) {
   const currentPage = Math.max(1, Math.floor(page));
   const effectivePageSize = Math.max(1, Math.min(100, Math.floor(pageSize)));
@@ -75,6 +87,7 @@ export async function getDailyLeadAnalytics({
       gte: from,
       lt: to,
     },
+    ...(semanticStatus === "ALL" ? {} : { status: semanticStatus }),
     ...(campaignId || userId
       ? {
           campaign: campaignWhere,
@@ -323,6 +336,9 @@ export async function getDailyLeadAnalytics({
       totalPages,
       hasPreviousPage: currentPage > 1,
       hasNextPage: currentPage < totalPages,
+    },
+    filters: {
+      semanticStatus,
     },
     metrics: {
       cronRuns: cronRuns.length,

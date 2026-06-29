@@ -4,13 +4,16 @@ import { redirect } from "next/navigation";
 import { CopyJsonButton } from "@/components/admin/copy-json-button";
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
+import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semantic-filter";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import {
   DAILY_LEADS_PAGE_SIZE,
   DAILY_STRONG_LEAD_SCORE,
+  type DailyLeadSemanticStatusFilter,
   getDailyLeadAnalytics,
   getDailyLeadDateRange,
+  parseDailyLeadSemanticStatus,
   parseDailyLeadsPage,
 } from "@/lib/daily-leads-analytics";
 
@@ -18,6 +21,7 @@ type SearchParams = {
   campaignId?: string;
   from?: string;
   page?: string;
+  status?: string;
   to?: string;
 };
 
@@ -39,10 +43,12 @@ export default async function AdminDailyLeadsPage({
   const params = await Promise.resolve(searchParams ?? {});
   const range = getDailyLeadDateRange(params);
   const page = parseDailyLeadsPage(params.page);
+  const semanticStatus = parseDailyLeadSemanticStatus(params.status);
   const analytics = await getDailyLeadAnalytics({
     campaignId: params.campaignId,
     from: range.from,
     page,
+    semanticStatus,
     to: range.to,
   });
   const payload = {
@@ -52,6 +58,7 @@ export default async function AdminDailyLeadsPage({
       campaignId: params.campaignId ?? null,
       page: analytics.pagination.page,
       pageSize: DAILY_LEADS_PAGE_SIZE,
+      semanticStatus,
       strongScore: `> ${DAILY_STRONG_LEAD_SCORE}`,
     },
     metrics: analytics.metrics,
@@ -106,6 +113,18 @@ export default async function AdminDailyLeadsPage({
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end lg:justify-end">
             <DailyLeadsDateFilter />
+            <DailyLeadsSemanticFilter
+              currentStatus={semanticStatus}
+              hrefForStatus={(targetStatus) =>
+                buildDailyLeadsHref({
+                  campaignId: params.campaignId,
+                  from: range.from,
+                  page: 1,
+                  status: targetStatus,
+                  to: range.to,
+                })
+              }
+            />
             <div className="flex gap-2">
               <CopyJsonButton label="Copy JSON" payload={payload} />
               <Link
@@ -126,6 +145,7 @@ export default async function AdminDailyLeadsPage({
             campaignId: params.campaignId,
             from: range.from,
             page: targetPage,
+            status: semanticStatus,
             to: range.to,
           })
         }
@@ -139,11 +159,13 @@ function buildDailyLeadsHref({
   campaignId,
   from,
   page,
+  status,
   to,
 }: {
   campaignId?: string;
   from: Date;
   page: number;
+  status?: DailyLeadSemanticStatusFilter;
   to: Date;
 }) {
   const params = new URLSearchParams({
@@ -151,6 +173,10 @@ function buildDailyLeadsHref({
     to: to.toISOString(),
     page: String(page),
   });
+
+  if (status && status !== "ALL") {
+    params.set("status", status);
+  }
 
   if (campaignId) {
     params.set("campaignId", campaignId);

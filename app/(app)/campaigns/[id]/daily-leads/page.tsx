@@ -3,14 +3,22 @@ import { notFound, redirect } from "next/navigation";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
+import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semantic-filter";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
-import { getDailyLeadAnalytics, getDailyLeadDateRange, parseDailyLeadsPage } from "@/lib/daily-leads-analytics";
+import {
+  type DailyLeadSemanticStatusFilter,
+  getDailyLeadAnalytics,
+  getDailyLeadDateRange,
+  parseDailyLeadSemanticStatus,
+  parseDailyLeadsPage,
+} from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
 
 type SearchParams = {
   from?: string;
   page?: string;
+  status?: string;
   to?: string;
 };
 
@@ -47,10 +55,12 @@ export default async function CampaignDailyLeadsPage({
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
   const range = getDailyLeadDateRange(resolvedSearchParams);
   const page = parseDailyLeadsPage(resolvedSearchParams.page);
+  const semanticStatus = parseDailyLeadSemanticStatus(resolvedSearchParams.status);
   const analytics = await getDailyLeadAnalytics({
     campaignId: campaign.id,
     from: range.from,
     page,
+    semanticStatus,
     to: range.to,
     userId: session.user.id,
   });
@@ -68,6 +78,18 @@ export default async function CampaignDailyLeadsPage({
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end lg:justify-end">
             <DailyLeadsDateFilter />
+            <DailyLeadsSemanticFilter
+              currentStatus={semanticStatus}
+              hrefForStatus={(targetStatus) =>
+                buildCampaignDailyLeadsHref({
+                  campaignId: campaign.id,
+                  from: range.from,
+                  page: 1,
+                  status: targetStatus,
+                  to: range.to,
+                })
+              }
+            />
             <Link href={`/campaigns/${campaign.id}`}>
               <Button
                 className="h-10 rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525]"
@@ -87,6 +109,7 @@ export default async function CampaignDailyLeadsPage({
             campaignId: campaign.id,
             from: range.from,
             page: targetPage,
+            status: semanticStatus,
             to: range.to,
           })
         }
@@ -99,11 +122,13 @@ function buildCampaignDailyLeadsHref({
   campaignId,
   from,
   page,
+  status,
   to,
 }: {
   campaignId: string;
   from: Date;
   page: number;
+  status?: DailyLeadSemanticStatusFilter;
   to: Date;
 }) {
   const params = new URLSearchParams({
@@ -111,6 +136,10 @@ function buildCampaignDailyLeadsHref({
     to: to.toISOString(),
     page: String(page),
   });
+
+  if (status && status !== "ALL") {
+    params.set("status", status);
+  }
 
   return `/campaigns/${campaignId}/daily-leads?${params.toString()}`;
 }

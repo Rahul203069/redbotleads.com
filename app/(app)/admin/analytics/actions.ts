@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { completeCronRun, createCronRun, failCronRun } from "@/lib/cron-runs";
 import {
   pauseDailyRssPoller,
   resumeDailyRssPoller,
@@ -9,7 +10,10 @@ import {
 } from "@/lib/daily-rss-poller-control";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
+import { enqueueDailySemanticCampaigns } from "@/lib/daily-semantic";
 import { prisma } from "@/lib/prisma";
+
+const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
 
 export type DailyRssPollerControlResult = {
   status: "success" | "error";
@@ -22,6 +26,58 @@ export type CampaignActiveToggleResult = {
   message: string;
   isActive?: boolean;
 };
+
+export type ManualDailySemanticResult = {
+  status: "success" | "error";
+  message: string;
+  cronRunId?: string;
+  queued?: number;
+  skipped?: number;
+  failed?: number;
+};
+
+export async function runDailySemanticOverride(): Promise<ManualDailySemanticResult> {
+  const session = await auth();
+
+  if (!session?.user?.id || !canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to run daily semantic filtering.",
+    };
+  }
+
+  const cronRun = await createCronRun(DAILY_SEMANTIC_CRON_PATH);
+
+  try {
+    const result = await enqueueDailySemanticCampaigns({
+      cronRunId: cronRun.id,
+    });
+
+    const message = `Daily semantic override queued ${result.queued} campaign${result.queued === 1 ? "" : "s"}.`;
+    await completeCronRun(cronRun.id, message, result);
+
+    revalidatePath("/admin/analytics");
+    revalidatePath("/admin/analytics/daily-leads");
+
+    return {
+      status: "success",
+      message,
+      cronRunId: cronRun.id,
+      queued: result.queued,
+      skipped: result.skipped,
+      failed: result.failed,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Daily semantic override failed.";
+    await failCronRun(cronRun.id, message);
+
+    return {
+      status: "error",
+      message: `Daily semantic override failed: ${message}`,
+      cronRunId: cronRun.id,
+    };
+  }
+}
 
 export async function pauseDailySubredditIngestion(): Promise<DailyRssPollerControlResult> {
   const session = await auth();

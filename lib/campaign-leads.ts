@@ -32,9 +32,13 @@ type NormalizedBuyerStage = NonNullable<CampaignLeadView["ai"]>["buyerStage"];
 
 export async function getCampaignLeadViewsForUser({
   campaignId,
+  from,
+  to,
   userId,
 }: {
   campaignId: string;
+  from?: Date;
+  to?: Date;
   userId: string;
 }): Promise<CampaignLeadView[]> {
   const campaign = await prisma.campaign.findFirst({
@@ -44,6 +48,16 @@ export async function getCampaignLeadViewsForUser({
     },
     select: {
       leads: {
+        where: {
+          ...(from && to
+            ? {
+                createdAt: {
+                  gte: from,
+                  lt: to,
+                },
+              }
+            : {}),
+        },
         orderBy: {
           createdAt: "desc",
         },

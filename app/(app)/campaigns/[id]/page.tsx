@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BarChart3, CalendarDays } from "lucide-react";
 
+import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-access-button";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
@@ -14,15 +15,24 @@ import { auth } from "@/lib/auth";
 import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
 import { isOwnerEmail } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
+import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
 
+type SearchParams = {
+  from?: string;
+  range?: string;
+  to?: string;
+};
+
 export default async function CampaignDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<SearchParams> | SearchParams;
 }) {
   const session = await auth();
 
@@ -31,6 +41,17 @@ export default async function CampaignDetailPage({
   }
 
   const { id } = await params;
+  const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
+  const leadRange = getDailyLeadDateRange(
+    resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
+      ? resolvedSearchParams
+      : { range: "all" },
+  );
+  const leadDateFilter = {
+    from: leadRange.source === "all" ? undefined : leadRange.from.toISOString(),
+    range: leadRange.source === "all" ? "all" : undefined,
+    to: leadRange.source === "all" ? undefined : leadRange.to.toISOString(),
+  };
 
   const campaign = await prisma.campaign.findFirst({
     where: {
@@ -91,6 +112,8 @@ export default async function CampaignDetailPage({
   }).format(nextSyncSource);
   const initialLeads = await getCampaignLeadViewsForUser({
     campaignId: campaign.id,
+    from: leadRange.from,
+    to: leadRange.to,
     userId: session.user.id,
   });
   const initialDiagnostics = await getCampaignInitialRssDiagnostics(campaign.id);
@@ -160,20 +183,23 @@ export default async function CampaignDetailPage({
           </div>
 
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-          <div className="min-w-0 max-w-3xl">
-            <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
-              {campaign.name}
-            </h1>
-            <p className="mt-3 max-w-[60ch] text-[15px] leading-6 text-[#cbcbcb] sm:truncate">
-              {campaign.description || "No campaign description added yet."}
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
-              <HeroChip label={`${leadCount} lead${leadCount === 1 ? "" : "s"} tracked`} />
-              <HeroChip label={`${highIntentCount} strong match${highIntentCount === 1 ? "" : "es"}`} />
+            <div className="min-w-0 max-w-3xl">
+              <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
+                {campaign.name}
+              </h1>
+              <p className="mt-3 max-w-[60ch] text-[15px] leading-6 text-[#cbcbcb] sm:truncate">
+                {campaign.description || "No campaign description added yet."}
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
+                <HeroChip label={`${leadCount} lead${leadCount === 1 ? "" : "s"} tracked`} />
+                <HeroChip label={`${highIntentCount} strong match${highIntentCount === 1 ? "" : "es"}`} />
+              </div>
+            </div>
+            <div className="w-full xl:w-auto">
+              <DailyLeadsDateFilter defaultRange="all" />
             </div>
           </div>
-        </div>
         </div>
       </section>
 
@@ -210,6 +236,7 @@ export default async function CampaignDetailPage({
               }
             : null
         }
+        leadDateFilter={leadDateFilter}
         nextSyncLabel={nextSync}
       />
     </div>

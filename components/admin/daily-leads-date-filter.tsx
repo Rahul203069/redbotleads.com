@@ -5,7 +5,11 @@ import type { FormEvent } from "react";
 import { CalendarDays } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export function DailyLeadsDateFilter() {
+export function DailyLeadsDateFilter({
+  defaultRange = "today",
+}: {
+  defaultRange?: "all" | "today";
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -25,8 +29,12 @@ export function DailyLeadsDateFilter() {
       return;
     }
 
-    router.replace(buildHref(pathname, searchParams, getLocalDayRange(getTodayInputValue())));
-  }, [hasRange, pathname, router, searchParams]);
+    router.replace(
+      defaultRange === "all"
+        ? buildAllTimeHref(pathname, searchParams)
+        : buildHref(pathname, searchParams, getLocalDayRange(getTodayInputValue())),
+    );
+  }, [defaultRange, hasRange, pathname, router, searchParams]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

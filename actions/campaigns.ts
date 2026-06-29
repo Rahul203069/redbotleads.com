@@ -7,6 +7,7 @@ import { Prisma } from "../generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { BETA_OWNER_ONLY_MESSAGE, isOwnerEmail } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
+import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
 import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { enqueueInitialIngest, getInitialIngestQueueFailureMessage } from "@/worker/queues";
@@ -745,15 +746,26 @@ export async function getCampaignSyncStatuses(campaignIds: string[]) {
   }));
 }
 
-export async function getCampaignLeads(campaignId: string) {
+export async function getCampaignLeads(
+  campaignId: string,
+  dateFilter?: {
+    from?: string;
+    range?: string;
+    to?: string;
+  },
+) {
   const session = await auth();
 
   if (!session?.user?.id || !campaignId) {
     return [];
   }
 
+  const range = dateFilter ? getDailyLeadDateRange(dateFilter) : getDailyLeadDateRange({ range: "all" });
+
   return getCampaignLeadViewsForUser({
     campaignId,
+    from: range.from,
+    to: range.to,
     userId: session.user.id,
   });
 }

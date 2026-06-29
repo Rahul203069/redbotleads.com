@@ -47,12 +47,18 @@ export function CampaignDetailLiveSections({
   initialDiagnostics,
   initialLeads,
   initialSync,
+  leadDateFilter,
   nextSyncLabel,
 }: {
   campaignId: string;
   initialDiagnostics: CampaignInitialRssDiagnostics;
   initialLeads: ClassifiedLead[];
   initialSync: CampaignSync;
+  leadDateFilter: {
+    from?: string;
+    range?: string;
+    to?: string;
+  };
   nextSyncLabel: string;
 }) {
   const [, startTransition] = useTransition();
@@ -83,7 +89,7 @@ export function CampaignDetailLiveSections({
       startTransition(async () => {
         const [latestSync, latestLeads, latestDiagnostics] = await Promise.all([
           getCampaignSyncStatuses([campaignId]),
-          getCampaignLeads(campaignId),
+          getCampaignLeads(campaignId, leadDateFilter),
           getCampaignInitialRssDiagnostics(campaignId),
         ]);
 
@@ -98,7 +104,7 @@ export function CampaignDetailLiveSections({
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [campaignId, isLive]);
+  }, [campaignId, isLive, leadDateFilter]);
 
   const classifiedLeads = useMemo(
     () => leads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE),

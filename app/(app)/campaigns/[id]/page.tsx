@@ -20,6 +20,8 @@ import { prisma } from "@/lib/prisma";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
+const DAILY_SEMANTIC_CRON_UTC_HOUR = 2;
+const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
 
 type SearchParams = {
   from?: string;
@@ -97,6 +99,21 @@ export default async function CampaignDetailPage({
   }
 
   const sync = await reconcileCampaignSyncState(campaign.id);
+  const latestSemanticRun = await prisma.campaignRun.findFirst({
+    where: {
+      campaignId: campaign.id,
+      trigger: "DAILY_SEMANTIC",
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      queuedAt: true,
+      startedAt: true,
+      completedAt: true,
+      failedAt: true,
+    },
+  });
 
   const lastSyncSource =
     sync?.completedAt ??
@@ -182,7 +199,7 @@ export default async function CampaignDetailPage({
             </div>
           </div>
 
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="flex flex-col gap-5">
             <div className="min-w-0 max-w-3xl">
               <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
                 {campaign.name}
@@ -196,7 +213,7 @@ export default async function CampaignDetailPage({
                 <HeroChip label={`${highIntentCount} strong match${highIntentCount === 1 ? "" : "es"}`} />
               </div>
             </div>
-            <div className="w-full xl:w-auto">
+            <div className="w-full">
               <DailyLeadsDateFilter defaultRange="all" />
             </div>
           </div>
@@ -238,9 +255,36 @@ export default async function CampaignDetailPage({
         }
         leadDateFilter={leadDateFilter}
         nextSyncLabel={nextSync}
+        semanticLastSyncAt={
+          (
+            latestSemanticRun?.completedAt ??
+            latestSemanticRun?.failedAt ??
+            latestSemanticRun?.startedAt ??
+            latestSemanticRun?.queuedAt
+          )?.toISOString() ?? null
+        }
+        semanticNextSyncAt={getNextDailySemanticCronAt().toISOString()}
       />
     </div>
   );
+}
+
+function getNextDailySemanticCronAt(now = new Date()) {
+  const next = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    DAILY_SEMANTIC_CRON_UTC_HOUR,
+    DAILY_SEMANTIC_CRON_UTC_MINUTE,
+    0,
+    0,
+  ));
+
+  if (next.getTime() <= now.getTime()) {
+    next.setUTCDate(next.getUTCDate() + 1);
+  }
+
+  return next;
 }
 
 function HeroChip({ label }: { label: string }) {

@@ -1,5 +1,7 @@
 "use client";
 
+const SHOW_WORKER_PROGRESS_CARD = false;
+
 export type CampaignSync = {
   status: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
   stage: "NONE" | "QUEUED" | "FETCHING_POSTS" | "FETCHING_COMMENTS" | "CLASSIFYING" | "NOTIFYING" | "COMPLETED" | "FAILED";
@@ -51,47 +53,49 @@ export function CampaignSyncPanel({
         <MetricCard label="Strong matches" value={String(summaryMetrics.highIntentCount)} />
       </div>
 
-      <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
-        <div className="flex flex-col gap-4 border-b border-white/8 pb-5 lg:flex-row lg:items-start lg:justify-between">
-          <div>
-            <h2 className="text-[24px] font-bold tracking-tight text-[#ffffff]">Worker progress</h2>
-            <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
-              {sync?.message ?? "No sync activity yet. Activate or manually run the campaign to start processing."}
-            </p>
-            {sync?.lastError ? (
-              <p className="mt-3 text-[14px] leading-6 text-[#f3727f]">{sync.lastError}</p>
-            ) : null}
-            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
-              <InlineStat label="Posts scraped" value={String(sync?.statsJson?.fetchedPosts ?? 0)} />
-              <InlineStat label="Leads filtered" value={String(sync?.statsJson?.semanticPassedLeads ?? 0)} />
+      {SHOW_WORKER_PROGRESS_CARD ? (
+        <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
+          <div className="flex flex-col gap-4 border-b border-white/8 pb-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h2 className="text-[24px] font-bold tracking-tight text-[#ffffff]">Worker progress</h2>
+              <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
+                {sync?.message ?? "No sync activity yet. Activate or manually run the campaign to start processing."}
+              </p>
+              {sync?.lastError ? (
+                <p className="mt-3 text-[14px] leading-6 text-[#f3727f]">{sync.lastError}</p>
+              ) : null}
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                <InlineStat label="Posts scraped" value={String(sync?.statsJson?.fetchedPosts ?? 0)} />
+                <InlineStat label="Leads filtered" value={String(sync?.statsJson?.semanticPassedLeads ?? 0)} />
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusBadge status={sync?.status ?? "IDLE"} />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusBadge status={sync?.status ?? "IDLE"} />
-          </div>
-        </div>
 
-        <div className="mt-5">
-          <div className="flex items-end justify-between gap-4">
-            <div className="flex items-end gap-3">
-              <p className="text-[28px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">{progress}%</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Processing</p>
+          <div className="mt-5">
+            <div className="flex items-end justify-between gap-4">
+              <div className="flex items-end gap-3">
+                <p className="text-[28px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">{progress}%</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Processing</p>
+              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                {getProgressLabel(sync, nextSyncLabel)}
+              </p>
             </div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
-              {getProgressLabel(sync, nextSyncLabel)}
-            </p>
-          </div>
 
-          <div className="mt-3 h-2 rounded-full bg-[#121212]">
-            <div
-              className={`h-2 rounded-full transition-all ${
-                sync?.status === "FAILED" ? "bg-[#f3727f]" : "bg-[#1ed760]"
-              }`}
-              style={{ width: `${progress}%` }}
-            />
+            <div className="mt-3 h-2 rounded-full bg-[#121212]">
+              <div
+                className={`h-2 rounded-full transition-all ${
+                  sync?.status === "FAILED" ? "bg-[#f3727f]" : "bg-[#1ed760]"
+                }`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </section>
   );
 }

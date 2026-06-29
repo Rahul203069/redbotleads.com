@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarDays, ScrollText } from "lucide-react";
+import { CalendarDays, Database, ScrollText } from "lucide-react";
 
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { DailySemanticOverrideButton } from "@/components/admin/daily-semantic-override-button";
@@ -174,59 +174,65 @@ export default async function AdminAnalyticsPage({
 
   return (
     <div className="space-y-5 text-[#ffffff]">
-      <section className="rounded-[24px] bg-[#181818] px-5 py-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:px-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
+      <section className="rounded-[24px] bg-[#181818] px-5 py-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:px-6 lg:py-6">
+        <div className="grid gap-5">
+          <div className="max-w-3xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Admin analytics</p>
             <h1 className="mt-2 text-[1.85rem] font-bold text-[#ffffff] lg:text-[2.2rem]">SaaS control board</h1>
-            <p className="mt-2 max-w-3xl text-[14px] leading-6 text-[#cbcbcb]">
-              Owner-only view of users, campaigns, run history, and tracked OpenAI API cost.
+            <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
+              Owner-only view of users, campaigns, run history, ingestion health, and tracked OpenAI API cost.
             </p>
           </div>
-          <div className="space-y-3">
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
-              <SaasSettingsDialog
-                leadScoringModel={saasConfig.leadScoringModel}
-                subredditSuggestionCount={saasConfig.subredditSuggestionCount}
-              />
-              <SubredditPerformanceDialog />
-              <DailyRssIngestionControl initialState={dailyRssPauseState} />
-              <DailySemanticOverrideButton />
-              <Link
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] sm:w-auto"
-                href="/admin/analytics/daily-leads"
-              >
-                <CalendarDays className="h-4 w-4" />
-                Daily Leads
-              </Link>
-              <Link
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] sm:w-auto"
-                href="/admin/analytics/rss-polling"
-              >
-                <ScrollText className="h-4 w-4" />
-                RSS Poll Logs
-              </Link>
+
+          <div className="grid gap-4 rounded-[20px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] lg:grid-cols-[1.1fr_1.2fr_0.9fr] lg:items-start">
+            <div className="grid gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Reports</p>
+                <span className="h-px flex-1 bg-white/8" />
+              </div>
+              <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                <AdminReportLink href="/admin/analytics/daily-leads" icon={<CalendarDays className="h-4 w-4" />} label="Daily Leads" />
+                <AdminReportLink href="/admin/analytics/daily-subreddit" icon={<Database className="h-4 w-4" />} label="Daily Subreddit" />
+                <AdminReportLink href="/admin/analytics/rss-polling" icon={<ScrollText className="h-4 w-4" />} label="RSS Poll Logs" />
+              </div>
             </div>
-            <div className="flex rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-              {LEAD_SCORING_MODEL_OPTIONS.map((model) => (
-                <Link
-                  className={`rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] transition-colors ${
-                    selectedPriceModel === model.id ? "bg-[#1ed760] text-[#121212]" : "text-[#b3b3b3] hover:text-[#ffffff]"
-                  }`}
-                  href={buildAnalyticsHref({
-                    campaignId: selectedCampaign?.id,
-                    priceModel: model.id,
-                    userId: selectedUser?.id,
-                  })}
-                  key={model.id}
-                >
-                  {model.label}
-                </Link>
-              ))}
+
+            <div className="grid gap-3 border-t border-white/8 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Controls</p>
+                <span className="h-px flex-1 bg-white/8" />
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <SaasSettingsDialog
+                  leadScoringModel={saasConfig.leadScoringModel}
+                  subredditSuggestionCount={saasConfig.subredditSuggestionCount}
+                />
+                <SubredditPerformanceDialog />
+                <DailyRssIngestionControl initialState={dailyRssPauseState} />
+                <DailySemanticOverrideButton />
+              </div>
             </div>
-            <p className="text-right text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
-              Lead scoring cost model
-            </p>
+
+            <div className="grid gap-2 border-t border-white/8 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Lead scoring cost model</p>
+              <div className="flex w-full flex-wrap rounded-full bg-[#181818] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] lg:flex-col lg:rounded-[16px]">
+                {LEAD_SCORING_MODEL_OPTIONS.map((model) => (
+                  <Link
+                    className={`min-h-9 flex-1 rounded-full px-3 py-2 text-center text-[11px] font-bold uppercase tracking-[0.14em] transition-colors lg:w-full ${
+                      selectedPriceModel === model.id ? "bg-[#1ed760] text-[#121212]" : "text-[#b3b3b3] hover:bg-[#1f1f1f] hover:text-[#ffffff]"
+                    }`}
+                    href={buildAnalyticsHref({
+                      campaignId: selectedCampaign?.id,
+                      priceModel: model.id,
+                      userId: selectedUser?.id,
+                    })}
+                    key={model.id}
+                  >
+                    {model.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -593,6 +599,18 @@ function formatTrigger(value: string) {
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function AdminReportLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
+  return (
+    <Link
+      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[14px] bg-[#1f1f1f] px-3 text-center text-[11px] font-bold uppercase tracking-[0.12em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
+      href={href}
+    >
+      {icon}
+      <span className="leading-4">{label}</span>
+    </Link>
+  );
 }
 
 function Panel({ children, description, title }: { children: React.ReactNode; description: string; title: string }) {

@@ -49,6 +49,8 @@ export function CampaignDetailLiveSections({
   initialSync,
   leadDateFilter,
   nextSyncLabel,
+  semanticLastSyncAt,
+  semanticNextSyncAt,
 }: {
   campaignId: string;
   initialDiagnostics: CampaignInitialRssDiagnostics;
@@ -60,11 +62,18 @@ export function CampaignDetailLiveSections({
     to?: string;
   };
   nextSyncLabel: string;
+  semanticLastSyncAt: string | null;
+  semanticNextSyncAt: string;
 }) {
   const [, startTransition] = useTransition();
   const [leads, setLeads] = useState(initialLeads);
   const [sync, setSync] = useState<CampaignSync>(initialSync);
   const [diagnostics, setDiagnostics] = useState<CampaignInitialRssDiagnostics>(initialDiagnostics);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     setLeads(initialLeads);
@@ -112,25 +121,14 @@ export function CampaignDetailLiveSections({
   );
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
-  const lastSyncSource = sync?.completedAt ?? sync?.failedAt ?? sync?.lastHeartbeat ?? sync?.updatedAt ?? null;
-
-  const lastSync = lastSyncSource
-    ? new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }).format(new Date(lastSyncSource))
-    : "Not run yet";
-
-  const nextSync = lastSyncSource
-    ? new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }).format(new Date(new Date(lastSyncSource).getTime() + 24 * 60 * 60 * 1000))
-    : nextSyncLabel;
+  const lastSync = hasMounted
+    ? semanticLastSyncAt
+      ? formatLocalDateTime(semanticLastSyncAt)
+      : "Not run yet"
+    : semanticLastSyncAt
+      ? "Loading..."
+      : "Not run yet";
+  const nextSync = hasMounted ? formatLocalDateTime(semanticNextSyncAt) : "Loading...";
 
   return (
     <>
@@ -148,4 +146,13 @@ export function CampaignDetailLiveSections({
       <ClassifiedLeadsPanel leads={classifiedLeads} syncStatus={sync?.status ?? "IDLE"} />
     </>
   );
+}
+
+function formatLocalDateTime(value: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
 }

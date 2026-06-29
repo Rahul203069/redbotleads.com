@@ -5,11 +5,12 @@ import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter
 import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
-import { getDailyLeadAnalytics, getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
+import { getDailyLeadAnalytics, getDailyLeadDateRange, parseDailyLeadsPage } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
 
 type SearchParams = {
   from?: string;
+  page?: string;
   to?: string;
 };
 
@@ -45,9 +46,11 @@ export default async function CampaignDailyLeadsPage({
 
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
   const range = getDailyLeadDateRange(resolvedSearchParams);
+  const page = parseDailyLeadsPage(resolvedSearchParams.page);
   const analytics = await getDailyLeadAnalytics({
     campaignId: campaign.id,
     from: range.from,
+    page,
     to: range.to,
     userId: session.user.id,
   });
@@ -77,7 +80,37 @@ export default async function CampaignDailyLeadsPage({
         </div>
       </section>
 
-      <DailyLeadsReport analytics={analytics} />
+      <DailyLeadsReport
+        analytics={analytics}
+        pageHref={(targetPage) =>
+          buildCampaignDailyLeadsHref({
+            campaignId: campaign.id,
+            from: range.from,
+            page: targetPage,
+            to: range.to,
+          })
+        }
+      />
     </div>
   );
+}
+
+function buildCampaignDailyLeadsHref({
+  campaignId,
+  from,
+  page,
+  to,
+}: {
+  campaignId: string;
+  from: Date;
+  page: number;
+  to: Date;
+}) {
+  const params = new URLSearchParams({
+    from: from.toISOString(),
+    to: to.toISOString(),
+    page: String(page),
+  });
+
+  return `/campaigns/${campaignId}/daily-leads?${params.toString()}`;
 }

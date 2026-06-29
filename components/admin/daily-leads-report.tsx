@@ -5,12 +5,17 @@ import type { DailyLeadAnalytics } from "@/lib/daily-leads-analytics";
 
 export function DailyLeadsReport({
   analytics,
+  pageHref,
   showOwner = false,
 }: {
   analytics: DailyLeadAnalytics;
+  pageHref: (page: number) => string;
   showOwner?: boolean;
 }) {
   const metrics = analytics.metrics;
+  const pagination = analytics.pagination;
+  const firstRow = pagination.totalRows === 0 ? 0 : (pagination.page - 1) * pagination.pageSize + 1;
+  const lastRow = Math.min(pagination.totalRows, pagination.page * pagination.pageSize);
 
   return (
     <>
@@ -27,6 +32,33 @@ export function DailyLeadsReport({
       </section>
 
       <section className="overflow-hidden rounded-[18px] bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+        <div className="flex flex-col gap-3 border-b border-[#27272a] bg-[#181818] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">Scanned post rows</p>
+            <p className="mt-1 text-[12px] text-[#cbcbcb]">
+              Showing {firstRow}-{lastRow} of {pagination.totalRows}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            {pagination.hasPreviousPage ? (
+              <Link className={paginationButtonClassName} href={pageHref(pagination.page - 1)}>
+                Previous
+              </Link>
+            ) : (
+              <span className={disabledPaginationButtonClassName}>Previous</span>
+            )}
+            <span className="inline-flex h-9 items-center rounded-full bg-[#121212] px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+              Page {pagination.page} / {pagination.totalPages}
+            </span>
+            {pagination.hasNextPage ? (
+              <Link className={paginationButtonClassName} href={pageHref(pagination.page + 1)}>
+                Next
+              </Link>
+            ) : (
+              <span className={disabledPaginationButtonClassName}>Next</span>
+            )}
+          </div>
+        </div>
         {analytics.rows.length === 0 ? (
           <div className="p-5 text-[13px] leading-5 text-[#b3b3b3]">No daily semantic lead rows matched this day.</div>
         ) : (
@@ -123,6 +155,12 @@ export function DailyLeadsReport({
     </>
   );
 }
+
+const paginationButtonClassName =
+  "inline-flex h-9 items-center rounded-full bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]";
+
+const disabledPaginationButtonClassName =
+  "inline-flex h-9 cursor-not-allowed items-center rounded-full bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#6f6f6f] opacity-60 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]";
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 
 export const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
 export const DAILY_STRONG_LEAD_SCORE = 75;
-export const DAILY_LEADS_LIMIT = 300;
+export const DAILY_LEADS_PAGE_SIZE = 50;
 
 export type DailyLeadDateRange = {
   from: Date;
@@ -11,6 +11,16 @@ export type DailyLeadDateRange = {
 };
 
 export type DailyLeadAnalytics = Awaited<ReturnType<typeof getDailyLeadAnalytics>>;
+
+export function parseDailyLeadsPage(value: string | number | undefined) {
+  const page = Number(value);
+
+  if (!Number.isInteger(page) || page < 1) {
+    return 1;
+  }
+
+  return page;
+}
 
 export function getDailyLeadDateRange(input: {
   from?: string;
@@ -43,12 +53,19 @@ export async function getDailyLeadAnalytics({
   from,
   to,
   userId,
+  page = 1,
+  pageSize = DAILY_LEADS_PAGE_SIZE,
 }: {
   campaignId?: string;
   from: Date;
   to: Date;
   userId?: string;
+  page?: number;
+  pageSize?: number;
 }) {
+  const currentPage = Math.max(1, Math.floor(page));
+  const effectivePageSize = Math.max(1, Math.min(100, Math.floor(pageSize)));
+  const skip = (currentPage - 1) * effectivePageSize;
   const campaignWhere = {
     ...(campaignId ? { id: campaignId } : {}),
     ...(userId ? { userId } : {}),
@@ -77,7 +94,7 @@ export async function getDailyLeadAnalytics({
       : {}),
   };
 
-  const [cronRuns, campaignRuns, scans] = await Promise.all([
+  const [cronRuns, campaignRuns, scanStatusCounts, matchedScansForMetrics, scans] = await Promise.all([
     prisma.cronRun.findMany({
       where: {
         path: DAILY_SEMANTIC_CRON_PATH,
@@ -111,6 +128,24 @@ export async function getDailyLeadAnalytics({
         createdAt: "desc",
       },
       take: 200,
+    }),
+    prisma.campaignDailySemanticScan.groupBy({
+      where: scanWhere,
+      by: ["status"],
+      _count: {
+        _all: true,
+      },
+    }),
+    prisma.campaignDailySemanticScan.findMany({
+      where: {
+        ...scanWhere,
+        status: "MATCHED",
+      },
+      select: {
+        campaignId: true,
+        campaignRunId: true,
+        redditItemId: true,
+      },
     }),
     prisma.campaignDailySemanticScan.findMany({
       where: scanWhere,
@@ -150,21 +185,27 @@ export async function getDailyLeadAnalytics({
       orderBy: {
         updatedAt: "desc",
       },
-      take: DAILY_LEADS_LIMIT,
+      skip,
+      take: effectivePageSize,
     }),
   ]);
 
-  const leadPairs = scans
+  const pageLeadPairs = scans
     .filter((scan) => scan.status === "MATCHED")
     .map((scan) => ({
       campaignId: scan.campaignId,
       redditItemId: scan.redditItemId,
     }));
-  const leads = leadPairs.length === 0
+  const metricLeadPairs = matchedScansForMetrics.map((scan) => ({
+    campaignId: scan.campaignId,
+    redditItemId: scan.redditItemId,
+  }));
+  const [leads, metricLeads] = await Promise.all([
+    pageLeadPairs.length === 0
     ? []
     : await prisma.lead.findMany({
         where: {
-          OR: leadPairs,
+          OR: pageLeadPairs,
         },
         include: {
           ai: {
@@ -189,7 +230,28 @@ export async function getDailyLeadAnalytics({
             },
           },
         },
-      });
+      }),
+    metricLeadPairs.length === 0
+      ? []
+      : prisma.lead.findMany({
+          where: {
+            OR: metricLeadPairs,
+          },
+          include: {
+            ai: {
+              select: {
+                id: true,
+              },
+            },
+            notifications: {
+              select: {
+                campaignRunId: true,
+                status: true,
+              },
+            },
+          },
+        }),
+  ]);
   const leadByPair = new Map(leads.map((lead) => [buildPairKey(lead.campaignId, lead.redditItemId), lead]));
 
   const rows = scans.map((scan) => {
@@ -230,25 +292,50 @@ export async function getDailyLeadAnalytics({
     };
   });
 
-  const matchedRows = rows.filter((row) => row.semanticStatus === "MATCHED");
-  const classifiedRows = matchedRows.filter((row) => row.lead?.classified);
+  const totalScans = scanStatusCounts.reduce((sum, entry) => sum + entry._count._all, 0);
+  const totalSemanticMatches =
+    scanStatusCounts.find((entry) => entry.status === "MATCHED")?._count._all ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalScans / effectivePageSize));
+  const metricLeadByPair = new Map(metricLeads.map((lead) => [buildPairKey(lead.campaignId, lead.redditItemId), lead]));
+  const matchedMetricRows = matchedScansForMetrics.map((scan) => {
+    const lead = metricLeadByPair.get(buildPairKey(scan.campaignId, scan.redditItemId)) ?? null;
+    const notification =
+      lead?.notifications.find((item) => item.campaignRunId && item.campaignRunId === scan.campaignRunId)
+      ?? lead?.notifications[0]
+      ?? null;
+
+    return {
+      classified: Boolean(lead?.ai),
+      notificationStatus: notification?.status ?? null,
+      score: lead?.score ?? 0,
+    };
+  });
+  const classifiedMetricRows = matchedMetricRows.filter((row) => row.classified);
 
   return {
     cronRuns,
     campaignRuns,
     rows,
+    pagination: {
+      page: currentPage,
+      pageSize: effectivePageSize,
+      totalRows: totalScans,
+      totalPages,
+      hasPreviousPage: currentPage > 1,
+      hasNextPage: currentPage < totalPages,
+    },
     metrics: {
       cronRuns: cronRuns.length,
       campaignsQueued: campaignRuns.length,
-      candidatesScanned: rows.length,
-      semanticMatches: matchedRows.length,
-      totalLeadsFound: matchedRows.length,
-      classifiedLeads: classifiedRows.length,
-      strongLeads: classifiedRows.filter((row) => row.lead?.strong).length,
-      notStrongLeads: classifiedRows.filter((row) => row.lead && !row.lead.strong).length,
-      pendingClassifications: matchedRows.filter((row) => !row.lead?.classified).length,
-      notificationsSent: rows.filter((row) => row.notification?.status === "SENT").length,
-      notificationsFailed: rows.filter((row) => row.notification?.status === "FAILED").length,
+      candidatesScanned: totalScans,
+      semanticMatches: totalSemanticMatches,
+      totalLeadsFound: totalSemanticMatches,
+      classifiedLeads: classifiedMetricRows.length,
+      strongLeads: classifiedMetricRows.filter((row) => row.score > DAILY_STRONG_LEAD_SCORE).length,
+      notStrongLeads: classifiedMetricRows.filter((row) => row.score <= DAILY_STRONG_LEAD_SCORE).length,
+      pendingClassifications: matchedMetricRows.filter((row) => !row.classified).length,
+      notificationsSent: matchedMetricRows.filter((row) => row.notificationStatus === "SENT").length,
+      notificationsFailed: matchedMetricRows.filter((row) => row.notificationStatus === "FAILED").length,
     },
   };
 }

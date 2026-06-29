@@ -56,6 +56,7 @@ function buildHref(pathname: string, currentParams: URLSearchParams, range: { fr
   const next = new URLSearchParams(currentParams.toString());
   next.set("from", range.from);
   next.set("to", range.to);
+  next.delete("page");
 
   return `${pathname}?${next.toString()}`;
 }

@@ -7,15 +7,17 @@ import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import {
-  DAILY_LEADS_LIMIT,
+  DAILY_LEADS_PAGE_SIZE,
   DAILY_STRONG_LEAD_SCORE,
   getDailyLeadAnalytics,
   getDailyLeadDateRange,
+  parseDailyLeadsPage,
 } from "@/lib/daily-leads-analytics";
 
 type SearchParams = {
   campaignId?: string;
   from?: string;
+  page?: string;
   to?: string;
 };
 
@@ -36,9 +38,11 @@ export default async function AdminDailyLeadsPage({
 
   const params = await Promise.resolve(searchParams ?? {});
   const range = getDailyLeadDateRange(params);
+  const page = parseDailyLeadsPage(params.page);
   const analytics = await getDailyLeadAnalytics({
     campaignId: params.campaignId,
     from: range.from,
+    page,
     to: range.to,
   });
   const payload = {
@@ -46,7 +50,8 @@ export default async function AdminDailyLeadsPage({
       from: range.from.toISOString(),
       to: range.to.toISOString(),
       campaignId: params.campaignId ?? null,
-      limit: DAILY_LEADS_LIMIT,
+      page: analytics.pagination.page,
+      pageSize: DAILY_LEADS_PAGE_SIZE,
       strongScore: `> ${DAILY_STRONG_LEAD_SCORE}`,
     },
     metrics: analytics.metrics,
@@ -114,7 +119,42 @@ export default async function AdminDailyLeadsPage({
         </div>
       </section>
 
-      <DailyLeadsReport analytics={analytics} showOwner />
+      <DailyLeadsReport
+        analytics={analytics}
+        pageHref={(targetPage) =>
+          buildDailyLeadsHref({
+            campaignId: params.campaignId,
+            from: range.from,
+            page: targetPage,
+            to: range.to,
+          })
+        }
+        showOwner
+      />
     </div>
   );
+}
+
+function buildDailyLeadsHref({
+  campaignId,
+  from,
+  page,
+  to,
+}: {
+  campaignId?: string;
+  from: Date;
+  page: number;
+  to: Date;
+}) {
+  const params = new URLSearchParams({
+    from: from.toISOString(),
+    to: to.toISOString(),
+    page: String(page),
+  });
+
+  if (campaignId) {
+    params.set("campaignId", campaignId);
+  }
+
+  return `/admin/analytics/daily-leads?${params.toString()}`;
 }

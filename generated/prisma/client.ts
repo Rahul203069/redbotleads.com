@@ -92,6 +92,11 @@ export type Campaign = Prisma.CampaignModel
  */
 export type CampaignRun = Prisma.CampaignRunModel
 /**
+ * Model CronRun
+ * 
+ */
+export type CronRun = Prisma.CronRunModel
+/**
  * Model CampaignInitialRssPollEvent
  * 
  */

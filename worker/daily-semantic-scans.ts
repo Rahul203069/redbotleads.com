@@ -8,6 +8,7 @@ export type DailySemanticScanStatus = "MATCHED" | "NO_MATCH";
 export type DailySemanticScanInput = {
   campaignId: string;
   redditItemId: string;
+  campaignRunId?: string | null;
   status: DailySemanticScanStatus;
   bestScore?: number | null;
   bestQueryId?: string | null;
@@ -29,6 +30,7 @@ export async function upsertDailySemanticScans(inputs: DailySemanticScanInput[])
         "id",
         "campaignId",
         "redditItemId",
+        "campaignRunId",
         "status",
         "bestScore",
         "bestQueryId",
@@ -40,6 +42,7 @@ export async function upsertDailySemanticScans(inputs: DailySemanticScanInput[])
         ${randomUUID()},
         ${input.campaignId},
         ${input.redditItemId},
+        ${input.campaignRunId ?? null},
         CAST(${input.status} AS "CampaignDailySemanticScanStatus"),
         ${input.bestScore ?? null},
         ${input.bestQueryId ?? null},
@@ -50,6 +53,7 @@ export async function upsertDailySemanticScans(inputs: DailySemanticScanInput[])
       ON CONFLICT ("campaignId", "redditItemId")
       DO UPDATE SET
         "status" = EXCLUDED."status",
+        "campaignRunId" = COALESCE(EXCLUDED."campaignRunId", "CampaignDailySemanticScan"."campaignRunId"),
         "bestScore" = EXCLUDED."bestScore",
         "bestQueryId" = EXCLUDED."bestQueryId",
         "bestQueryText" = EXCLUDED."bestQueryText",

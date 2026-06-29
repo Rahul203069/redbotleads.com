@@ -300,6 +300,7 @@ model CampaignRun {
   id         String @id @default(cuid())
   userId     String
   campaignId String
+  cronRunId  String?
 
   trigger String
   status  String @default("QUEUED")
@@ -319,12 +320,39 @@ model CampaignRun {
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  cronRun  CronRun? @relation(fields: [cronRunId], references: [id], onDelete: SetNull)
   usageEvents AiUsageEvent[]
   initialRssPollEvents CampaignInitialRssPollEvent[]
+  dailySemanticScans CampaignDailySemanticScan[]
+  notifications Notification[]
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([campaignId, createdAt(sort: Desc)])
+  @@index([cronRunId])
   @@index([status, updatedAt(sort: Desc)])
+}
+
+model CronRun {
+  id String @id @default(cuid())
+
+  path   String
+  status String @default("PROCESSING")
+  message String?
+  error   String?
+
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  failedAt    DateTime?
+
+  statsJson Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaignRuns CampaignRun[]
+
+  @@index([path, startedAt(sort: Desc)])
+  @@index([status, startedAt(sort: Desc)])
 }
 
 model CampaignInitialRssPollEvent {
@@ -471,6 +499,7 @@ model CampaignDailySemanticScan {
   id           String @id @default(cuid())
   campaignId   String
   redditItemId String
+  campaignRunId String?
 
   status        CampaignDailySemanticScanStatus
   bestScore     Float?
@@ -482,10 +511,12 @@ model CampaignDailySemanticScan {
 
   campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   redditItem RedditItem @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+  campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
 
   @@unique([campaignId, redditItemId])
   @@index([campaignId, status, updatedAt(sort: Desc)])
   @@index([redditItemId])
+  @@index([campaignRunId])
 }
 
 model CampaignSync {
@@ -612,6 +643,7 @@ model LeadAI {
 model Notification {
   id      String       @id @default(cuid())
   leadId  String
+  campaignRunId String?
   channel NotifyChannel
   status  NotifyStatus @default(PENDING)
   error   String?
@@ -620,8 +652,10 @@ model Notification {
   createdAt DateTime @default(now())
 
   lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
 
   @@index([leadId, createdAt(sort: Desc)])
+  @@index([campaignRunId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
 }
 

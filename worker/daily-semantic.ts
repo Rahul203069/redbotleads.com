@@ -12,6 +12,12 @@ import {
   workerRedisConnection,
   workerSemanticConcurrency,
 } from "./config";
+import {
+  markCampaignRunCompleted,
+  markCampaignRunFailed,
+  markCampaignRunProcessing,
+  refreshDailySemanticCampaignRunStats,
+} from "./campaign-runs";
 import { upsertDailySemanticScans } from "./daily-semantic-scans";
 import { workerLogger } from "./logger";
 import {
@@ -59,6 +65,7 @@ worker.on("failed", (job, error) => {
 workerLogger.info("Daily semantic worker started");
 
 async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobId: string) {
+  try {
   const campaign = await prisma.campaign.findFirst({
     where: {
       id: data.campaignId,
@@ -72,13 +79,17 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
   });
 
   if (!campaign) {
+    await markCampaignRunCompleted(data.campaignRunId, "Skipping daily semantic search for inactive or missing campaign.");
     workerLogger.info({ jobId, campaignId: data.campaignId }, "Skipping daily semantic search for inactive or missing campaign");
     return { skipped: true, reason: "campaign_missing_or_inactive" };
   }
 
+  await markCampaignRunProcessing(data.campaignRunId, "Starting daily semantic search for this campaign.");
+
   const subreddits = Array.from(new Set(campaign.subreddits.map(normalizeSubredditName).filter(Boolean)));
 
   if (subreddits.length === 0) {
+    await markCampaignRunCompleted(data.campaignRunId, "Skipping daily semantic search because campaign has no subreddits.");
     workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping daily semantic search because campaign has no subreddits");
     return { skipped: true, reason: "no_subreddits" };
   }
@@ -90,6 +101,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
   });
 
   if (semanticQueryCount === 0) {
+    await markCampaignRunCompleted(data.campaignRunId, "Skipping daily semantic search because campaign has no semantic queries.");
     workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping daily semantic search because campaign has no semantic queries");
     return { skipped: true, reason: "no_semantic_queries" };
   }
@@ -125,11 +137,13 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
       .filter((redditItemId) => !matchByRedditItemId.has(redditItemId))
       .map((redditItemId) => ({
         campaignId: campaign.id,
+        campaignRunId: data.campaignRunId,
         redditItemId,
         status: "NO_MATCH" as const,
       }));
     const matchedScans = matchRows.map((match) => ({
       campaignId: campaign.id,
+      campaignRunId: data.campaignRunId,
       redditItemId: match.redditItemId,
       status: "MATCHED" as const,
       bestScore: match.similarity,
@@ -156,6 +170,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
         await enqueueLeadClassification({
           leadId: lead.id,
           campaignId: campaign.id,
+          campaignRunId: data.campaignRunId,
           trigger: "daily_semantic",
         });
         queuedClassifications += 1;
@@ -184,16 +199,37 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     "Daily semantic campaign search completed",
   );
 
-  return {
-    campaignId: campaign.id,
+  const stats = {
     scannedPosts,
     matchedPosts,
     noMatchPosts,
     createdLeads,
     reusedLeads,
     queuedClassifications,
+    totalLeadsFound: matchedPosts,
+    pendingClassifications: queuedClassifications,
     durationMs,
   };
+
+  if (queuedClassifications > 0) {
+    await markCampaignRunProcessing(data.campaignRunId, "Daily semantic leads are waiting for AI scoring.", stats);
+  } else {
+    await markCampaignRunCompleted(data.campaignRunId, "Daily semantic search complete. No new AI scoring was needed.", stats);
+  }
+
+  await refreshDailySemanticCampaignRunStats(data.campaignRunId);
+
+  return {
+    campaignId: campaign.id,
+    ...stats,
+  };
+  } catch (error) {
+    await markCampaignRunFailed(
+      data.campaignRunId,
+      error instanceof Error ? error.message : "Daily semantic search failed.",
+    );
+    throw error;
+  }
 }
 
 async function loadCandidateRows({

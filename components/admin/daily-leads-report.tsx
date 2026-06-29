@@ -1,0 +1,190 @@
+import Link from "next/link";
+import type React from "react";
+
+import type { DailyLeadAnalytics } from "@/lib/daily-leads-analytics";
+
+export function DailyLeadsReport({
+  analytics,
+  showOwner = false,
+}: {
+  analytics: DailyLeadAnalytics;
+  showOwner?: boolean;
+}) {
+  const metrics = analytics.metrics;
+
+  return (
+    <>
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+        <Metric label="Cron runs" value={metrics.cronRuns} />
+        <Metric label="Campaigns queued" value={metrics.campaignsQueued} />
+        <Metric label="Scanned" value={metrics.candidatesScanned} />
+        <Metric label="Total leads" value={metrics.totalLeadsFound} />
+        <Metric label="Strong" value={metrics.strongLeads} />
+        <Metric label="Not strong" value={metrics.notStrongLeads} />
+        <Metric label="Pending AI" value={metrics.pendingClassifications} />
+        <Metric label="Notifications sent" value={metrics.notificationsSent} />
+        <Metric label="Notification failures" value={metrics.notificationsFailed} />
+      </section>
+
+      <section className="overflow-hidden rounded-[18px] bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+        {analytics.rows.length === 0 ? (
+          <div className="p-5 text-[13px] leading-5 text-[#b3b3b3]">No daily semantic lead rows matched this day.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[1500px] border-collapse text-left text-[12px]">
+              <thead className="bg-[#181818] text-[10px] uppercase tracking-[0.16em] text-[#b3b3b3]">
+                <tr>
+                  <Th>Campaign</Th>
+                  {showOwner ? <Th>Owner</Th> : null}
+                  <Th>Run</Th>
+                  <Th>Scanned</Th>
+                  <Th>Subreddit</Th>
+                  <Th>Reddit item</Th>
+                  <Th>Semantic</Th>
+                  <Th>LLM</Th>
+                  <Th>Strength</Th>
+                  <Th>Notification</Th>
+                  <Th>Detail</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#27272a]">
+                {analytics.rows.map((row) => (
+                  <tr className="text-[#cbcbcb]" key={row.id}>
+                    <Td>
+                      <Link className="font-semibold text-[#ffffff] hover:text-[#1ed760]" href={`/campaigns/${row.campaignId}`}>
+                        {row.campaignName}
+                      </Link>
+                    </Td>
+                    {showOwner ? <Td>{row.owner}</Td> : null}
+                    <Td>
+                      <StatusPill status={row.runStatus} />
+                      {row.campaignRunId ? <div className="mt-1 text-[10px] text-[#8f8f8f]">{shortId(row.campaignRunId)}</div> : null}
+                    </Td>
+                    <Td>{formatDateTime(row.scannedAt)}</Td>
+                    <Td>r/{row.redditItem.subreddit}</Td>
+                    <Td>
+                      <div className="max-w-[360px]">
+                        <div className="line-clamp-2 font-semibold text-[#ffffff]">{row.redditItem.title || row.redditItem.body || "Untitled Reddit item"}</div>
+                        <div className="mt-1 text-[11px] text-[#8f8f8f]">Posted {formatDate(row.redditItem.createdUtc)}</div>
+                      </div>
+                    </Td>
+                    <Td>
+                      <StatusPill status={row.semanticStatus} />
+                      <div className="mt-1 text-[11px] text-[#b3b3b3]">{row.semanticScore === null ? "-" : row.semanticScore.toFixed(3)}</div>
+                    </Td>
+                    <Td>
+                      {row.lead?.classified ? (
+                        <>
+                          <div className="font-semibold text-[#ffffff]">{row.lead.label} / {row.lead.score}</div>
+                          {row.lead.category ? <div className="mt-1 text-[11px] text-[#8f8f8f]">{row.lead.category}</div> : null}
+                        </>
+                      ) : row.semanticStatus === "MATCHED" ? (
+                        <span className="text-[#f8c15c]">Pending</span>
+                      ) : (
+                        <span className="text-[#8f8f8f]">Skipped</span>
+                      )}
+                    </Td>
+                    <Td>
+                      {row.lead?.classified ? (
+                        <StatusPill status={row.lead.strong ? "STRONG" : "NOT_STRONG"} />
+                      ) : (
+                        "-"
+                      )}
+                    </Td>
+                    <Td>
+                      {row.notification ? (
+                        <>
+                          <StatusPill status={row.notification.status} />
+                          <div className="mt-1 text-[11px] text-[#8f8f8f]">{row.notification.channel}</div>
+                        </>
+                      ) : (
+                        <span className="text-[#8f8f8f]">None</span>
+                      )}
+                    </Td>
+                    <Td>
+                      <div className="max-w-[420px] space-y-2">
+                        {row.bestQueryText ? <div><span className="text-[#8f8f8f]">Query:</span> {row.bestQueryText}</div> : null}
+                        {row.lead?.summary ? <div><span className="text-[#8f8f8f]">AI:</span> {row.lead.summary}</div> : null}
+                        {row.notification?.error ? <div className="text-[#f3727f]">{row.notification.error}</div> : null}
+                        {row.redditItem.url ? (
+                          <a className="font-semibold text-[#1ed760] hover:text-[#3be477]" href={row.redditItem.url} rel="noreferrer" target="_blank">
+                            View on Reddit
+                          </a>
+                        ) : null}
+                      </div>
+                    </Td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-[18px] bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">{label}</div>
+      <div className="mt-2 truncate text-[18px] font-bold leading-none text-[#ffffff]">{value}</div>
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: string }) {
+  return (
+    <span className={`inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${getStatusTone(status)}`}>
+      {formatStatus(status)}
+    </span>
+  );
+}
+
+function Th({ children }: { children: React.ReactNode }) {
+  return <th className="px-4 py-3 font-semibold">{children}</th>;
+}
+
+function Td({ children }: { children: React.ReactNode }) {
+  return <td className="px-4 py-3 align-top">{children}</td>;
+}
+
+function getStatusTone(status: string) {
+  if (status === "COMPLETED" || status === "SENT" || status === "MATCHED" || status === "STRONG") {
+    return "bg-[#12351f] text-[#1ed760]";
+  }
+
+  if (status === "PROCESSING" || status === "QUEUED" || status === "PENDING") {
+    return "bg-[#332714] text-[#f8c15c]";
+  }
+
+  if (status === "FAILED" || status === "NOT_STRONG") {
+    return "bg-[#35161c] text-[#f3727f]";
+  }
+
+  return "bg-[#1f1f1f] text-[#cbcbcb]";
+}
+
+function formatStatus(value: string) {
+  return value.toLowerCase().replace(/_/g, " ");
+}
+
+function formatDateTime(value: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(value);
+}
+
+function formatDate(value: Date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(value);
+}
+
+function shortId(value: string) {
+  return value.slice(0, 8);
+}

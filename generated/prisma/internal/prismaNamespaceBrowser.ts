@@ -61,6 +61,7 @@ export const ModelName = {
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
   CampaignRun: 'CampaignRun',
+  CronRun: 'CronRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
   SubredditRssPollEvent: 'SubredditRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
@@ -228,6 +229,7 @@ export const CampaignRunScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   campaignId: 'campaignId',
+  cronRunId: 'cronRunId',
   trigger: 'trigger',
   status: 'status',
   message: 'message',
@@ -243,6 +245,23 @@ export const CampaignRunScalarFieldEnum = {
 } as const
 
 export type CampaignRunScalarFieldEnum = (typeof CampaignRunScalarFieldEnum)[keyof typeof CampaignRunScalarFieldEnum]
+
+
+export const CronRunScalarFieldEnum = {
+  id: 'id',
+  path: 'path',
+  status: 'status',
+  message: 'message',
+  error: 'error',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  statsJson: 'statsJson',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CronRunScalarFieldEnum = (typeof CronRunScalarFieldEnum)[keyof typeof CronRunScalarFieldEnum]
 
 
 export const CampaignInitialRssPollEventScalarFieldEnum = {
@@ -353,6 +372,7 @@ export const CampaignDailySemanticScanScalarFieldEnum = {
   id: 'id',
   campaignId: 'campaignId',
   redditItemId: 'redditItemId',
+  campaignRunId: 'campaignRunId',
   status: 'status',
   bestScore: 'bestScore',
   bestQueryId: 'bestQueryId',
@@ -456,6 +476,7 @@ export type LeadAIScalarFieldEnum = (typeof LeadAIScalarFieldEnum)[keyof typeof 
 export const NotificationScalarFieldEnum = {
   id: 'id',
   leadId: 'leadId',
+  campaignRunId: 'campaignRunId',
   channel: 'channel',
   status: 'status',
   error: 'error',

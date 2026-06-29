@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
-const STRONG_LEAD_SCORE = 80;
+const STRONG_LEAD_SCORE = 75;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 export default async function AppHomePage() {
@@ -57,7 +57,7 @@ export default async function AppHomePage() {
       where: {
         userId: session.user.id,
         score: {
-          gte: STRONG_LEAD_SCORE,
+          gt: STRONG_LEAD_SCORE,
         },
         ai: {
           isNot: null,
@@ -102,7 +102,7 @@ export default async function AppHomePage() {
     return (
       count +
       campaign.leads.filter(
-        (lead) => lead.ai && lead.score >= STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
+        (lead) => lead.ai && lead.score > STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
       ).length
     );
   }, 0);
@@ -131,7 +131,7 @@ export default async function AppHomePage() {
     .map((campaign) => ({
       id: campaign.id,
       name: campaign.name,
-      strongLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score >= STRONG_LEAD_SCORE).length,
+      strongLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score > STRONG_LEAD_SCORE).length,
       visibleLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE).length,
     }))
     .sort(

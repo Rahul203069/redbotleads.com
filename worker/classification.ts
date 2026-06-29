@@ -8,7 +8,7 @@ import {
   updateCampaignProgress,
 } from "./campaign-sync";
 import { finalizeCampaignLeadProcessing } from "./campaign-finalization";
-import { markCampaignRunFailed, markCampaignRunProcessing } from "./campaign-runs";
+import { markCampaignRunFailed, markCampaignRunProcessing, refreshDailySemanticCampaignRunStats } from "./campaign-runs";
 import { classifyLeadWithOpenAI } from "./classification-ai";
 import { workerClassificationConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
@@ -156,6 +156,8 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
           data.campaignRunId,
           `${lead.id} could not be scored, so it was marked LOW and skipped.`,
         );
+      } else if (data.trigger === "daily_semantic") {
+        await refreshDailySemanticCampaignRunStats(data.campaignRunId);
       }
 
       workerLogger.warn(
@@ -233,6 +235,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       const notification = await prisma.notification.create({
         data: {
           leadId: lead.id,
+          campaignRunId: data.campaignRunId ?? null,
           channel: notificationChannel,
           status: "PENDING",
         },
@@ -250,6 +253,8 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
 
     if (!isDetachedClassification) {
       await finalizeCampaignClassificationProgress(lead.campaignId, data.campaignRunId);
+    } else if (data.trigger === "daily_semantic") {
+      await refreshDailySemanticCampaignRunStats(data.campaignRunId);
     }
 
     workerLogger.info(
@@ -280,6 +285,8 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
     if (!isDetachedClassification) {
       await markCampaignFailed(lead.campaignId, "CLASSIFYING", errorMessage);
       await markCampaignRunFailed(data.campaignRunId, errorMessage);
+    } else if (data.trigger === "daily_semantic") {
+      await refreshDailySemanticCampaignRunStats(data.campaignRunId);
     }
 
     throw error;

@@ -46,6 +46,8 @@ export type SubredditDailyIngestJobData = {
 
 export type DailySemanticCampaignJobData = {
   campaignId: string;
+  campaignRunId?: string;
+  cronRunId?: string;
   queuedAt: string;
 };
 
@@ -494,8 +496,19 @@ export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJo
     return existingLiveJob;
   }
 
+  const campaignRun = data.campaignRunId
+    ? { id: data.campaignRunId }
+    : await createCampaignRun({
+        campaignId: data.campaignId,
+        cronRunId: data.cronRunId,
+        trigger: "DAILY_SEMANTIC",
+        message: "Daily semantic search queued.",
+      });
+
   return dailySemanticQueue.add(dailySemanticCampaignJobName, {
     campaignId: data.campaignId,
+    campaignRunId: campaignRun.id,
+    cronRunId: data.cronRunId,
     queuedAt: queuedAt.toISOString(),
   }, {
     jobId: buildJobId("daily-semantic", data.campaignId, queuedAt.toISOString().slice(0, 10)),

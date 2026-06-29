@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, CalendarDays } from "lucide-react";
 
 import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-access-button";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
@@ -125,6 +125,15 @@ export default async function CampaignDetailPage({
                   </Button>
                 </Link>
               ) : null}
+              <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/daily-leads`}>
+                <Button
+                  className="w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
+                  variant="secondary"
+                >
+                  <CalendarDays className="h-4 w-4" />
+                  Daily leads
+                </Button>
+              </Link>
               <CopyPublicCampaignLinkButton campaignId={campaign.id} />
               <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
               {canRunCampaigns ? (

@@ -38,6 +38,7 @@ export type CampaignDailySemanticScanMinAggregateOutputType = {
   id: string | null
   campaignId: string | null
   redditItemId: string | null
+  campaignRunId: string | null
   status: $Enums.CampaignDailySemanticScanStatus | null
   bestScore: number | null
   bestQueryId: string | null
@@ -50,6 +51,7 @@ export type CampaignDailySemanticScanMaxAggregateOutputType = {
   id: string | null
   campaignId: string | null
   redditItemId: string | null
+  campaignRunId: string | null
   status: $Enums.CampaignDailySemanticScanStatus | null
   bestScore: number | null
   bestQueryId: string | null
@@ -62,6 +64,7 @@ export type CampaignDailySemanticScanCountAggregateOutputType = {
   id: number
   campaignId: number
   redditItemId: number
+  campaignRunId: number
   status: number
   bestScore: number
   bestQueryId: number
@@ -84,6 +87,7 @@ export type CampaignDailySemanticScanMinAggregateInputType = {
   id?: true
   campaignId?: true
   redditItemId?: true
+  campaignRunId?: true
   status?: true
   bestScore?: true
   bestQueryId?: true
@@ -96,6 +100,7 @@ export type CampaignDailySemanticScanMaxAggregateInputType = {
   id?: true
   campaignId?: true
   redditItemId?: true
+  campaignRunId?: true
   status?: true
   bestScore?: true
   bestQueryId?: true
@@ -108,6 +113,7 @@ export type CampaignDailySemanticScanCountAggregateInputType = {
   id?: true
   campaignId?: true
   redditItemId?: true
+  campaignRunId?: true
   status?: true
   bestScore?: true
   bestQueryId?: true
@@ -207,6 +213,7 @@ export type CampaignDailySemanticScanGroupByOutputType = {
   id: string
   campaignId: string
   redditItemId: string
+  campaignRunId: string | null
   status: $Enums.CampaignDailySemanticScanStatus
   bestScore: number | null
   bestQueryId: string | null
@@ -242,6 +249,7 @@ export type CampaignDailySemanticScanWhereInput = {
   id?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
   campaignId?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
   redditItemId?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
+  campaignRunId?: Prisma.StringNullableFilter<"CampaignDailySemanticScan"> | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFilter<"CampaignDailySemanticScan"> | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.FloatNullableFilter<"CampaignDailySemanticScan"> | number | null
   bestQueryId?: Prisma.StringNullableFilter<"CampaignDailySemanticScan"> | string | null
@@ -250,12 +258,14 @@ export type CampaignDailySemanticScanWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CampaignDailySemanticScan"> | Date | string
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   redditItem?: Prisma.XOR<Prisma.RedditItemScalarRelationFilter, Prisma.RedditItemWhereInput>
+  campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
 }
 
 export type CampaignDailySemanticScanOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   redditItemId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   bestScore?: Prisma.SortOrderInput | Prisma.SortOrder
   bestQueryId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -264,6 +274,7 @@ export type CampaignDailySemanticScanOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   campaign?: Prisma.CampaignOrderByWithRelationInput
   redditItem?: Prisma.RedditItemOrderByWithRelationInput
+  campaignRun?: Prisma.CampaignRunOrderByWithRelationInput
 }
 
 export type CampaignDailySemanticScanWhereUniqueInput = Prisma.AtLeast<{
@@ -274,6 +285,7 @@ export type CampaignDailySemanticScanWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CampaignDailySemanticScanWhereInput | Prisma.CampaignDailySemanticScanWhereInput[]
   campaignId?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
   redditItemId?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
+  campaignRunId?: Prisma.StringNullableFilter<"CampaignDailySemanticScan"> | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFilter<"CampaignDailySemanticScan"> | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.FloatNullableFilter<"CampaignDailySemanticScan"> | number | null
   bestQueryId?: Prisma.StringNullableFilter<"CampaignDailySemanticScan"> | string | null
@@ -282,12 +294,14 @@ export type CampaignDailySemanticScanWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"CampaignDailySemanticScan"> | Date | string
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   redditItem?: Prisma.XOR<Prisma.RedditItemScalarRelationFilter, Prisma.RedditItemWhereInput>
+  campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
 }, "id" | "campaignId_redditItemId">
 
 export type CampaignDailySemanticScanOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   redditItemId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   bestScore?: Prisma.SortOrderInput | Prisma.SortOrder
   bestQueryId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -308,6 +322,7 @@ export type CampaignDailySemanticScanScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CampaignDailySemanticScan"> | string
   campaignId?: Prisma.StringWithAggregatesFilter<"CampaignDailySemanticScan"> | string
   redditItemId?: Prisma.StringWithAggregatesFilter<"CampaignDailySemanticScan"> | string
+  campaignRunId?: Prisma.StringNullableWithAggregatesFilter<"CampaignDailySemanticScan"> | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusWithAggregatesFilter<"CampaignDailySemanticScan"> | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.FloatNullableWithAggregatesFilter<"CampaignDailySemanticScan"> | number | null
   bestQueryId?: Prisma.StringNullableWithAggregatesFilter<"CampaignDailySemanticScan"> | string | null
@@ -326,12 +341,14 @@ export type CampaignDailySemanticScanCreateInput = {
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutDailySemanticScansInput
   redditItem: Prisma.RedditItemCreateNestedOneWithoutDailySemanticScansInput
+  campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutDailySemanticScansInput
 }
 
 export type CampaignDailySemanticScanUncheckedCreateInput = {
   id?: string
   campaignId: string
   redditItemId: string
+  campaignRunId?: string | null
   status: $Enums.CampaignDailySemanticScanStatus
   bestScore?: number | null
   bestQueryId?: string | null
@@ -350,12 +367,14 @@ export type CampaignDailySemanticScanUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutDailySemanticScansNestedInput
   redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutDailySemanticScansNestedInput
+  campaignRun?: Prisma.CampaignRunUpdateOneWithoutDailySemanticScansNestedInput
 }
 
 export type CampaignDailySemanticScanUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   redditItemId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -368,6 +387,7 @@ export type CampaignDailySemanticScanCreateManyInput = {
   id?: string
   campaignId: string
   redditItemId: string
+  campaignRunId?: string | null
   status: $Enums.CampaignDailySemanticScanStatus
   bestScore?: number | null
   bestQueryId?: string | null
@@ -390,6 +410,7 @@ export type CampaignDailySemanticScanUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   redditItemId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -417,6 +438,7 @@ export type CampaignDailySemanticScanCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   redditItemId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   bestScore?: Prisma.SortOrder
   bestQueryId?: Prisma.SortOrder
@@ -433,6 +455,7 @@ export type CampaignDailySemanticScanMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   redditItemId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   bestScore?: Prisma.SortOrder
   bestQueryId?: Prisma.SortOrder
@@ -445,6 +468,7 @@ export type CampaignDailySemanticScanMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   redditItemId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   bestScore?: Prisma.SortOrder
   bestQueryId?: Prisma.SortOrder
@@ -496,6 +520,48 @@ export type CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInp
   connect?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
   update?: Prisma.CampaignDailySemanticScanUpdateWithWhereUniqueWithoutCampaignInput | Prisma.CampaignDailySemanticScanUpdateWithWhereUniqueWithoutCampaignInput[]
   updateMany?: Prisma.CampaignDailySemanticScanUpdateManyWithWhereWithoutCampaignInput | Prisma.CampaignDailySemanticScanUpdateManyWithWhereWithoutCampaignInput[]
+  deleteMany?: Prisma.CampaignDailySemanticScanScalarWhereInput | Prisma.CampaignDailySemanticScanScalarWhereInput[]
+}
+
+export type CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput = {
+  create?: Prisma.XOR<Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput> | Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput[] | Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput[]
+  createMany?: Prisma.CampaignDailySemanticScanCreateManyCampaignRunInputEnvelope
+  connect?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+}
+
+export type CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput = {
+  create?: Prisma.XOR<Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput> | Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput[] | Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput[]
+  createMany?: Prisma.CampaignDailySemanticScanCreateManyCampaignRunInputEnvelope
+  connect?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+}
+
+export type CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput> | Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput[] | Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput[]
+  upsert?: Prisma.CampaignDailySemanticScanUpsertWithWhereUniqueWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanUpsertWithWhereUniqueWithoutCampaignRunInput[]
+  createMany?: Prisma.CampaignDailySemanticScanCreateManyCampaignRunInputEnvelope
+  set?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  disconnect?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  delete?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  connect?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  update?: Prisma.CampaignDailySemanticScanUpdateWithWhereUniqueWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanUpdateWithWhereUniqueWithoutCampaignRunInput[]
+  updateMany?: Prisma.CampaignDailySemanticScanUpdateManyWithWhereWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanUpdateManyWithWhereWithoutCampaignRunInput[]
+  deleteMany?: Prisma.CampaignDailySemanticScanScalarWhereInput | Prisma.CampaignDailySemanticScanScalarWhereInput[]
+}
+
+export type CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput> | Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput[] | Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput[]
+  upsert?: Prisma.CampaignDailySemanticScanUpsertWithWhereUniqueWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanUpsertWithWhereUniqueWithoutCampaignRunInput[]
+  createMany?: Prisma.CampaignDailySemanticScanCreateManyCampaignRunInputEnvelope
+  set?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  disconnect?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  delete?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  connect?: Prisma.CampaignDailySemanticScanWhereUniqueInput | Prisma.CampaignDailySemanticScanWhereUniqueInput[]
+  update?: Prisma.CampaignDailySemanticScanUpdateWithWhereUniqueWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanUpdateWithWhereUniqueWithoutCampaignRunInput[]
+  updateMany?: Prisma.CampaignDailySemanticScanUpdateManyWithWhereWithoutCampaignRunInput | Prisma.CampaignDailySemanticScanUpdateManyWithWhereWithoutCampaignRunInput[]
   deleteMany?: Prisma.CampaignDailySemanticScanScalarWhereInput | Prisma.CampaignDailySemanticScanScalarWhereInput[]
 }
 
@@ -562,11 +628,13 @@ export type CampaignDailySemanticScanCreateWithoutCampaignInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   redditItem: Prisma.RedditItemCreateNestedOneWithoutDailySemanticScansInput
+  campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutDailySemanticScansInput
 }
 
 export type CampaignDailySemanticScanUncheckedCreateWithoutCampaignInput = {
   id?: string
   redditItemId: string
+  campaignRunId?: string | null
   status: $Enums.CampaignDailySemanticScanStatus
   bestScore?: number | null
   bestQueryId?: string | null
@@ -608,12 +676,63 @@ export type CampaignDailySemanticScanScalarWhereInput = {
   id?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
   campaignId?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
   redditItemId?: Prisma.StringFilter<"CampaignDailySemanticScan"> | string
+  campaignRunId?: Prisma.StringNullableFilter<"CampaignDailySemanticScan"> | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFilter<"CampaignDailySemanticScan"> | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.FloatNullableFilter<"CampaignDailySemanticScan"> | number | null
   bestQueryId?: Prisma.StringNullableFilter<"CampaignDailySemanticScan"> | string | null
   bestQueryText?: Prisma.StringNullableFilter<"CampaignDailySemanticScan"> | string | null
   createdAt?: Prisma.DateTimeFilter<"CampaignDailySemanticScan"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CampaignDailySemanticScan"> | Date | string
+}
+
+export type CampaignDailySemanticScanCreateWithoutCampaignRunInput = {
+  id?: string
+  status: $Enums.CampaignDailySemanticScanStatus
+  bestScore?: number | null
+  bestQueryId?: string | null
+  bestQueryText?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  campaign: Prisma.CampaignCreateNestedOneWithoutDailySemanticScansInput
+  redditItem: Prisma.RedditItemCreateNestedOneWithoutDailySemanticScansInput
+}
+
+export type CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput = {
+  id?: string
+  campaignId: string
+  redditItemId: string
+  status: $Enums.CampaignDailySemanticScanStatus
+  bestScore?: number | null
+  bestQueryId?: string | null
+  bestQueryText?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CampaignDailySemanticScanCreateOrConnectWithoutCampaignRunInput = {
+  where: Prisma.CampaignDailySemanticScanWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput>
+}
+
+export type CampaignDailySemanticScanCreateManyCampaignRunInputEnvelope = {
+  data: Prisma.CampaignDailySemanticScanCreateManyCampaignRunInput | Prisma.CampaignDailySemanticScanCreateManyCampaignRunInput[]
+  skipDuplicates?: boolean
+}
+
+export type CampaignDailySemanticScanUpsertWithWhereUniqueWithoutCampaignRunInput = {
+  where: Prisma.CampaignDailySemanticScanWhereUniqueInput
+  update: Prisma.XOR<Prisma.CampaignDailySemanticScanUpdateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedUpdateWithoutCampaignRunInput>
+  create: Prisma.XOR<Prisma.CampaignDailySemanticScanCreateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedCreateWithoutCampaignRunInput>
+}
+
+export type CampaignDailySemanticScanUpdateWithWhereUniqueWithoutCampaignRunInput = {
+  where: Prisma.CampaignDailySemanticScanWhereUniqueInput
+  data: Prisma.XOR<Prisma.CampaignDailySemanticScanUpdateWithoutCampaignRunInput, Prisma.CampaignDailySemanticScanUncheckedUpdateWithoutCampaignRunInput>
+}
+
+export type CampaignDailySemanticScanUpdateManyWithWhereWithoutCampaignRunInput = {
+  where: Prisma.CampaignDailySemanticScanScalarWhereInput
+  data: Prisma.XOR<Prisma.CampaignDailySemanticScanUpdateManyMutationInput, Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunInput>
 }
 
 export type CampaignDailySemanticScanCreateWithoutRedditItemInput = {
@@ -625,11 +744,13 @@ export type CampaignDailySemanticScanCreateWithoutRedditItemInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutDailySemanticScansInput
+  campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutDailySemanticScansInput
 }
 
 export type CampaignDailySemanticScanUncheckedCreateWithoutRedditItemInput = {
   id?: string
   campaignId: string
+  campaignRunId?: string | null
   status: $Enums.CampaignDailySemanticScanStatus
   bestScore?: number | null
   bestQueryId?: string | null
@@ -667,6 +788,7 @@ export type CampaignDailySemanticScanUpdateManyWithWhereWithoutRedditItemInput =
 export type CampaignDailySemanticScanCreateManyCampaignInput = {
   id?: string
   redditItemId: string
+  campaignRunId?: string | null
   status: $Enums.CampaignDailySemanticScanStatus
   bestScore?: number | null
   bestQueryId?: string | null
@@ -684,11 +806,13 @@ export type CampaignDailySemanticScanUpdateWithoutCampaignInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutDailySemanticScansNestedInput
+  campaignRun?: Prisma.CampaignRunUpdateOneWithoutDailySemanticScansNestedInput
 }
 
 export type CampaignDailySemanticScanUncheckedUpdateWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   redditItemId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -699,6 +823,55 @@ export type CampaignDailySemanticScanUncheckedUpdateWithoutCampaignInput = {
 
 export type CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  redditItemId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
+  bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestQueryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CampaignDailySemanticScanCreateManyCampaignRunInput = {
+  id?: string
+  campaignId: string
+  redditItemId: string
+  status: $Enums.CampaignDailySemanticScanStatus
+  bestScore?: number | null
+  bestQueryId?: string | null
+  bestQueryText?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CampaignDailySemanticScanUpdateWithoutCampaignRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
+  bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestQueryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutDailySemanticScansNestedInput
+  redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutDailySemanticScansNestedInput
+}
+
+export type CampaignDailySemanticScanUncheckedUpdateWithoutCampaignRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  redditItemId?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
+  bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bestQueryText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   redditItemId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
@@ -711,6 +884,7 @@ export type CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignInput = {
 export type CampaignDailySemanticScanCreateManyRedditItemInput = {
   id?: string
   campaignId: string
+  campaignRunId?: string | null
   status: $Enums.CampaignDailySemanticScanStatus
   bestScore?: number | null
   bestQueryId?: string | null
@@ -728,11 +902,13 @@ export type CampaignDailySemanticScanUpdateWithoutRedditItemInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutDailySemanticScansNestedInput
+  campaignRun?: Prisma.CampaignRunUpdateOneWithoutDailySemanticScansNestedInput
 }
 
 export type CampaignDailySemanticScanUncheckedUpdateWithoutRedditItemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -744,6 +920,7 @@ export type CampaignDailySemanticScanUncheckedUpdateWithoutRedditItemInput = {
 export type CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumCampaignDailySemanticScanStatusFieldUpdateOperationsInput | $Enums.CampaignDailySemanticScanStatus
   bestScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   bestQueryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -758,6 +935,7 @@ export type CampaignDailySemanticScanSelect<ExtArgs extends runtime.Types.Extens
   id?: boolean
   campaignId?: boolean
   redditItemId?: boolean
+  campaignRunId?: boolean
   status?: boolean
   bestScore?: boolean
   bestQueryId?: boolean
@@ -766,12 +944,14 @@ export type CampaignDailySemanticScanSelect<ExtArgs extends runtime.Types.Extens
   updatedAt?: boolean
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["campaignDailySemanticScan"]>
 
 export type CampaignDailySemanticScanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   campaignId?: boolean
   redditItemId?: boolean
+  campaignRunId?: boolean
   status?: boolean
   bestScore?: boolean
   bestQueryId?: boolean
@@ -780,12 +960,14 @@ export type CampaignDailySemanticScanSelectCreateManyAndReturn<ExtArgs extends r
   updatedAt?: boolean
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["campaignDailySemanticScan"]>
 
 export type CampaignDailySemanticScanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   campaignId?: boolean
   redditItemId?: boolean
+  campaignRunId?: boolean
   status?: boolean
   bestScore?: boolean
   bestQueryId?: boolean
@@ -794,12 +976,14 @@ export type CampaignDailySemanticScanSelectUpdateManyAndReturn<ExtArgs extends r
   updatedAt?: boolean
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["campaignDailySemanticScan"]>
 
 export type CampaignDailySemanticScanSelectScalar = {
   id?: boolean
   campaignId?: boolean
   redditItemId?: boolean
+  campaignRunId?: boolean
   status?: boolean
   bestScore?: boolean
   bestQueryId?: boolean
@@ -808,18 +992,21 @@ export type CampaignDailySemanticScanSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CampaignDailySemanticScanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignId" | "redditItemId" | "status" | "bestScore" | "bestQueryId" | "bestQueryText" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignDailySemanticScan"]>
+export type CampaignDailySemanticScanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignId" | "redditItemId" | "campaignRunId" | "status" | "bestScore" | "bestQueryId" | "bestQueryText" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignDailySemanticScan"]>
 export type CampaignDailySemanticScanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs>
 }
 export type CampaignDailySemanticScanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs>
 }
 export type CampaignDailySemanticScanIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs>
 }
 
 export type $CampaignDailySemanticScanPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -827,11 +1014,13 @@ export type $CampaignDailySemanticScanPayload<ExtArgs extends runtime.Types.Exte
   objects: {
     campaign: Prisma.$CampaignPayload<ExtArgs>
     redditItem: Prisma.$RedditItemPayload<ExtArgs>
+    campaignRun: Prisma.$CampaignRunPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     campaignId: string
     redditItemId: string
+    campaignRunId: string | null
     status: $Enums.CampaignDailySemanticScanStatus
     bestScore: number | null
     bestQueryId: string | null
@@ -1234,6 +1423,7 @@ export interface Prisma__CampaignDailySemanticScanClient<T, Null = never, ExtArg
   readonly [Symbol.toStringTag]: "PrismaPromise"
   campaign<T extends Prisma.CampaignDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignDefaultArgs<ExtArgs>>): Prisma.Prisma__CampaignClient<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   redditItem<T extends Prisma.RedditItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItemDefaultArgs<ExtArgs>>): Prisma.Prisma__RedditItemClient<runtime.Types.Result.GetResult<Prisma.$RedditItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  campaignRun<T extends Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignDailySemanticScan$campaignRunArgs<ExtArgs>>): Prisma.Prisma__CampaignRunClient<runtime.Types.Result.GetResult<Prisma.$CampaignRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1266,6 +1456,7 @@ export interface CampaignDailySemanticScanFieldRefs {
   readonly id: Prisma.FieldRef<"CampaignDailySemanticScan", 'String'>
   readonly campaignId: Prisma.FieldRef<"CampaignDailySemanticScan", 'String'>
   readonly redditItemId: Prisma.FieldRef<"CampaignDailySemanticScan", 'String'>
+  readonly campaignRunId: Prisma.FieldRef<"CampaignDailySemanticScan", 'String'>
   readonly status: Prisma.FieldRef<"CampaignDailySemanticScan", 'CampaignDailySemanticScanStatus'>
   readonly bestScore: Prisma.FieldRef<"CampaignDailySemanticScan", 'Float'>
   readonly bestQueryId: Prisma.FieldRef<"CampaignDailySemanticScan", 'String'>
@@ -1665,6 +1856,25 @@ export type CampaignDailySemanticScanDeleteManyArgs<ExtArgs extends runtime.Type
    * Limit how many CampaignDailySemanticScans to delete.
    */
   limit?: number
+}
+
+/**
+ * CampaignDailySemanticScan.campaignRun
+ */
+export type CampaignDailySemanticScan$campaignRunArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignRun
+   */
+  select?: Prisma.CampaignRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignRun
+   */
+  omit?: Prisma.CampaignRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignRunInclude<ExtArgs> | null
+  where?: Prisma.CampaignRunWhereInput
 }
 
 /**

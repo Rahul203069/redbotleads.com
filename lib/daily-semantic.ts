@@ -3,6 +3,7 @@ import { dailySemanticMaxCampaignsPerCron } from "@/worker/config";
 import { enqueueDailySemanticCampaign } from "@/worker/queues";
 
 export async function enqueueDailySemanticCampaigns(options?: {
+  cronRunId?: string;
   now?: Date;
   batchSize?: number;
 }) {
@@ -43,6 +44,7 @@ export async function enqueueDailySemanticCampaigns(options?: {
     campaigns.map((campaign) =>
       enqueueDailySemanticCampaign({
         campaignId: campaign.id,
+        cronRunId: options?.cronRunId,
         queuedAt,
       }),
     ),

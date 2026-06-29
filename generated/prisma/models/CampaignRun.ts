@@ -38,6 +38,7 @@ export type CampaignRunMinAggregateOutputType = {
   id: string | null
   userId: string | null
   campaignId: string | null
+  cronRunId: string | null
   trigger: string | null
   status: string | null
   message: string | null
@@ -55,6 +56,7 @@ export type CampaignRunMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   campaignId: string | null
+  cronRunId: string | null
   trigger: string | null
   status: string | null
   message: string | null
@@ -72,6 +74,7 @@ export type CampaignRunCountAggregateOutputType = {
   id: number
   userId: number
   campaignId: number
+  cronRunId: number
   trigger: number
   status: number
   message: number
@@ -100,6 +103,7 @@ export type CampaignRunMinAggregateInputType = {
   id?: true
   userId?: true
   campaignId?: true
+  cronRunId?: true
   trigger?: true
   status?: true
   message?: true
@@ -117,6 +121,7 @@ export type CampaignRunMaxAggregateInputType = {
   id?: true
   userId?: true
   campaignId?: true
+  cronRunId?: true
   trigger?: true
   status?: true
   message?: true
@@ -134,6 +139,7 @@ export type CampaignRunCountAggregateInputType = {
   id?: true
   userId?: true
   campaignId?: true
+  cronRunId?: true
   trigger?: true
   status?: true
   message?: true
@@ -239,6 +245,7 @@ export type CampaignRunGroupByOutputType = {
   id: string
   userId: string
   campaignId: string
+  cronRunId: string | null
   trigger: string
   status: string
   message: string | null
@@ -280,6 +287,7 @@ export type CampaignRunWhereInput = {
   id?: Prisma.StringFilter<"CampaignRun"> | string
   userId?: Prisma.StringFilter<"CampaignRun"> | string
   campaignId?: Prisma.StringFilter<"CampaignRun"> | string
+  cronRunId?: Prisma.StringNullableFilter<"CampaignRun"> | string | null
   trigger?: Prisma.StringFilter<"CampaignRun"> | string
   status?: Prisma.StringFilter<"CampaignRun"> | string
   message?: Prisma.StringNullableFilter<"CampaignRun"> | string | null
@@ -294,14 +302,18 @@ export type CampaignRunWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CampaignRun"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
+  cronRun?: Prisma.XOR<Prisma.CronRunNullableScalarRelationFilter, Prisma.CronRunWhereInput> | null
   usageEvents?: Prisma.AiUsageEventListRelationFilter
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventListRelationFilter
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }
 
 export type CampaignRunOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  cronRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   trigger?: Prisma.SortOrder
   status?: Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -316,8 +328,11 @@ export type CampaignRunOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   campaign?: Prisma.CampaignOrderByWithRelationInput
+  cronRun?: Prisma.CronRunOrderByWithRelationInput
   usageEvents?: Prisma.AiUsageEventOrderByRelationAggregateInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventOrderByRelationAggregateInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
 export type CampaignRunWhereUniqueInput = Prisma.AtLeast<{
@@ -327,6 +342,7 @@ export type CampaignRunWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CampaignRunWhereInput | Prisma.CampaignRunWhereInput[]
   userId?: Prisma.StringFilter<"CampaignRun"> | string
   campaignId?: Prisma.StringFilter<"CampaignRun"> | string
+  cronRunId?: Prisma.StringNullableFilter<"CampaignRun"> | string | null
   trigger?: Prisma.StringFilter<"CampaignRun"> | string
   status?: Prisma.StringFilter<"CampaignRun"> | string
   message?: Prisma.StringNullableFilter<"CampaignRun"> | string | null
@@ -341,14 +357,18 @@ export type CampaignRunWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"CampaignRun"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
+  cronRun?: Prisma.XOR<Prisma.CronRunNullableScalarRelationFilter, Prisma.CronRunWhereInput> | null
   usageEvents?: Prisma.AiUsageEventListRelationFilter
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventListRelationFilter
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }, "id">
 
 export type CampaignRunOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  cronRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   trigger?: Prisma.SortOrder
   status?: Prisma.SortOrder
   message?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -375,6 +395,7 @@ export type CampaignRunScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CampaignRun"> | string
   userId?: Prisma.StringWithAggregatesFilter<"CampaignRun"> | string
   campaignId?: Prisma.StringWithAggregatesFilter<"CampaignRun"> | string
+  cronRunId?: Prisma.StringNullableWithAggregatesFilter<"CampaignRun"> | string | null
   trigger?: Prisma.StringWithAggregatesFilter<"CampaignRun"> | string
   status?: Prisma.StringWithAggregatesFilter<"CampaignRun"> | string
   message?: Prisma.StringNullableWithAggregatesFilter<"CampaignRun"> | string | null
@@ -405,14 +426,18 @@ export type CampaignRunCreateInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
   campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  cronRun?: Prisma.CronRunCreateNestedOneWithoutCampaignRunsInput
   usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateInput = {
   id?: string
   userId: string
   campaignId: string
+  cronRunId?: string | null
   trigger: string
   status?: string
   message?: string | null
@@ -427,6 +452,8 @@ export type CampaignRunUncheckedCreateInput = {
   updatedAt?: Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUpdateInput = {
@@ -445,14 +472,18 @@ export type CampaignRunUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  cronRun?: Prisma.CronRunUpdateOneWithoutCampaignRunsNestedInput
   usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -467,12 +498,15 @@ export type CampaignRunUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunCreateManyInput = {
   id?: string
   userId: string
   campaignId: string
+  cronRunId?: string | null
   trigger: string
   status?: string
   message?: string | null
@@ -507,6 +541,7 @@ export type CampaignRunUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -535,6 +570,7 @@ export type CampaignRunCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  cronRunId?: Prisma.SortOrder
   trigger?: Prisma.SortOrder
   status?: Prisma.SortOrder
   message?: Prisma.SortOrder
@@ -557,6 +593,7 @@ export type CampaignRunMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  cronRunId?: Prisma.SortOrder
   trigger?: Prisma.SortOrder
   status?: Prisma.SortOrder
   message?: Prisma.SortOrder
@@ -574,6 +611,7 @@ export type CampaignRunMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  cronRunId?: Prisma.SortOrder
   trigger?: Prisma.SortOrder
   status?: Prisma.SortOrder
   message?: Prisma.SortOrder
@@ -693,6 +731,48 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type CampaignRunCreateNestedManyWithoutCronRunInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutCronRunInput, Prisma.CampaignRunUncheckedCreateWithoutCronRunInput> | Prisma.CampaignRunCreateWithoutCronRunInput[] | Prisma.CampaignRunUncheckedCreateWithoutCronRunInput[]
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutCronRunInput | Prisma.CampaignRunCreateOrConnectWithoutCronRunInput[]
+  createMany?: Prisma.CampaignRunCreateManyCronRunInputEnvelope
+  connect?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+}
+
+export type CampaignRunUncheckedCreateNestedManyWithoutCronRunInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutCronRunInput, Prisma.CampaignRunUncheckedCreateWithoutCronRunInput> | Prisma.CampaignRunCreateWithoutCronRunInput[] | Prisma.CampaignRunUncheckedCreateWithoutCronRunInput[]
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutCronRunInput | Prisma.CampaignRunCreateOrConnectWithoutCronRunInput[]
+  createMany?: Prisma.CampaignRunCreateManyCronRunInputEnvelope
+  connect?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+}
+
+export type CampaignRunUpdateManyWithoutCronRunNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutCronRunInput, Prisma.CampaignRunUncheckedCreateWithoutCronRunInput> | Prisma.CampaignRunCreateWithoutCronRunInput[] | Prisma.CampaignRunUncheckedCreateWithoutCronRunInput[]
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutCronRunInput | Prisma.CampaignRunCreateOrConnectWithoutCronRunInput[]
+  upsert?: Prisma.CampaignRunUpsertWithWhereUniqueWithoutCronRunInput | Prisma.CampaignRunUpsertWithWhereUniqueWithoutCronRunInput[]
+  createMany?: Prisma.CampaignRunCreateManyCronRunInputEnvelope
+  set?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  disconnect?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  delete?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  connect?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  update?: Prisma.CampaignRunUpdateWithWhereUniqueWithoutCronRunInput | Prisma.CampaignRunUpdateWithWhereUniqueWithoutCronRunInput[]
+  updateMany?: Prisma.CampaignRunUpdateManyWithWhereWithoutCronRunInput | Prisma.CampaignRunUpdateManyWithWhereWithoutCronRunInput[]
+  deleteMany?: Prisma.CampaignRunScalarWhereInput | Prisma.CampaignRunScalarWhereInput[]
+}
+
+export type CampaignRunUncheckedUpdateManyWithoutCronRunNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutCronRunInput, Prisma.CampaignRunUncheckedCreateWithoutCronRunInput> | Prisma.CampaignRunCreateWithoutCronRunInput[] | Prisma.CampaignRunUncheckedCreateWithoutCronRunInput[]
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutCronRunInput | Prisma.CampaignRunCreateOrConnectWithoutCronRunInput[]
+  upsert?: Prisma.CampaignRunUpsertWithWhereUniqueWithoutCronRunInput | Prisma.CampaignRunUpsertWithWhereUniqueWithoutCronRunInput[]
+  createMany?: Prisma.CampaignRunCreateManyCronRunInputEnvelope
+  set?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  disconnect?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  delete?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  connect?: Prisma.CampaignRunWhereUniqueInput | Prisma.CampaignRunWhereUniqueInput[]
+  update?: Prisma.CampaignRunUpdateWithWhereUniqueWithoutCronRunInput | Prisma.CampaignRunUpdateWithWhereUniqueWithoutCronRunInput[]
+  updateMany?: Prisma.CampaignRunUpdateManyWithWhereWithoutCronRunInput | Prisma.CampaignRunUpdateManyWithWhereWithoutCronRunInput[]
+  deleteMany?: Prisma.CampaignRunScalarWhereInput | Prisma.CampaignRunScalarWhereInput[]
+}
+
 export type CampaignRunCreateNestedOneWithoutInitialRssPollEventsInput = {
   create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutInitialRssPollEventsInput, Prisma.CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput>
   connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutInitialRssPollEventsInput
@@ -723,6 +803,38 @@ export type CampaignRunUpdateOneWithoutUsageEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignRunUpdateToOneWithWhereWithoutUsageEventsInput, Prisma.CampaignRunUpdateWithoutUsageEventsInput>, Prisma.CampaignRunUncheckedUpdateWithoutUsageEventsInput>
 }
 
+export type CampaignRunCreateNestedOneWithoutDailySemanticScansInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutDailySemanticScansInput, Prisma.CampaignRunUncheckedCreateWithoutDailySemanticScansInput>
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutDailySemanticScansInput
+  connect?: Prisma.CampaignRunWhereUniqueInput
+}
+
+export type CampaignRunUpdateOneWithoutDailySemanticScansNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutDailySemanticScansInput, Prisma.CampaignRunUncheckedCreateWithoutDailySemanticScansInput>
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutDailySemanticScansInput
+  upsert?: Prisma.CampaignRunUpsertWithoutDailySemanticScansInput
+  disconnect?: Prisma.CampaignRunWhereInput | boolean
+  delete?: Prisma.CampaignRunWhereInput | boolean
+  connect?: Prisma.CampaignRunWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignRunUpdateToOneWithWhereWithoutDailySemanticScansInput, Prisma.CampaignRunUpdateWithoutDailySemanticScansInput>, Prisma.CampaignRunUncheckedUpdateWithoutDailySemanticScansInput>
+}
+
+export type CampaignRunCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutNotificationsInput, Prisma.CampaignRunUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.CampaignRunWhereUniqueInput
+}
+
+export type CampaignRunUpdateOneWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignRunCreateWithoutNotificationsInput, Prisma.CampaignRunUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.CampaignRunCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.CampaignRunUpsertWithoutNotificationsInput
+  disconnect?: Prisma.CampaignRunWhereInput | boolean
+  delete?: Prisma.CampaignRunWhereInput | boolean
+  connect?: Prisma.CampaignRunWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignRunUpdateToOneWithWhereWithoutNotificationsInput, Prisma.CampaignRunUpdateWithoutNotificationsInput>, Prisma.CampaignRunUncheckedUpdateWithoutNotificationsInput>
+}
+
 export type CampaignRunCreateWithoutUserInput = {
   id?: string
   trigger: string
@@ -738,13 +850,17 @@ export type CampaignRunCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  cronRun?: Prisma.CronRunCreateNestedOneWithoutCampaignRunsInput
   usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateWithoutUserInput = {
   id?: string
   campaignId: string
+  cronRunId?: string | null
   trigger: string
   status?: string
   message?: string | null
@@ -759,6 +875,8 @@ export type CampaignRunUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunCreateOrConnectWithoutUserInput = {
@@ -794,6 +912,7 @@ export type CampaignRunScalarWhereInput = {
   id?: Prisma.StringFilter<"CampaignRun"> | string
   userId?: Prisma.StringFilter<"CampaignRun"> | string
   campaignId?: Prisma.StringFilter<"CampaignRun"> | string
+  cronRunId?: Prisma.StringNullableFilter<"CampaignRun"> | string | null
   trigger?: Prisma.StringFilter<"CampaignRun"> | string
   status?: Prisma.StringFilter<"CampaignRun"> | string
   message?: Prisma.StringNullableFilter<"CampaignRun"> | string | null
@@ -823,13 +942,17 @@ export type CampaignRunCreateWithoutCampaignInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
+  cronRun?: Prisma.CronRunCreateNestedOneWithoutCampaignRunsInput
   usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateWithoutCampaignInput = {
   id?: string
   userId: string
+  cronRunId?: string | null
   trigger: string
   status?: string
   message?: string | null
@@ -844,6 +967,8 @@ export type CampaignRunUncheckedCreateWithoutCampaignInput = {
   updatedAt?: Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunCreateOrConnectWithoutCampaignInput = {
@@ -872,7 +997,7 @@ export type CampaignRunUpdateManyWithWhereWithoutCampaignInput = {
   data: Prisma.XOR<Prisma.CampaignRunUpdateManyMutationInput, Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignInput>
 }
 
-export type CampaignRunCreateWithoutInitialRssPollEventsInput = {
+export type CampaignRunCreateWithoutCronRunInput = {
   id?: string
   trigger: string
   status?: string
@@ -889,9 +1014,12 @@ export type CampaignRunCreateWithoutInitialRssPollEventsInput = {
   user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
   campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
   usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignRunInput
 }
 
-export type CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput = {
+export type CampaignRunUncheckedCreateWithoutCronRunInput = {
   id?: string
   userId: string
   campaignId: string
@@ -908,6 +1036,79 @@ export type CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunCreateOrConnectWithoutCronRunInput = {
+  where: Prisma.CampaignRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutCronRunInput, Prisma.CampaignRunUncheckedCreateWithoutCronRunInput>
+}
+
+export type CampaignRunCreateManyCronRunInputEnvelope = {
+  data: Prisma.CampaignRunCreateManyCronRunInput | Prisma.CampaignRunCreateManyCronRunInput[]
+  skipDuplicates?: boolean
+}
+
+export type CampaignRunUpsertWithWhereUniqueWithoutCronRunInput = {
+  where: Prisma.CampaignRunWhereUniqueInput
+  update: Prisma.XOR<Prisma.CampaignRunUpdateWithoutCronRunInput, Prisma.CampaignRunUncheckedUpdateWithoutCronRunInput>
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutCronRunInput, Prisma.CampaignRunUncheckedCreateWithoutCronRunInput>
+}
+
+export type CampaignRunUpdateWithWhereUniqueWithoutCronRunInput = {
+  where: Prisma.CampaignRunWhereUniqueInput
+  data: Prisma.XOR<Prisma.CampaignRunUpdateWithoutCronRunInput, Prisma.CampaignRunUncheckedUpdateWithoutCronRunInput>
+}
+
+export type CampaignRunUpdateManyWithWhereWithoutCronRunInput = {
+  where: Prisma.CampaignRunScalarWhereInput
+  data: Prisma.XOR<Prisma.CampaignRunUpdateManyMutationInput, Prisma.CampaignRunUncheckedUpdateManyWithoutCronRunInput>
+}
+
+export type CampaignRunCreateWithoutInitialRssPollEventsInput = {
+  id?: string
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
+  campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  cronRun?: Prisma.CronRunCreateNestedOneWithoutCampaignRunsInput
+  usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunUncheckedCreateWithoutInitialRssPollEventsInput = {
+  id?: string
+  userId: string
+  campaignId: string
+  cronRunId?: string | null
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunCreateOrConnectWithoutInitialRssPollEventsInput = {
@@ -942,13 +1143,17 @@ export type CampaignRunUpdateWithoutInitialRssPollEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  cronRun?: Prisma.CronRunUpdateOneWithoutCampaignRunsNestedInput
   usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateWithoutInitialRssPollEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -962,6 +1167,8 @@ export type CampaignRunUncheckedUpdateWithoutInitialRssPollEventsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunCreateWithoutUsageEventsInput = {
@@ -980,13 +1187,17 @@ export type CampaignRunCreateWithoutUsageEventsInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
   campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  cronRun?: Prisma.CronRunCreateNestedOneWithoutCampaignRunsInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunUncheckedCreateWithoutUsageEventsInput = {
   id?: string
   userId: string
   campaignId: string
+  cronRunId?: string | null
   trigger: string
   status?: string
   message?: string | null
@@ -1000,6 +1211,8 @@ export type CampaignRunUncheckedCreateWithoutUsageEventsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignRunInput
 }
 
 export type CampaignRunCreateOrConnectWithoutUsageEventsInput = {
@@ -1034,13 +1247,17 @@ export type CampaignRunUpdateWithoutUsageEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  cronRun?: Prisma.CronRunUpdateOneWithoutCampaignRunsNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateWithoutUsageEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1054,11 +1271,222 @@ export type CampaignRunUncheckedUpdateWithoutUsageEventsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput
+}
+
+export type CampaignRunCreateWithoutDailySemanticScansInput = {
+  id?: string
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
+  campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  cronRun?: Prisma.CronRunCreateNestedOneWithoutCampaignRunsInput
+  usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunUncheckedCreateWithoutDailySemanticScansInput = {
+  id?: string
+  userId: string
+  campaignId: string
+  cronRunId?: string | null
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunCreateOrConnectWithoutDailySemanticScansInput = {
+  where: Prisma.CampaignRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutDailySemanticScansInput, Prisma.CampaignRunUncheckedCreateWithoutDailySemanticScansInput>
+}
+
+export type CampaignRunUpsertWithoutDailySemanticScansInput = {
+  update: Prisma.XOR<Prisma.CampaignRunUpdateWithoutDailySemanticScansInput, Prisma.CampaignRunUncheckedUpdateWithoutDailySemanticScansInput>
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutDailySemanticScansInput, Prisma.CampaignRunUncheckedCreateWithoutDailySemanticScansInput>
+  where?: Prisma.CampaignRunWhereInput
+}
+
+export type CampaignRunUpdateToOneWithWhereWithoutDailySemanticScansInput = {
+  where?: Prisma.CampaignRunWhereInput
+  data: Prisma.XOR<Prisma.CampaignRunUpdateWithoutDailySemanticScansInput, Prisma.CampaignRunUncheckedUpdateWithoutDailySemanticScansInput>
+}
+
+export type CampaignRunUpdateWithoutDailySemanticScansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  cronRun?: Prisma.CronRunUpdateOneWithoutCampaignRunsNestedInput
+  usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignRunNestedInput
+}
+
+export type CampaignRunUncheckedUpdateWithoutDailySemanticScansInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput
+}
+
+export type CampaignRunCreateWithoutNotificationsInput = {
+  id?: string
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignRunsInput
+  campaign: Prisma.CampaignCreateNestedOneWithoutRunsInput
+  cronRun?: Prisma.CronRunCreateNestedOneWithoutCampaignRunsInput
+  usageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunUncheckedCreateWithoutNotificationsInput = {
+  id?: string
+  userId: string
+  campaignId: string
+  cronRunId?: string | null
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignRunInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignRunInput
+}
+
+export type CampaignRunCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.CampaignRunWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutNotificationsInput, Prisma.CampaignRunUncheckedCreateWithoutNotificationsInput>
+}
+
+export type CampaignRunUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.CampaignRunUpdateWithoutNotificationsInput, Prisma.CampaignRunUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.CampaignRunCreateWithoutNotificationsInput, Prisma.CampaignRunUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.CampaignRunWhereInput
+}
+
+export type CampaignRunUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.CampaignRunWhereInput
+  data: Prisma.XOR<Prisma.CampaignRunUpdateWithoutNotificationsInput, Prisma.CampaignRunUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type CampaignRunUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  cronRun?: Prisma.CronRunUpdateOneWithoutCampaignRunsNestedInput
+  usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput
+}
+
+export type CampaignRunUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunCreateManyUserInput = {
   id?: string
   campaignId: string
+  cronRunId?: string | null
   trigger: string
   status?: string
   message?: string | null
@@ -1088,13 +1516,17 @@ export type CampaignRunUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  cronRun?: Prisma.CronRunUpdateOneWithoutCampaignRunsNestedInput
   usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1109,11 +1541,14 @@ export type CampaignRunUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1131,6 +1566,7 @@ export type CampaignRunUncheckedUpdateManyWithoutUserInput = {
 export type CampaignRunCreateManyCampaignInput = {
   id?: string
   userId: string
+  cronRunId?: string | null
   trigger: string
   status?: string
   message?: string | null
@@ -1160,13 +1596,17 @@ export type CampaignRunUpdateWithoutCampaignInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
+  cronRun?: Prisma.CronRunUpdateOneWithoutCampaignRunsNestedInput
   usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1181,11 +1621,94 @@ export type CampaignRunUncheckedUpdateWithoutCampaignInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput
 }
 
 export type CampaignRunUncheckedUpdateManyWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  cronRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CampaignRunCreateManyCronRunInput = {
+  id?: string
+  userId: string
+  campaignId: string
+  trigger: string
+  status?: string
+  message?: string | null
+  error?: string | null
+  queuedAt?: Date | string
+  startedAt?: Date | string | null
+  completedAt?: Date | string | null
+  failedAt?: Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CampaignRunUpdateWithoutCronRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignRunsNestedInput
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutRunsNestedInput
+  usageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignRunNestedInput
+}
+
+export type CampaignRunUncheckedUpdateWithoutCronRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  trigger?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queuedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statsJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  totalCostUsd?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  usageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignRunNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignRunNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput
+}
+
+export type CampaignRunUncheckedUpdateManyWithoutCronRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   trigger?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   message?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1208,11 +1731,15 @@ export type CampaignRunUncheckedUpdateManyWithoutCampaignInput = {
 export type CampaignRunCountOutputType = {
   usageEvents: number
   initialRssPollEvents: number
+  dailySemanticScans: number
+  notifications: number
 }
 
 export type CampaignRunCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   usageEvents?: boolean | CampaignRunCountOutputTypeCountUsageEventsArgs
   initialRssPollEvents?: boolean | CampaignRunCountOutputTypeCountInitialRssPollEventsArgs
+  dailySemanticScans?: boolean | CampaignRunCountOutputTypeCountDailySemanticScansArgs
+  notifications?: boolean | CampaignRunCountOutputTypeCountNotificationsArgs
 }
 
 /**
@@ -1239,11 +1766,26 @@ export type CampaignRunCountOutputTypeCountInitialRssPollEventsArgs<ExtArgs exte
   where?: Prisma.CampaignInitialRssPollEventWhereInput
 }
 
+/**
+ * CampaignRunCountOutputType without action
+ */
+export type CampaignRunCountOutputTypeCountDailySemanticScansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignDailySemanticScanWhereInput
+}
+
+/**
+ * CampaignRunCountOutputType without action
+ */
+export type CampaignRunCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
 
 export type CampaignRunSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  cronRunId?: boolean
   trigger?: boolean
   status?: boolean
   message?: boolean
@@ -1258,8 +1800,11 @@ export type CampaignRunSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
+  cronRun?: boolean | Prisma.CampaignRun$cronRunArgs<ExtArgs>
   usageEvents?: boolean | Prisma.CampaignRun$usageEventsArgs<ExtArgs>
   initialRssPollEvents?: boolean | Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs>
+  dailySemanticScans?: boolean | Prisma.CampaignRun$dailySemanticScansArgs<ExtArgs>
+  notifications?: boolean | Prisma.CampaignRun$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignRunCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["campaignRun"]>
 
@@ -1267,6 +1812,7 @@ export type CampaignRunSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  cronRunId?: boolean
   trigger?: boolean
   status?: boolean
   message?: boolean
@@ -1281,12 +1827,14 @@ export type CampaignRunSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
+  cronRun?: boolean | Prisma.CampaignRun$cronRunArgs<ExtArgs>
 }, ExtArgs["result"]["campaignRun"]>
 
 export type CampaignRunSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  cronRunId?: boolean
   trigger?: boolean
   status?: boolean
   message?: boolean
@@ -1301,12 +1849,14 @@ export type CampaignRunSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
+  cronRun?: boolean | Prisma.CampaignRun$cronRunArgs<ExtArgs>
 }, ExtArgs["result"]["campaignRun"]>
 
 export type CampaignRunSelectScalar = {
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  cronRunId?: boolean
   trigger?: boolean
   status?: boolean
   message?: boolean
@@ -1321,21 +1871,26 @@ export type CampaignRunSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CampaignRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "campaignId" | "trigger" | "status" | "message" | "error" | "queuedAt" | "startedAt" | "completedAt" | "failedAt" | "statsJson" | "totalCostUsd" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignRun"]>
+export type CampaignRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "campaignId" | "cronRunId" | "trigger" | "status" | "message" | "error" | "queuedAt" | "startedAt" | "completedAt" | "failedAt" | "statsJson" | "totalCostUsd" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignRun"]>
 export type CampaignRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
+  cronRun?: boolean | Prisma.CampaignRun$cronRunArgs<ExtArgs>
   usageEvents?: boolean | Prisma.CampaignRun$usageEventsArgs<ExtArgs>
   initialRssPollEvents?: boolean | Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs>
+  dailySemanticScans?: boolean | Prisma.CampaignRun$dailySemanticScansArgs<ExtArgs>
+  notifications?: boolean | Prisma.CampaignRun$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignRunCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CampaignRunIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
+  cronRun?: boolean | Prisma.CampaignRun$cronRunArgs<ExtArgs>
 }
 export type CampaignRunIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
+  cronRun?: boolean | Prisma.CampaignRun$cronRunArgs<ExtArgs>
 }
 
 export type $CampaignRunPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1343,13 +1898,17 @@ export type $CampaignRunPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     campaign: Prisma.$CampaignPayload<ExtArgs>
+    cronRun: Prisma.$CronRunPayload<ExtArgs> | null
     usageEvents: Prisma.$AiUsageEventPayload<ExtArgs>[]
     initialRssPollEvents: Prisma.$CampaignInitialRssPollEventPayload<ExtArgs>[]
+    dailySemanticScans: Prisma.$CampaignDailySemanticScanPayload<ExtArgs>[]
+    notifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     userId: string
     campaignId: string
+    cronRunId: string | null
     trigger: string
     status: string
     message: string | null
@@ -1758,8 +2317,11 @@ export interface Prisma__CampaignRunClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   campaign<T extends Prisma.CampaignDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignDefaultArgs<ExtArgs>>): Prisma.Prisma__CampaignClient<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  cronRun<T extends Prisma.CampaignRun$cronRunArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignRun$cronRunArgs<ExtArgs>>): Prisma.Prisma__CronRunClient<runtime.Types.Result.GetResult<Prisma.$CronRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   usageEvents<T extends Prisma.CampaignRun$usageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignRun$usageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   initialRssPollEvents<T extends Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignRun$initialRssPollEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignInitialRssPollEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  dailySemanticScans<T extends Prisma.CampaignRun$dailySemanticScansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignRun$dailySemanticScansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignDailySemanticScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.CampaignRun$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignRun$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1792,6 +2354,7 @@ export interface CampaignRunFieldRefs {
   readonly id: Prisma.FieldRef<"CampaignRun", 'String'>
   readonly userId: Prisma.FieldRef<"CampaignRun", 'String'>
   readonly campaignId: Prisma.FieldRef<"CampaignRun", 'String'>
+  readonly cronRunId: Prisma.FieldRef<"CampaignRun", 'String'>
   readonly trigger: Prisma.FieldRef<"CampaignRun", 'String'>
   readonly status: Prisma.FieldRef<"CampaignRun", 'String'>
   readonly message: Prisma.FieldRef<"CampaignRun", 'String'>
@@ -2200,6 +2763,25 @@ export type CampaignRunDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
+ * CampaignRun.cronRun
+ */
+export type CampaignRun$cronRunArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CronRun
+   */
+  select?: Prisma.CronRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CronRun
+   */
+  omit?: Prisma.CronRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CronRunInclude<ExtArgs> | null
+  where?: Prisma.CronRunWhereInput
+}
+
+/**
  * CampaignRun.usageEvents
  */
 export type CampaignRun$usageEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2245,6 +2827,54 @@ export type CampaignRun$initialRssPollEventsArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.CampaignInitialRssPollEventScalarFieldEnum | Prisma.CampaignInitialRssPollEventScalarFieldEnum[]
+}
+
+/**
+ * CampaignRun.dailySemanticScans
+ */
+export type CampaignRun$dailySemanticScansArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignDailySemanticScan
+   */
+  select?: Prisma.CampaignDailySemanticScanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignDailySemanticScan
+   */
+  omit?: Prisma.CampaignDailySemanticScanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignDailySemanticScanInclude<ExtArgs> | null
+  where?: Prisma.CampaignDailySemanticScanWhereInput
+  orderBy?: Prisma.CampaignDailySemanticScanOrderByWithRelationInput | Prisma.CampaignDailySemanticScanOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignDailySemanticScanWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignDailySemanticScanScalarFieldEnum | Prisma.CampaignDailySemanticScanScalarFieldEnum[]
+}
+
+/**
+ * CampaignRun.notifications
+ */
+export type CampaignRun$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

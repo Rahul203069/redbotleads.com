@@ -27,6 +27,7 @@ export type AggregateNotification = {
 export type NotificationMinAggregateOutputType = {
   id: string | null
   leadId: string | null
+  campaignRunId: string | null
   channel: $Enums.NotifyChannel | null
   status: $Enums.NotifyStatus | null
   error: string | null
@@ -37,6 +38,7 @@ export type NotificationMinAggregateOutputType = {
 export type NotificationMaxAggregateOutputType = {
   id: string | null
   leadId: string | null
+  campaignRunId: string | null
   channel: $Enums.NotifyChannel | null
   status: $Enums.NotifyStatus | null
   error: string | null
@@ -47,6 +49,7 @@ export type NotificationMaxAggregateOutputType = {
 export type NotificationCountAggregateOutputType = {
   id: number
   leadId: number
+  campaignRunId: number
   channel: number
   status: number
   error: number
@@ -59,6 +62,7 @@ export type NotificationCountAggregateOutputType = {
 export type NotificationMinAggregateInputType = {
   id?: true
   leadId?: true
+  campaignRunId?: true
   channel?: true
   status?: true
   error?: true
@@ -69,6 +73,7 @@ export type NotificationMinAggregateInputType = {
 export type NotificationMaxAggregateInputType = {
   id?: true
   leadId?: true
+  campaignRunId?: true
   channel?: true
   status?: true
   error?: true
@@ -79,6 +84,7 @@ export type NotificationMaxAggregateInputType = {
 export type NotificationCountAggregateInputType = {
   id?: true
   leadId?: true
+  campaignRunId?: true
   channel?: true
   status?: true
   error?: true
@@ -162,6 +168,7 @@ export type NotificationGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 export type NotificationGroupByOutputType = {
   id: string
   leadId: string
+  campaignRunId: string | null
   channel: $Enums.NotifyChannel
   status: $Enums.NotifyStatus
   error: string | null
@@ -193,23 +200,27 @@ export type NotificationWhereInput = {
   NOT?: Prisma.NotificationWhereInput | Prisma.NotificationWhereInput[]
   id?: Prisma.StringFilter<"Notification"> | string
   leadId?: Prisma.StringFilter<"Notification"> | string
+  campaignRunId?: Prisma.StringNullableFilter<"Notification"> | string | null
   channel?: Prisma.EnumNotifyChannelFilter<"Notification"> | $Enums.NotifyChannel
   status?: Prisma.EnumNotifyStatusFilter<"Notification"> | $Enums.NotifyStatus
   error?: Prisma.StringNullableFilter<"Notification"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
+  campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
 }
 
 export type NotificationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   channel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lead?: Prisma.LeadOrderByWithRelationInput
+  campaignRun?: Prisma.CampaignRunOrderByWithRelationInput
 }
 
 export type NotificationWhereUniqueInput = Prisma.AtLeast<{
@@ -218,17 +229,20 @@ export type NotificationWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.NotificationWhereInput[]
   NOT?: Prisma.NotificationWhereInput | Prisma.NotificationWhereInput[]
   leadId?: Prisma.StringFilter<"Notification"> | string
+  campaignRunId?: Prisma.StringNullableFilter<"Notification"> | string | null
   channel?: Prisma.EnumNotifyChannelFilter<"Notification"> | $Enums.NotifyChannel
   status?: Prisma.EnumNotifyStatusFilter<"Notification"> | $Enums.NotifyStatus
   error?: Prisma.StringNullableFilter<"Notification"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
+  campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
 }, "id">
 
 export type NotificationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrderInput | Prisma.SortOrder
   channel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -245,6 +259,7 @@ export type NotificationScalarWhereWithAggregatesInput = {
   NOT?: Prisma.NotificationScalarWhereWithAggregatesInput | Prisma.NotificationScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Notification"> | string
   leadId?: Prisma.StringWithAggregatesFilter<"Notification"> | string
+  campaignRunId?: Prisma.StringNullableWithAggregatesFilter<"Notification"> | string | null
   channel?: Prisma.EnumNotifyChannelWithAggregatesFilter<"Notification"> | $Enums.NotifyChannel
   status?: Prisma.EnumNotifyStatusWithAggregatesFilter<"Notification"> | $Enums.NotifyStatus
   error?: Prisma.StringNullableWithAggregatesFilter<"Notification"> | string | null
@@ -260,11 +275,13 @@ export type NotificationCreateInput = {
   sentAt?: Date | string | null
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutNotificationsInput
+  campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutNotificationsInput
 }
 
 export type NotificationUncheckedCreateInput = {
   id?: string
   leadId: string
+  campaignRunId?: string | null
   channel: $Enums.NotifyChannel
   status?: $Enums.NotifyStatus
   error?: string | null
@@ -280,11 +297,13 @@ export type NotificationUpdateInput = {
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutNotificationsNestedInput
+  campaignRun?: Prisma.CampaignRunUpdateOneWithoutNotificationsNestedInput
 }
 
 export type NotificationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   channel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -295,6 +314,7 @@ export type NotificationUncheckedUpdateInput = {
 export type NotificationCreateManyInput = {
   id?: string
   leadId: string
+  campaignRunId?: string | null
   channel: $Enums.NotifyChannel
   status?: $Enums.NotifyStatus
   error?: string | null
@@ -314,6 +334,7 @@ export type NotificationUpdateManyMutationInput = {
 export type NotificationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   channel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -334,6 +355,7 @@ export type NotificationOrderByRelationAggregateInput = {
 export type NotificationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrder
   channel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   error?: Prisma.SortOrder
@@ -344,6 +366,7 @@ export type NotificationCountOrderByAggregateInput = {
 export type NotificationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrder
   channel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   error?: Prisma.SortOrder
@@ -354,11 +377,54 @@ export type NotificationMaxOrderByAggregateInput = {
 export type NotificationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   leadId?: Prisma.SortOrder
+  campaignRunId?: Prisma.SortOrder
   channel?: Prisma.SortOrder
   status?: Prisma.SortOrder
   error?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type NotificationCreateNestedManyWithoutCampaignRunInput = {
+  create?: Prisma.XOR<Prisma.NotificationCreateWithoutCampaignRunInput, Prisma.NotificationUncheckedCreateWithoutCampaignRunInput> | Prisma.NotificationCreateWithoutCampaignRunInput[] | Prisma.NotificationUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.NotificationCreateOrConnectWithoutCampaignRunInput | Prisma.NotificationCreateOrConnectWithoutCampaignRunInput[]
+  createMany?: Prisma.NotificationCreateManyCampaignRunInputEnvelope
+  connect?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+}
+
+export type NotificationUncheckedCreateNestedManyWithoutCampaignRunInput = {
+  create?: Prisma.XOR<Prisma.NotificationCreateWithoutCampaignRunInput, Prisma.NotificationUncheckedCreateWithoutCampaignRunInput> | Prisma.NotificationCreateWithoutCampaignRunInput[] | Prisma.NotificationUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.NotificationCreateOrConnectWithoutCampaignRunInput | Prisma.NotificationCreateOrConnectWithoutCampaignRunInput[]
+  createMany?: Prisma.NotificationCreateManyCampaignRunInputEnvelope
+  connect?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+}
+
+export type NotificationUpdateManyWithoutCampaignRunNestedInput = {
+  create?: Prisma.XOR<Prisma.NotificationCreateWithoutCampaignRunInput, Prisma.NotificationUncheckedCreateWithoutCampaignRunInput> | Prisma.NotificationCreateWithoutCampaignRunInput[] | Prisma.NotificationUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.NotificationCreateOrConnectWithoutCampaignRunInput | Prisma.NotificationCreateOrConnectWithoutCampaignRunInput[]
+  upsert?: Prisma.NotificationUpsertWithWhereUniqueWithoutCampaignRunInput | Prisma.NotificationUpsertWithWhereUniqueWithoutCampaignRunInput[]
+  createMany?: Prisma.NotificationCreateManyCampaignRunInputEnvelope
+  set?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  disconnect?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  delete?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  connect?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  update?: Prisma.NotificationUpdateWithWhereUniqueWithoutCampaignRunInput | Prisma.NotificationUpdateWithWhereUniqueWithoutCampaignRunInput[]
+  updateMany?: Prisma.NotificationUpdateManyWithWhereWithoutCampaignRunInput | Prisma.NotificationUpdateManyWithWhereWithoutCampaignRunInput[]
+  deleteMany?: Prisma.NotificationScalarWhereInput | Prisma.NotificationScalarWhereInput[]
+}
+
+export type NotificationUncheckedUpdateManyWithoutCampaignRunNestedInput = {
+  create?: Prisma.XOR<Prisma.NotificationCreateWithoutCampaignRunInput, Prisma.NotificationUncheckedCreateWithoutCampaignRunInput> | Prisma.NotificationCreateWithoutCampaignRunInput[] | Prisma.NotificationUncheckedCreateWithoutCampaignRunInput[]
+  connectOrCreate?: Prisma.NotificationCreateOrConnectWithoutCampaignRunInput | Prisma.NotificationCreateOrConnectWithoutCampaignRunInput[]
+  upsert?: Prisma.NotificationUpsertWithWhereUniqueWithoutCampaignRunInput | Prisma.NotificationUpsertWithWhereUniqueWithoutCampaignRunInput[]
+  createMany?: Prisma.NotificationCreateManyCampaignRunInputEnvelope
+  set?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  disconnect?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  delete?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  connect?: Prisma.NotificationWhereUniqueInput | Prisma.NotificationWhereUniqueInput[]
+  update?: Prisma.NotificationUpdateWithWhereUniqueWithoutCampaignRunInput | Prisma.NotificationUpdateWithWhereUniqueWithoutCampaignRunInput[]
+  updateMany?: Prisma.NotificationUpdateManyWithWhereWithoutCampaignRunInput | Prisma.NotificationUpdateManyWithWhereWithoutCampaignRunInput[]
+  deleteMany?: Prisma.NotificationScalarWhereInput | Prisma.NotificationScalarWhereInput[]
 }
 
 export type NotificationCreateNestedManyWithoutLeadInput = {
@@ -407,8 +473,19 @@ export type EnumNotifyStatusFieldUpdateOperationsInput = {
   set?: $Enums.NotifyStatus
 }
 
-export type NotificationCreateWithoutLeadInput = {
+export type NotificationCreateWithoutCampaignRunInput = {
   id?: string
+  channel: $Enums.NotifyChannel
+  status?: $Enums.NotifyStatus
+  error?: string | null
+  sentAt?: Date | string | null
+  createdAt?: Date | string
+  lead: Prisma.LeadCreateNestedOneWithoutNotificationsInput
+}
+
+export type NotificationUncheckedCreateWithoutCampaignRunInput = {
+  id?: string
+  leadId: string
   channel: $Enums.NotifyChannel
   status?: $Enums.NotifyStatus
   error?: string | null
@@ -416,8 +493,59 @@ export type NotificationCreateWithoutLeadInput = {
   createdAt?: Date | string
 }
 
+export type NotificationCreateOrConnectWithoutCampaignRunInput = {
+  where: Prisma.NotificationWhereUniqueInput
+  create: Prisma.XOR<Prisma.NotificationCreateWithoutCampaignRunInput, Prisma.NotificationUncheckedCreateWithoutCampaignRunInput>
+}
+
+export type NotificationCreateManyCampaignRunInputEnvelope = {
+  data: Prisma.NotificationCreateManyCampaignRunInput | Prisma.NotificationCreateManyCampaignRunInput[]
+  skipDuplicates?: boolean
+}
+
+export type NotificationUpsertWithWhereUniqueWithoutCampaignRunInput = {
+  where: Prisma.NotificationWhereUniqueInput
+  update: Prisma.XOR<Prisma.NotificationUpdateWithoutCampaignRunInput, Prisma.NotificationUncheckedUpdateWithoutCampaignRunInput>
+  create: Prisma.XOR<Prisma.NotificationCreateWithoutCampaignRunInput, Prisma.NotificationUncheckedCreateWithoutCampaignRunInput>
+}
+
+export type NotificationUpdateWithWhereUniqueWithoutCampaignRunInput = {
+  where: Prisma.NotificationWhereUniqueInput
+  data: Prisma.XOR<Prisma.NotificationUpdateWithoutCampaignRunInput, Prisma.NotificationUncheckedUpdateWithoutCampaignRunInput>
+}
+
+export type NotificationUpdateManyWithWhereWithoutCampaignRunInput = {
+  where: Prisma.NotificationScalarWhereInput
+  data: Prisma.XOR<Prisma.NotificationUpdateManyMutationInput, Prisma.NotificationUncheckedUpdateManyWithoutCampaignRunInput>
+}
+
+export type NotificationScalarWhereInput = {
+  AND?: Prisma.NotificationScalarWhereInput | Prisma.NotificationScalarWhereInput[]
+  OR?: Prisma.NotificationScalarWhereInput[]
+  NOT?: Prisma.NotificationScalarWhereInput | Prisma.NotificationScalarWhereInput[]
+  id?: Prisma.StringFilter<"Notification"> | string
+  leadId?: Prisma.StringFilter<"Notification"> | string
+  campaignRunId?: Prisma.StringNullableFilter<"Notification"> | string | null
+  channel?: Prisma.EnumNotifyChannelFilter<"Notification"> | $Enums.NotifyChannel
+  status?: Prisma.EnumNotifyStatusFilter<"Notification"> | $Enums.NotifyStatus
+  error?: Prisma.StringNullableFilter<"Notification"> | string | null
+  sentAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
+}
+
+export type NotificationCreateWithoutLeadInput = {
+  id?: string
+  channel: $Enums.NotifyChannel
+  status?: $Enums.NotifyStatus
+  error?: string | null
+  sentAt?: Date | string | null
+  createdAt?: Date | string
+  campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutNotificationsInput
+}
+
 export type NotificationUncheckedCreateWithoutLeadInput = {
   id?: string
+  campaignRunId?: string | null
   channel: $Enums.NotifyChannel
   status?: $Enums.NotifyStatus
   error?: string | null
@@ -451,21 +579,49 @@ export type NotificationUpdateManyWithWhereWithoutLeadInput = {
   data: Prisma.XOR<Prisma.NotificationUpdateManyMutationInput, Prisma.NotificationUncheckedUpdateManyWithoutLeadInput>
 }
 
-export type NotificationScalarWhereInput = {
-  AND?: Prisma.NotificationScalarWhereInput | Prisma.NotificationScalarWhereInput[]
-  OR?: Prisma.NotificationScalarWhereInput[]
-  NOT?: Prisma.NotificationScalarWhereInput | Prisma.NotificationScalarWhereInput[]
-  id?: Prisma.StringFilter<"Notification"> | string
-  leadId?: Prisma.StringFilter<"Notification"> | string
-  channel?: Prisma.EnumNotifyChannelFilter<"Notification"> | $Enums.NotifyChannel
-  status?: Prisma.EnumNotifyStatusFilter<"Notification"> | $Enums.NotifyStatus
-  error?: Prisma.StringNullableFilter<"Notification"> | string | null
-  sentAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
-  createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
+export type NotificationCreateManyCampaignRunInput = {
+  id?: string
+  leadId: string
+  channel: $Enums.NotifyChannel
+  status?: $Enums.NotifyStatus
+  error?: string | null
+  sentAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type NotificationUpdateWithoutCampaignRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lead?: Prisma.LeadUpdateOneRequiredWithoutNotificationsNestedInput
+}
+
+export type NotificationUncheckedUpdateWithoutCampaignRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type NotificationUncheckedUpdateManyWithoutCampaignRunInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  leadId?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
+  error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type NotificationCreateManyLeadInput = {
   id?: string
+  campaignRunId?: string | null
   channel: $Enums.NotifyChannel
   status?: $Enums.NotifyStatus
   error?: string | null
@@ -480,10 +636,12 @@ export type NotificationUpdateWithoutLeadInput = {
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  campaignRun?: Prisma.CampaignRunUpdateOneWithoutNotificationsNestedInput
 }
 
 export type NotificationUncheckedUpdateWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   channel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -493,6 +651,7 @@ export type NotificationUncheckedUpdateWithoutLeadInput = {
 
 export type NotificationUncheckedUpdateManyWithoutLeadInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignRunId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   channel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -505,39 +664,46 @@ export type NotificationUncheckedUpdateManyWithoutLeadInput = {
 export type NotificationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   leadId?: boolean
+  campaignRunId?: boolean
   channel?: boolean
   status?: boolean
   error?: boolean
   sentAt?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["notification"]>
 
 export type NotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   leadId?: boolean
+  campaignRunId?: boolean
   channel?: boolean
   status?: boolean
   error?: boolean
   sentAt?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["notification"]>
 
 export type NotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   leadId?: boolean
+  campaignRunId?: boolean
   channel?: boolean
   status?: boolean
   error?: boolean
   sentAt?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
 }, ExtArgs["result"]["notification"]>
 
 export type NotificationSelectScalar = {
   id?: boolean
   leadId?: boolean
+  campaignRunId?: boolean
   channel?: boolean
   status?: boolean
   error?: boolean
@@ -545,25 +711,30 @@ export type NotificationSelectScalar = {
   createdAt?: boolean
 }
 
-export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadId" | "channel" | "status" | "error" | "sentAt" | "createdAt", ExtArgs["result"]["notification"]>
+export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadId" | "campaignRunId" | "channel" | "status" | "error" | "sentAt" | "createdAt", ExtArgs["result"]["notification"]>
 export type NotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
 }
 export type NotificationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
 }
 export type NotificationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
+  campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
 }
 
 export type $NotificationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Notification"
   objects: {
     lead: Prisma.$LeadPayload<ExtArgs>
+    campaignRun: Prisma.$CampaignRunPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     leadId: string
+    campaignRunId: string | null
     channel: $Enums.NotifyChannel
     status: $Enums.NotifyStatus
     error: string | null
@@ -964,6 +1135,7 @@ readonly fields: NotificationFieldRefs;
 export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   lead<T extends Prisma.LeadDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LeadDefaultArgs<ExtArgs>>): Prisma.Prisma__LeadClient<runtime.Types.Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  campaignRun<T extends Prisma.Notification$campaignRunArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Notification$campaignRunArgs<ExtArgs>>): Prisma.Prisma__CampaignRunClient<runtime.Types.Result.GetResult<Prisma.$CampaignRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -995,6 +1167,7 @@ export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends run
 export interface NotificationFieldRefs {
   readonly id: Prisma.FieldRef<"Notification", 'String'>
   readonly leadId: Prisma.FieldRef<"Notification", 'String'>
+  readonly campaignRunId: Prisma.FieldRef<"Notification", 'String'>
   readonly channel: Prisma.FieldRef<"Notification", 'NotifyChannel'>
   readonly status: Prisma.FieldRef<"Notification", 'NotifyStatus'>
   readonly error: Prisma.FieldRef<"Notification", 'String'>
@@ -1393,6 +1566,25 @@ export type NotificationDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many Notifications to delete.
    */
   limit?: number
+}
+
+/**
+ * Notification.campaignRun
+ */
+export type Notification$campaignRunArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignRun
+   */
+  select?: Prisma.CampaignRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignRun
+   */
+  omit?: Prisma.CampaignRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignRunInclude<ExtArgs> | null
+  where?: Prisma.CampaignRunWhereInput
 }
 
 /**

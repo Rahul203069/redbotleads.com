@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ScrollText } from "lucide-react";
+import { CalendarDays, ScrollText } from "lucide-react";
 
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { DailyRssIngestionControl } from "@/components/admin/daily-rss-ingestion-control";
@@ -13,7 +13,7 @@ import { LEAD_SCORING_MODEL_OPTIONS, normalizeLeadScoringModel, type LeadScoring
 import { prisma } from "@/lib/prisma";
 import { getSaasConfig } from "@/lib/saas-config";
 
-const STRONG_LEAD_SCORE = 80;
+const STRONG_LEAD_SCORE = 75;
 const DAILY_REDDIT_ITEM_EMBEDDING_OPERATION = "daily_reddit_item_embedding";
 const SUBREDDIT_SET_BADGE_STYLES = [
   {
@@ -192,6 +192,13 @@ export default async function AdminAnalyticsPage({
               <DailyRssIngestionControl initialState={dailyRssPauseState} />
               <Link
                 className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] sm:w-auto"
+                href="/admin/analytics/daily-leads"
+              >
+                <CalendarDays className="h-4 w-4" />
+                Daily Leads
+              </Link>
+              <Link
+                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] sm:w-auto"
                 href="/admin/analytics/rss-polling"
               >
                 <ScrollText className="h-4 w-4" />
@@ -314,6 +321,12 @@ export default async function AdminAnalyticsPage({
                           campaignName={campaign.name}
                           initialIsActive={campaign.isActive}
                         />
+                        <Link
+                          className="inline-flex h-8 items-center justify-center rounded-full bg-[#121212] px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525]"
+                          href={`/admin/analytics/daily-leads?campaignId=${campaign.id}`}
+                        >
+                          Daily leads
+                        </Link>
                       </div>
                     </div>
                     <Link
@@ -558,7 +571,7 @@ function buildAnalyticsHref({
 }
 
 function isStrongClassifiedLead(lead: { ai: { model: string | null } | null; label: string; score: number }) {
-  return Boolean(lead.ai && lead.ai.model !== "semantic-threshold-filter" && (lead.label === "HIGH" || lead.score >= STRONG_LEAD_SCORE));
+  return Boolean(lead.ai && lead.ai.model !== "semantic-threshold-filter" && lead.score > STRONG_LEAD_SCORE);
 }
 
 function formatCurrency(value: number) {

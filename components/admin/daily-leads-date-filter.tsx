@@ -9,9 +9,12 @@ export function DailyLeadsDateFilter() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const hasRange = Boolean(searchParams.get("from") && searchParams.get("to"));
+  const isAllTime = searchParams.get("range") === "all";
+  const hasRange = isAllTime || Boolean(searchParams.get("from") && searchParams.get("to"));
   const initialDate = useMemo(() => getDateInputValue(searchParams.get("from")), [searchParams]);
+  const todayValue = useMemo(() => getTodayInputValue(), []);
   const [dateValue, setDateValue] = useState(initialDate);
+  const isToday = !isAllTime && getDateInputValue(searchParams.get("from")) === todayValue;
 
   useEffect(() => {
     setDateValue(initialDate);
@@ -30,35 +33,72 @@ export function DailyLeadsDateFilter() {
     router.push(buildHref(pathname, searchParams, getLocalDayRange(dateValue)));
   }
 
+  function handleToday() {
+    router.push(buildHref(pathname, searchParams, getLocalDayRange(todayValue)));
+  }
+
+  function handleAllTime() {
+    router.push(buildAllTimeHref(pathname, searchParams));
+  }
+
   return (
-    <form className="flex flex-col gap-2 sm:flex-row sm:items-end" onSubmit={handleSubmit}>
-      <label className="grid gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">Calendar day</span>
-        <input
-          className="h-10 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-[13px] text-[#ffffff] outline-none transition-colors focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10"
-          onChange={(event) => setDateValue(event.target.value)}
-          type="date"
-          value={dateValue}
-        />
-      </label>
-      <button
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-colors hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
-        type="submit"
-      >
-        <CalendarDays className="h-4 w-4" />
-        Apply
-      </button>
-    </form>
+    <div className="flex flex-col gap-2">
+      <div className="flex rounded-full bg-[#09090b] p-1 shadow-[rgb(39,39,42)_0px_0px_0px_1px_inset]">
+        <button className={getQuickButtonClass(isToday)} onClick={handleToday} type="button">
+          Today
+        </button>
+        <button className={getQuickButtonClass(isAllTime)} onClick={handleAllTime} type="button">
+          All time
+        </button>
+      </div>
+
+      <form className="flex flex-col gap-2 sm:flex-row sm:items-end" onSubmit={handleSubmit}>
+        <label className="grid gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">Specific day</span>
+          <input
+            className="h-10 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-[13px] text-[#ffffff] outline-none transition-colors focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10"
+            onChange={(event) => setDateValue(event.target.value)}
+            type="date"
+            value={dateValue}
+          />
+        </label>
+        <button
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-colors hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
+          type="submit"
+        >
+          <CalendarDays className="h-4 w-4" />
+          Apply day
+        </button>
+      </form>
+    </div>
   );
 }
 
-function buildHref(pathname: string, currentParams: URLSearchParams, range: { from: string; to: string }) {
+function buildHref(pathname: string, currentParams: { toString(): string }, range: { from: string; to: string }) {
   const next = new URLSearchParams(currentParams.toString());
+  next.delete("range");
   next.set("from", range.from);
   next.set("to", range.to);
   next.delete("page");
 
   return `${pathname}?${next.toString()}`;
+}
+
+function buildAllTimeHref(pathname: string, currentParams: { toString(): string }) {
+  const next = new URLSearchParams(currentParams.toString());
+  next.set("range", "all");
+  next.delete("from");
+  next.delete("to");
+  next.delete("page");
+
+  return `${pathname}?${next.toString()}`;
+}
+
+function getQuickButtonClass(active: boolean) {
+  return [
+    "h-8 rounded-full px-3 text-[11px] font-bold uppercase tracking-[0.12em] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]",
+    active ? "bg-[#ffffff] text-[#121212]" : "text-[#b3b3b3] hover:bg-[#1f1f1f] hover:text-[#ffffff]",
+  ].join(" ");
 }
 
 function getLocalDayRange(dateValue: string) {

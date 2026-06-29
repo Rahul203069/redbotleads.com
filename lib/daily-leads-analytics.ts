@@ -9,7 +9,7 @@ const CLASSIFICATION_ERROR_MODEL = "classification-error";
 export type DailyLeadDateRange = {
   from: Date;
   to: Date;
-  source: "query" | "server";
+  source: "all" | "query" | "server";
 };
 
 export type DailyLeadSemanticStatusFilter = (typeof DAILY_LEAD_SEMANTIC_STATUS_OPTIONS)[number];
@@ -35,8 +35,17 @@ export function parseDailyLeadSemanticStatus(value: string | undefined): DailyLe
 
 export function getDailyLeadDateRange(input: {
   from?: string;
+  range?: string;
   to?: string;
 }): DailyLeadDateRange {
+  if (input.range === "all") {
+    return {
+      from: new Date(0),
+      to: new Date(Date.now() + 60 * 1000),
+      source: "all",
+    };
+  }
+
   const from = input.from ? new Date(input.from) : null;
   const to = input.to ? new Date(input.to) : null;
 

@@ -11,6 +11,7 @@ import { canViewAnalytics } from "@/lib/beta-access";
 import {
   DAILY_LEADS_PAGE_SIZE,
   DAILY_STRONG_LEAD_SCORE,
+  type DailyLeadDateRange,
   type DailyLeadSemanticStatusFilter,
   getDailyLeadAnalytics,
   getDailyLeadDateRange,
@@ -22,6 +23,7 @@ type SearchParams = {
   campaignId?: string;
   from?: string;
   page?: string;
+  range?: string;
   status?: string;
   to?: string;
 };
@@ -55,6 +57,7 @@ export default async function AdminDailyLeadsPage({
   const payload = {
     filters: {
       from: range.from.toISOString(),
+      range: range.source === "all" ? "all" : "day",
       to: range.to.toISOString(),
       campaignId: params.campaignId ?? null,
       page: analytics.pagination.page,
@@ -119,10 +122,9 @@ export default async function AdminDailyLeadsPage({
               hrefForStatus={(targetStatus) =>
                 buildDailyLeadsHref({
                   campaignId: params.campaignId,
-                  from: range.from,
                   page: 1,
+                  range,
                   status: targetStatus,
-                  to: range.to,
                 })
               }
             />
@@ -151,10 +153,9 @@ export default async function AdminDailyLeadsPage({
         pageHref={(targetPage) =>
           buildDailyLeadsHref({
             campaignId: params.campaignId,
-            from: range.from,
             page: targetPage,
+            range,
             status: semanticStatus,
-            to: range.to,
           })
         }
         showOwner
@@ -165,22 +166,23 @@ export default async function AdminDailyLeadsPage({
 
 function buildDailyLeadsHref({
   campaignId,
-  from,
   page,
+  range,
   status,
-  to,
 }: {
   campaignId?: string;
-  from: Date;
   page: number;
+  range: DailyLeadDateRange;
   status?: DailyLeadSemanticStatusFilter;
-  to: Date;
 }) {
-  const params = new URLSearchParams({
-    from: from.toISOString(),
-    to: to.toISOString(),
-    page: String(page),
-  });
+  const params = new URLSearchParams({ page: String(page) });
+
+  if (range.source === "all") {
+    params.set("range", "all");
+  } else {
+    params.set("from", range.from.toISOString());
+    params.set("to", range.to.toISOString());
+  }
 
   if (status && status !== "ALL") {
     params.set("status", status);

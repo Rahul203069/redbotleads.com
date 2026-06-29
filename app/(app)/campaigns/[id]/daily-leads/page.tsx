@@ -7,6 +7,7 @@ import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semanti
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import {
+  type DailyLeadDateRange,
   type DailyLeadSemanticStatusFilter,
   getDailyLeadAnalytics,
   getDailyLeadDateRange,
@@ -18,6 +19,7 @@ import { prisma } from "@/lib/prisma";
 type SearchParams = {
   from?: string;
   page?: string;
+  range?: string;
   status?: string;
   to?: string;
 };
@@ -83,10 +85,9 @@ export default async function CampaignDailyLeadsPage({
               hrefForStatus={(targetStatus) =>
                 buildCampaignDailyLeadsHref({
                   campaignId: campaign.id,
-                  from: range.from,
                   page: 1,
+                  range,
                   status: targetStatus,
-                  to: range.to,
                 })
               }
             />
@@ -107,10 +108,9 @@ export default async function CampaignDailyLeadsPage({
         pageHref={(targetPage) =>
           buildCampaignDailyLeadsHref({
             campaignId: campaign.id,
-            from: range.from,
             page: targetPage,
+            range,
             status: semanticStatus,
-            to: range.to,
           })
         }
       />
@@ -120,22 +120,23 @@ export default async function CampaignDailyLeadsPage({
 
 function buildCampaignDailyLeadsHref({
   campaignId,
-  from,
   page,
+  range,
   status,
-  to,
 }: {
   campaignId: string;
-  from: Date;
   page: number;
+  range: DailyLeadDateRange;
   status?: DailyLeadSemanticStatusFilter;
-  to: Date;
 }) {
-  const params = new URLSearchParams({
-    from: from.toISOString(),
-    to: to.toISOString(),
-    page: String(page),
-  });
+  const params = new URLSearchParams({ page: String(page) });
+
+  if (range.source === "all") {
+    params.set("range", "all");
+  } else {
+    params.set("from", range.from.toISOString());
+    params.set("to", range.to.toISOString());
+  }
 
   if (status && status !== "ALL") {
     params.set("status", status);

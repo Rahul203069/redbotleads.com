@@ -27,6 +27,7 @@ export function DailyLeadsReport({
         <Metric label="Strong" value={metrics.strongLeads} />
         <Metric label="Not strong" value={metrics.notStrongLeads} />
         <Metric label="Pending AI" value={metrics.pendingClassifications} />
+        <Metric label="AI failures" value={metrics.classificationFailedLeads} />
         <Metric label="Notifications sent" value={metrics.notificationsSent} />
         <Metric label="Notification failures" value={metrics.notificationsFailed} />
       </section>
@@ -105,7 +106,12 @@ export function DailyLeadsReport({
                       <div className="mt-1 text-[11px] text-[#b3b3b3]">{row.semanticScore === null ? "-" : row.semanticScore.toFixed(3)}</div>
                     </Td>
                     <Td>
-                      {row.lead?.classified ? (
+                      {row.lead?.classificationFailed ? (
+                        <>
+                          <StatusPill status="FAILED" />
+                          <div className="mt-1 text-[11px] text-[#f3727f]">Classification error</div>
+                        </>
+                      ) : row.lead?.classified ? (
                         <>
                           <div className="font-semibold text-[#ffffff]">{row.lead.label} / {row.lead.score}</div>
                           {row.lead.category ? <div className="mt-1 text-[11px] text-[#8f8f8f]">{row.lead.category}</div> : null}
@@ -117,7 +123,9 @@ export function DailyLeadsReport({
                       )}
                     </Td>
                     <Td>
-                      {row.lead?.classified ? (
+                      {row.lead?.classificationFailed ? (
+                        "-"
+                      ) : row.lead?.classified ? (
                         <StatusPill status={row.lead.strong ? "STRONG" : "NOT_STRONG"} />
                       ) : (
                         "-"

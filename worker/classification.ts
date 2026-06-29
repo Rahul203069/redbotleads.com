@@ -434,7 +434,14 @@ async function countSemanticProgress(campaignId: string) {
 
 function isSystemicClassificationError(error: unknown) {
   const message = getErrorMessage(error).toLowerCase();
-  return message.includes("openai_api_key") || message.includes("database") || message.includes("prisma");
+  return (
+    message.includes("openai_api_key")
+    || message.includes("database")
+    || message.includes("prisma")
+    || message.includes("unsupported value")
+    || message.includes("invalid_request_error")
+    || message.includes("unsupported parameter")
+  );
 }
 
 function getErrorMessage(error: unknown) {

@@ -4,6 +4,7 @@ export const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
 export const DAILY_STRONG_LEAD_SCORE = 75;
 export const DAILY_LEADS_PAGE_SIZE = 50;
 export const DAILY_LEAD_SEMANTIC_STATUS_OPTIONS = ["ALL", "MATCHED", "NO_MATCH"] as const;
+const CLASSIFICATION_ERROR_MODEL = "classification-error";
 
 export type DailyLeadDateRange = {
   from: Date;
@@ -254,6 +255,7 @@ export async function getDailyLeadAnalytics({
             ai: {
               select: {
                 id: true,
+                model: true,
               },
             },
             notifications: {
@@ -273,7 +275,8 @@ export async function getDailyLeadAnalytics({
       lead?.notifications.find((item) => item.campaignRunId && item.campaignRunId === scan.campaignRunId)
       ?? lead?.notifications[0]
       ?? null;
-    const classified = Boolean(lead?.ai);
+    const classificationFailed = lead?.ai?.model === CLASSIFICATION_ERROR_MODEL;
+    const classified = Boolean(lead?.ai && !classificationFailed);
     const strong = classified && (lead?.score ?? 0) > DAILY_STRONG_LEAD_SCORE;
 
     return {
@@ -292,6 +295,8 @@ export async function getDailyLeadAnalytics({
       lead: lead
         ? {
             id: lead.id,
+            aiModel: lead.ai?.model ?? null,
+            classificationFailed,
             score: lead.score,
             label: lead.label,
             classified,
@@ -318,12 +323,14 @@ export async function getDailyLeadAnalytics({
       ?? null;
 
     return {
-      classified: Boolean(lead?.ai),
+      classificationFailed: lead?.ai?.model === CLASSIFICATION_ERROR_MODEL,
+      classified: Boolean(lead?.ai && lead.ai.model !== CLASSIFICATION_ERROR_MODEL),
       notificationStatus: notification?.status ?? null,
       score: lead?.score ?? 0,
     };
   });
   const classifiedMetricRows = matchedMetricRows.filter((row) => row.classified);
+  const failedMetricRows = matchedMetricRows.filter((row) => row.classificationFailed);
 
   return {
     cronRuns,
@@ -347,9 +354,10 @@ export async function getDailyLeadAnalytics({
       semanticMatches: totalSemanticMatches,
       totalLeadsFound: totalSemanticMatches,
       classifiedLeads: classifiedMetricRows.length,
+      classificationFailedLeads: failedMetricRows.length,
       strongLeads: classifiedMetricRows.filter((row) => row.score > DAILY_STRONG_LEAD_SCORE).length,
       notStrongLeads: classifiedMetricRows.filter((row) => row.score <= DAILY_STRONG_LEAD_SCORE).length,
-      pendingClassifications: matchedMetricRows.filter((row) => !row.classified).length,
+      pendingClassifications: matchedMetricRows.filter((row) => !row.classified && !row.classificationFailed).length,
       notificationsSent: matchedMetricRows.filter((row) => row.notificationStatus === "SENT").length,
       notificationsFailed: matchedMetricRows.filter((row) => row.notificationStatus === "FAILED").length,
     },

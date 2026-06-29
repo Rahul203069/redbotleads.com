@@ -5,6 +5,7 @@ import { CopyJsonButton } from "@/components/admin/copy-json-button";
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
 import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semantic-filter";
+import { RetryFailedClassificationsButton } from "@/components/admin/retry-failed-classifications-button";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import {
@@ -126,6 +127,13 @@ export default async function AdminDailyLeadsPage({
               }
             />
             <div className="flex gap-2">
+              {analytics.metrics.classificationFailedLeads > 0 ? (
+                <RetryFailedClassificationsButton
+                  campaignId={params.campaignId ?? null}
+                  from={range.from.toISOString()}
+                  to={range.to.toISOString()}
+                />
+              ) : null}
               <CopyJsonButton label="Copy JSON" payload={payload} />
               <Link
                 className="inline-flex h-9 items-center rounded-full bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525]"

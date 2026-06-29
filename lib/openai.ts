@@ -205,7 +205,7 @@ async function requestWithRetry(input: {
   schema: Record<string, unknown>;
   schemaName: string;
   systemPrompt: string;
-  temperature: number;
+  temperature?: number;
   userPrompt: string;
   webSearch?: WebSearchRequest;
   usage?: AiUsageContext;
@@ -233,7 +233,9 @@ async function requestWithRetry(input: {
     signal: AbortSignal.timeout(OPENAI_REQUEST_TIMEOUT_MS),
     body: JSON.stringify({
       model: input.model,
-      temperature: input.temperature,
+      ...(supportsCustomTemperature(input.model) && input.temperature !== undefined
+        ? { temperature: input.temperature }
+        : {}),
       messages: [
         {
           role: "system",
@@ -324,7 +326,7 @@ async function requestWithWebSearchRetry(input: {
   schema: Record<string, unknown>;
   schemaName: string;
   systemPrompt: string;
-  temperature: number;
+  temperature?: number;
   userPrompt: string;
   webSearch?: WebSearchRequest;
   usage?: AiUsageContext;
@@ -524,6 +526,10 @@ function getExponentialBackoffDelay(attempt: number) {
 function parsePositiveInteger(value: string | undefined, fallback: number) {
   const parsed = Number.parseInt(value?.trim() ?? "", 10);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function supportsCustomTemperature(model: string) {
+  return !/^gpt-5(?:\.|$|-)/i.test(model.trim());
 }
 
 function sleep(ms: number) {

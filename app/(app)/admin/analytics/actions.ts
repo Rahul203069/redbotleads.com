@@ -12,8 +12,11 @@ import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { enqueueDailySemanticCampaigns } from "@/lib/daily-semantic";
 import { prisma } from "@/lib/prisma";
+import { classificationQueue } from "@/worker/queues";
 
 const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
+const CLASSIFICATION_ERROR_MODEL = "classification-error";
+const UNSUPPORTED_TEMPERATURE_ERROR_TEXT = "Unsupported value: 'temperature'";
 
 export type DailyRssPollerControlResult = {
   status: "success" | "error";
@@ -33,6 +36,13 @@ export type ManualDailySemanticResult = {
   cronRunId?: string;
   queued?: number;
   skipped?: number;
+  failed?: number;
+};
+
+export type RetryFailedDailySemanticResult = {
+  status: "success" | "error";
+  message: string;
+  queued?: number;
   failed?: number;
 };
 
@@ -77,6 +87,141 @@ export async function runDailySemanticOverride(): Promise<ManualDailySemanticRes
       cronRunId: cronRun.id,
     };
   }
+}
+
+export async function retryFailedDailySemanticClassifications(input: {
+  campaignId?: string | null;
+  from: string;
+  to: string;
+}): Promise<RetryFailedDailySemanticResult> {
+  const session = await auth();
+
+  if (!session?.user?.id || !canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to retry failed classifications.",
+    };
+  }
+
+  const from = new Date(input.from);
+  const to = new Date(input.to);
+
+  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime()) || from >= to) {
+    return {
+      status: "error",
+      message: "Invalid daily semantic log date range.",
+    };
+  }
+
+  const scans = await prisma.campaignDailySemanticScan.findMany({
+    where: {
+      status: "MATCHED",
+      updatedAt: {
+        gte: from,
+        lt: to,
+      },
+      ...(input.campaignId
+        ? {
+            campaignId: input.campaignId,
+          }
+        : {}),
+      redditItem: {
+        leads: {
+          some: {
+            campaignId: input.campaignId ? input.campaignId : undefined,
+            ai: {
+              model: CLASSIFICATION_ERROR_MODEL,
+              summary: {
+                contains: UNSUPPORTED_TEMPERATURE_ERROR_TEXT,
+              },
+            },
+          },
+        },
+      },
+    },
+    select: {
+      campaignId: true,
+      campaignRunId: true,
+      redditItemId: true,
+      redditItem: {
+        select: {
+          leads: {
+            where: {
+              campaignId: input.campaignId ? input.campaignId : undefined,
+              ai: {
+                model: CLASSIFICATION_ERROR_MODEL,
+                summary: {
+                  contains: UNSUPPORTED_TEMPERATURE_ERROR_TEXT,
+                },
+              },
+            },
+            select: {
+              id: true,
+              campaignId: true,
+            },
+          },
+        },
+      },
+    },
+    take: 500,
+  });
+
+  const retryItems = scans.flatMap((scan) =>
+    scan.redditItem.leads
+      .filter((lead) => lead.campaignId === scan.campaignId)
+      .map((lead) => ({
+        campaignId: scan.campaignId,
+        campaignRunId: scan.campaignRunId,
+        leadId: lead.id,
+      })),
+  );
+
+  if (retryItems.length === 0) {
+    return {
+      status: "success",
+      message: "No temperature-related classification failures matched this view.",
+      queued: 0,
+      failed: 0,
+    };
+  }
+
+  const results = await Promise.allSettled(
+    retryItems.map((item) => {
+      const retryId = `classify--daily-semantic-retry--${item.leadId}--${Date.now()}`;
+
+      return classificationQueue.add(
+        "CLASSIFY_LEAD",
+        {
+          leadId: item.leadId,
+          campaignId: item.campaignId,
+          campaignRunId: item.campaignRunId ?? undefined,
+          trigger: "daily_semantic",
+        },
+        {
+          jobId: retryId,
+          removeOnComplete: 500,
+          removeOnFail: 500,
+        },
+      );
+    }),
+  );
+  const queued = results.filter((result) => result.status === "fulfilled").length;
+  const failed = results.length - queued;
+
+  revalidatePath("/admin/analytics/daily-leads");
+  if (input.campaignId) {
+    revalidatePath(`/campaigns/${input.campaignId}/daily-leads`);
+  }
+
+  return {
+    status: failed > 0 ? "error" : "success",
+    message:
+      failed > 0
+        ? `Queued ${queued} failed classification retr${queued === 1 ? "y" : "ies"}; ${failed} could not be queued.`
+        : `Queued ${queued} failed classification retr${queued === 1 ? "y" : "ies"}.`,
+    queued,
+    failed,
+  };
 }
 
 export async function pauseDailySubredditIngestion(): Promise<DailyRssPollerControlResult> {

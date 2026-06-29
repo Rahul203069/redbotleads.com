@@ -2,6 +2,8 @@ import { Prisma } from "../generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
+export const PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE = 50;
+
 export type CampaignLeadView = {
   id: string;
   score: number;
@@ -103,7 +105,7 @@ export async function getPublicCampaignLeadViews(campaignId: string): Promise<Ca
       leads: {
         where: {
           score: {
-            gt: 0,
+            gte: PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE,
           },
         },
         orderBy: {

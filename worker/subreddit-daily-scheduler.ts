@@ -5,6 +5,10 @@ import Redis from "ioredis";
 
 import { isDailyRssPollerPaused } from "@/lib/daily-rss-poller-control";
 import { prisma } from "@/lib/prisma";
+import {
+  getDisabledDailyRssSubredditSet,
+  isSubredditDailyRssPollingEnabled,
+} from "@/lib/subreddit-polling-settings";
 
 import {
   subredditDailySchedulerBatchSize,
@@ -131,6 +135,17 @@ async function runSchedulerLoop() {
 
       const jobId = `subreddit-daily-poller:${schedulerId}:${Date.now()}:${subreddit}`;
 
+      if (!(await isSubredditDailyRssPollingEnabled(subreddit))) {
+        workerLogger.info(
+          {
+            jobId,
+            subreddit,
+          },
+          "Skipping daily subreddit poll because subreddit RSS polling is disabled",
+        );
+        continue;
+      }
+
       if (!(await isSubredditTrackedByActiveCampaign(subreddit))) {
         workerLogger.info(
           {
@@ -202,9 +217,12 @@ async function loadActiveCampaignSubreddits() {
     },
   });
 
-  return Array.from(
+  const subreddits = Array.from(
     new Set(campaigns.flatMap((campaign) => campaign.subreddits.map(normalizeSubredditName)).filter(Boolean)),
   ).sort();
+  const disabledSubreddits = await getDisabledDailyRssSubredditSet(subreddits);
+
+  return subreddits.filter((subreddit) => !disabledSubreddits.has(subreddit));
 }
 
 async function isSubredditTrackedByActiveCampaign(subreddit: string) {

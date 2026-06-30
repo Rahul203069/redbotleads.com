@@ -151,7 +151,9 @@ export const rssPollingQueue = new Queue(rssPollingQueueName, {
 });
 
 const LIVE_JOB_STATES = ["waiting", "active", "delayed", "prioritized"] as const;
+const REMOVABLE_JOB_STATES = ["waiting", "delayed", "prioritized", "paused"] as const;
 const MAX_JOBS_TO_SCAN_PER_QUEUE = 500;
+const MAX_JOBS_TO_REMOVE_PER_QUEUE = 5000;
 
 function buildJobId(...parts: string[]) {
   return parts
@@ -668,6 +670,74 @@ export async function enqueueNotification(data: NotificationJobData) {
     removeOnComplete: 500,
     removeOnFail: 500,
   });
+}
+
+export async function removePendingRssFetchJobsForSubreddit(subreddit: string) {
+  const normalizedSubreddit = normalizeSubredditName(subreddit);
+
+  if (!normalizedSubreddit) {
+    return {
+      removed: 0,
+      failed: 0,
+    };
+  }
+
+  const [ingestionResult, rssPollingResult] = await Promise.all([
+    removePendingJobsForSubreddit({
+      jobNames: [subredditDailyIngestJobName],
+      queue: ingestionQueue,
+      subreddit: normalizedSubreddit,
+    }),
+    removePendingJobsForSubreddit({
+      jobNames: [pollSubredditRssJobName],
+      queue: rssPollingQueue,
+      subreddit: normalizedSubreddit,
+    }),
+  ]);
+
+  return {
+    removed: ingestionResult.removed + rssPollingResult.removed,
+    failed: ingestionResult.failed + rssPollingResult.failed,
+  };
+}
+
+async function removePendingJobsForSubreddit({
+  jobNames,
+  queue,
+  subreddit,
+}: {
+  jobNames: string[];
+  queue: Queue;
+  subreddit: string;
+}) {
+  const jobs = await queue.getJobs(
+    [...REMOVABLE_JOB_STATES],
+    0,
+    MAX_JOBS_TO_REMOVE_PER_QUEUE,
+    true,
+  );
+  let removed = 0;
+  let failed = 0;
+
+  for (const job of jobs) {
+    const data = job.data as Record<string, unknown> | undefined;
+
+    if (!jobNames.includes(job.name) || normalizeSubredditName(String(data?.subreddit ?? "")) !== subreddit) {
+      continue;
+    }
+
+    try {
+      await job.remove();
+      removed += 1;
+    } catch {
+      failed += 1;
+    }
+  }
+
+  return {
+    removed,
+    failed,
+  };
 }
 
 function normalizeSubredditName(value: string) {

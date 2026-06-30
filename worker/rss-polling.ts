@@ -2,6 +2,10 @@ import "dotenv/config";
 
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import {
+  getDisabledDailyRssSubredditSet,
+  isSubredditDailyRssPollingEnabled,
+} from "@/lib/subreddit-polling-settings";
 import { Worker } from "bullmq";
 
 import { workerIngestionConcurrency, workerRedisConnection } from "./config";
@@ -63,6 +67,18 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   if (!subreddit) {
     workerLogger.warn({ jobId, data }, "Skipping RSS poll because subreddit is missing");
     return { skipped: true, reason: "missing_subreddit" };
+  }
+
+  if (!(await isSubredditDailyRssPollingEnabled(subreddit))) {
+    workerLogger.info(
+      { jobId, subreddit },
+      "Skipping RSS poll because subreddit RSS polling is disabled",
+    );
+
+    return {
+      skipped: true,
+      reason: "subreddit_polling_disabled",
+    };
   }
 
   const cursor = await prisma.ingestCursor.findUnique({
@@ -238,7 +254,9 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
 async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, jobId: string) {
   const runStartedAt = new Date(data.runStartedAt);
   const attempt = data.attempt ?? 0;
-  const expectedSubreddits = Array.from(new Set(data.expectedSubreddits.map(normalizeSubredditName).filter(Boolean)));
+  const requestedSubreddits = Array.from(new Set(data.expectedSubreddits.map(normalizeSubredditName).filter(Boolean)));
+  const disabledSubreddits = await getDisabledDailyRssSubredditSet(requestedSubreddits);
+  const expectedSubreddits = requestedSubreddits.filter((subreddit) => !disabledSubreddits.has(subreddit));
 
   if (!data.campaignId || Number.isNaN(runStartedAt.getTime()) || expectedSubreddits.length === 0) {
     workerLogger.warn({ jobId, data }, "Skipping campaign RSS poll match because payload is invalid");

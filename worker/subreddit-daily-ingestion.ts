@@ -1,5 +1,6 @@
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { isSubredditDailyRssPollingEnabled } from "@/lib/subreddit-polling-settings";
 
 import { enqueueRedditItemEmbedding, type SubredditDailyIngestJobData } from "./queues";
 import { fetchSubredditPosts, RedditRssFetchError, type RedditPost } from "./reddit";
@@ -21,6 +22,18 @@ export async function runSubredditDailyIngest(
   if (!subreddit) {
     workerLogger.warn({ jobId, data }, "Skipping daily subreddit ingestion because subreddit is missing");
     return { skipped: true, reason: "missing_subreddit" };
+  }
+
+  if (!(await isSubredditDailyRssPollingEnabled(subreddit))) {
+    workerLogger.info(
+      { jobId, subreddit },
+      "Skipping daily subreddit ingestion because subreddit RSS polling is disabled",
+    );
+
+    return {
+      skipped: true,
+      reason: "subreddit_polling_disabled",
+    };
   }
 
   const cursor = await prisma.ingestCursor.findUnique({

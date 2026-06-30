@@ -665,13 +665,16 @@ model Notification {
 ========================= */
 
 model Subreddit {
-  id                String   @id @default(cuid())
-  name              String   @unique // "startups" (no r/)
-  title             String?
-  publicDescription String?
-  subscribers       Int?
-  activeUserCount   Int?
-  isNsfw            Boolean  @default(false)
+  id                            String    @id @default(cuid())
+  name                          String    @unique // "startups" (no r/)
+  title                         String?
+  publicDescription             String?
+  subscribers                   Int?
+  activeUserCount               Int?
+  isNsfw                        Boolean   @default(false)
+  dailyRssPollingEnabled        Boolean   @default(true)
+  dailyRssPollingDisabledAt     DateTime?
+  dailyRssPollingDisabledBy     String?
 
   // Your computed metrics
   activityScore Float? // e.g. moving avg posts/day

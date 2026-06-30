@@ -48,6 +48,9 @@ export type SubredditMinAggregateOutputType = {
   subscribers: number | null
   activeUserCount: number | null
   isNsfw: boolean | null
+  dailyRssPollingEnabled: boolean | null
+  dailyRssPollingDisabledAt: Date | null
+  dailyRssPollingDisabledBy: string | null
   activityScore: number | null
   intentDensity: number | null
   lastScoredAt: Date | null
@@ -63,6 +66,9 @@ export type SubredditMaxAggregateOutputType = {
   subscribers: number | null
   activeUserCount: number | null
   isNsfw: boolean | null
+  dailyRssPollingEnabled: boolean | null
+  dailyRssPollingDisabledAt: Date | null
+  dailyRssPollingDisabledBy: string | null
   activityScore: number | null
   intentDensity: number | null
   lastScoredAt: Date | null
@@ -78,6 +84,9 @@ export type SubredditCountAggregateOutputType = {
   subscribers: number
   activeUserCount: number
   isNsfw: number
+  dailyRssPollingEnabled: number
+  dailyRssPollingDisabledAt: number
+  dailyRssPollingDisabledBy: number
   activityScore: number
   intentDensity: number
   lastScoredAt: number
@@ -109,6 +118,9 @@ export type SubredditMinAggregateInputType = {
   subscribers?: true
   activeUserCount?: true
   isNsfw?: true
+  dailyRssPollingEnabled?: true
+  dailyRssPollingDisabledAt?: true
+  dailyRssPollingDisabledBy?: true
   activityScore?: true
   intentDensity?: true
   lastScoredAt?: true
@@ -124,6 +136,9 @@ export type SubredditMaxAggregateInputType = {
   subscribers?: true
   activeUserCount?: true
   isNsfw?: true
+  dailyRssPollingEnabled?: true
+  dailyRssPollingDisabledAt?: true
+  dailyRssPollingDisabledBy?: true
   activityScore?: true
   intentDensity?: true
   lastScoredAt?: true
@@ -139,6 +154,9 @@ export type SubredditCountAggregateInputType = {
   subscribers?: true
   activeUserCount?: true
   isNsfw?: true
+  dailyRssPollingEnabled?: true
+  dailyRssPollingDisabledAt?: true
+  dailyRssPollingDisabledBy?: true
   activityScore?: true
   intentDensity?: true
   lastScoredAt?: true
@@ -241,6 +259,9 @@ export type SubredditGroupByOutputType = {
   subscribers: number | null
   activeUserCount: number | null
   isNsfw: boolean
+  dailyRssPollingEnabled: boolean
+  dailyRssPollingDisabledAt: Date | null
+  dailyRssPollingDisabledBy: string | null
   activityScore: number | null
   intentDensity: number | null
   lastScoredAt: Date | null
@@ -279,6 +300,9 @@ export type SubredditWhereInput = {
   subscribers?: Prisma.IntNullableFilter<"Subreddit"> | number | null
   activeUserCount?: Prisma.IntNullableFilter<"Subreddit"> | number | null
   isNsfw?: Prisma.BoolFilter<"Subreddit"> | boolean
+  dailyRssPollingEnabled?: Prisma.BoolFilter<"Subreddit"> | boolean
+  dailyRssPollingDisabledAt?: Prisma.DateTimeNullableFilter<"Subreddit"> | Date | string | null
+  dailyRssPollingDisabledBy?: Prisma.StringNullableFilter<"Subreddit"> | string | null
   activityScore?: Prisma.FloatNullableFilter<"Subreddit"> | number | null
   intentDensity?: Prisma.FloatNullableFilter<"Subreddit"> | number | null
   lastScoredAt?: Prisma.DateTimeNullableFilter<"Subreddit"> | Date | string | null
@@ -294,6 +318,9 @@ export type SubredditOrderByWithRelationInput = {
   subscribers?: Prisma.SortOrderInput | Prisma.SortOrder
   activeUserCount?: Prisma.SortOrderInput | Prisma.SortOrder
   isNsfw?: Prisma.SortOrder
+  dailyRssPollingEnabled?: Prisma.SortOrder
+  dailyRssPollingDisabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  dailyRssPollingDisabledBy?: Prisma.SortOrderInput | Prisma.SortOrder
   activityScore?: Prisma.SortOrderInput | Prisma.SortOrder
   intentDensity?: Prisma.SortOrderInput | Prisma.SortOrder
   lastScoredAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -312,6 +339,9 @@ export type SubredditWhereUniqueInput = Prisma.AtLeast<{
   subscribers?: Prisma.IntNullableFilter<"Subreddit"> | number | null
   activeUserCount?: Prisma.IntNullableFilter<"Subreddit"> | number | null
   isNsfw?: Prisma.BoolFilter<"Subreddit"> | boolean
+  dailyRssPollingEnabled?: Prisma.BoolFilter<"Subreddit"> | boolean
+  dailyRssPollingDisabledAt?: Prisma.DateTimeNullableFilter<"Subreddit"> | Date | string | null
+  dailyRssPollingDisabledBy?: Prisma.StringNullableFilter<"Subreddit"> | string | null
   activityScore?: Prisma.FloatNullableFilter<"Subreddit"> | number | null
   intentDensity?: Prisma.FloatNullableFilter<"Subreddit"> | number | null
   lastScoredAt?: Prisma.DateTimeNullableFilter<"Subreddit"> | Date | string | null
@@ -327,6 +357,9 @@ export type SubredditOrderByWithAggregationInput = {
   subscribers?: Prisma.SortOrderInput | Prisma.SortOrder
   activeUserCount?: Prisma.SortOrderInput | Prisma.SortOrder
   isNsfw?: Prisma.SortOrder
+  dailyRssPollingEnabled?: Prisma.SortOrder
+  dailyRssPollingDisabledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  dailyRssPollingDisabledBy?: Prisma.SortOrderInput | Prisma.SortOrder
   activityScore?: Prisma.SortOrderInput | Prisma.SortOrder
   intentDensity?: Prisma.SortOrderInput | Prisma.SortOrder
   lastScoredAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -350,6 +383,9 @@ export type SubredditScalarWhereWithAggregatesInput = {
   subscribers?: Prisma.IntNullableWithAggregatesFilter<"Subreddit"> | number | null
   activeUserCount?: Prisma.IntNullableWithAggregatesFilter<"Subreddit"> | number | null
   isNsfw?: Prisma.BoolWithAggregatesFilter<"Subreddit"> | boolean
+  dailyRssPollingEnabled?: Prisma.BoolWithAggregatesFilter<"Subreddit"> | boolean
+  dailyRssPollingDisabledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subreddit"> | Date | string | null
+  dailyRssPollingDisabledBy?: Prisma.StringNullableWithAggregatesFilter<"Subreddit"> | string | null
   activityScore?: Prisma.FloatNullableWithAggregatesFilter<"Subreddit"> | number | null
   intentDensity?: Prisma.FloatNullableWithAggregatesFilter<"Subreddit"> | number | null
   lastScoredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Subreddit"> | Date | string | null
@@ -365,6 +401,9 @@ export type SubredditCreateInput = {
   subscribers?: number | null
   activeUserCount?: number | null
   isNsfw?: boolean
+  dailyRssPollingEnabled?: boolean
+  dailyRssPollingDisabledAt?: Date | string | null
+  dailyRssPollingDisabledBy?: string | null
   activityScore?: number | null
   intentDensity?: number | null
   lastScoredAt?: Date | string | null
@@ -380,6 +419,9 @@ export type SubredditUncheckedCreateInput = {
   subscribers?: number | null
   activeUserCount?: number | null
   isNsfw?: boolean
+  dailyRssPollingEnabled?: boolean
+  dailyRssPollingDisabledAt?: Date | string | null
+  dailyRssPollingDisabledBy?: string | null
   activityScore?: number | null
   intentDensity?: number | null
   lastScoredAt?: Date | string | null
@@ -395,6 +437,9 @@ export type SubredditUpdateInput = {
   subscribers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activeUserCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isNsfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dailyRssPollingDisabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   intentDensity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lastScoredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -410,6 +455,9 @@ export type SubredditUncheckedUpdateInput = {
   subscribers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activeUserCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isNsfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dailyRssPollingDisabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   intentDensity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lastScoredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -425,6 +473,9 @@ export type SubredditCreateManyInput = {
   subscribers?: number | null
   activeUserCount?: number | null
   isNsfw?: boolean
+  dailyRssPollingEnabled?: boolean
+  dailyRssPollingDisabledAt?: Date | string | null
+  dailyRssPollingDisabledBy?: string | null
   activityScore?: number | null
   intentDensity?: number | null
   lastScoredAt?: Date | string | null
@@ -440,6 +491,9 @@ export type SubredditUpdateManyMutationInput = {
   subscribers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activeUserCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isNsfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dailyRssPollingDisabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   intentDensity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lastScoredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -455,6 +509,9 @@ export type SubredditUncheckedUpdateManyInput = {
   subscribers?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   activeUserCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isNsfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dailyRssPollingDisabledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dailyRssPollingDisabledBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   intentDensity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lastScoredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -470,6 +527,9 @@ export type SubredditCountOrderByAggregateInput = {
   subscribers?: Prisma.SortOrder
   activeUserCount?: Prisma.SortOrder
   isNsfw?: Prisma.SortOrder
+  dailyRssPollingEnabled?: Prisma.SortOrder
+  dailyRssPollingDisabledAt?: Prisma.SortOrder
+  dailyRssPollingDisabledBy?: Prisma.SortOrder
   activityScore?: Prisma.SortOrder
   intentDensity?: Prisma.SortOrder
   lastScoredAt?: Prisma.SortOrder
@@ -492,6 +552,9 @@ export type SubredditMaxOrderByAggregateInput = {
   subscribers?: Prisma.SortOrder
   activeUserCount?: Prisma.SortOrder
   isNsfw?: Prisma.SortOrder
+  dailyRssPollingEnabled?: Prisma.SortOrder
+  dailyRssPollingDisabledAt?: Prisma.SortOrder
+  dailyRssPollingDisabledBy?: Prisma.SortOrder
   activityScore?: Prisma.SortOrder
   intentDensity?: Prisma.SortOrder
   lastScoredAt?: Prisma.SortOrder
@@ -507,6 +570,9 @@ export type SubredditMinOrderByAggregateInput = {
   subscribers?: Prisma.SortOrder
   activeUserCount?: Prisma.SortOrder
   isNsfw?: Prisma.SortOrder
+  dailyRssPollingEnabled?: Prisma.SortOrder
+  dailyRssPollingDisabledAt?: Prisma.SortOrder
+  dailyRssPollingDisabledBy?: Prisma.SortOrder
   activityScore?: Prisma.SortOrder
   intentDensity?: Prisma.SortOrder
   lastScoredAt?: Prisma.SortOrder
@@ -531,6 +597,9 @@ export type SubredditSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   subscribers?: boolean
   activeUserCount?: boolean
   isNsfw?: boolean
+  dailyRssPollingEnabled?: boolean
+  dailyRssPollingDisabledAt?: boolean
+  dailyRssPollingDisabledBy?: boolean
   activityScore?: boolean
   intentDensity?: boolean
   lastScoredAt?: boolean
@@ -546,6 +615,9 @@ export type SubredditSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   subscribers?: boolean
   activeUserCount?: boolean
   isNsfw?: boolean
+  dailyRssPollingEnabled?: boolean
+  dailyRssPollingDisabledAt?: boolean
+  dailyRssPollingDisabledBy?: boolean
   activityScore?: boolean
   intentDensity?: boolean
   lastScoredAt?: boolean
@@ -561,6 +633,9 @@ export type SubredditSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   subscribers?: boolean
   activeUserCount?: boolean
   isNsfw?: boolean
+  dailyRssPollingEnabled?: boolean
+  dailyRssPollingDisabledAt?: boolean
+  dailyRssPollingDisabledBy?: boolean
   activityScore?: boolean
   intentDensity?: boolean
   lastScoredAt?: boolean
@@ -576,6 +651,9 @@ export type SubredditSelectScalar = {
   subscribers?: boolean
   activeUserCount?: boolean
   isNsfw?: boolean
+  dailyRssPollingEnabled?: boolean
+  dailyRssPollingDisabledAt?: boolean
+  dailyRssPollingDisabledBy?: boolean
   activityScore?: boolean
   intentDensity?: boolean
   lastScoredAt?: boolean
@@ -583,7 +661,7 @@ export type SubredditSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SubredditOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "title" | "publicDescription" | "subscribers" | "activeUserCount" | "isNsfw" | "activityScore" | "intentDensity" | "lastScoredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["subreddit"]>
+export type SubredditOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "title" | "publicDescription" | "subscribers" | "activeUserCount" | "isNsfw" | "dailyRssPollingEnabled" | "dailyRssPollingDisabledAt" | "dailyRssPollingDisabledBy" | "activityScore" | "intentDensity" | "lastScoredAt" | "createdAt" | "updatedAt", ExtArgs["result"]["subreddit"]>
 
 export type $SubredditPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Subreddit"
@@ -596,6 +674,9 @@ export type $SubredditPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     subscribers: number | null
     activeUserCount: number | null
     isNsfw: boolean
+    dailyRssPollingEnabled: boolean
+    dailyRssPollingDisabledAt: Date | null
+    dailyRssPollingDisabledBy: string | null
     activityScore: number | null
     intentDensity: number | null
     lastScoredAt: Date | null
@@ -1031,6 +1112,9 @@ export interface SubredditFieldRefs {
   readonly subscribers: Prisma.FieldRef<"Subreddit", 'Int'>
   readonly activeUserCount: Prisma.FieldRef<"Subreddit", 'Int'>
   readonly isNsfw: Prisma.FieldRef<"Subreddit", 'Boolean'>
+  readonly dailyRssPollingEnabled: Prisma.FieldRef<"Subreddit", 'Boolean'>
+  readonly dailyRssPollingDisabledAt: Prisma.FieldRef<"Subreddit", 'DateTime'>
+  readonly dailyRssPollingDisabledBy: Prisma.FieldRef<"Subreddit", 'String'>
   readonly activityScore: Prisma.FieldRef<"Subreddit", 'Float'>
   readonly intentDensity: Prisma.FieldRef<"Subreddit", 'Float'>
   readonly lastScoredAt: Prisma.FieldRef<"Subreddit", 'DateTime'>

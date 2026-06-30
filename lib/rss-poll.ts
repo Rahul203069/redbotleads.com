@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getDisabledDailyRssSubredditSet } from "@/lib/subreddit-polling-settings";
 import { enqueueCampaignRssPollRunMatch, enqueueSubredditRssPoll } from "@/worker/queues";
 
 export const RSS_POLL_INTERVAL_MS = 30 * 60 * 1000;
@@ -25,14 +26,17 @@ export async function enqueueDueSubredditRssPolls(options?: {
     },
   });
 
-  const subreddits = Array.from(
+  const allSubreddits = Array.from(
     new Set(campaigns.flatMap((campaign) => campaign.subreddits.map(normalizeSubredditName)).filter(Boolean)),
   ).sort();
+  const disabledSubreddits = await getDisabledDailyRssSubredditSet(allSubreddits);
+  const subreddits = allSubreddits.filter((subreddit) => !disabledSubreddits.has(subreddit));
+  const disabledSkipped = allSubreddits.length - subreddits.length;
 
   if (subreddits.length === 0) {
     return {
       queued: 0,
-      skipped: 0,
+      skipped: disabledSkipped,
       failed: 0,
       subreddits: [] as string[],
       failures: [] as Array<{ subreddit: string; message: string }>,
@@ -62,7 +66,7 @@ export async function enqueueDueSubredditRssPolls(options?: {
   if (dueSubreddits.length === 0) {
     return {
       queued: 0,
-      skipped: subreddits.length,
+      skipped: subreddits.length + disabledSkipped,
       failed: 0,
       subreddits: [] as string[],
       failures: [] as Array<{ subreddit: string; message: string }>,
@@ -109,7 +113,9 @@ export async function enqueueDueSubredditRssPolls(options?: {
     campaigns
       .map((campaign) => ({
         id: campaign.id,
-        subreddits: Array.from(new Set(campaign.subreddits.map(normalizeSubredditName).filter(Boolean))).sort(),
+        subreddits: Array.from(new Set(campaign.subreddits.map(normalizeSubredditName).filter(Boolean)))
+          .filter((subreddit) => !disabledSubreddits.has(subreddit))
+          .sort(),
       }))
       .filter((campaign) => campaign.subreddits.length > 0)
       .filter((campaign) => campaign.subreddits.every((subreddit) => queuedSubredditSet.has(subreddit)))
@@ -131,7 +137,7 @@ export async function enqueueDueSubredditRssPolls(options?: {
 
   return {
     queued: queuedSubreddits.length,
-    skipped: subreddits.length - dueSubreddits.length,
+    skipped: subreddits.length - dueSubreddits.length + disabledSkipped,
     failed: failures.length + matcherFailures,
     campaignMatchersQueued: matcherResults.length - matcherFailures,
     subreddits: queuedSubreddits,

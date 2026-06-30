@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { CopySubredditListButton } from "@/components/admin/copy-subreddit-list-button";
 import { RemoveSubredditFromReportButton } from "@/components/admin/remove-subreddit-from-report-button";
+import { SubredditPollingToggleButton } from "@/components/admin/subreddit-polling-toggle-button";
 import { CampaignSubredditAnalyticsCharts } from "@/components/campaigns/campaign-subreddit-analytics-charts";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,7 @@ export function SubredditAnalyticsReport({
   deleteContext,
   description,
   matchedCampaigns,
+  pollingContext,
   rows,
   summary,
   eyebrow,
@@ -37,11 +39,21 @@ export function SubredditAnalyticsReport({
   };
   description: string;
   matchedCampaigns?: MatchedCampaignSummary[];
+  pollingContext?: {
+    reportName: string;
+    states: Record<string, {
+      enabled: boolean;
+      disabledAt: string | null;
+      disabledBy: string | null;
+    }>;
+  };
   rows: SubredditAnalyticsRow[];
   summary: SubredditAnalyticsSummary;
   eyebrow: string;
   title: string;
 }) {
+  const hasActions = Boolean(deleteContext || pollingContext);
+
   return (
     <div className="space-y-5">
       <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
@@ -97,7 +109,7 @@ export function SubredditAnalyticsReport({
         </div>
 
         <div className="overflow-x-auto pt-4">
-          <table className="w-full min-w-[860px] border-separate border-spacing-y-2 text-left">
+          <table className="w-full min-w-[980px] border-separate border-spacing-y-2 text-left">
             <thead>
               <tr className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
                 <th className="px-4 py-2">Subreddit</th>
@@ -109,37 +121,58 @@ export function SubredditAnalyticsReport({
                 <th className="px-4 py-2">Share</th>
                 <th className="px-4 py-2">Latest lead</th>
                 <th className="px-4 py-2">Signal</th>
-                {deleteContext ? <th className="px-4 py-2">Action</th> : null}
+                {hasActions ? <th className="px-4 py-2">Actions</th> : null}
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr className="bg-[#1f1f1f] text-[14px] text-[#fdfdfd]" key={row.subreddit}>
-                  <td className="rounded-l-[16px] px-4 py-4 font-semibold">r/{row.subreddit}</td>
-                  <td className="px-4 py-4 tabular-nums">{row.totalLeads}</td>
-                  <td className="px-4 py-4 tabular-nums text-[#1ed760]">{row.highLeads}</td>
-                  <td className="px-4 py-4 tabular-nums text-[#f2c94c]">{row.medLeads}</td>
-                  <td className="px-4 py-4 tabular-nums text-[#f3727f]">{row.lowLeads}</td>
-                  <td className="px-4 py-4 tabular-nums">{row.averageScore ?? "-"}</td>
-                  <td className="px-4 py-4 tabular-nums">{formatPercent(row.shareOfLeads)}</td>
-                  <td className="px-4 py-4 text-[#cbcbcb]">{formatDate(row.latestLeadAt)}</td>
-                  <td className={deleteContext ? "px-4 py-4" : "rounded-r-[16px] px-4 py-4"}>
-                    <StatusChip
-                      label={row.status}
-                      tone={row.status === "Strong" ? "good" : row.status === "Quiet" ? "muted" : "neutral"}
-                    />
-                  </td>
-                  {deleteContext ? (
-                    <td className="rounded-r-[16px] px-4 py-4">
-                      <RemoveSubredditFromReportButton
-                        affectedCampaigns={deleteContext.affectedCampaignCounts[row.subreddit] ?? 0}
-                        reportName={deleteContext.reportName}
-                        subreddit={row.subreddit}
+              {rows.map((row) => {
+                const pollingState = pollingContext?.states[row.subreddit] ?? {
+                  enabled: true,
+                  disabledAt: null,
+                  disabledBy: null,
+                };
+
+                return (
+                  <tr className="bg-[#1f1f1f] text-[14px] text-[#fdfdfd]" key={row.subreddit}>
+                    <td className="rounded-l-[16px] px-4 py-4 font-semibold">r/{row.subreddit}</td>
+                    <td className="px-4 py-4 tabular-nums">{row.totalLeads}</td>
+                    <td className="px-4 py-4 tabular-nums text-[#1ed760]">{row.highLeads}</td>
+                    <td className="px-4 py-4 tabular-nums text-[#f2c94c]">{row.medLeads}</td>
+                    <td className="px-4 py-4 tabular-nums text-[#f3727f]">{row.lowLeads}</td>
+                    <td className="px-4 py-4 tabular-nums">{row.averageScore ?? "-"}</td>
+                    <td className="px-4 py-4 tabular-nums">{formatPercent(row.shareOfLeads)}</td>
+                    <td className="px-4 py-4 text-[#cbcbcb]">{formatDate(row.latestLeadAt)}</td>
+                    <td className={hasActions ? "px-4 py-4" : "rounded-r-[16px] px-4 py-4"}>
+                      <StatusChip
+                        label={row.status}
+                        tone={row.status === "Strong" ? "good" : row.status === "Quiet" ? "muted" : "neutral"}
                       />
                     </td>
-                  ) : null}
-                </tr>
-              ))}
+                    {hasActions ? (
+                      <td className="rounded-r-[16px] px-4 py-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {pollingContext ? (
+                            <SubredditPollingToggleButton
+                              disabledAt={pollingState.disabledAt}
+                              disabledBy={pollingState.disabledBy}
+                              initialEnabled={pollingState.enabled}
+                              reportName={pollingContext.reportName}
+                              subreddit={row.subreddit}
+                            />
+                          ) : null}
+                          {deleteContext ? (
+                            <RemoveSubredditFromReportButton
+                              affectedCampaigns={deleteContext.affectedCampaignCounts[row.subreddit] ?? 0}
+                              reportName={deleteContext.reportName}
+                              subreddit={row.subreddit}
+                            />
+                          ) : null}
+                        </div>
+                      </td>
+                    ) : null}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

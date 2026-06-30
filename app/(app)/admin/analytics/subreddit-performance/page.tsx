@@ -9,6 +9,7 @@ import {
   MIN_VISIBLE_LEAD_SCORE,
   summarizeSubredditRows,
 } from "@/lib/subreddit-analytics";
+import { getSubredditDailyRssPollingStateMap } from "@/lib/subreddit-polling-settings";
 
 type SearchParams = {
   name?: string;
@@ -93,6 +94,7 @@ export default async function AdminSubredditPerformancePage({
   );
   const summary = summarizeSubredditRows(rows);
   const affectedCampaignCounts = buildAffectedCampaignCounts(campaigns.map((campaign) => campaign.subreddits));
+  const pollingStates = await getSubredditDailyRssPollingStateMap(rows.map((row) => row.subreddit));
 
   return (
     <SubredditAnalyticsReport
@@ -129,6 +131,10 @@ export default async function AdminSubredditPerformancePage({
         leadsCount: campaign.leads.length,
       }))}
       rows={rows}
+      pollingContext={{
+        reportName: query,
+        states: pollingStates,
+      }}
       summary={summary}
       title={`Subreddit performance: ${query}`}
     />

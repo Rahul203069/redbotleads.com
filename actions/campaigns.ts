@@ -10,7 +10,6 @@ import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
 import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
-import { enqueueInitialIngest, getInitialIngestQueueFailureMessage } from "@/worker/queues";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const keywordPhrase = z
@@ -97,8 +96,6 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
   }
 
   let campaignId = "";
-  let shouldQueueInitialIngest = false;
-
   try {
     const campaign = await prisma.campaign.create({
       data: {
@@ -115,12 +112,10 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
       },
       select: {
         id: true,
-        isActive: true,
       },
     });
 
     campaignId = campaign.id;
-    shouldQueueInitialIngest = campaign.isActive;
 
     if (parsed.data.description) {
       const semanticQueries = await generateCampaignSemanticQueries(parsed.data.description, parsed.data.leadType, {
@@ -150,33 +145,13 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     };
   }
 
-  if (shouldQueueInitialIngest) {
-    try {
-      await enqueueInitialIngest({
-        campaignId,
-        trigger: "campaign_created",
-      });
-    } catch (error) {
-      console.error("Campaign queue failed", error);
-
-      revalidatePath("/campaigns");
-      revalidatePath(`/campaigns/${campaignId}`);
-
-      return {
-        status: "success",
-        message:
-          error instanceof Error
-            ? `Campaign created, but initial sync could not be queued: ${getInitialIngestQueueFailureMessage(error)}`
-            : "Campaign created, but initial sync could not be queued.",
-      };
-    }
-  }
-
   revalidatePath("/campaigns");
 
   return {
     status: "success",
-    message: shouldQueueInitialIngest ? "Campaign created and queued for initial sync." : "Campaign created.",
+    message: parsed.data.isActive
+      ? "Campaign created. It will be processed after the next scheduled daily RSS and daily semantic run."
+      : "Campaign created.",
   };
 }
 
@@ -570,13 +545,6 @@ export async function manualSyncCampaign(formData: FormData): Promise<CampaignAc
     };
   }
 
-  if (!isOwnerEmail(session.user.email)) {
-    return {
-      status: "error",
-      message: BETA_OWNER_ONLY_MESSAGE,
-    };
-  }
-
   const campaignId = String(formData.get("campaignId") ?? "").trim();
 
   if (!campaignId) {
@@ -586,57 +554,9 @@ export async function manualSyncCampaign(formData: FormData): Promise<CampaignAc
     };
   }
 
-  const campaign = await prisma.campaign.findFirst({
-    where: {
-      id: campaignId,
-      userId: session.user.id,
-    },
-    select: {
-      id: true,
-      isActive: true,
-    },
-  });
-
-  if (!campaign) {
-    return {
-      status: "error",
-      message: "Campaign not found.",
-    };
-  }
-
-  if (!campaign.isActive) {
-    return {
-      status: "error",
-      message: "Activate the campaign before running a manual sync.",
-    };
-  }
-
-  try {
-    await enqueueInitialIngest({
-      campaignId: campaign.id,
-      trigger: "manual_resync",
-    });
-  } catch (error) {
-    console.error("Manual campaign sync failed", error);
-
-    revalidatePath("/campaigns");
-    revalidatePath(`/campaigns/${campaign.id}`);
-
-    return {
-      status: "error",
-      message:
-        error instanceof Error
-          ? `Manual sync failed: ${getInitialIngestQueueFailureMessage(error)}`
-          : "Manual sync failed.",
-    };
-  }
-
-  revalidatePath("/campaigns");
-  revalidatePath(`/campaigns/${campaign.id}`);
-
   return {
-    status: "success",
-    message: "Campaign queued for manual sync.",
+    status: "error",
+    message: "Manual sync is disabled. Campaigns are processed by scheduled daily RSS and daily semantic runs.",
   };
 }
 

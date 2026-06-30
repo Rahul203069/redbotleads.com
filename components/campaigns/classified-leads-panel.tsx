@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Clock3 } from "lucide-react";
 
 export type ClassifiedLead = {
   id: string;
@@ -34,9 +35,11 @@ const MIN_VISIBLE_LEAD_SCORE = 40;
 
 export function ClassifiedLeadsPanel({
   leads,
+  nextSyncLabel = "the next scheduled run",
   syncStatus = "IDLE",
 }: {
   leads: ClassifiedLead[];
+  nextSyncLabel?: string;
   syncStatus?: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 }) {
   const [labelFilter, setLabelFilter] = useState<(typeof labelFilters)[number]>("ALL");
@@ -122,11 +125,11 @@ export function ClassifiedLeadsPanel({
       </div>
       <div className="space-y-4 pt-5">
         {isProcessing ? (
-          <PendingLeadState />
+          <WaitingForNextSyncState nextSyncLabel={nextSyncLabel} />
         ) : isCompleted && classifiedLeads.length === 0 ? (
           <NoLeadsFoundState />
         ) : classifiedLeads.length === 0 ? (
-          <NoLeadsYetState syncStatus={syncStatus} />
+          <NoLeadsYetState nextSyncLabel={nextSyncLabel} syncStatus={syncStatus} />
         ) : filteredLeads.length === 0 ? (
           <div className="rounded-[20px] bg-[#1f1f1f] px-4 py-8 text-[14px] leading-6 text-[#cbcbcb]">
             No classified leads match the active filters.
@@ -219,63 +222,6 @@ export function ClassifiedLeadsPanel({
   );
 }
 
-function PendingLeadState() {
-  return (
-    <div className="overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-      <div className="border-b border-white/8 px-4 py-5 sm:px-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead review in progress</p>
-            <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">Preparing the qualified lead set.</h3>
-            <p className="mt-3 text-[14px] leading-6 text-[#cbcbcb]">
-              The feed stays hidden until semantic filtering and LLM scoring finish, so this table only opens with the final reviewed leads.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 self-start rounded-full bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-            <span className="relative flex h-3 w-3">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#1ed760]/45" />
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-[#1ed760]" />
-            </span>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">Processing</span>
-          </div>
-        </div>
-      </div>
-      <div className="space-y-4 px-4 py-5 sm:px-6">
-        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
-          <span className="text-[#ffffff]">What happens next</span>
-          <span className="h-px flex-1 bg-white/8" />
-        </div>
-        <div className="grid gap-3 lg:grid-cols-3">
-          <PendingStep label="Semantic pass" description="Checking Reddit items against the saved intent queries." />
-          <PendingStep label="LLM scoring" description="Ranking qualified items for buying intent and fit." />
-          <PendingStep label="Final feed" description="Publishing only the leads ready for review in this table." />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PendingStep({
-  label,
-  description,
-}: {
-  label: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-      <div className="flex items-center gap-3">
-        <span className="relative flex h-2.5 w-2.5 shrink-0">
-          <span className="absolute inline-flex h-full w-full animate-pulse rounded-full bg-[#1ed760]/40" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#1ed760]" />
-        </span>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ffffff]">{label}</p>
-      </div>
-      <p className="mt-3 text-[13px] leading-6 text-[#b3b3b3]">{description}</p>
-    </div>
-  );
-}
-
 function NoLeadsFoundState() {
   return (
     <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
@@ -289,19 +235,46 @@ function NoLeadsFoundState() {
 }
 
 function NoLeadsYetState({
+  nextSyncLabel,
   syncStatus,
 }: {
+  nextSyncLabel: string;
   syncStatus: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 }) {
+  if (syncStatus !== "FAILED") {
+    return <WaitingForNextSyncState nextSyncLabel={nextSyncLabel} />;
+  }
+
   return (
-    <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+    <div className="rounded-[20px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] sm:p-6">
       <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead inbox</p>
       <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">No classified leads yet.</h3>
       <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
-        {syncStatus === "FAILED"
-          ? "The latest sync did not complete successfully, so there are no final classified leads to show yet."
-          : "Run a sync to populate this campaign with Reddit items that make it through semantic matching and LLM scoring."}
+        The latest sync did not complete successfully, so there are no final classified leads to show yet.
       </p>
+    </div>
+  );
+}
+
+function WaitingForNextSyncState({ nextSyncLabel }: { nextSyncLabel: string }) {
+  return (
+    <div className="rounded-[20px] bg-[#1f1f1f] px-5 py-8 text-center shadow-[rgba(0,0,0,0.3)_0px_8px_8px] sm:px-6">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#121212] text-[#1ed760] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1ed760]/10">
+          <Clock3 className="h-5 w-5" />
+        </div>
+      </div>
+      <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Waiting for next sync</p>
+      <h3 className="mx-auto mt-2 max-w-xl text-[20px] font-bold tracking-[-0.03em] text-[#ffffff]">
+        Leads will start appearing after the next sync.
+      </h3>
+      <p className="mx-auto mt-3 max-w-xl text-[14px] leading-6 text-[#cbcbcb]">
+        Leads will appear here after Reddit posts are collected, matched, and scored during the scheduled run.
+      </p>
+      <div className="mx-auto mt-5 w-full max-w-[300px] rounded-[16px] bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Next sync</p>
+        <p className="mt-2 text-[16px] font-bold leading-6 text-[#ffffff]">{nextSyncLabel}</p>
+      </div>
     </div>
   );
 }

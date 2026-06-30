@@ -143,7 +143,7 @@ export function CampaignDetailLiveSections({
         sync={sync}
       />
       <InitialRssDiagnosticsPanel diagnostics={diagnostics} />
-      <ClassifiedLeadsPanel leads={classifiedLeads} syncStatus={sync?.status ?? "IDLE"} />
+      <ClassifiedLeadsPanel leads={classifiedLeads} nextSyncLabel={nextSync} syncStatus={sync?.status ?? "IDLE"} />
     </>
   );
 }

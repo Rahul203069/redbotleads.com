@@ -1,19 +1,16 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { BarChart3, CalendarDays } from "lucide-react";
+import { BarChart3, CalendarDays, Clock3 } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
-import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-access-button";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
-import { ManualSyncButton } from "@/components/campaigns/manual-sync-button";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
-import { isOwnerEmail } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
@@ -137,7 +134,6 @@ export default async function CampaignDetailPage({
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
-  const canRunCampaigns = isOwnerEmail(session.user.email);
 
   return (
     <div className="space-y-5">
@@ -176,11 +172,7 @@ export default async function CampaignDetailPage({
               </Link>
               <CopyPublicCampaignLinkButton campaignId={campaign.id} />
               <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
-              {canRunCampaigns ? (
-                <ManualSyncButton campaignId={campaign.id} disabled={!campaign.isActive} />
-              ) : (
-                <BetaCampaignAccessButton label="Manual sync" />
-              )}
+              <ScheduledProcessingPill isActive={campaign.isActive} />
               <EditCampaignDialog
                 campaign={{
                   id: campaign.id,
@@ -292,6 +284,22 @@ function HeroChip({ label }: { label: string }) {
     <span className="inline-flex items-center rounded-full bg-[#121212] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
       {label}
     </span>
+  );
+}
+
+function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
+  return (
+    <div
+      className={`inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-full px-5 text-[11px] font-bold uppercase tracking-[0.16em] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-auto ${
+        isActive
+          ? "bg-[#121212] text-[#1ed760]"
+          : "bg-[#121212] text-[#b3b3b3]"
+      }`}
+      title={isActive ? "Campaign will run through scheduled daily RSS and semantic jobs." : "Activate this campaign to include it in scheduled daily processing."}
+    >
+      <Clock3 className="h-4 w-4" />
+      {isActive ? "Scheduled daily" : "Paused"}
+    </div>
   );
 }
 

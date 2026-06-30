@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CopySubredditListButton } from "@/components/admin/copy-subreddit-list-button";
 import { RemoveSubredditFromReportButton } from "@/components/admin/remove-subreddit-from-report-button";
 import { CampaignSubredditAnalyticsCharts } from "@/components/campaigns/campaign-subreddit-analytics-charts";
 import { Button } from "@/components/ui/button";
@@ -83,13 +84,16 @@ export function SubredditAnalyticsReport({
       <CampaignSubredditAnalyticsCharts rows={rows} />
 
       <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
-        <div className="flex flex-col gap-2 border-b border-white/8 pb-4">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#b3b3b3]">
-            Subreddit ranking
-          </p>
-          <p className="text-[15px] leading-6 text-[#cbcbcb]">
-            Ranked by classified lead volume, then high-intent count and average score.
-          </p>
+        <div className="flex flex-col gap-4 border-b border-white/8 pb-4 md:flex-row md:items-start md:justify-between">
+          <div className="space-y-2">
+            <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#b3b3b3]">
+              Subreddit ranking
+            </p>
+            <p className="text-[15px] leading-6 text-[#cbcbcb]">
+              Ranked by classified lead volume, then high-intent count and average score.
+            </p>
+          </div>
+          <CopySubredditListButton subreddits={rows.map((row) => row.subreddit)} />
         </div>
 
         <div className="overflow-x-auto pt-4">

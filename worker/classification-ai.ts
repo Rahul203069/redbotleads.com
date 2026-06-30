@@ -45,7 +45,8 @@ type ClassificationResult = z.infer<typeof classificationResultSchema> & {
   promptVersion: string;
 };
 
-const PROMPT_VERSION = "lead-classifier-v2";
+const PRODUCT_PROMPT_VERSION = "lead-classifier-v3-product";
+const SERVICE_PROMPT_VERSION = "lead-classifier-v2-service";
 const ENV_DEFAULT_MODEL = process.env.OPENAI_MODEL?.trim() || DEFAULT_LEAD_SCORING_MODEL;
 const MIN_REQUEST_INTERVAL_MS = workerClassificationMinIntervalMs;
 const MAX_CATEGORY_LENGTH = 80;
@@ -86,7 +87,7 @@ export async function classifyLeadWithOpenAI(input: ClassificationInput): Promis
   return {
     ...parsed,
     model: response.model,
-    promptVersion: `${PROMPT_VERSION}-${input.campaign.leadType.toLowerCase()}`,
+    promptVersion: input.campaign.leadType === "PRODUCT" ? PRODUCT_PROMPT_VERSION : SERVICE_PROMPT_VERSION,
   };
 }
 
@@ -270,8 +271,10 @@ function buildProductPrompt(input: ClassificationInput) {
     userPrompt: [
       "Task:",
       "Classify whether this Reddit item is a real commercial lead for the campaign.",
-      "First decide whether the need matches the described product or service.",
+      "",
+      "First decide whether the Reddit item's need matches the described product or service.",
       "Then decide how strong the buying intent is.",
+      "Then consider any qualification requirements such as target region, budget, company size, industry, buyer type, or deal size.",
       "",
       "Output fields:",
       "1. score: integer from 0 to 100",
@@ -286,7 +289,7 @@ function buildProductPrompt(input: ClassificationInput) {
       "Scoring guidance:",
       "- HIGH (80-100): clear buying, recommendation, evaluation, or switching intent, and the need strongly matches the campaign description.",
       "- MED (45-79): real unsolved commercial pain is present and relevant to the campaign, but the author does not clearly ask for a solution yet, or the fit is only partial.",
-      "- LOW (0-44): broad discussion, education, storytelling, case study, workflow sharing, self-promotion, solved problem, unclear commercial intent, or weak fit to the campaign description.",
+      "- LOW (0-44): broad discussion, education, storytelling, case study, workflow sharing, self-promotion, solved problem, unclear commercial intent, weak fit to the campaign description, or clear contradiction with an important campaign requirement.",
       "",
       "Important rules:",
       "- A post is NOT a lead just because it mentions the topic, tools, workflows, or pain points.",
@@ -296,7 +299,52 @@ function buildProductPrompt(input: ClassificationInput) {
       "- If the problem already seems solved, score LOW.",
       "- If intent is ambiguous, score LOW rather than MED.",
       "- If fit to the described product is ambiguous, score LOW rather than MED.",
-      "- Use the disqualifier field to explain why a post is low fit, low intent, already solved, or mismatched to the campaign description.",
+      "- Use the disqualifier field to explain why a post is low fit, low intent, already solved, mismatched, or clearly contradicts an important campaign requirement.",
+      "",
+      "Qualification rules:",
+      "The campaign description may include target qualifiers such as region, country, budget, company size, industry, buyer type, deal size, or target customer profile.",
+      "",
+      "Do not require every qualifier to be explicitly mentioned in the Reddit item.",
+      "",
+      "Missing qualifier information is NOT a disqualifier.",
+      "",
+      "Only penalize a lead when the Reddit item clearly contradicts an important qualifier in the campaign description.",
+      "",
+      "Classify qualifier evidence internally like this:",
+      "",
+      "- MATCHED: the Reddit item clearly satisfies the qualifier.",
+      "- PROBABLY_MATCHED: strong indirect evidence suggests it likely satisfies the qualifier.",
+      "- UNKNOWN: the Reddit item does not provide enough information.",
+      "- PROBABLY_MISMATCHED: weak evidence suggests it may not satisfy the qualifier.",
+      "- MISMATCHED: the Reddit item clearly contradicts the qualifier.",
+      "",
+      "Rules for unknown qualifiers:",
+      "",
+      "- If region is unknown, do not penalize.",
+      "- If budget is unknown, do not penalize.",
+      "- If company size is unknown, do not penalize.",
+      "- If industry is unknown, do not penalize unless the campaign requires a very specific industry and the Reddit item clearly belongs to another industry.",
+      "- If buyer type is unknown but the problem and intent strongly fit, do not reject automatically.",
+      "",
+      "Rules for clear mismatches:",
+      "",
+      "- If the campaign targets USA only and the Reddit item clearly says the buyer is in another unsupported country, score LOW and explain in disqualifier.",
+      "- If the campaign targets buyers with $1000+ budget and the Reddit item clearly says the budget is far below that, score LOW and explain in disqualifier.",
+      "- If the campaign targets businesses but the Reddit item is clearly from a student, hobbyist, or non-commercial user, lower the score.",
+      "- If the campaign targets agencies/B2B teams but the Reddit item is clearly about personal use only, lower the score.",
+      "- If the Reddit item clearly describes a different buyer, different workflow, or different use case than the campaign, lower the score.",
+      "",
+      "Important qualifier principle:",
+      "Do not turn \"best-fit customer\" requirements into hard rejection rules unless the Reddit item clearly contradicts them.",
+      "",
+      "Examples:",
+      "",
+      "- Campaign targets US businesses. Reddit item does not mention location -> do not penalize.",
+      "- Campaign targets US businesses. Reddit item says the buyer is in Switzerland -> LOW, clear region mismatch.",
+      "- Campaign targets $1000+ budget. Reddit item does not mention budget -> do not penalize.",
+      "- Campaign targets $1000+ budget. Reddit item says budget is $50 -> LOW, clear budget mismatch.",
+      "- Campaign targets B2B companies. Reddit item asks for a business solution but does not mention company size -> do not penalize.",
+      "- Campaign targets agencies. Reddit item is clearly a solo student project -> lower score.",
       "",
       "Intent definitions:",
       "- none: no evidence the author wants a solution",
@@ -314,6 +362,8 @@ function buildProductPrompt(input: ClassificationInput) {
       "- Use the campaign description as the primary reference for what counts as a good lead.",
       "- If the Reddit item describes a different problem, different buyer, or different workflow than the campaign description, lower the score.",
       "- Only score HIGH when both fit and intent are strong.",
+      "- Do not score LOW only because region, budget, company size, or other qualification details are missing.",
+      "- Score LOW when the Reddit item clearly contradicts an important campaign requirement.",
       "",
       `Campaign name: ${input.campaign.name}`,
       `Lead type: ${input.campaign.leadType}`,

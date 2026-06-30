@@ -25,6 +25,13 @@ export type SetSubredditDailyRssPollingResult = {
   state?: SubredditDailyRssPollingState;
 };
 
+export type DeleteSubredditGloballyResult = {
+  status: "success" | "error";
+  message: string;
+  removedCampaigns?: number;
+  removedPendingJobs?: number;
+};
+
 export async function removeSubredditFromCombinedReport(
   formData: FormData,
 ): Promise<RemoveSubredditFromCombinedReportResult> {
@@ -151,6 +158,7 @@ export async function setSubredditDailyRssPollingState(
 
     revalidatePath("/admin/analytics");
     revalidatePath("/admin/analytics/subreddit-performance");
+    revalidatePath("/admin/analytics/daily-subreddit");
 
     if (reportName) {
       revalidatePath(`/admin/analytics/subreddit-performance?name=${encodeURIComponent(reportName)}`);
@@ -170,6 +178,100 @@ export async function setSubredditDailyRssPollingState(
     return {
       status: "error",
       message: error instanceof Error ? `Subreddit polling update failed: ${error.message}` : "Subreddit polling update failed.",
+    };
+  }
+}
+
+export async function deleteSubredditGlobally(formData: FormData): Promise<DeleteSubredditGloballyResult> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to delete a subreddit.",
+    };
+  }
+
+  if (!canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to delete subreddit targeting.",
+    };
+  }
+
+  const subreddit = normalizeSubredditName(String(formData.get("subreddit") ?? ""));
+
+  if (!subreddit) {
+    return {
+      status: "error",
+      message: "Subreddit is required.",
+    };
+  }
+
+  try {
+    const campaigns = await prisma.campaign.findMany({
+      where: {
+        subreddits: {
+          has: subreddit,
+        },
+      },
+      select: {
+        id: true,
+        subreddits: true,
+      },
+    });
+
+    if (campaigns.length > 0) {
+      await prisma.$transaction(
+        campaigns.map((campaign) =>
+          prisma.campaign.update({
+            where: {
+              id: campaign.id,
+            },
+            data: {
+              subreddits: campaign.subreddits.filter((item) => normalizeSubredditName(item) !== subreddit),
+            },
+          }),
+        ),
+      );
+    }
+
+    await setSubredditDailyRssPollingEnabled({
+      changedBy: session.user.email ?? session.user.id,
+      enabled: false,
+      subreddit,
+    });
+
+    const cleanup = await removePendingRssFetchJobsForSubreddit(subreddit);
+    const cleanupFailed = cleanup.failed > 0;
+
+    revalidatePath("/admin/analytics");
+    revalidatePath("/admin/analytics/subreddit-performance");
+    revalidatePath("/admin/analytics/daily-subreddit");
+
+    for (const campaign of campaigns) {
+      revalidatePath(`/campaigns/${campaign.id}`);
+      revalidatePath(`/campaigns/${campaign.id}/analytics`);
+    }
+
+    const campaignMessage =
+      campaigns.length === 0
+        ? `No campaigns currently track r/${subreddit}.`
+        : `Removed r/${subreddit} from ${campaigns.length} campaign${campaigns.length === 1 ? "" : "s"}.`;
+    const cleanupMessage = cleanupFailed
+      ? ` Removed ${cleanup.removed} pending fetch job${cleanup.removed === 1 ? "" : "s"}; some pending jobs could not be removed.`
+      : ` Removed ${cleanup.removed} pending fetch job${cleanup.removed === 1 ? "" : "s"}.`;
+
+    return {
+      status: "success",
+      message: `${campaignMessage} Daily RSS polling is disabled.${cleanupMessage}`,
+      removedCampaigns: campaigns.length,
+      removedPendingJobs: cleanup.removed,
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message: error instanceof Error ? `Subreddit delete failed: ${error.message}` : "Subreddit delete failed.",
     };
   }
 }

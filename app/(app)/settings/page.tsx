@@ -19,7 +19,9 @@ export default async function SettingsPage() {
       name: true,
       email: true,
       plan: true,
+      preferredAlertChannel: true,
       slackWebhookUrl: true,
+      telegramConnectedAt: true,
     },
   });
 
@@ -60,13 +62,43 @@ export default async function SettingsPage() {
         <SettingsCard
           href="/settings/notifcation"
           title="Notification"
-          description="Manage email alerts and Slack delivery."
-          meta="Email + Slack"
-          status={user.slackWebhookUrl ? "Connected" : "Not connected"}
+          description="Manage email alerts, Slack, and Telegram delivery."
+          meta={`Primary: ${formatAlertChannel(user.preferredAlertChannel)}`}
+          status={getNotificationStatus({
+            preferredAlertChannel: user.preferredAlertChannel,
+            slackWebhookUrl: user.slackWebhookUrl,
+            telegramConnectedAt: user.telegramConnectedAt,
+          })}
         />
       </div>
     </div>
   );
+}
+
+function formatAlertChannel(channel: "EMAIL" | "SLACK" | "TELEGRAM") {
+  if (channel === "TELEGRAM") return "Telegram";
+  if (channel === "SLACK") return "Slack";
+  return "Email";
+}
+
+function getNotificationStatus({
+  preferredAlertChannel,
+  slackWebhookUrl,
+  telegramConnectedAt,
+}: {
+  preferredAlertChannel: "EMAIL" | "SLACK" | "TELEGRAM";
+  slackWebhookUrl: string | null;
+  telegramConnectedAt: Date | null;
+}) {
+  if (preferredAlertChannel === "TELEGRAM") {
+    return telegramConnectedAt ? "Connected" : "Not connected";
+  }
+
+  if (preferredAlertChannel === "SLACK") {
+    return slackWebhookUrl ? "Connected" : "Not connected";
+  }
+
+  return "Enabled";
 }
 
 function SettingsCard({

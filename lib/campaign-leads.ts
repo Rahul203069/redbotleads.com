@@ -96,7 +96,15 @@ export async function getCampaignLeadViewsForUser({
   return buildCampaignLeadViews(campaignId, campaign.leads);
 }
 
-export async function getPublicCampaignLeadViews(campaignId: string): Promise<CampaignLeadView[]> {
+export async function getPublicCampaignLeadViews({
+  campaignId,
+  from,
+  to,
+}: {
+  campaignId: string;
+  from?: Date;
+  to?: Date;
+}): Promise<CampaignLeadView[]> {
   const campaign = await prisma.campaign.findUnique({
     where: {
       id: campaignId,
@@ -107,6 +115,14 @@ export async function getPublicCampaignLeadViews(campaignId: string): Promise<Ca
           score: {
             gte: PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE,
           },
+          ...(from && to
+            ? {
+                createdAt: {
+                  gte: from,
+                  lt: to,
+                },
+              }
+            : {}),
         },
         orderBy: {
           createdAt: "desc",

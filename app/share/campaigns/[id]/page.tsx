@@ -7,6 +7,7 @@ import {
   getPublicCampaignLeadViews,
   type CampaignLeadView,
 } from "@/lib/campaign-leads";
+import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
@@ -20,10 +21,18 @@ export const metadata: Metadata = {
 
 export default async function PublicCampaignResultsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<SearchParams> | SearchParams;
 }) {
   const { id } = await params;
+  const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
+  const leadRange = getDailyLeadDateRange(
+    resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
+      ? resolvedSearchParams
+      : { range: "all" },
+  );
   const campaign = await prisma.campaign.findUnique({
     where: {
       id,
@@ -50,13 +59,18 @@ export default async function PublicCampaignResultsPage({
     notFound();
   }
 
-  const leads = (await getPublicCampaignLeadViews(campaign.id))
+  const leads = (await getPublicCampaignLeadViews({
+    campaignId: campaign.id,
+    from: leadRange.from,
+    to: leadRange.to,
+  }))
     .filter((lead) => lead.ai !== null)
     .sort((left, right) => right.score - left.score);
   const publicCampaignName = campaign.name.trim().toLowerCase().startsWith("pay")
     ? "paycron"
     : campaign.name;
   const lastUpdated = campaign.sync?.completedAt ?? campaign.sync?.updatedAt ?? campaign.updatedAt;
+  const sharedDateLabel = leadRange.source === "all" ? null : formatSharedDateRange(leadRange.from, leadRange.to);
 
   return (
     <main className="min-h-screen bg-[#050505] px-3 py-3 text-[#fdfdfd] sm:px-6 sm:py-5 lg:px-8">
@@ -80,6 +94,7 @@ export default async function PublicCampaignResultsPage({
             <div className="min-w-0 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
                 <HeroChip label="Shared results" />
+                {sharedDateLabel ? <HeroChip label={sharedDateLabel} /> : null}
                 <HeroChip label={campaign.leadType.toLowerCase()} />
                 {campaign.sync?.status ? <HeroChip label={campaign.sync.status.toLowerCase()} /> : null}
               </div>
@@ -120,6 +135,12 @@ export default async function PublicCampaignResultsPage({
     </main>
   );
 }
+
+type SearchParams = {
+  from?: string;
+  range?: string;
+  to?: string;
+};
 
 function PublicLeadCard({ lead }: { lead: CampaignLeadView }) {
   const sourceText = getContentPreview(lead.redditItem.body, lead.redditItem.description);
@@ -228,6 +249,25 @@ function formatDate(value: string) {
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function formatSharedDateRange(from: Date, to: Date) {
+  const end = new Date(to.getTime() - 1);
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  if (
+    from.getFullYear() === end.getFullYear()
+    && from.getMonth() === end.getMonth()
+    && from.getDate() === end.getDate()
+  ) {
+    return `Leads for ${formatter.format(from)}`;
+  }
+
+  return `${formatter.format(from)} - ${formatter.format(end)}`;
 }
 
 function getContentPreview(body: string | null, description: string | null) {

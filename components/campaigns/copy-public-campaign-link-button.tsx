@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
 export function CopyPublicCampaignLinkButton({ campaignId }: { campaignId: string }) {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [isCopied, setIsCopied] = useState(false);
 
   async function handleCopy() {
-    const publicUrl = `${window.location.origin}/share/campaigns/${campaignId}`;
+    const publicUrl = buildPublicUrl(window.location.origin, campaignId, searchParams);
 
     try {
       await copyToClipboard(publicUrl);
@@ -35,6 +37,22 @@ export function CopyPublicCampaignLinkButton({ campaignId }: { campaignId: strin
       {isCopied ? "Copied" : "Copy public link"}
     </Button>
   );
+}
+
+function buildPublicUrl(origin: string, campaignId: string, searchParams: URLSearchParams) {
+  const url = new URL(`/share/campaigns/${campaignId}`, origin);
+  const range = searchParams.get("range");
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+
+  if (range === "all") {
+    url.searchParams.set("range", "all");
+  } else if (from && to) {
+    url.searchParams.set("from", from);
+    url.searchParams.set("to", to);
+  }
+
+  return url.toString();
 }
 
 async function copyToClipboard(value: string) {

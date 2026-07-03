@@ -21,12 +21,29 @@ export async function POST(request: NextRequest) {
   const actualSecret = request.headers.get("x-telegram-bot-api-secret-token")?.trim();
 
   if (expectedSecret && actualSecret !== expectedSecret) {
+    console.warn("Telegram webhook rejected: secret token mismatch", {
+      hasActualSecret: Boolean(actualSecret),
+      hasExpectedSecret: true,
+    });
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  const update = (await request.json()) as TelegramWebhookUpdate;
+  let update: TelegramWebhookUpdate;
+
+  try {
+    update = (await request.json()) as TelegramWebhookUpdate;
+  } catch (error) {
+    console.warn("Telegram webhook rejected: invalid JSON", { error });
+    return NextResponse.json({ ok: false }, { status: 400 });
+  }
+
   const chatId = update.message?.chat?.id;
   const text = update.message?.text?.trim() ?? "";
+
+  console.info("Telegram webhook update received", {
+    hasChatId: Boolean(chatId),
+    isStartCommand: text.startsWith("/start"),
+  });
 
   if (!chatId || !text.startsWith("/start")) {
     return NextResponse.json({ ok: true });
@@ -35,6 +52,7 @@ export async function POST(request: NextRequest) {
   const code = text.split(/\s+/)[1]?.trim();
 
   if (!code) {
+    console.info("Telegram webhook start command missing pairing code");
     await safeTelegramReply(String(chatId), "Open Telegram from the Connect Telegram button in Redbot Leads.");
     return NextResponse.json({ ok: true });
   }
@@ -54,6 +72,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!pairing) {
+    console.warn("Telegram webhook pairing not found or expired");
     await safeTelegramReply(String(chatId), "This Telegram connection link is expired. Please generate a new one in settings.");
     return NextResponse.json({ ok: true });
   }
@@ -80,6 +99,11 @@ export async function POST(request: NextRequest) {
       },
     }),
   ]);
+
+  console.info("Telegram webhook pairing completed", {
+    pairingId: pairing.id,
+    userId: pairing.userId,
+  });
 
   await safeTelegramReply(String(chatId), "Telegram connected. Lead alerts can now be sent here.");
 

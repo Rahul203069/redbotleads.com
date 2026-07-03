@@ -13,6 +13,27 @@ type TelegramErrorResponse = {
   };
 };
 
+type TelegramWebhookInfoResponse =
+  | {
+      ok: true;
+      result: {
+        url?: string;
+        has_custom_certificate?: boolean;
+        pending_update_count?: number;
+        ip_address?: string;
+        last_error_date?: number;
+        last_error_message?: string;
+        last_synchronization_error_date?: number;
+        max_connections?: number;
+        allowed_updates?: string[];
+      };
+    }
+  | {
+      ok: false;
+      description?: string;
+      error_code?: number;
+    };
+
 export class TelegramApiError extends Error {
   status: number;
   description?: string;
@@ -73,9 +94,42 @@ export async function sendTelegramMessage(input: TelegramSendMessageInput) {
   return response.json() as Promise<unknown>;
 }
 
+export async function getTelegramWebhookInfo() {
+  const token = process.env.TELEGRAM_BOT_TOKEN?.trim();
+
+  if (!token) {
+    throw new Error("Telegram bot token is not configured.");
+  }
+
+  const response = await fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`, {
+    cache: "no-store",
+  });
+  const details = await response.text();
+  const payload = parseTelegramWebhookInfo(details);
+
+  if (!response.ok || !payload?.ok) {
+    throw new TelegramApiError({
+      status: response.status,
+      statusText: response.statusText,
+      description: payload && !payload.ok ? payload.description : undefined,
+      rawBody: details,
+    });
+  }
+
+  return payload.result;
+}
+
 function parseTelegramError(value: string) {
   try {
     return JSON.parse(value) as TelegramErrorResponse;
+  } catch {
+    return null;
+  }
+}
+
+function parseTelegramWebhookInfo(value: string) {
+  try {
+    return JSON.parse(value) as TelegramWebhookInfoResponse;
   } catch {
     return null;
   }

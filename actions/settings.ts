@@ -80,12 +80,22 @@ export async function connectTelegram(
     const code = randomBytes(24).toString("base64url");
     startUrl = getTelegramBotStartUrl(code);
 
-    await prisma.telegramPairing.create({
+    const pairing = await prisma.telegramPairing.create({
       data: {
         code,
         userId: session.user.id,
         expiresAt: new Date(Date.now() + telegramPairingTtlMs),
       },
+      select: {
+        id: true,
+        expiresAt: true,
+      },
+    });
+
+    console.info("Telegram pairing created", {
+      expiresAt: pairing.expiresAt.toISOString(),
+      pairingId: pairing.id,
+      userId: session.user.id,
     });
   } catch (error) {
     console.error("Telegram pairing creation failed", error);

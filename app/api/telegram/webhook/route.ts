@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     userId: pairing.userId,
   });
 
-  await safeTelegramReply(String(chatId), "Telegram connected. Lead alerts can now be sent here.");
+  await safeTelegramReply(String(chatId), "Telegram connected. Lead alerts can now be sent here.You can go back to Redleadsai and continue using the app.");
 
   return NextResponse.json({ ok: true });
 }

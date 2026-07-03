@@ -154,6 +154,7 @@ export function NotificationSettingsForm({
                   type="radio"
                   value={channel}
                 />
+                <ChannelLogo channel={channel} size="sm" />
                 {channel === "SLACK" ? "Slack" : "Telegram"}
               </label>
             ))}
@@ -175,10 +176,13 @@ export function NotificationSettingsForm({
 
       <div className="grid gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="text-sm font-medium text-[#fdfdfd]">Slack workspace</div>
-            <div className="mt-1 text-sm text-[#b3b3b3]">
-              {isSlackConnected ? slackLabel || "Connected with Slack OAuth" : "Connect Slack to choose an alert channel."}
+          <div className="flex min-w-0 items-center gap-3">
+            <ChannelLogo channel="SLACK" />
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-[#fdfdfd]">Slack workspace</div>
+              <div className="mt-1 text-sm text-[#b3b3b3]">
+                {isSlackConnected ? slackLabel || "Connected with Slack OAuth" : "Connect Slack to choose an alert channel."}
+              </div>
             </div>
           </div>
           <span
@@ -231,10 +235,13 @@ export function NotificationSettingsForm({
 
       <div className="grid gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="text-sm font-medium text-[#fdfdfd]">Telegram bot</div>
-            <div className="mt-1 text-sm text-[#b3b3b3]">
-              {isTelegramConnected ? telegramLabel : "Connect Telegram to receive lead alerts in chat."}
+          <div className="flex min-w-0 items-center gap-3">
+            <ChannelLogo channel="TELEGRAM" />
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-[#fdfdfd]">Telegram bot</div>
+              <div className="mt-1 text-sm text-[#b3b3b3]">
+                {isTelegramConnected ? telegramLabel : "Connect Telegram to receive lead alerts in chat."}
+              </div>
             </div>
           </div>
           <span
@@ -300,5 +307,75 @@ export function NotificationSettingsForm({
         )}
       </div>
     </div>
+  );
+}
+
+function ChannelLogo({
+  channel,
+  size = "md",
+}: {
+  channel: "SLACK" | "TELEGRAM";
+  size?: "sm" | "md";
+}) {
+  const boxSize = size === "sm" ? "h-7 w-7" : "h-10 w-10";
+
+  return (
+    <span
+      aria-hidden="true"
+      className={`grid ${boxSize} shrink-0 place-items-center rounded-full bg-[#1f1f1f] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]`}
+    >
+      {channel === "SLACK" ? <SlackLogo /> : <TelegramLogo />}
+    </span>
+  );
+}
+
+function SlackLogo() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 122.8 122.8">
+      <path
+        d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9Z"
+        fill="#E01E5A"
+      />
+      <path
+        d="M32.3 77.6c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6Z"
+        fill="#E01E5A"
+      />
+      <path
+        d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2Z"
+        fill="#36C5F0"
+      />
+      <path
+        d="M45.2 32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3Z"
+        fill="#36C5F0"
+      />
+      <path
+        d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2Z"
+        fill="#2EB67D"
+      />
+      <path
+        d="M90.5 45.2c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3Z"
+        fill="#2EB67D"
+      />
+      <path
+        d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9Z"
+        fill="#ECB22E"
+      />
+      <path
+        d="M77.6 90.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6Z"
+        fill="#ECB22E"
+      />
+    </svg>
+  );
+}
+
+function TelegramLogo() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 240 240">
+      <circle cx="120" cy="120" fill="#2AABEE" r="120" />
+      <path
+        d="M177.4 74.5 157.7 168c-1.5 6.6-5.4 8.2-10.9 5.1l-30.1-22.2-14.5 14c-1.6 1.6-3 3-6.1 3l2.2-30.6 55.7-50.3c2.4-2.2-.5-3.4-3.8-1.2l-68.8 43.3-29.6-9.3c-6.4-2-6.6-6.4 1.3-9.5l115.8-44.6c5.4-2 10.1 1.3 8.5 8.8Z"
+        fill="#FFFFFF"
+      />
+    </svg>
   );
 }

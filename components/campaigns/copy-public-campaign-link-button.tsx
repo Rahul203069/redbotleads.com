@@ -6,20 +6,29 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
-export function CopyPublicCampaignLinkButton({ campaignId }: { campaignId: string }) {
+export function CopyPublicCampaignLinkButton({
+  campaignId,
+  kind = "campaign",
+}: {
+  campaignId: string;
+  kind?: "campaign" | "leads";
+}) {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [isCopied, setIsCopied] = useState(false);
+  const isLeadsOnly = kind === "leads";
 
   async function handleCopy() {
-    const publicUrl = buildPublicUrl(window.location.origin, campaignId, searchParams);
+    const publicUrl = buildPublicUrl(window.location.origin, campaignId, searchParams, kind);
 
     try {
       await copyToClipboard(publicUrl);
       setIsCopied(true);
       toast({
-        title: "Public link copied",
-        description: "Anyone with this link can view the campaign results.",
+        title: isLeadsOnly ? "Leads-only link copied" : "Public link copied",
+        description: isLeadsOnly
+          ? "Anyone with this link can view the leads without the campaign name."
+          : "Anyone with this link can view the campaign results.",
       });
       window.setTimeout(() => setIsCopied(false), 2000);
     } catch {
@@ -34,13 +43,18 @@ export function CopyPublicCampaignLinkButton({ campaignId }: { campaignId: strin
   return (
     <Button className="w-full sm:w-auto" onClick={handleCopy} variant="secondary">
       <LinkIcon />
-      {isCopied ? "Copied" : "Copy public link"}
+      {isCopied ? "Copied" : isLeadsOnly ? "Copy only leads" : "Copy public link"}
     </Button>
   );
 }
 
-function buildPublicUrl(origin: string, campaignId: string, searchParams: URLSearchParams) {
-  const url = new URL(`/share/campaigns/${campaignId}`, origin);
+function buildPublicUrl(
+  origin: string,
+  campaignId: string,
+  searchParams: URLSearchParams,
+  kind: "campaign" | "leads",
+) {
+  const url = new URL(kind === "leads" ? `/share/leads/${campaignId}` : `/share/campaigns/${campaignId}`, origin);
   const range = searchParams.get("range");
   const from = searchParams.get("from");
   const to = searchParams.get("to");

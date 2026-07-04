@@ -11,6 +11,7 @@ import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaig
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
+import { canViewAnalytics } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
@@ -134,6 +135,7 @@ export default async function CampaignDetailPage({
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
+  const isAdminAccount = canViewAnalytics(session.user.email);
 
   return (
     <div className="space-y-5">
@@ -171,6 +173,7 @@ export default async function CampaignDetailPage({
                 </Button>
               </Link>
               <CopyPublicCampaignLinkButton campaignId={campaign.id} />
+              {isAdminAccount ? <CopyPublicCampaignLinkButton campaignId={campaign.id} kind="leads" /> : null}
               <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
               <ScheduledProcessingPill isActive={campaign.isActive} />
               <EditCampaignDialog

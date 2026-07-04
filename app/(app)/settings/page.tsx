@@ -63,7 +63,8 @@ export default async function SettingsPage() {
           href="/settings/notifcation"
           title="Notification"
           description="Manage email alerts, Slack, and Telegram delivery."
-          meta={`Primary: ${formatAlertChannel(user.preferredAlertChannel)}`}
+          meta={formatAlertChannel(user.preferredAlertChannel)}
+          metaIcon={<AlertChannelLogo channel={user.preferredAlertChannel} />}
           status={getNotificationStatus({
             preferredAlertChannel: user.preferredAlertChannel,
             slackWebhookUrl: user.slackWebhookUrl,
@@ -105,12 +106,14 @@ function SettingsCard({
   description,
   href,
   meta,
+  metaIcon,
   status,
   title,
 }: {
   description: string;
   href: string;
   meta: string;
+  metaIcon?: React.ReactNode;
   status?: string;
   title: string;
 }) {
@@ -128,13 +131,69 @@ function SettingsCard({
       </div>
       <p className="mt-3 text-[14px] leading-6 text-[#cbcbcb]">{description}</p>
       <div className="mt-6 flex flex-col gap-3 border-t border-white/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-[14px] text-[#cbcbcb]">{meta}</span>
+        <span className="inline-flex items-center gap-2 text-[14px] text-[#cbcbcb]">
+          {metaIcon}
+          {meta}
+        </span>
         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff]">
           Open
           <ArrowIcon />
         </span>
       </div>
     </Link>
+  );
+}
+
+function AlertChannelLogo({ channel }: { channel: "EMAIL" | "SLACK" | "TELEGRAM" }) {
+  if (channel === "TELEGRAM") {
+    return <TelegramLogo />;
+  }
+
+  if (channel === "SLACK") {
+    return <SlackLogo />;
+  }
+
+  return <EmailIcon />;
+}
+
+function SlackLogo() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 shrink-0" viewBox="0 0 122.8 122.8">
+      <path d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9Z" fill="#E01E5A" />
+      <path d="M32.3 77.6c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6Z" fill="#E01E5A" />
+      <path d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2Z" fill="#36C5F0" />
+      <path d="M45.2 32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3Z" fill="#36C5F0" />
+      <path d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2Z" fill="#2EB67D" />
+      <path d="M90.5 45.2c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3Z" fill="#2EB67D" />
+      <path d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9Z" fill="#ECB22E" />
+      <path d="M77.6 90.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6Z" fill="#ECB22E" />
+    </svg>
+  );
+}
+
+function TelegramLogo() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 shrink-0" viewBox="0 0 240 240">
+      <circle cx="120" cy="120" fill="#2AABEE" r="120" />
+      <path
+        d="M177.4 74.5 157.7 168c-1.5 6.6-5.4 8.2-10.9 5.1l-30.1-22.2-14.5 14c-1.6 1.6-3 3-6.1 3l2.2-30.6 55.7-50.3c2.4-2.2-.5-3.4-3.8-1.2l-68.8 43.3-29.6-9.3c-6.4-2-6.6-6.4 1.3-9.5l115.8-44.6c5.4-2 10.1 1.3 8.5 8.8Z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
+
+function EmailIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 shrink-0 text-[#b3b3b3]" fill="none" viewBox="0 0 24 24">
+      <path
+        d="M4.5 7.5 12 13l7.5-5.5M6 6h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
   );
 }
 

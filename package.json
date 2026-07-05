@@ -11,7 +11,6 @@
     "worker:dev": "tsx worker/index.ts",
     "worker:ingestion": "tsx worker/ingestion.ts",
     "worker:daily-ingestion": "tsx worker/daily-ingestion.ts",
-    "worker:subreddit-daily-poller": "tsx worker/subreddit-daily-poller.ts",
     "worker:rss-poll-refiller": "tsx worker/rss-poll-refiller.ts",
     "worker:daily-semantic": "tsx worker/daily-semantic.ts",
     "worker:rss-polling": "tsx worker/rss-polling.ts",

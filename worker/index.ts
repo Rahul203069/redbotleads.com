@@ -15,7 +15,6 @@ import "./ingestion";
 import "./notifications";
 import "./rss-polling";
 import "./semantic";
-import "./subreddit-daily-scheduler";
 
 workerLogger.info(
   {

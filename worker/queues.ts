@@ -14,12 +14,11 @@ export const rssPollingQueueName = "rss-polling";
 
 export const initialIngestJobName = "INITIAL_INGEST";
 export const dailyIngestJobName = "DAILY_INGEST";
-export const subredditDailyIngestJobName = "SUBREDDIT_DAILY_INGEST";
 export const dailySemanticCampaignJobName = "DAILY_SEMANTIC_CAMPAIGN";
 export const pollSubredditRssJobName = "POLL_SUBREDDIT_RSS";
 export const matchCampaignRssPollRunJobName = "MATCH_CAMPAIGN_RSS_POLL_RUN";
 
-export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName | typeof subredditDailyIngestJobName;
+export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName;
 export type DailySemanticJobName = typeof dailySemanticCampaignJobName;
 export type RssPollingJobName = typeof pollSubredditRssJobName | typeof matchCampaignRssPollRunJobName;
 export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_LEAD_BATCH" | "EMBED_REDDIT_ITEM";
@@ -37,11 +36,6 @@ export type DailyIngestJobData = {
   campaignId: string;
   trigger: "daily_sync";
   campaignRunId?: string;
-};
-
-export type SubredditDailyIngestJobData = {
-  subreddit: string;
-  trigger: "subreddit_daily_scheduler";
 };
 
 export type DailySemanticCampaignJobData = {
@@ -187,22 +181,6 @@ async function getLiveRssPollingJobForSubreddit(subreddit: string) {
   return jobs.find((job) => {
     const data = job.data as Record<string, unknown> | undefined;
     return normalizeSubredditName(String(data?.subreddit ?? "")) === normalizedSubreddit;
-  });
-}
-
-async function getLiveIngestionJobForSubreddit(subreddit: string) {
-  const normalizedSubreddit = normalizeSubredditName(subreddit);
-  const jobs = await ingestionQueue.getJobs(
-    [...LIVE_JOB_STATES],
-    0,
-    MAX_JOBS_TO_SCAN_PER_QUEUE,
-    true,
-  );
-
-  return jobs.find((job) => {
-    const data = job.data as Record<string, unknown> | undefined;
-    return job.name === subredditDailyIngestJobName
-      && normalizeSubredditName(String(data?.subreddit ?? "")) === normalizedSubreddit;
   });
 }
 
@@ -459,28 +437,6 @@ export async function enqueueDailyIngest(
   }
 }
 
-export async function enqueueSubredditDailyIngest(data: SubredditDailyIngestJobData) {
-  const subreddit = normalizeSubredditName(data.subreddit);
-
-  if (!subreddit) {
-    throw new Error("Subreddit is required for daily subreddit ingestion.");
-  }
-
-  const existingLiveJob = await getLiveIngestionJobForSubreddit(subreddit);
-
-  if (existingLiveJob) {
-    return existingLiveJob;
-  }
-
-  return ingestionQueue.add(subredditDailyIngestJobName, {
-    ...data,
-    subreddit,
-  }, {
-    removeOnComplete: 500,
-    removeOnFail: 500,
-  });
-}
-
 export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJobData) {
   if (!data.campaignId) {
     throw new Error("Campaign id is required for daily semantic search.");
@@ -682,22 +638,15 @@ export async function removePendingRssFetchJobsForSubreddit(subreddit: string) {
     };
   }
 
-  const [ingestionResult, rssPollingResult] = await Promise.all([
-    removePendingJobsForSubreddit({
-      jobNames: [subredditDailyIngestJobName],
-      queue: ingestionQueue,
-      subreddit: normalizedSubreddit,
-    }),
-    removePendingJobsForSubreddit({
+  const rssPollingResult = await removePendingJobsForSubreddit({
       jobNames: [pollSubredditRssJobName],
       queue: rssPollingQueue,
       subreddit: normalizedSubreddit,
-    }),
-  ]);
+    });
 
   return {
-    removed: ingestionResult.removed + rssPollingResult.removed,
-    failed: ingestionResult.failed + rssPollingResult.failed,
+    removed: rssPollingResult.removed,
+    failed: rssPollingResult.failed,
   };
 }
 

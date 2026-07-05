@@ -23,18 +23,15 @@ import {
 import { createInitialRssDiagnostics } from "./initial-rss-diagnostics";
 import { workerLogger } from "./logger";
 import { fetchSubredditPosts } from "./reddit";
-import { runSubredditDailyIngest } from "./subreddit-daily-ingestion";
 import {
   dailyIngestJobName,
   initialIngestJobName,
   type DailyIngestJobData,
   type InitialIngestJobData,
-  type SubredditDailyIngestJobData,
   ingestionQueueName,
-  subredditDailyIngestJobName,
 } from "./queues";
 
-type IngestionJobData = InitialIngestJobData | DailyIngestJobData | SubredditDailyIngestJobData;
+type IngestionJobData = InitialIngestJobData | DailyIngestJobData;
 
 const worker = new Worker<IngestionJobData>(
   ingestionQueueName,
@@ -45,10 +42,6 @@ const worker = new Worker<IngestionJobData>(
 
     if (job.name === dailyIngestJobName) {
       return runDailyIngest(job.data as DailyIngestJobData, job.id ?? "unknown");
-    }
-
-    if (job.name === subredditDailyIngestJobName) {
-      return runSubredditDailyIngest(job.data as SubredditDailyIngestJobData, job.id ?? "unknown");
     }
 
     workerLogger.warn({ jobId: job.id, name: job.name }, "Ignoring unsupported ingestion job");

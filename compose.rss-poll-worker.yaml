@@ -1,0 +1,19 @@
+services:
+  rss-poll-refiller:
+    build:
+      context: .
+      target: worker-runner
+    container_name: reddit-leads-rss-poll-refiller
+    restart: unless-stopped
+    env_file:
+      - ${RSS_POLL_WORKER_ENV_FILE:-.env.rss-poll-worker}
+    command: ["npm", "run", "worker:rss-poll-refiller"]
+
+  rss-polling-worker:
+    build:
+      context: .
+      target: worker-runner
+    restart: unless-stopped
+    env_file:
+      - ${RSS_POLL_WORKER_ENV_FILE:-.env.rss-poll-worker}
+    command: ["npm", "run", "worker:rss-polling"]

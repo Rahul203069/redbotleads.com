@@ -1,0 +1,724 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+enum LeadType {
+  PRODUCT
+  SERVICE
+}
+
+enum RedditItemType {
+  POST
+  COMMENT
+}
+
+enum LeadLabel {
+  HIGH
+  MED
+  LOW
+}
+
+enum LeadStatus {
+  NEW
+  SAVED
+  IGNORED
+  REPLIED
+}
+
+enum LeadIntentType {
+  NONE
+  IMPLICIT
+  EXPLICIT
+  SWITCHING
+}
+
+enum BuyerStage {
+  SOLVED
+  PROBLEM_AWARE
+  SOLUTION_AWARE
+  EVALUATING
+}
+
+enum NotifyChannel {
+  EMAIL
+  SLACK
+  TELEGRAM
+}
+
+enum NotifyStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum SourceMode {
+  PUBLIC
+  OAUTH_USER
+}
+
+enum CampaignSyncStatus {
+  IDLE
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum CampaignSyncStage {
+  NONE
+  QUEUED
+  FETCHING_POSTS
+  FETCHING_COMMENTS
+  CLASSIFYING
+  NOTIFYING
+  COMPLETED
+  FAILED
+}
+
+enum CampaignInitialRssPollStatus {
+  FETCHING
+  SUCCESS
+  RATE_LIMIT_RETRYING
+  RATE_LIMITED
+  NOT_FOUND
+  HTTP_ERROR
+  NETWORK_ERROR
+}
+
+enum CampaignDailySemanticScanStatus {
+  MATCHED
+  NO_MATCH
+}
+
+enum SubredditRssPollSource {
+  SUBREDDIT_DAILY_INGEST
+  RSS_POLL
+}
+
+enum SubredditRssPollStatus {
+  FETCHING
+  SUCCESS
+  RATE_LIMIT_RETRYING
+  RATE_LIMITED
+  NOT_FOUND
+  HTTP_ERROR
+  NETWORK_ERROR
+  BACKOFF_SKIPPED
+}
+
+/* =========================
+   NextAuth Models
+   (Prisma Adapter)
+========================= */
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+
+  // App fields
+  plan               String   @default("free")
+  emailAlertsEnabled Boolean  @default(true)
+  preferredAlertChannel NotifyChannel @default(SLACK)
+  slackWebhookUrl    String?
+  slackTeamId        String?
+  slackTeamName      String?
+  slackChannelId     String?
+  slackChannelName   String?
+  slackConfigurationUrl String?
+  slackAuthedUserId  String?
+  telegramChatId     String?
+  telegramUsername   String?
+  telegramConnectedAt DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // NextAuth relations
+  accounts Account[]
+  sessions Session[]
+
+  // Credentials auth (password hash stored separately)
+  password UserPassword?
+
+  // App relations
+  campaigns      Campaign[]
+  redditAccounts RedditAccount[]
+  leads          Lead[]
+  campaignRuns   CampaignRun[]
+  aiUsageEvents  AiUsageEvent[]
+  telegramPairings TelegramPairing[]
+}
+
+model TelegramPairing {
+  id        String    @id @default(cuid())
+  userId    String
+  code      String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([expiresAt])
+}
+
+model SaasConfig {
+  id                       String   @id @default("global")
+  subredditSuggestionCount Int      @default(40)
+  leadScoringModel         String   @default("gpt-5-mini")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+}
+
+model UserPassword {
+  userId    String   @id
+  hash      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+
+  refresh_token String?
+  access_token  String?
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String?
+  session_state String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+/* =========================
+   Reddit Lead Gen Models
+========================= */
+
+model RedditAccount {
+  id         String @id @default(cuid())
+  userId     String
+  redditUser String
+
+  // Only needed if/when you implement user OAuth
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  campaigns Campaign[]
+
+  @@unique([userId, redditUser])
+  @@index([redditUser])
+  @@index([userId])
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  leadType    LeadType
+  description String?
+
+  // Tracking config
+  keywords         String[]
+  negativeKeywords String[]
+  subreddits       String[]
+  recentDays       Int      @default(7)
+
+  isActive        Boolean    @default(true)
+  minScoreToAlert Int        @default(75)
+  sourceMode      SourceMode @default(PUBLIC)
+
+  // Optional: tie campaign to a connected Reddit account later
+  redditAccountId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  redditAccount RedditAccount? @relation(fields: [redditAccountId], references: [id], onDelete: SetNull)
+
+  leads Lead[]
+  sync  CampaignSync?
+  semanticQueries CampaignSemanticQuery[]
+  dailySemanticScans CampaignDailySemanticScan[]
+  runs CampaignRun[]
+  aiUsageEvents AiUsageEvent[]
+  initialRssPollEvents CampaignInitialRssPollEvent[]
+
+  @@index([userId, isActive])
+  @@index([redditAccountId])
+}
+
+model CampaignRun {
+  id         String @id @default(cuid())
+  userId     String
+  campaignId String
+  cronRunId  String?
+
+  trigger String
+  status  String @default("QUEUED")
+  message String?
+  error   String?
+
+  queuedAt    DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  failedAt    DateTime?
+
+  statsJson    Json?
+  totalCostUsd Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  cronRun  CronRun? @relation(fields: [cronRunId], references: [id], onDelete: SetNull)
+  usageEvents AiUsageEvent[]
+  initialRssPollEvents CampaignInitialRssPollEvent[]
+  dailySemanticScans CampaignDailySemanticScan[]
+  notifications Notification[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([cronRunId])
+  @@index([status, updatedAt(sort: Desc)])
+}
+
+model CronRun {
+  id String @id @default(cuid())
+
+  path   String
+  status String @default("PROCESSING")
+  message String?
+  error   String?
+
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  failedAt    DateTime?
+
+  statsJson Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaignRuns CampaignRun[]
+
+  @@index([path, startedAt(sort: Desc)])
+  @@index([status, startedAt(sort: Desc)])
+}
+
+model CampaignInitialRssPollEvent {
+  id            String @id @default(cuid())
+  campaignId    String
+  campaignRunId String
+
+  subreddit String
+  sequence  Int
+  attempt   Int
+  jobId     String?
+
+  status CampaignInitialRssPollStatus @default(FETCHING)
+
+  requestedAt    DateTime
+  fetchStartedAt DateTime?
+  completedAt    DateTime?
+  durationMs     Int?
+
+  waitMs             Int?
+  nextRequestDelayMs Int?
+  nextRequestAt      DateTime?
+
+  httpStatus   Int?
+  statusText   String?
+  errorMessage String?
+  ratelimitUsed      String?
+  ratelimitRemaining String?
+  ratelimitReset     String?
+  retryAfter         String?
+
+  retryAfterMs Int?
+  retryWaitMs  Int?
+  retryUntil   DateTime?
+
+  fetchedPosts Int?
+  matchedItems Int?
+  createdLeads Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign    Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignRun CampaignRun @relation(fields: [campaignRunId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, requestedAt(sort: Desc)])
+  @@index([campaignRunId, sequence, attempt])
+  @@index([subreddit, requestedAt(sort: Desc)])
+  @@index([status, requestedAt(sort: Desc)])
+}
+
+model SubredditRssPollEvent {
+  id        String                 @id @default(cuid())
+  subreddit String
+  source    SubredditRssPollSource
+  attempt   Int                    @default(0)
+  jobId     String?
+
+  status SubredditRssPollStatus @default(FETCHING)
+
+  requestedAt    DateTime
+  fetchStartedAt DateTime?
+  completedAt    DateTime?
+  durationMs     Int?
+
+  waitMs             Int?
+  nextRequestDelayMs Int?
+  nextRequestAt      DateTime?
+
+  httpStatus         Int?
+  statusText         String?
+  errorMessage       String?
+  ratelimitUsed      String?
+  ratelimitRemaining String?
+  ratelimitReset     String?
+  retryAfter         String?
+
+  retryAfterMs Int?
+  retryWaitMs  Int?
+  retryUntil   DateTime?
+
+  fetchedPosts     Int?
+  existingPosts    Int?
+  createdPosts     Int?
+  queuedEmbeddings Int?
+  backoffUntil     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([requestedAt(sort: Desc)])
+  @@index([subreddit, requestedAt(sort: Desc)])
+  @@index([source, requestedAt(sort: Desc)])
+  @@index([status, requestedAt(sort: Desc)])
+}
+
+model AiUsageEvent {
+  id String @id @default(cuid())
+
+  userId        String?
+  campaignId    String?
+  campaignRunId String?
+
+  operation String
+  provider  String @default("openai")
+  model     String
+
+  inputTokens  Int?
+  outputTokens Int?
+  totalTokens  Int?
+  costUsd      Float @default(0)
+  metadataJson Json?
+
+  createdAt DateTime @default(now())
+
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  campaign    Campaign?    @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([campaignRunId, createdAt(sort: Desc)])
+  @@index([operation, createdAt(sort: Desc)])
+}
+
+model CampaignSemanticQuery {
+  id         String @id @default(cuid())
+  campaignId String
+
+  queryText  String
+  category   String?
+  dimensions Int      @default(1536)
+  embedding  Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, createdAt(sort: Desc)])
+}
+
+model CampaignDailySemanticScan {
+  id           String @id @default(cuid())
+  campaignId   String
+  redditItemId String
+  campaignRunId String?
+
+  status        CampaignDailySemanticScanStatus
+  bestScore     Float?
+  bestQueryId   String?
+  bestQueryText String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  redditItem RedditItem @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+  campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
+
+  @@unique([campaignId, redditItemId])
+  @@index([campaignId, status, updatedAt(sort: Desc)])
+  @@index([redditItemId])
+  @@index([campaignRunId])
+}
+
+model CampaignSync {
+  id         String             @id @default(cuid())
+  campaignId String             @unique
+  status     CampaignSyncStatus @default(IDLE)
+  stage      CampaignSyncStage  @default(NONE)
+  message    String?
+  lastError  String?
+
+  queuedAt      DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  failedAt      DateTime?
+  lastHeartbeat DateTime?
+
+  statsJson Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([status, updatedAt(sort: Desc)])
+}
+
+model RedditItem {
+  id         String         @id @default(cuid())
+  fullname   String         @unique // t3_xxx or t1_xxx
+  type       RedditItemType
+  subreddit  String
+  title      String?
+  description String?
+  body       String?
+  author     String?
+  url        String?
+  createdUtc DateTime
+  fetchedAt  DateTime       @default(now())
+  sourceMode SourceMode     @default(PUBLIC)
+
+  // For comments
+  postFullname   String? // parent post fullname (t3_xxx)
+  parentFullname String? // parent comment fullname (t1_xxx) if any
+
+  rawJson Json?
+
+  leads Lead[]
+  embedding RedditItemEmbedding?
+  dailySemanticScans CampaignDailySemanticScan[]
+
+  @@index([subreddit, createdUtc(sort: Desc)])
+  @@index([createdUtc(sort: Desc)])
+  @@index([postFullname])
+}
+
+model RedditItemEmbedding {
+  id           String @id @default(cuid())
+  redditItemId String @unique
+
+  provider   String?
+  model      String?
+  sourceText String?
+  dimensions Int      @default(1536)
+  // Prisma cannot manage pgvector values directly, so the worker should write this via raw SQL.
+  embedding Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  redditItem RedditItem @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+
+  @@index([model])
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  userId       String
+  campaignId   String
+  redditItemId String
+
+  // Scoring
+  score Int       @default(0) // 0-100
+  label LeadLabel @default(MED)
+
+  // Workflow
+  status LeadStatus @default(NEW)
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign   Campaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  redditItem RedditItem @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+
+  ai            LeadAI?
+  notifications Notification[]
+
+  @@unique([userId, redditItemId, campaignId]) // dedupe per campaign
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([userId, status, score(sort: Desc)])
+}
+
+model LeadAI {
+  id     String @id @default(cuid())
+  leadId String @unique
+
+  model         String?
+  promptVersion String?
+  intentType    LeadIntentType?
+  buyerStage    BuyerStage?
+  category      String?
+  summary       String?
+  painPoints    String[]
+  disqualifier  String?
+  repliesJson   Json?
+
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id      String       @id @default(cuid())
+  leadId  String
+  campaignRunId String?
+  channel NotifyChannel
+  status  NotifyStatus @default(PENDING)
+  error   String?
+
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
+
+  @@index([leadId, createdAt(sort: Desc)])
+  @@index([campaignRunId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+/* =========================
+   Optional: Subreddit Intelligence
+   (for subreddit suggestions / ranking)
+========================= */
+
+model Subreddit {
+  id                            String    @id @default(cuid())
+  name                          String    @unique // "startups" (no r/)
+  title                         String?
+  publicDescription             String?
+  subscribers                   Int?
+  activeUserCount               Int?
+  isNsfw                        Boolean   @default(false)
+  dailyRssPollingEnabled        Boolean   @default(true)
+  dailyRssPollingDisabledAt     DateTime?
+  dailyRssPollingDisabledBy     String?
+
+  // Your computed metrics
+  activityScore Float? // e.g. moving avg posts/day
+  intentDensity Float? // e.g. % of recent posts that look like buyer intent
+  lastScoredAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/* =========================
+   Optional: Hot thread tracking
+   (aggressive comment polling on high intent posts)
+========================= */
+
+model TrackedThread {
+  id           String   @id @default(cuid())
+  postFullname String   @unique // t3_xxx
+  subreddit    String
+  priority     Int      @default(1) // 1=normal, 2=high
+  expiresAt    DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+  @@index([subreddit])
+}
+
+/* =========================
+   Optional: Ingestion cursors + backoff
+========================= */
+
+model IngestCursor {
+  id                   String   @id @default(cuid())
+  subreddit             String   @unique
+
+  lastPostFullname      String?
+  lastCommentFullname   String?
+  lastFetchedPostsAt    DateTime?
+  lastFetchedCommentsAt DateTime?
+
+  activityScore Float?
+  backoffUntil  DateTime?
+
+  updatedAt DateTime @updatedAt
+}

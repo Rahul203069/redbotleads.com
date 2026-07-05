@@ -1,0 +1,28 @@
+{
+  "name": "reddit-leads-rss-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "rss-polling": "tsx src/rss-polling.ts",
+    "rss-poll-refiller": "tsx src/rss-poll-refiller.ts",
+    "prisma:generate": "prisma generate",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
+    "bullmq": "^5.70.4",
+    "dotenv": "^17.3.1",
+    "ioredis": "^5.10.0",
+    "pg": "^8.20.0",
+    "pino": "^10.3.1",
+    "prisma": "^7.4.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20"
+  }
+}

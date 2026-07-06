@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CopyJsonButton } from "@/components/admin/copy-json-button";
 import { CopySubredditListButton } from "@/components/admin/copy-subreddit-list-button";
 import { RemoveSubredditFromReportButton } from "@/components/admin/remove-subreddit-from-report-button";
 import { SubredditPollingToggleButton } from "@/components/admin/subreddit-polling-toggle-button";
@@ -53,6 +54,16 @@ export function SubredditAnalyticsReport({
   title: string;
 }) {
   const hasActions = Boolean(deleteContext || pollingContext);
+  const reportJsonPayload = buildReportJsonPayload({
+    badges,
+    description,
+    eyebrow,
+    matchedCampaigns,
+    pollingContext,
+    rows,
+    summary,
+    title,
+  });
 
   return (
     <div className="space-y-5">
@@ -105,7 +116,13 @@ export function SubredditAnalyticsReport({
               Ranked by classified lead volume, then high-intent count and average score.
             </p>
           </div>
-          <CopySubredditListButton subreddits={rows.map((row) => row.subreddit)} />
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <CopyJsonButton
+              className="w-full rounded-full border-none bg-[#1f1f1f] px-4 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
+              payload={reportJsonPayload}
+            />
+            <CopySubredditListButton subreddits={rows.map((row) => row.subreddit)} />
+          </div>
         </div>
 
         <div className="overflow-x-auto pt-4">
@@ -179,6 +196,83 @@ export function SubredditAnalyticsReport({
       </section>
     </div>
   );
+}
+
+function buildReportJsonPayload({
+  badges,
+  description,
+  eyebrow,
+  matchedCampaigns,
+  pollingContext,
+  rows,
+  summary,
+  title,
+}: {
+  badges: Array<{ label: string; tone: "good" | "neutral" | "muted" }>;
+  description: string;
+  eyebrow: string;
+  matchedCampaigns?: MatchedCampaignSummary[];
+  pollingContext?: {
+    reportName: string;
+    states: Record<string, {
+      enabled: boolean;
+      disabledAt: string | null;
+      disabledBy: string | null;
+    }>;
+  };
+  rows: SubredditAnalyticsRow[];
+  summary: SubredditAnalyticsSummary;
+  title: string;
+}) {
+  return {
+    report: {
+      title,
+      eyebrow,
+      description,
+      badges,
+    },
+    summary: {
+      totalLeads: summary.totalLeads,
+      highIntentLeads: summary.highIntentLeads,
+      activeSubreddits: summary.activeSubreddits,
+      zeroLeadSubreddits: summary.zeroLeadSubreddits,
+      averageScore: summary.averageScore,
+      topSubreddit: summary.topSubreddit ? serializeSubredditRow(summary.topSubreddit) : null,
+    },
+    ...(matchedCampaigns
+      ? {
+          matchedCampaigns: matchedCampaigns.map((campaign) => ({
+            id: campaign.id,
+            name: campaign.name,
+            subreddits: campaign.subreddits,
+            leadsCount: campaign.leadsCount,
+          })),
+        }
+      : {}),
+    subreddits: rows.map(serializeSubredditRow),
+    ...(pollingContext
+      ? {
+          pollingStates: {
+            reportName: pollingContext.reportName,
+            states: pollingContext.states,
+          },
+        }
+      : {}),
+  };
+}
+
+function serializeSubredditRow(row: SubredditAnalyticsRow) {
+  return {
+    subreddit: row.subreddit,
+    totalLeads: row.totalLeads,
+    highLeads: row.highLeads,
+    medLeads: row.medLeads,
+    lowLeads: row.lowLeads,
+    averageScore: row.averageScore,
+    shareOfLeads: row.shareOfLeads,
+    latestLeadAt: row.latestLeadAt?.toISOString() ?? null,
+    status: row.status,
+  };
 }
 
 function MatchedCampaignsPanel({ campaigns }: { campaigns: MatchedCampaignSummary[] }) {

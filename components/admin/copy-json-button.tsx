@@ -6,9 +6,11 @@ import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CopyJsonButton({
+  className,
   label = "Copy JSON",
   payload,
 }: {
+  className?: string;
   label?: string;
   payload: unknown;
 }) {
@@ -21,7 +23,7 @@ export function CopyJsonButton({
   }
 
   return (
-    <Button aria-label={label} onClick={handleCopy} size="sm" type="button" variant="secondary">
+    <Button aria-label={label} className={className} onClick={handleCopy} size="sm" type="button" variant="secondary">
       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
       {copied ? "Copied" : label}
     </Button>

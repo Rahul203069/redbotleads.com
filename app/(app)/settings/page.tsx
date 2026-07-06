@@ -50,7 +50,7 @@ export default async function SettingsPage() {
         <SettingsCard
           href="/settings/profile"
           title="Profile"
-          description="View your username and email."
+          description="View your profile and reset your password."
           meta={user.name ?? user.email ?? "Account details"}
         />
         <SettingsCard

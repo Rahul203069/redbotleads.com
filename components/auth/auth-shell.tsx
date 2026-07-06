@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo } from "react";
 
 import { BrandLogo } from "@/components/app/brand-logo";
+import { EmailPasswordAuthForm } from "@/components/auth/email-password-auth-form";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
@@ -98,28 +99,32 @@ export function AuthShell({ error, mode }: AuthShellProps) {
           </section>
 
           <section className="flex justify-center lg:justify-end">
-            <Card className="w-full max-w-[440px] rounded-[30px] border-0 bg-[#181818] shadow-[0_24px_64px_rgba(0,0,0,0.46)]">
+            <Card className="w-full max-w-[480px] rounded-[30px] border-0 bg-[#181818] shadow-[0_24px_64px_rgba(0,0,0,0.46)]">
               <CardHeader className="space-y-4 p-8 pb-6">
                 <div className="inline-flex w-fit items-center rounded-full bg-[#1f1f1f] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#b3b3b3]">
                   {mode === "login" ? "Welcome back" : "New workspace"}
                 </div>
                 <div className="space-y-3">
                   <CardTitle className="text-3xl leading-tight tracking-[-0.05em] text-white">
-                    {mode === "login" ? "Sign in to continue" : "Start with Google"}
+                    {mode === "login" ? "Sign in to continue" : "Create your account"}
                   </CardTitle>
                   <CardDescription className="text-[15px] leading-7 text-[#b3b3b3]">
                     {mode === "login"
-                      ? "Access campaigns, leads, and alerts."
-                      : "Provision your account and workspace in one step."}
+                      ? "Access campaigns, leads, and alerts with email or Google."
+                      : "Start with email and password, or continue with Google."}
                   </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6 p-8 pt-0">
-                <GoogleAuthButton mode={mode} />
+                <EmailPasswordAuthForm mode={mode} />
 
-                <div className="rounded-[22px] bg-[#1f1f1f] p-5 text-sm leading-6 text-[#b3b3b3] shadow-[inset_0_0_0_1px_rgba(124,124,124,0.12)]">
-                  Google-only auth keeps onboarding fast and avoids password reset complexity.
+                <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#71717a]">
+                  <span className="h-px flex-1 bg-white/10" />
+                  <span>or</span>
+                  <span className="h-px flex-1 bg-white/10" />
                 </div>
+
+                <GoogleAuthButton mode={mode} />
 
                 <div className="flex items-center justify-between border-t border-white/8 pt-5 text-sm text-[#b3b3b3]">
                   <span>{mode === "login" ? "Need an account?" : "Already have access?"}</span>

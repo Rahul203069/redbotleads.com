@@ -1,12 +1,31 @@
 import { redirect } from "next/navigation";
 
+import { PasswordResetForm } from "@/components/settings/password-reset-form";
 import { SettingsBackLink } from "@/components/settings/settings-back-link";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export default async function ProfileSettingsPage() {
   const session = await auth();
 
   if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+    include: {
+      password: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
     redirect("/login");
   }
 
@@ -29,9 +48,11 @@ export default async function ProfileSettingsPage() {
       <SettingsBackLink />
 
       <div className="grid gap-5 lg:grid-cols-2">
-        <ProfileField label="Username" value={session.user.name ?? "No username set"} />
-        <ProfileField label="Email" value={session.user.email ?? "No email available"} />
+        <ProfileField label="Username" value={user.name ?? "No username set"} />
+        <ProfileField label="Email" value={user.email ?? "No email available"} />
       </div>
+
+      <PasswordResetForm hasPassword={Boolean(user.password)} />
     </div>
   );
 }

@@ -24,13 +24,27 @@ export function DailyLeadsDateFilter({
   const hasSelectedDates = enableMultipleDates && selectedDateStarts.length > 0;
   const hasRange = isAllTime || hasSelectedDates || Boolean(searchParams.get("from") && searchParams.get("to"));
   const initialDate = useMemo(() => clampDateInputToToday(getDateInputValue(searchParams.get("from"))), [searchParams]);
-  const initialSelectedDateValues = useMemo(() => selectedDateStarts.map(getDateInputValue), [selectedDateStarts]);
+  const initialSelectedDateValues = useMemo(() => {
+    if (!enableMultipleDates || isAllTime) {
+      return [];
+    }
+
+    if (selectedDateStarts.length > 0) {
+      return selectedDateStarts.map(getDateInputValue);
+    }
+
+    return searchParams.get("from") && searchParams.get("to") ? [initialDate] : [];
+  }, [enableMultipleDates, initialDate, isAllTime, searchParams, selectedDateStarts]);
   const todayValue = useMemo(() => getTodayInputValue(), []);
   const [dateValue, setDateValue] = useState(initialDate);
   const [selectedDateValues, setSelectedDateValues] = useState(initialSelectedDateValues);
   const [pendingRange, setPendingRange] = useState<"all" | "day" | "dates" | "today" | null>(null);
-  const isToday = !isAllTime && !hasSelectedDates && getDateInputValue(searchParams.get("from")) === todayValue;
-  const activeRange = pendingRange ?? (isAllTime ? "all" : hasSelectedDates ? "dates" : isToday ? "today" : "day");
+  const isToday = enableMultipleDates
+    ? !isAllTime
+      && selectedDateValues.length === 1
+      && selectedDateValues[0] === todayValue
+    : !isAllTime && getDateInputValue(searchParams.get("from")) === todayValue;
+  const activeRange = pendingRange ?? (isAllTime ? "all" : isToday ? "today" : hasSelectedDates ? "dates" : "day");
 
   useEffect(() => {
     setDateValue(initialDate);
@@ -68,13 +82,19 @@ export function DailyLeadsDateFilter({
 
   function handleToday() {
     setPendingRange("today");
+    setSelectedDateValues([todayValue]);
     startTransition(() => {
-      router.push(buildHref(pathname, searchParams, getLocalDayRange(todayValue)));
+      router.push(
+        enableMultipleDates
+          ? buildMultipleDatesHref(pathname, searchParams, [todayValue])
+          : buildHref(pathname, searchParams, getLocalDayRange(todayValue)),
+      );
     });
   }
 
   function handleAllTime() {
     setPendingRange("all");
+    setSelectedDateValues([]);
     startTransition(() => {
       router.push(buildAllTimeHref(pathname, searchParams));
     });
@@ -109,32 +129,11 @@ export function DailyLeadsDateFilter({
         </button>
       </div>
 
-      <form className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center" onSubmit={handleSubmit}>
-        <label className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Specific day</span>
-          <DatePicker value={dateValue} onChange={setDateValue} />
-        </label>
-        <button
-          className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-[background-color,transform,opacity] duration-150 hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] active:translate-y-px disabled:opacity-80 sm:w-auto"
-          disabled={isPending && pendingRange === "day"}
-          type="submit"
-        >
-          {isPending && pendingRange === "day" ? (
-            <>
-              <LoadingDot />
-              Applying
-            </>
-          ) : (
-            "Apply day"
-          )}
-        </button>
-      </form>
-
       {enableMultipleDates ? (
         <div className="flex w-full flex-col gap-3 sm:w-auto">
           <label className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Multiple days</span>
-            <MultiDatePicker value={selectedDateValues} onChange={setSelectedDateValues} />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Dates</span>
+            <DatePicker mode="multiple" value={selectedDateValues} onChange={setSelectedDateValues} />
           </label>
           <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
             {selectedDateValues.length > 0 ? (
@@ -168,12 +167,33 @@ export function DailyLeadsDateFilter({
                   Applying
                 </>
               ) : (
-                "Apply dates"
+                "Apply"
               )}
             </button>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <form className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center" onSubmit={handleSubmit}>
+          <label className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Date</span>
+            <DatePicker mode="single" value={dateValue} onChange={setDateValue} />
+          </label>
+          <button
+            className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-[background-color,transform,opacity] duration-150 hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] active:translate-y-px disabled:opacity-80 sm:w-auto"
+            disabled={isPending && pendingRange === "day"}
+            type="submit"
+          >
+            {isPending && pendingRange === "day" ? (
+              <>
+                <LoadingDot />
+                Applying
+              </>
+            ) : (
+              "Apply"
+            )}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
@@ -215,40 +235,22 @@ function buildMultipleDatesHref(pathname: string, currentParams: { toString(): s
   return `${pathname}?${next.toString()}`;
 }
 
-function DatePicker({ onChange, value }: { onChange: (value: string) => void; value: string }) {
-  const selectedDate = parseDateInputValue(value);
-  const today = getTodayDate();
+type DatePickerProps =
+  | {
+      mode: "multiple";
+      onChange: (value: string[]) => void;
+      value: string[];
+    }
+  | {
+      mode: "single";
+      onChange: (value: string) => void;
+      value: string;
+    };
 
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button
-          className="inline-flex h-10 w-full items-center justify-between gap-3 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-left text-[13px] font-medium text-[#ffffff] outline-none transition-colors hover:border-[#3f3f46] hover:bg-[#111113] focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10 sm:w-[168px]"
-          type="button"
-        >
-          <span>{formatDisplayDate(selectedDate)}</span>
-          <CalendarDays className="h-4 w-4 text-[#b3b3b3]" />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-auto">
-        <Calendar
-          disabled={{ after: today }}
-          mode="single"
-          onSelect={(date) => {
-            if (date && date <= today) {
-              onChange(formatDateInput(date));
-            }
-          }}
-          selected={selectedDate}
-        />
-      </PopoverContent>
-    </Popover>
-  );
-}
-
-function MultiDatePicker({ onChange, value }: { onChange: (value: string[]) => void; value: string[] }) {
-  const selectedDates = value.map(parseDateInputValue);
+function DatePicker(props: DatePickerProps) {
   const today = getTodayDate();
+  const selectedDate = props.mode === "single" ? parseDateInputValue(props.value) : null;
+  const selectedDates = props.mode === "multiple" ? props.value.map(parseDateInputValue) : [];
 
   return (
     <Popover>
@@ -257,19 +259,32 @@ function MultiDatePicker({ onChange, value }: { onChange: (value: string[]) => v
           className="inline-flex h-10 w-full items-center justify-between gap-3 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-left text-[13px] font-medium text-[#ffffff] outline-none transition-colors hover:border-[#3f3f46] hover:bg-[#111113] focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10 sm:w-[184px]"
           type="button"
         >
-          <span>{formatMultiDateLabel(value)}</span>
+          <span>{props.mode === "multiple" ? formatMultiDateLabel(props.value) : formatDisplayDate(selectedDate ?? new Date())}</span>
           <CalendarDays className="h-4 w-4 text-[#b3b3b3]" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-auto">
-        <Calendar
-          disabled={{ after: today }}
-          mode="multiple"
-          onSelect={(dates) => {
-            onChange(normalizeDateInputValues((dates ?? []).filter((date) => date <= today).map(formatDateInput)));
-          }}
-          selected={selectedDates}
-        />
+        {props.mode === "multiple" ? (
+          <Calendar
+            disabled={{ after: today }}
+            mode="multiple"
+            onSelect={(dates) => {
+              props.onChange(normalizeDateInputValues((dates ?? []).filter((date) => date <= today).map(formatDateInput)));
+            }}
+            selected={selectedDates}
+          />
+        ) : (
+          <Calendar
+            disabled={{ after: today }}
+            mode="single"
+            onSelect={(date) => {
+              if (date && date <= today) {
+                props.onChange(formatDateInput(date));
+              }
+            }}
+            selected={selectedDate ?? undefined}
+          />
+        )}
       </PopoverContent>
     </Popover>
   );

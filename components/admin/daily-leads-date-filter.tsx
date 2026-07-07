@@ -262,7 +262,7 @@ function DatePicker(props: DatePickerProps) {
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="inline-flex h-10 w-full items-center justify-between gap-3 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-left text-[13px] font-medium text-[#ffffff] outline-none transition-colors hover:border-[#3f3f46] hover:bg-[#111113] focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10 sm:w-[184px]"
+          className={`inline-flex h-10 w-full items-center justify-between gap-3 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-left text-[13px] font-medium text-[#ffffff] outline-none transition-colors hover:border-[#3f3f46] hover:bg-[#111113] focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10 ${props.mode === "range" ? "sm:w-[300px]" : "sm:w-[184px]"}`}
           type="button"
         >
           <span>{props.mode === "range" ? formatRangeLabel(props.value) : formatDisplayDate(selectedDate ?? new Date())}</span>
@@ -349,7 +349,9 @@ function formatRangeLabel(value: DateRangeInputValue) {
     return formatDisplayDate(from);
   }
 
-  return `${formatDisplayDate(from)} - ${formatDisplayDate(to)}`;
+  const dayCount = getInclusiveDayCount(from, to);
+
+  return `${formatDisplayDate(from)} - ${formatDisplayDate(to)} (${dayCount} days)`;
 }
 
 function LoadingDot() {
@@ -459,4 +461,11 @@ function isSameLocalDay(left: Date, right: Date) {
   return left.getFullYear() === right.getFullYear()
     && left.getMonth() === right.getMonth()
     && left.getDate() === right.getDate();
+}
+
+function getInclusiveDayCount(from: Date, to: Date) {
+  const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const end = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+
+  return Math.max(1, Math.round((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)) + 1);
 }

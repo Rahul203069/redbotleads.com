@@ -35,7 +35,12 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         today: "[&>button]:bg-[#1f1f1f] [&>button]:text-[#ffffff]",
         outside: "[&>button]:text-[#52525b] [&>button]:opacity-60",
         disabled: "[&>button]:text-[#3f3f46] [&>button]:opacity-50",
-        range_middle: "[&>button]:bg-[#1f1f1f] [&>button]:text-[#ffffff]",
+        range_start:
+          "[&>button]:bg-[#1ed760] [&>button]:text-[#121212] [&>button]:hover:bg-[#3be477] [&>button]:hover:text-[#121212]",
+        range_end:
+          "[&>button]:bg-[#1ed760] [&>button]:text-[#121212] [&>button]:hover:bg-[#3be477] [&>button]:hover:text-[#121212]",
+        range_middle:
+          "[&>button]:bg-[#14532d] [&>button]:text-[#ffffff] [&>button]:hover:bg-[#166534] [&>button]:hover:text-[#ffffff]",
         hidden: "invisible",
         ...classNames,
       }}

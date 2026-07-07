@@ -281,6 +281,23 @@ CRON_SECRET=
 
 Set the same secret in the Vercel Cron configuration so the scheduler route only accepts authorized calls.
 
+## DB Maintenance Worker
+
+The VM stack includes a dedicated DB maintenance worker. It runs every 4 hours by default and keeps Neon storage under control by deleting old non-lead Reddit items, old RSS diagnostics, expired auth/session rows, and old run logs. Lead-linked Reddit items are preserved.
+
+Safety rule:
+
+- `RedditItem` rows are deleted only when they are older than `DB_MAINTENANCE_REDDIT_ITEM_RETENTION_HOURS` and have no related `Lead`.
+- The default retention is `48` hours, which is longer than the current daily semantic lookback window.
+- Regular `VACUUM (ANALYZE)` runs after cleanup. `VACUUM FULL` is intentionally manual only.
+
+Useful commands:
+
+```bash
+npm run db:maintenance:dry-run
+npm run db:maintenance
+```
+
 ## Notes
 
 - Google OAuth is the active sign-in method in the current app.

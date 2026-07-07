@@ -33,5 +33,15 @@ services:
     environment:
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
 
+  db-maintenance-worker:
+    build:
+      context: .
+      target: worker-runner
+    container_name: reddit-leads-db-maintenance-worker
+    restart: unless-stopped
+    env_file:
+      - .env.vm
+    command: ["npm", "run", "worker:db-maintenance"]
+
 volumes:
   redis-data:

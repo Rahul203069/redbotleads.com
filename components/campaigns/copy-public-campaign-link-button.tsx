@@ -56,11 +56,16 @@ function buildPublicUrl(
 ) {
   const url = new URL(kind === "leads" ? `/share/leads/${campaignId}` : `/share/campaigns/${campaignId}`, origin);
   const range = searchParams.get("range");
+  const dates = searchParams.getAll("date").filter(Boolean);
   const from = searchParams.get("from");
   const to = searchParams.get("to");
 
   if (range === "all") {
     url.searchParams.set("range", "all");
+  } else if (dates.length > 0) {
+    for (const date of dates) {
+      url.searchParams.append("date", date);
+    }
   } else if (from && to) {
     url.searchParams.set("from", from);
     url.searchParams.set("to", to);

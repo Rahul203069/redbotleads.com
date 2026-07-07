@@ -7,7 +7,7 @@ import {
   PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE,
   getPublicCampaignLeadViews,
 } from "@/lib/campaign-leads";
-import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
+import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
@@ -28,8 +28,8 @@ export default async function PublicCampaignResultsPage({
 }) {
   const { id } = await params;
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
-  const leadRange = getDailyLeadDateRange(
-    resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
+  const leadDateSelection = getDailyLeadDateSelection(
+    resolvedSearchParams.date || resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
       ? resolvedSearchParams
       : { range: "all" },
   );
@@ -61,8 +61,14 @@ export default async function PublicCampaignResultsPage({
 
   const leads = (await getPublicCampaignLeadViews({
     campaignId: campaign.id,
-    from: leadRange.from,
-    to: leadRange.to,
+    ...(leadDateSelection.source === "dates"
+      ? {
+          dateRanges: leadDateSelection.ranges,
+        }
+      : {
+          from: leadDateSelection.range.from,
+          to: leadDateSelection.range.to,
+        }),
   }))
     .filter((lead) => lead.ai !== null)
     .sort((left, right) => right.score - left.score);
@@ -70,7 +76,7 @@ export default async function PublicCampaignResultsPage({
     ? "paycron"
     : campaign.name;
   const lastUpdated = campaign.sync?.completedAt ?? campaign.sync?.updatedAt ?? campaign.updatedAt;
-  const sharedDateLabel = leadRange.source === "all" ? null : formatSharedDateRange(leadRange.from, leadRange.to);
+  const sharedDateLabel = formatSharedDateSelection(leadDateSelection);
 
   return (
     <main className="min-h-screen bg-[#050505] px-3 py-3 text-[#fdfdfd] sm:px-6 sm:py-5 lg:px-8">
@@ -137,6 +143,7 @@ export default async function PublicCampaignResultsPage({
 }
 
 type SearchParams = {
+  date?: string | string[];
   from?: string;
   range?: string;
   to?: string;
@@ -188,4 +195,27 @@ function formatSharedDateRange(from: Date, to: Date) {
   }
 
   return `${formatter.format(from)} - ${formatter.format(end)}`;
+}
+
+function formatSharedDateSelection(selection: ReturnType<typeof getDailyLeadDateSelection>) {
+  if (selection.source === "all") {
+    return null;
+  }
+
+  if (selection.source !== "dates") {
+    return formatSharedDateRange(selection.range.from, selection.range.to);
+  }
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const firstDate = formatter.format(new Date(selection.dateStarts[0]));
+
+  if (selection.dateStarts.length === 1) {
+    return `Leads for ${firstDate}`;
+  }
+
+  return `${firstDate} + ${selection.dateStarts.length - 1} day${selection.dateStarts.length === 2 ? "" : "s"}`;
 }

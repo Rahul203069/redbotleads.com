@@ -57,6 +57,7 @@ export function CampaignDetailLiveSections({
   initialLeads: ClassifiedLead[];
   initialSync: CampaignSync;
   leadDateFilter: {
+    date?: string[];
     from?: string;
     range?: string;
     to?: string;

@@ -1,6 +1,7 @@
 import { Prisma } from "../generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import type { DailyLeadDateRangeValue } from "@/lib/daily-leads-analytics";
 
 export const PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE = 50;
 
@@ -34,15 +35,18 @@ type NormalizedBuyerStage = NonNullable<CampaignLeadView["ai"]>["buyerStage"];
 
 export async function getCampaignLeadViewsForUser({
   campaignId,
+  dateRanges,
   from,
   to,
   userId,
 }: {
   campaignId: string;
+  dateRanges?: DailyLeadDateRangeValue[];
   from?: Date;
   to?: Date;
   userId: string;
 }): Promise<CampaignLeadView[]> {
+  const leadDateWhere = buildLeadDateWhere({ dateRanges, from, to });
   const campaign = await prisma.campaign.findFirst({
     where: {
       id: campaignId,
@@ -51,14 +55,7 @@ export async function getCampaignLeadViewsForUser({
     select: {
       leads: {
         where: {
-          ...(from && to
-            ? {
-                createdAt: {
-                  gte: from,
-                  lt: to,
-                },
-              }
-            : {}),
+          ...leadDateWhere,
         },
         orderBy: {
           createdAt: "desc",
@@ -98,13 +95,16 @@ export async function getCampaignLeadViewsForUser({
 
 export async function getPublicCampaignLeadViews({
   campaignId,
+  dateRanges,
   from,
   to,
 }: {
   campaignId: string;
+  dateRanges?: DailyLeadDateRangeValue[];
   from?: Date;
   to?: Date;
 }): Promise<CampaignLeadView[]> {
+  const leadDateWhere = buildLeadDateWhere({ dateRanges, from, to });
   const campaign = await prisma.campaign.findUnique({
     where: {
       id: campaignId,
@@ -115,14 +115,7 @@ export async function getPublicCampaignLeadViews({
           score: {
             gte: PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE,
           },
-          ...(from && to
-            ? {
-                createdAt: {
-                  gte: from,
-                  lt: to,
-                },
-              }
-            : {}),
+          ...leadDateWhere,
         },
         orderBy: {
           createdAt: "desc",
@@ -158,6 +151,40 @@ export async function getPublicCampaignLeadViews({
   }
 
   return buildCampaignLeadViews(campaignId, campaign.leads);
+}
+
+function buildLeadDateWhere({
+  dateRanges,
+  from,
+  to,
+}: {
+  dateRanges?: DailyLeadDateRangeValue[];
+  from?: Date;
+  to?: Date;
+}) {
+  const validDateRanges = (dateRanges ?? []).filter((range) => range.from < range.to);
+
+  if (validDateRanges.length > 0) {
+    return {
+      OR: validDateRanges.map((range) => ({
+        createdAt: {
+          gte: range.from,
+          lt: range.to,
+        },
+      })),
+    };
+  }
+
+  if (from && to) {
+    return {
+      createdAt: {
+        gte: from,
+        lt: to,
+      },
+    };
+  }
+
+  return {};
 }
 
 async function buildCampaignLeadViews(

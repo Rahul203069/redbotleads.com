@@ -13,7 +13,7 @@ import { auth } from "@/lib/auth";
 import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
-import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
+import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
@@ -22,6 +22,7 @@ const DAILY_SEMANTIC_CRON_UTC_HOUR = 2;
 const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
 
 type SearchParams = {
+  date?: string | string[];
   from?: string;
   range?: string;
   to?: string;
@@ -42,15 +43,20 @@ export default async function CampaignDetailPage({
 
   const { id } = await params;
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
-  const leadRange = getDailyLeadDateRange(
-    resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
+  const leadDateSelection = getDailyLeadDateSelection(
+    resolvedSearchParams.date || resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
       ? resolvedSearchParams
       : { range: "all" },
   );
   const leadDateFilter = {
-    from: leadRange.source === "all" ? undefined : leadRange.from.toISOString(),
-    range: leadRange.source === "all" ? "all" : undefined,
-    to: leadRange.source === "all" ? undefined : leadRange.to.toISOString(),
+    date: leadDateSelection.source === "dates" ? leadDateSelection.dateStarts : undefined,
+    from: leadDateSelection.source === "dates" || leadDateSelection.source === "all"
+      ? undefined
+      : leadDateSelection.range.from.toISOString(),
+    range: leadDateSelection.source === "all" ? "all" : undefined,
+    to: leadDateSelection.source === "dates" || leadDateSelection.source === "all"
+      ? undefined
+      : leadDateSelection.range.to.toISOString(),
   };
 
   const campaign = await prisma.campaign.findFirst({
@@ -127,8 +133,14 @@ export default async function CampaignDetailPage({
   }).format(nextSyncSource);
   const initialLeads = await getCampaignLeadViewsForUser({
     campaignId: campaign.id,
-    from: leadRange.from,
-    to: leadRange.to,
+    ...(leadDateSelection.source === "dates"
+      ? {
+          dateRanges: leadDateSelection.ranges,
+        }
+      : {
+          from: leadDateSelection.range.from,
+          to: leadDateSelection.range.to,
+        }),
     userId: session.user.id,
   });
   const initialDiagnostics = await getCampaignInitialRssDiagnostics(campaign.id);
@@ -209,7 +221,7 @@ export default async function CampaignDetailPage({
               </div>
             </div>
             <div className="w-full">
-              <DailyLeadsDateFilter defaultRange="all" />
+              <DailyLeadsDateFilter defaultRange="all" enableMultipleDates />
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { Prisma } from "../generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { BETA_OWNER_ONLY_MESSAGE, isOwnerEmail } from "@/lib/beta-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
-import { getDailyLeadDateRange } from "@/lib/daily-leads-analytics";
+import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
 import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
@@ -669,6 +669,7 @@ export async function getCampaignSyncStatuses(campaignIds: string[]) {
 export async function getCampaignLeads(
   campaignId: string,
   dateFilter?: {
+    date?: string | string[];
     from?: string;
     range?: string;
     to?: string;
@@ -680,12 +681,18 @@ export async function getCampaignLeads(
     return [];
   }
 
-  const range = dateFilter ? getDailyLeadDateRange(dateFilter) : getDailyLeadDateRange({ range: "all" });
+  const selection = dateFilter ? getDailyLeadDateSelection(dateFilter) : getDailyLeadDateSelection({ range: "all" });
 
   return getCampaignLeadViewsForUser({
     campaignId,
-    from: range.from,
-    to: range.to,
+    ...(selection.source === "dates"
+      ? {
+          dateRanges: selection.ranges,
+        }
+      : {
+          from: selection.range.from,
+          to: selection.range.to,
+        }),
     userId: session.user.id,
   });
 }

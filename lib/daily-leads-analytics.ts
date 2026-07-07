@@ -11,6 +11,16 @@ export type DailyLeadDateRange = {
   to: Date;
   source: "all" | "query" | "server";
 };
+export type DailyLeadDateRangeValue = {
+  from: Date;
+  to: Date;
+};
+export type DailyLeadDateSelection = {
+  dateStarts: string[];
+  range: DailyLeadDateRange;
+  ranges: DailyLeadDateRangeValue[];
+  source: DailyLeadDateRange["source"] | "dates";
+};
 
 export type DailyLeadSemanticStatusFilter = (typeof DAILY_LEAD_SEMANTIC_STATUS_OPTIONS)[number];
 export type DailyLeadAnalytics = Awaited<ReturnType<typeof getDailyLeadAnalytics>>;
@@ -34,6 +44,7 @@ export function parseDailyLeadSemanticStatus(value: string | undefined): DailyLe
 }
 
 export function getDailyLeadDateRange(input: {
+  date?: string | string[];
   from?: string;
   range?: string;
   to?: string;
@@ -66,6 +77,72 @@ export function getDailyLeadDateRange(input: {
     to: fallbackTo,
     source: "server",
   };
+}
+
+export function getDailyLeadDateSelection(input: {
+  date?: string | string[];
+  from?: string;
+  range?: string;
+  to?: string;
+}): DailyLeadDateSelection {
+  const dateRanges = parseDailyLeadDateRanges(input.date);
+
+  if (dateRanges.length > 0) {
+    return {
+      dateStarts: dateRanges.map((range) => range.from.toISOString()),
+      range: {
+        from: dateRanges[0].from,
+        to: dateRanges[dateRanges.length - 1].to,
+        source: "query",
+      },
+      ranges: dateRanges,
+      source: "dates",
+    };
+  }
+
+  const range = getDailyLeadDateRange(input);
+
+  return {
+    dateStarts: [],
+    range,
+    ranges: [{ from: range.from, to: range.to }],
+    source: range.source,
+  };
+}
+
+function parseDailyLeadDateRanges(value: string | string[] | undefined) {
+  const values = Array.isArray(value) ? value : typeof value === "string" ? [value] : [];
+  const ranges = values
+    .flatMap((item) => item.split(","))
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      const from = new Date(item);
+
+      if (Number.isNaN(from.getTime())) {
+        return null;
+      }
+
+      return {
+        from,
+        to: new Date(from.getTime() + 24 * 60 * 60 * 1000),
+      };
+    })
+    .filter((range): range is DailyLeadDateRangeValue => range !== null)
+    .sort((left, right) => left.from.getTime() - right.from.getTime());
+
+  const seen = new Set<string>();
+
+  return ranges.filter((range) => {
+    const key = range.from.toISOString();
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 export async function getDailyLeadAnalytics({

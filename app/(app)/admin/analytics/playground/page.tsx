@@ -294,6 +294,12 @@ export default async function AdminSemanticPlaygroundPage({
 
             <SemanticPlaygroundResults
               isRunActive={isRunActive}
+              progress={{
+                candidatePosts: getStat(runStats, "candidatePosts"),
+                classificationFailed: getStat(runStats, "classificationFailed"),
+                classified: getStat(runStats, "classified"),
+                semanticMatches: getStat(runStats, "semanticMatches"),
+              }}
               results={selectedRun.results.map((result) => ({
                 ...result,
                 redditItem: {
@@ -302,6 +308,7 @@ export default async function AdminSemanticPlaygroundPage({
                   fetchedAt: result.redditItem.fetchedAt.toISOString(),
                 },
               }))}
+              runStatus={selectedRun.status}
               totalMatches={getStat(runStats, "semanticMatches")}
             />
           </div>

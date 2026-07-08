@@ -1,11 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowDownWideNarrow } from "lucide-react";
+import { ArrowDownWideNarrow, Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
 type PlaygroundResultSort = "semantic" | "llm";
+
+type SemanticPlaygroundProgress = {
+  candidatePosts: number;
+  classificationFailed: number;
+  classified: number;
+  semanticMatches: number;
+};
 
 export type SemanticPlaygroundResultItem = {
   bestQueryText: string | null;
@@ -36,15 +43,20 @@ export type SemanticPlaygroundResultItem = {
 
 export function SemanticPlaygroundResults({
   isRunActive,
+  progress,
   results,
+  runStatus,
   totalMatches,
 }: {
   isRunActive: boolean;
+  progress: SemanticPlaygroundProgress;
   results: SemanticPlaygroundResultItem[];
+  runStatus: string;
   totalMatches: number;
 }) {
   const [sortBy, setSortBy] = useState<PlaygroundResultSort>("semantic");
   const sortedResults = useMemo(() => sortResults(results, sortBy), [results, sortBy]);
+  const runStatusLabel = runStatus === "QUEUED" ? "Queued" : "Processing";
 
   return (
     <div className="flex max-h-[72dvh] min-h-0 flex-col overflow-hidden rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] xl:max-h-[calc(100dvh-12rem)]">
@@ -55,31 +67,101 @@ export function SemanticPlaygroundResults({
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
-            Showing {results.length} of {totalMatches}
-          </span>
+          {isRunActive ? (
+            <span className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#1f1f1f] px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffd66e] shadow-[rgb(242,201,76)_0px_0px_0px_1px_inset]">
+              <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
+              {runStatusLabel}
+            </span>
+          ) : (
+            <>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
+                Showing {results.length} of {totalMatches}
+              </span>
 
-          <div className="inline-flex min-h-10 items-center rounded-full bg-[#1f1f1f] p-1 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
-            <ArrowDownWideNarrow className="ml-2 h-4 w-4 text-[#b3b3b3]" />
-            <SortButton active={sortBy === "semantic"} onClick={() => setSortBy("semantic")}>
-              Semantic
-            </SortButton>
-            <SortButton active={sortBy === "llm"} onClick={() => setSortBy("llm")}>
-              LLM score
-            </SortButton>
-          </div>
+              <div className="inline-flex min-h-10 items-center rounded-full bg-[#1f1f1f] p-1 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
+                <ArrowDownWideNarrow className="ml-2 h-4 w-4 text-[#b3b3b3]" />
+                <SortButton active={sortBy === "semantic"} onClick={() => setSortBy("semantic")}>
+                  Semantic
+                </SortButton>
+                <SortButton active={sortBy === "llm"} onClick={() => setSortBy("llm")}>
+                  LLM score
+                </SortButton>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
       <div className="mt-4 grid min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain pr-1">
-        {sortedResults.length === 0 ? (
+        {isRunActive ? (
+          <ProcessingState progress={progress} runStatusLabel={runStatusLabel} />
+        ) : sortedResults.length === 0 ? (
           <div className="rounded-[16px] border border-dashed border-[#3f3f46] p-5 text-[13px] leading-5 text-[#b3b3b3]">
-            {isRunActive ? "The playground run is still processing." : "No Reddit posts matched this query set and threshold."}
+            No Reddit posts matched this query set and threshold.
           </div>
         ) : (
           sortedResults.map((result) => <ResultCard key={result.id} result={result} />)
         )}
       </div>
+    </div>
+  );
+}
+
+function ProcessingState({
+  progress,
+  runStatusLabel,
+}: {
+  progress: SemanticPlaygroundProgress;
+  runStatusLabel: string;
+}) {
+  return (
+    <div aria-busy="true" aria-live="polite" className="grid gap-3">
+      <div className="rounded-[16px] bg-[#1f1f1f] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+        <div className="flex items-start gap-3">
+          <span className="mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#3b2d10] text-[#ffd66e] shadow-[rgb(242,201,76)_0px_0px_0px_1px_inset]">
+            <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[13px] font-bold uppercase tracking-[0.14em] text-[#ffd66e]">{runStatusLabel}</p>
+            <p className="mt-2 text-[13px] leading-5 text-[#cbcbcb]">
+              Leads will appear here after semantic matching and LLM classification finish.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          <ProgressMetric label="Candidates" value={progress.candidatePosts} />
+          <ProgressMetric label="Semantic matches" value={progress.semanticMatches} />
+          <ProgressMetric label="Classified" value={progress.classified} />
+          <ProgressMetric label="Failed" value={progress.classificationFailed} />
+        </div>
+      </div>
+
+      {[0, 1, 2].map((item) => (
+        <div className="rounded-[16px] bg-[#1f1f1f] p-4 motion-safe:animate-pulse" key={item}>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex gap-2">
+                <div className="h-6 w-24 rounded-full bg-[#2a2a2a]" />
+                <div className="h-6 w-20 rounded-full bg-[#2a2a2a]" />
+              </div>
+              <div className="mt-4 h-5 w-3/4 rounded bg-[#2a2a2a]" />
+              <div className="mt-3 h-4 w-1/2 rounded bg-[#2a2a2a]" />
+              <div className="mt-5 h-16 rounded-[14px] bg-[#171717]" />
+            </div>
+            <div className="h-20 w-full rounded-[16px] bg-[#171717] sm:w-[104px]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProgressMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-[14px] bg-[#121212] px-3 py-3 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">{label}</p>
+      <p className="mt-2 text-[22px] font-bold leading-none text-[#ffffff]">{value}</p>
     </div>
   );
 }

@@ -312,6 +312,8 @@ export type UserWhereInput = {
   aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
   telegramPairings?: Prisma.TelegramPairingListRelationFilter
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunListRelationFilter
+  campaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -345,6 +347,8 @@ export type UserOrderByWithRelationInput = {
   aiUsageEvents?: Prisma.AiUsageEventOrderByRelationAggregateInput
   telegramPairings?: Prisma.TelegramPairingOrderByRelationAggregateInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunOrderByRelationAggregateInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessOrderByRelationAggregateInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -381,6 +385,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
   telegramPairings?: Prisma.TelegramPairingListRelationFilter
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunListRelationFilter
+  campaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -466,6 +472,8 @@ export type UserCreateInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -499,6 +507,8 @@ export type UserUncheckedCreateInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUpdateInput = {
@@ -532,6 +542,8 @@ export type UserUpdateInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -565,6 +577,8 @@ export type UserUncheckedUpdateInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -823,6 +837,36 @@ export type UserUpdateOneRequiredWithoutCampaignsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCampaignsInput, Prisma.UserUpdateWithoutCampaignsInput>, Prisma.UserUncheckedUpdateWithoutCampaignsInput>
 }
 
+export type UserCreateNestedOneWithoutCampaignClientAccessesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCampaignClientAccessesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCampaignClientAccessesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCreatedCampaignClientAccessesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCampaignClientAccessesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCampaignClientAccessesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCampaignClientAccessesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCampaignClientAccessesInput
+  upsert?: Prisma.UserUpsertWithoutCampaignClientAccessesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCampaignClientAccessesInput, Prisma.UserUpdateWithoutCampaignClientAccessesInput>, Prisma.UserUncheckedUpdateWithoutCampaignClientAccessesInput>
+}
+
+export type UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCreatedCampaignClientAccessesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedCampaignClientAccessesInput
+  upsert?: Prisma.UserUpsertWithoutCreatedCampaignClientAccessesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedCampaignClientAccessesInput, Prisma.UserUpdateWithoutCreatedCampaignClientAccessesInput>, Prisma.UserUncheckedUpdateWithoutCreatedCampaignClientAccessesInput>
+}
+
 export type UserCreateNestedOneWithoutCampaignRunsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCampaignRunsInput, Prisma.UserUncheckedCreateWithoutCampaignRunsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCampaignRunsInput
@@ -911,6 +955,8 @@ export type UserCreateWithoutTelegramPairingsInput = {
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutTelegramPairingsInput = {
@@ -943,6 +989,8 @@ export type UserUncheckedCreateWithoutTelegramPairingsInput = {
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutTelegramPairingsInput = {
@@ -991,6 +1039,8 @@ export type UserUpdateWithoutTelegramPairingsInput = {
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTelegramPairingsInput = {
@@ -1023,6 +1073,8 @@ export type UserUncheckedUpdateWithoutTelegramPairingsInput = {
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutPasswordInput = {
@@ -1055,6 +1107,8 @@ export type UserCreateWithoutPasswordInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutPasswordInput = {
@@ -1087,6 +1141,8 @@ export type UserUncheckedCreateWithoutPasswordInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutPasswordInput = {
@@ -1135,6 +1191,8 @@ export type UserUpdateWithoutPasswordInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordInput = {
@@ -1167,6 +1225,8 @@ export type UserUncheckedUpdateWithoutPasswordInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -1199,6 +1259,8 @@ export type UserCreateWithoutAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -1231,6 +1293,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -1279,6 +1343,8 @@ export type UserUpdateWithoutAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -1311,6 +1377,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1343,6 +1411,8 @@ export type UserCreateWithoutSessionsInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1375,6 +1445,8 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1423,6 +1495,8 @@ export type UserUpdateWithoutSessionsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1455,6 +1529,8 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutRedditAccountsInput = {
@@ -1487,6 +1563,8 @@ export type UserCreateWithoutRedditAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutRedditAccountsInput = {
@@ -1519,6 +1597,8 @@ export type UserUncheckedCreateWithoutRedditAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutRedditAccountsInput = {
@@ -1567,6 +1647,8 @@ export type UserUpdateWithoutRedditAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRedditAccountsInput = {
@@ -1599,6 +1681,8 @@ export type UserUncheckedUpdateWithoutRedditAccountsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutCampaignsInput = {
@@ -1631,6 +1715,8 @@ export type UserCreateWithoutCampaignsInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutCampaignsInput = {
@@ -1663,6 +1749,8 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutCampaignsInput = {
@@ -1711,6 +1799,8 @@ export type UserUpdateWithoutCampaignsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignsInput = {
@@ -1743,6 +1833,312 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutCampaignClientAccessesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutCampaignClientAccessesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutCampaignClientAccessesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCampaignClientAccessesInput>
+}
+
+export type UserCreateWithoutCreatedCampaignClientAccessesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedCampaignClientAccessesInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedCampaignClientAccessesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCreatedCampaignClientAccessesInput>
+}
+
+export type UserUpsertWithoutCampaignClientAccessesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCampaignClientAccessesInput, Prisma.UserUncheckedUpdateWithoutCampaignClientAccessesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCampaignClientAccessesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCampaignClientAccessesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCampaignClientAccessesInput, Prisma.UserUncheckedUpdateWithoutCampaignClientAccessesInput>
+}
+
+export type UserUpdateWithoutCampaignClientAccessesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCampaignClientAccessesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUpsertWithoutCreatedCampaignClientAccessesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCampaignClientAccessesInput, Prisma.UserUncheckedUpdateWithoutCreatedCampaignClientAccessesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedCampaignClientAccessesInput, Prisma.UserUncheckedCreateWithoutCreatedCampaignClientAccessesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedCampaignClientAccessesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedCampaignClientAccessesInput, Prisma.UserUncheckedUpdateWithoutCreatedCampaignClientAccessesInput>
+}
+
+export type UserUpdateWithoutCreatedCampaignClientAccessesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedCampaignClientAccessesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCampaignRunsInput = {
@@ -1775,6 +2171,8 @@ export type UserCreateWithoutCampaignRunsInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutCampaignRunsInput = {
@@ -1807,6 +2205,8 @@ export type UserUncheckedCreateWithoutCampaignRunsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutCampaignRunsInput = {
@@ -1855,6 +2255,8 @@ export type UserUpdateWithoutCampaignRunsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignRunsInput = {
@@ -1887,6 +2289,8 @@ export type UserUncheckedUpdateWithoutCampaignRunsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutAiUsageEventsInput = {
@@ -1919,6 +2323,8 @@ export type UserCreateWithoutAiUsageEventsInput = {
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutAiUsageEventsInput = {
@@ -1951,6 +2357,8 @@ export type UserUncheckedCreateWithoutAiUsageEventsInput = {
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutAiUsageEventsInput = {
@@ -1999,6 +2407,8 @@ export type UserUpdateWithoutAiUsageEventsInput = {
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
@@ -2031,6 +2441,8 @@ export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutSemanticPlaygroundRunsInput = {
@@ -2063,6 +2475,8 @@ export type UserCreateWithoutSemanticPlaygroundRunsInput = {
   campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
@@ -2095,6 +2509,8 @@ export type UserUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
   campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutSemanticPlaygroundRunsInput = {
@@ -2143,6 +2559,8 @@ export type UserUpdateWithoutSemanticPlaygroundRunsInput = {
   campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
@@ -2175,6 +2593,8 @@ export type UserUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
   campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateWithoutLeadsInput = {
@@ -2207,6 +2627,8 @@ export type UserCreateWithoutLeadsInput = {
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateWithoutLeadsInput = {
@@ -2239,6 +2661,8 @@ export type UserUncheckedCreateWithoutLeadsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
   telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutLeadsInput = {
@@ -2287,6 +2711,8 @@ export type UserUpdateWithoutLeadsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeadsInput = {
@@ -2319,6 +2745,8 @@ export type UserUncheckedUpdateWithoutLeadsInput = {
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
   telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 
@@ -2336,6 +2764,8 @@ export type UserCountOutputType = {
   aiUsageEvents: number
   telegramPairings: number
   semanticPlaygroundRuns: number
+  campaignClientAccesses: number
+  createdCampaignClientAccesses: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2348,6 +2778,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   aiUsageEvents?: boolean | UserCountOutputTypeCountAiUsageEventsArgs
   telegramPairings?: boolean | UserCountOutputTypeCountTelegramPairingsArgs
   semanticPlaygroundRuns?: boolean | UserCountOutputTypeCountSemanticPlaygroundRunsArgs
+  campaignClientAccesses?: boolean | UserCountOutputTypeCountCampaignClientAccessesArgs
+  createdCampaignClientAccesses?: boolean | UserCountOutputTypeCountCreatedCampaignClientAccessesArgs
 }
 
 /**
@@ -2423,6 +2855,20 @@ export type UserCountOutputTypeCountSemanticPlaygroundRunsArgs<ExtArgs extends r
   where?: Prisma.CampaignSemanticPlaygroundRunWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCampaignClientAccessesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignClientAccessWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedCampaignClientAccessesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignClientAccessWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2455,6 +2901,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   aiUsageEvents?: boolean | Prisma.User$aiUsageEventsArgs<ExtArgs>
   telegramPairings?: boolean | Prisma.User$telegramPairingsArgs<ExtArgs>
   semanticPlaygroundRuns?: boolean | Prisma.User$semanticPlaygroundRunsArgs<ExtArgs>
+  campaignClientAccesses?: boolean | Prisma.User$campaignClientAccessesArgs<ExtArgs>
+  createdCampaignClientAccesses?: boolean | Prisma.User$createdCampaignClientAccessesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2539,6 +2987,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   aiUsageEvents?: boolean | Prisma.User$aiUsageEventsArgs<ExtArgs>
   telegramPairings?: boolean | Prisma.User$telegramPairingsArgs<ExtArgs>
   semanticPlaygroundRuns?: boolean | Prisma.User$semanticPlaygroundRunsArgs<ExtArgs>
+  campaignClientAccesses?: boolean | Prisma.User$campaignClientAccessesArgs<ExtArgs>
+  createdCampaignClientAccesses?: boolean | Prisma.User$createdCampaignClientAccessesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2557,6 +3007,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     aiUsageEvents: Prisma.$AiUsageEventPayload<ExtArgs>[]
     telegramPairings: Prisma.$TelegramPairingPayload<ExtArgs>[]
     semanticPlaygroundRuns: Prisma.$CampaignSemanticPlaygroundRunPayload<ExtArgs>[]
+    campaignClientAccesses: Prisma.$CampaignClientAccessPayload<ExtArgs>[]
+    createdCampaignClientAccesses: Prisma.$CampaignClientAccessPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2983,6 +3435,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   aiUsageEvents<T extends Prisma.User$aiUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   telegramPairings<T extends Prisma.User$telegramPairingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$telegramPairingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TelegramPairingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   semanticPlaygroundRuns<T extends Prisma.User$semanticPlaygroundRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$semanticPlaygroundRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignSemanticPlaygroundRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  campaignClientAccesses<T extends Prisma.User$campaignClientAccessesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$campaignClientAccessesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdCampaignClientAccesses<T extends Prisma.User$createdCampaignClientAccessesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCampaignClientAccessesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3652,6 +4106,54 @@ export type User$semanticPlaygroundRunsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.CampaignSemanticPlaygroundRunScalarFieldEnum | Prisma.CampaignSemanticPlaygroundRunScalarFieldEnum[]
+}
+
+/**
+ * User.campaignClientAccesses
+ */
+export type User$campaignClientAccessesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignClientAccess
+   */
+  select?: Prisma.CampaignClientAccessSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignClientAccess
+   */
+  omit?: Prisma.CampaignClientAccessOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignClientAccessInclude<ExtArgs> | null
+  where?: Prisma.CampaignClientAccessWhereInput
+  orderBy?: Prisma.CampaignClientAccessOrderByWithRelationInput | Prisma.CampaignClientAccessOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignClientAccessWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignClientAccessScalarFieldEnum | Prisma.CampaignClientAccessScalarFieldEnum[]
+}
+
+/**
+ * User.createdCampaignClientAccesses
+ */
+export type User$createdCampaignClientAccessesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignClientAccess
+   */
+  select?: Prisma.CampaignClientAccessSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignClientAccess
+   */
+  omit?: Prisma.CampaignClientAccessOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignClientAccessInclude<ExtArgs> | null
+  where?: Prisma.CampaignClientAccessWhereInput
+  orderBy?: Prisma.CampaignClientAccessOrderByWithRelationInput | Prisma.CampaignClientAccessOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignClientAccessWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignClientAccessScalarFieldEnum | Prisma.CampaignClientAccessScalarFieldEnum[]
 }
 
 /**

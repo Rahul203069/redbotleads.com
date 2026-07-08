@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 
 type CampaignListItem = {
+  accessRole?: "OWNER" | "CLIENT";
   id: string;
   name: string;
   leadType: "PRODUCT" | "SERVICE";
@@ -59,6 +60,7 @@ export function CampaignList({ campaigns }: { campaigns: CampaignListItem[] }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-[18px] font-semibold text-[#fdfdfd]">{campaign.name}</h3>
                 <Badge>{campaign.leadType.toLowerCase()}</Badge>
+                {campaign.accessRole === "CLIENT" ? <Badge tone="shared">Shared</Badge> : null}
                 <Badge tone={campaign.isActive ? "active" : "muted"}>
                   {campaign.isActive ? "Active" : "Paused"}
                 </Badge>
@@ -91,11 +93,13 @@ function Badge({
   tone = "default",
 }: {
   children: React.ReactNode;
-  tone?: "default" | "active" | "muted";
+  tone?: "default" | "active" | "muted" | "shared";
 }) {
   const className =
     tone === "active"
       ? "bg-[#121212] text-[#ffffff]"
+      : tone === "shared"
+        ? "bg-[#102742] text-[#8fc8ff]"
       : tone === "muted"
         ? "bg-[#121212] text-[#b3b3b3]"
         : "bg-[#121212] text-[#fdfdfd]";

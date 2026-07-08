@@ -160,6 +160,8 @@ model User {
   aiUsageEvents  AiUsageEvent[]
   telegramPairings TelegramPairing[]
   semanticPlaygroundRuns CampaignSemanticPlaygroundRun[]
+  campaignClientAccesses CampaignClientAccess[] @relation("CampaignClientAccessUser")
+  createdCampaignClientAccesses CampaignClientAccess[] @relation("CampaignClientAccessCreator")
 }
 
 model TelegramPairing {
@@ -293,9 +295,32 @@ model Campaign {
   aiUsageEvents AiUsageEvent[]
   initialRssPollEvents CampaignInitialRssPollEvent[]
   semanticPlaygroundRuns CampaignSemanticPlaygroundRun[]
+  clientAccesses CampaignClientAccess[]
 
   @@index([userId, isActive])
   @@index([redditAccountId])
+}
+
+model CampaignClientAccess {
+  id              String  @id @default(cuid())
+  campaignId      String
+  email           String
+  normalizedEmail String
+  displayName     String
+  userId          String?
+  createdByUserId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign  Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  user      User?    @relation("CampaignClientAccessUser", fields: [userId], references: [id], onDelete: SetNull)
+  createdBy User     @relation("CampaignClientAccessCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, normalizedEmail])
+  @@index([normalizedEmail])
+  @@index([userId])
+  @@index([createdByUserId, createdAt(sort: Desc)])
 }
 
 model CampaignRun {

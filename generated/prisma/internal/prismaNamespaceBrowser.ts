@@ -60,6 +60,7 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
+  CampaignClientAccess: 'CampaignClientAccess',
   CampaignRun: 'CampaignRun',
   CronRun: 'CronRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
@@ -226,6 +227,21 @@ export const CampaignScalarFieldEnum = {
 } as const
 
 export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
+
+
+export const CampaignClientAccessScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  email: 'email',
+  normalizedEmail: 'normalizedEmail',
+  displayName: 'displayName',
+  userId: 'userId',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignClientAccessScalarFieldEnum = (typeof CampaignClientAccessScalarFieldEnum)[keyof typeof CampaignClientAccessScalarFieldEnum]
 
 
 export const CampaignRunScalarFieldEnum = {

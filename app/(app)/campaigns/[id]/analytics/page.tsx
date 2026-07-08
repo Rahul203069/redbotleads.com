@@ -3,6 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { SubredditAnalyticsReport } from "@/components/campaigns/subreddit-analytics-report";
 import { auth } from "@/lib/auth";
 import {
+  buildAccessibleCampaignWhere,
+  getCampaignAccessFromRecord,
+  getCampaignDisplayName,
+} from "@/lib/campaign-access";
+import {
   buildSubredditRows,
   MIN_VISIBLE_LEAD_SCORE,
   summarizeSubredditRows,
@@ -23,15 +28,26 @@ export default async function CampaignAnalyticsPage({
 
   const { id } = await params;
   const campaign = await prisma.campaign.findFirst({
-    where: {
-      id,
+    where: buildAccessibleCampaignWhere({
+      campaignId: id,
+      email: session.user.email,
       userId: session.user.id,
-    },
+    }),
     select: {
       id: true,
+      userId: true,
       name: true,
       description: true,
       subreddits: true,
+      clientAccesses: {
+        where: {
+          normalizedEmail: String(session.user.email ?? "").trim().toLowerCase(),
+        },
+        select: {
+          displayName: true,
+          normalizedEmail: true,
+        },
+      },
       leads: {
         where: {
           ai: {
@@ -59,9 +75,20 @@ export default async function CampaignAnalyticsPage({
     notFound();
   }
 
+  const access = getCampaignAccessFromRecord({
+    campaign,
+    email: session.user.email,
+    userId: session.user.id,
+  });
+
+  if (!access) {
+    notFound();
+  }
+
   const sync = await reconcileCampaignSyncState(campaign.id);
   const rows = buildSubredditRows(campaign.subreddits, campaign.leads);
   const summary = summarizeSubredditRows(rows);
+  const displayName = getCampaignDisplayName(campaign, access);
 
   return (
     <SubredditAnalyticsReport
@@ -89,7 +116,7 @@ export default async function CampaignAnalyticsPage({
       eyebrow="Campaign analytics"
       rows={rows}
       summary={summary}
-      title={campaign.name}
+      title={displayName}
     />
   );
 }

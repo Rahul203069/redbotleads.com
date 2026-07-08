@@ -6,6 +6,11 @@ import { Prisma } from "../generated/prisma/client";
 
 import { auth } from "@/lib/auth";
 import { BETA_OWNER_ONLY_MESSAGE, isOwnerEmail } from "@/lib/beta-access";
+import {
+  buildAccessibleCampaignWhere,
+  canEditCampaignDescription,
+  getCampaignAccessFromRecord,
+} from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
 import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
@@ -28,6 +33,11 @@ const createCampaignSchema = z.object({
   recentDays: z.coerce.number().int().min(1, "Recent window must be at least 1 day.").max(10, "Recent window must be 10 days or less."),
   minScoreToAlert: z.coerce.number().int().min(1, "Min score must be at least 1.").max(100, "Min score must be 100 or less."),
   isActive: z.boolean(),
+});
+
+const campaignDescriptionSchema = z.object({
+  campaignId: z.string().trim().min(1, "Campaign ID is missing."),
+  description: z.string().trim().max(4000, "Description must be 4,000 characters or less.").optional(),
 });
 
 export type CampaignActionState = {
@@ -560,6 +570,100 @@ export async function manualSyncCampaign(formData: FormData): Promise<CampaignAc
   };
 }
 
+export async function updateCampaignDescription(formData: FormData): Promise<CampaignActionState> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to update a campaign.",
+    };
+  }
+
+  const parsed = campaignDescriptionSchema.safeParse({
+    campaignId: formData.get("campaignId"),
+    description: formData.get("description"),
+  });
+
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0]?.message ?? "Review the campaign description and try again.";
+
+    return {
+      status: "error",
+      message: firstError,
+      fieldErrors: {
+        description: firstError,
+      },
+    };
+  }
+
+  const campaign = await prisma.campaign.findFirst({
+    where: buildAccessibleCampaignWhere({
+      campaignId: parsed.data.campaignId,
+      email: session.user.email,
+      userId: session.user.id,
+    }),
+    select: {
+      id: true,
+      name: true,
+      userId: true,
+      clientAccesses: {
+        where: {
+          normalizedEmail: String(session.user.email ?? "").trim().toLowerCase(),
+        },
+        select: {
+          displayName: true,
+          normalizedEmail: true,
+        },
+      },
+    },
+  });
+
+  const access = campaign
+    ? getCampaignAccessFromRecord({
+        campaign,
+        email: session.user.email,
+        userId: session.user.id,
+      })
+    : null;
+
+  if (!campaign || !canEditCampaignDescription(access)) {
+    return {
+      status: "error",
+      message: "Campaign not found.",
+    };
+  }
+
+  try {
+    await prisma.campaign.update({
+      where: {
+        id: campaign.id,
+      },
+      data: {
+        description: parsed.data.description || null,
+      },
+    });
+  } catch (error) {
+    console.error("Campaign description update failed", error);
+
+    return {
+      status: "error",
+      message: error instanceof Error ? `Save failed: ${error.message}` : "Save failed while updating the campaign description.",
+    };
+  }
+
+  revalidatePath("/app");
+  revalidatePath("/campaigns");
+  revalidatePath(`/campaigns/${campaign.id}`);
+  revalidatePath(`/campaigns/${campaign.id}/analytics`);
+  revalidatePath(`/campaigns/${campaign.id}/daily-leads`);
+
+  return {
+    status: "success",
+    message: "Campaign description updated.",
+  };
+}
+
 export async function deleteCampaign(formData: FormData): Promise<CampaignActionState> {
   const session = await auth();
 
@@ -629,7 +733,10 @@ export async function getCampaignSyncStatuses(campaignIds: string[]) {
 
   const accessibleCampaigns = await prisma.campaign.findMany({
     where: {
-      userId: session.user.id,
+      ...buildAccessibleCampaignWhere({
+        email: session.user.email,
+        userId: session.user.id,
+      }),
       id: {
         in: campaignIds,
       },
@@ -694,6 +801,7 @@ export async function getCampaignLeads(
           to: selection.range.to,
         }),
     userId: session.user.id,
+    email: session.user.email,
   });
 }
 
@@ -746,10 +854,11 @@ export async function getCampaignInitialRssDiagnostics(campaignId: string): Prom
   }
 
   const campaign = await prisma.campaign.findFirst({
-    where: {
-      id: campaignId,
+    where: buildAccessibleCampaignWhere({
+      campaignId,
+      email: session.user.email,
       userId: session.user.id,
-    },
+    }),
     select: {
       id: true,
     },

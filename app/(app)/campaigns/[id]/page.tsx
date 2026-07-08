@@ -6,12 +6,19 @@ import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
+import { EditCampaignDescriptionDialog } from "@/components/campaigns/edit-campaign-description-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
 import { canViewAnalytics } from "@/lib/beta-access";
+import {
+  buildAccessibleCampaignWhere,
+  canManageCampaign,
+  getCampaignAccessFromRecord,
+  getCampaignDisplayName,
+} from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
@@ -60,11 +67,21 @@ export default async function CampaignDetailPage({
   };
 
   const campaign = await prisma.campaign.findFirst({
-    where: {
-      id,
+    where: buildAccessibleCampaignWhere({
+      campaignId: id,
+      email: session.user.email,
       userId: session.user.id,
-    },
+    }),
     include: {
+      clientAccesses: {
+        where: {
+          normalizedEmail: String(session.user.email ?? "").trim().toLowerCase(),
+        },
+        select: {
+          displayName: true,
+          normalizedEmail: true,
+        },
+      },
       leads: {
         orderBy: {
           createdAt: "desc",
@@ -101,6 +118,19 @@ export default async function CampaignDetailPage({
   if (!campaign) {
     notFound();
   }
+
+  const access = getCampaignAccessFromRecord({
+    campaign,
+    email: session.user.email,
+    userId: session.user.id,
+  });
+
+  if (!access) {
+    notFound();
+  }
+
+  const displayName = getCampaignDisplayName(campaign, access);
+  const canManage = canManageCampaign(access);
 
   const sync = await reconcileCampaignSyncState(campaign.id);
   const latestSemanticRun = await prisma.campaignRun.findFirst({
@@ -140,8 +170,9 @@ export default async function CampaignDetailPage({
       : {
           from: leadDateSelection.range.from,
           to: leadDateSelection.range.to,
-        }),
+    }),
     userId: session.user.id,
+    email: session.user.email,
   });
   const initialDiagnostics = await getCampaignInitialRssDiagnostics(campaign.id);
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
@@ -186,30 +217,36 @@ export default async function CampaignDetailPage({
               </Link>
               <CopyPublicCampaignLinkButton campaignId={campaign.id} />
               {isAdminAccount ? <CopyPublicCampaignLinkButton campaignId={campaign.id} kind="leads" /> : null}
-              <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={campaign.name} />
+              <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
               <ScheduledProcessingPill isActive={campaign.isActive} />
-              <EditCampaignDialog
-                campaign={{
-                  id: campaign.id,
-                  name: campaign.name,
-                  leadType: campaign.leadType,
-                  description: campaign.description,
-                  keywords: campaign.keywords,
-                  negativeKeywords: campaign.negativeKeywords,
-                  subreddits: campaign.subreddits,
-                  recentDays: campaign.recentDays,
-                  minScoreToAlert: campaign.minScoreToAlert,
-                  isActive: campaign.isActive,
-                }}
-              />
-              <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
+              {canManage ? (
+                <>
+                  <EditCampaignDialog
+                    campaign={{
+                      id: campaign.id,
+                      name: campaign.name,
+                      leadType: campaign.leadType,
+                      description: campaign.description,
+                      keywords: campaign.keywords,
+                      negativeKeywords: campaign.negativeKeywords,
+                      subreddits: campaign.subreddits,
+                      recentDays: campaign.recentDays,
+                      minScoreToAlert: campaign.minScoreToAlert,
+                      isActive: campaign.isActive,
+                    }}
+                  />
+                  <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
+                </>
+              ) : (
+                <EditCampaignDescriptionDialog campaignId={campaign.id} description={campaign.description} />
+              )}
             </div>
           </div>
 
           <div className="flex flex-col gap-5">
             <div className="min-w-0 max-w-3xl">
               <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
-                {campaign.name}
+                {displayName}
               </h1>
               <p className="mt-3 max-w-[60ch] text-[15px] leading-6 text-[#cbcbcb] sm:truncate">
                 {campaign.description || "No campaign description added yet."}

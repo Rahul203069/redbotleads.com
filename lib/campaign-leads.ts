@@ -1,6 +1,7 @@
 import { Prisma } from "../generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import type { DailyLeadDateRangeValue } from "@/lib/daily-leads-analytics";
 
 export const PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE = 50;
@@ -36,22 +37,25 @@ type NormalizedBuyerStage = NonNullable<CampaignLeadView["ai"]>["buyerStage"];
 export async function getCampaignLeadViewsForUser({
   campaignId,
   dateRanges,
+  email,
   from,
   to,
   userId,
 }: {
   campaignId: string;
   dateRanges?: DailyLeadDateRangeValue[];
+  email?: string | null;
   from?: Date;
   to?: Date;
   userId: string;
 }): Promise<CampaignLeadView[]> {
   const leadDateWhere = buildLeadDateWhere({ dateRanges, from, to });
   const campaign = await prisma.campaign.findFirst({
-    where: {
-      id: campaignId,
+    where: buildAccessibleCampaignWhere({
+      campaignId,
+      email,
       userId,
-    },
+    }),
     select: {
       leads: {
         where: {

@@ -393,6 +393,7 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
+  CampaignClientAccess: 'CampaignClientAccess',
   CampaignRun: 'CampaignRun',
   CronRun: 'CronRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
@@ -427,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignClientAccess" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1094,6 +1095,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CampaignCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CampaignCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignClientAccess: {
+      payload: Prisma.$CampaignClientAccessPayload<ExtArgs>
+      fields: Prisma.CampaignClientAccessFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignClientAccessFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignClientAccessFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignClientAccessFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignClientAccessFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignClientAccessFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignClientAccessCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignClientAccessCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignClientAccessCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignClientAccessDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>
+        }
+        update: {
+          args: Prisma.CampaignClientAccessUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignClientAccessDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignClientAccessUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignClientAccessUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignClientAccessUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientAccessPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignClientAccessAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignClientAccess>
+        }
+        groupBy: {
+          args: Prisma.CampaignClientAccessGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignClientAccessGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignClientAccessCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignClientAccessCountAggregateOutputType> | number
         }
       }
     }
@@ -2673,6 +2748,21 @@ export const CampaignScalarFieldEnum = {
 export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
 
 
+export const CampaignClientAccessScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  email: 'email',
+  normalizedEmail: 'normalizedEmail',
+  displayName: 'displayName',
+  userId: 'userId',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignClientAccessScalarFieldEnum = (typeof CampaignClientAccessScalarFieldEnum)[keyof typeof CampaignClientAccessScalarFieldEnum]
+
+
 export const CampaignRunScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -3490,6 +3580,7 @@ export type GlobalOmitConfig = {
   verificationToken?: Prisma.VerificationTokenOmit
   redditAccount?: Prisma.RedditAccountOmit
   campaign?: Prisma.CampaignOmit
+  campaignClientAccess?: Prisma.CampaignClientAccessOmit
   campaignRun?: Prisma.CampaignRunOmit
   cronRun?: Prisma.CronRunOmit
   campaignInitialRssPollEvent?: Prisma.CampaignInitialRssPollEventOmit

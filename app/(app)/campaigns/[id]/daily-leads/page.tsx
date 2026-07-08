@@ -7,6 +7,11 @@ import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semanti
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import {
+  buildAccessibleCampaignWhere,
+  getCampaignAccessFromRecord,
+  getCampaignDisplayName,
+} from "@/lib/campaign-access";
+import {
   type DailyLeadDateRange,
   type DailyLeadSemanticStatusFilter,
   getDailyLeadAnalytics,
@@ -39,18 +44,39 @@ export default async function CampaignDailyLeadsPage({
 
   const { id } = await params;
   const campaign = await prisma.campaign.findFirst({
-    where: {
-      id,
+    where: buildAccessibleCampaignWhere({
+      campaignId: id,
+      email: session.user.email,
       userId: session.user.id,
-    },
+    }),
     select: {
       id: true,
+      userId: true,
       name: true,
       description: true,
+      clientAccesses: {
+        where: {
+          normalizedEmail: String(session.user.email ?? "").trim().toLowerCase(),
+        },
+        select: {
+          displayName: true,
+          normalizedEmail: true,
+        },
+      },
     },
   });
 
   if (!campaign) {
+    notFound();
+  }
+
+  const access = getCampaignAccessFromRecord({
+    campaign,
+    email: session.user.email,
+    userId: session.user.id,
+  });
+
+  if (!access) {
     notFound();
   }
 
@@ -64,8 +90,22 @@ export default async function CampaignDailyLeadsPage({
     page,
     semanticStatus,
     to: range.to,
-    userId: session.user.id,
   });
+  const displayName = getCampaignDisplayName(campaign, access);
+  const displayAnalytics = {
+    ...analytics,
+    campaignRuns: analytics.campaignRuns.map((run) => ({
+      ...run,
+      campaign: {
+        ...run.campaign,
+        name: displayName,
+      },
+    })),
+    rows: analytics.rows.map((row) => ({
+      ...row,
+      campaignName: displayName,
+    })),
+  };
 
   return (
     <div className="space-y-5 text-[#ffffff]">
@@ -73,7 +113,7 @@ export default async function CampaignDailyLeadsPage({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#b3b3b3]">Daily leads</p>
-            <h1 className="mt-3 text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.6rem]">{campaign.name}</h1>
+            <h1 className="mt-3 text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.6rem]">{displayName}</h1>
             <p className="mt-3 max-w-[72ch] text-[15px] leading-6 text-[#cbcbcb]">
               {campaign.description || "Daily semantic filtering, AI scoring, and notification results for this campaign."}
             </p>
@@ -104,7 +144,7 @@ export default async function CampaignDailyLeadsPage({
       </section>
 
       <DailyLeadsReport
-        analytics={analytics}
+        analytics={displayAnalytics}
         pageHref={(targetPage) =>
           buildCampaignDailyLeadsHref({
             campaignId: campaign.id,

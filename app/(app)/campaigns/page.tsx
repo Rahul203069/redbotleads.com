@@ -5,6 +5,11 @@ import { CampaignList } from "@/components/campaigns/campaign-list";
 import { CampaignWizard } from "@/components/campaigns/campaign-wizard";
 import { auth } from "@/lib/auth";
 import { isOwnerEmail } from "@/lib/beta-access";
+import {
+  buildAccessibleCampaignWhere,
+  getCampaignAccessFromRecord,
+  getCampaignDisplayName,
+} from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
 
 export default async function CampaignsPage() {
@@ -15,10 +20,20 @@ export default async function CampaignsPage() {
   }
 
   const campaigns = await prisma.campaign.findMany({
-    where: {
+    where: buildAccessibleCampaignWhere({
+      email: session.user.email,
       userId: session.user.id,
-    },
+    }),
     include: {
+      clientAccesses: {
+        where: {
+          normalizedEmail: String(session.user.email ?? "").trim().toLowerCase(),
+        },
+        select: {
+          displayName: true,
+          normalizedEmail: true,
+        },
+      },
       leads: {
         select: {
           label: true,
@@ -113,10 +128,16 @@ export default async function CampaignsPage() {
             <CampaignList
               campaigns={campaigns.map((campaign) => {
                 const classifiedLeads = campaign.leads.filter((lead) => lead.ai !== null);
+                const access = getCampaignAccessFromRecord({
+                  campaign,
+                  email: session.user.email,
+                  userId: session.user.id,
+                });
 
                 return {
                   id: campaign.id,
-                  name: campaign.name,
+                  name: getCampaignDisplayName(campaign, access),
+                  accessRole: access?.role ?? "OWNER",
                   leadType: campaign.leadType,
                   isActive: campaign.isActive,
                   description: campaign.description,

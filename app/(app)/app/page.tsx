@@ -2,6 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
+import {
+  buildAccessibleCampaignWhere,
+  getCampaignAccessFromRecord,
+  getCampaignDisplayName,
+} from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
@@ -20,14 +25,25 @@ export default async function AppHomePage() {
 
   const [campaigns, recentStrongLeads] = await Promise.all([
     prisma.campaign.findMany({
-      where: {
+      where: buildAccessibleCampaignWhere({
+        email: session.user.email,
         userId: session.user.id,
-      },
+      }),
       select: {
         id: true,
+        userId: true,
         name: true,
         isActive: true,
         updatedAt: true,
+        clientAccesses: {
+          where: {
+            normalizedEmail: String(session.user.email ?? "").trim().toLowerCase(),
+          },
+          select: {
+            displayName: true,
+            normalizedEmail: true,
+          },
+        },
         sync: {
           select: {
             status: true,
@@ -55,7 +71,10 @@ export default async function AppHomePage() {
     }),
     prisma.lead.findMany({
       where: {
-        userId: session.user.id,
+        campaign: buildAccessibleCampaignWhere({
+          email: session.user.email,
+          userId: session.user.id,
+        }),
         score: {
           gt: STRONG_LEAD_SCORE,
         },
@@ -70,7 +89,17 @@ export default async function AppHomePage() {
         campaign: {
           select: {
             id: true,
+            userId: true,
             name: true,
+            clientAccesses: {
+              where: {
+                normalizedEmail: String(session.user.email ?? "").trim().toLowerCase(),
+              },
+              select: {
+                displayName: true,
+                normalizedEmail: true,
+              },
+            },
           },
         },
         ai: {
@@ -110,6 +139,11 @@ export default async function AppHomePage() {
   const upcomingSyncs = campaigns
     .filter((campaign) => campaign.isActive)
     .map((campaign) => {
+      const access = getCampaignAccessFromRecord({
+        campaign,
+        email: session.user.email,
+        userId: session.user.id,
+      });
       const lastSyncSource =
         campaign.sync?.completedAt ??
         campaign.sync?.failedAt ??
@@ -119,7 +153,7 @@ export default async function AppHomePage() {
 
       return {
         id: campaign.id,
-        name: campaign.name,
+        name: getCampaignDisplayName(campaign, access),
         nextSyncAt: new Date(lastSyncSource.getTime() + DAY_IN_MS),
         status: campaign.sync?.status ?? "IDLE",
       };
@@ -128,17 +162,36 @@ export default async function AppHomePage() {
     .slice(0, 4);
 
   const topCampaigns = campaigns
-    .map((campaign) => ({
-      id: campaign.id,
-      name: campaign.name,
-      strongLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score > STRONG_LEAD_SCORE).length,
-      visibleLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE).length,
-    }))
+    .map((campaign) => {
+      const access = getCampaignAccessFromRecord({
+        campaign,
+        email: session.user.email,
+        userId: session.user.id,
+      });
+
+      return {
+        id: campaign.id,
+        name: getCampaignDisplayName(campaign, access),
+        strongLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score > STRONG_LEAD_SCORE).length,
+        visibleLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE).length,
+      };
+    })
     .sort(
       (left, right) =>
         right.strongLeadCount - left.strongLeadCount || right.visibleLeadCount - left.visibleLeadCount,
     )
     .slice(0, 4);
+  const recentStrongLeadViews = recentStrongLeads.map((lead) => ({
+    ...lead,
+    campaignDisplayName: getCampaignDisplayName(
+      lead.campaign,
+      getCampaignAccessFromRecord({
+        campaign: lead.campaign,
+        email: session.user.email,
+        userId: session.user.id,
+      }),
+    ),
+  }));
 
   return (
     <div className="space-y-5">
@@ -230,11 +283,11 @@ export default async function AppHomePage() {
           description="Latest high-intent leads that already cleared the visible score threshold."
           title="Recent strong leads"
         >
-          {recentStrongLeads.length === 0 ? (
+          {recentStrongLeadViews.length === 0 ? (
             <EmptyCopy text="No strong leads yet. Once high-scoring matches land, they will appear here." />
           ) : (
             <div className="space-y-3">
-              {recentStrongLeads.map((lead) => (
+              {recentStrongLeadViews.map((lead) => (
                 <div
                   key={lead.id}
                   className="rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
@@ -245,7 +298,7 @@ export default async function AppHomePage() {
                         {lead.redditItem.title || `Lead from r/${lead.redditItem.subreddit}`}
                       </p>
                       <p className="mt-1 text-[12px] uppercase tracking-[0.18em] text-[#b3b3b3]">
-                        {lead.campaign.name} / r/{lead.redditItem.subreddit}
+                        {lead.campaignDisplayName} / r/{lead.redditItem.subreddit}
                       </p>
                     </div>
                     <span className="rounded-full bg-[#1f1f1f] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">

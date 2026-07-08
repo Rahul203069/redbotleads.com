@@ -46,6 +46,7 @@ export default async function PublicLeadsOnlyPage({
     },
     select: {
       id: true,
+      description: true,
       subreddits: true,
       updatedAt: true,
       sync: {
@@ -101,7 +102,10 @@ export default async function PublicLeadsOnlyPage({
           <h1 className="mt-5 text-[1.85rem] font-bold leading-tight text-[#fdfdfd] sm:text-[2.5rem] lg:text-[3rem]">
             Classified leads
           </h1>
-          <p className="mt-4 max-w-2xl text-[15px] leading-6 text-[#cbcbcb]">
+          <p className="mt-4 max-w-[70ch] text-[15px] leading-6 text-[#cbcbcb]">
+            {campaign.description || "No campaign description was added."}
+          </p>
+          <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#b3b3b3]">
             These Reddit items scored {PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE}+ and were classified by the LLM.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-white/8 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3] sm:gap-3 sm:tracking-[0.18em]">

@@ -2,7 +2,7 @@
 
 import { ClipboardPaste, Copy, Plus, Play, RotateCcw, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useMemo, useState, useTransition } from "react";
+import { type FormEvent, useMemo, useRef, useState, useTransition } from "react";
 
 import { startSemanticPlaygroundRun } from "@/app/(app)/admin/analytics/playground/actions";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,7 @@ export function SemanticPlaygroundForm({
   const router = useRouter();
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const activeSubmitSignatureRef = useRef<string | null>(null);
   const [campaignId, setCampaignId] = useState(selectedCampaignId ?? campaigns[0]?.id ?? "");
   const selectedCampaign = useMemo(
     () => campaigns.find((campaign) => campaign.id === campaignId) ?? null,
@@ -68,6 +69,8 @@ export function SemanticPlaygroundForm({
   const [threshold, setThreshold] = useState(String(defaultThreshold));
   const [bulkPasteOpen, setBulkPasteOpen] = useState(false);
   const [bulkPasteValue, setBulkPasteValue] = useState("");
+  const [activeSubmitSignature, setActiveSubmitSignature] = useState<string | null>(null);
+  const isSubmitPending = isPending || activeSubmitSignature !== null;
 
   function handleCampaignChange(nextCampaignId: string) {
     const nextCampaign = campaigns.find((campaign) => campaign.id === nextCampaignId) ?? null;
@@ -188,6 +191,25 @@ export function SemanticPlaygroundForm({
       return;
     }
 
+    const submitSignature = buildSubmitSignature({
+      campaignId,
+      fetchedFrom: fromIso,
+      fetchedTo: toIso,
+      queries: cleanedRows,
+      threshold,
+    });
+
+    if (activeSubmitSignatureRef.current === submitSignature) {
+      toast({
+        title: "Playground already starting",
+        description: "This exact test configuration is already being queued.",
+      });
+      return;
+    }
+
+    activeSubmitSignatureRef.current = submitSignature;
+    setActiveSubmitSignature(submitSignature);
+
     const formData = new FormData();
     formData.set("campaignId", campaignId);
     formData.set("fetchedFrom", fromIso);
@@ -196,24 +218,42 @@ export function SemanticPlaygroundForm({
     formData.set("queriesJson", JSON.stringify(cleanedRows));
 
     startTransition(async () => {
-      const result = await startSemanticPlaygroundRun(formData);
+      let navigatedToRun = false;
 
-      if (result.status === "success" && result.runId) {
+      try {
+        const result = await startSemanticPlaygroundRun(formData);
+
+        if (result.runId) {
+          toast({
+            title: result.status === "success" ? "Playground queued" : "Could not queue playground",
+            description: result.message,
+            variant: result.status === "success" ? undefined : "destructive",
+          });
+          navigatedToRun = true;
+          router.push(`/admin/analytics/playground?campaignId=${encodeURIComponent(campaignId)}&runId=${encodeURIComponent(result.runId)}`);
+          router.refresh();
+          return;
+        }
+
         toast({
-          title: "Playground queued",
+          title: "Could not start playground",
           description: result.message,
+          variant: "destructive",
         });
-        router.push(`/admin/analytics/playground?campaignId=${encodeURIComponent(campaignId)}&runId=${encodeURIComponent(result.runId)}`);
         router.refresh();
-        return;
+      } catch (error) {
+        toast({
+          title: "Could not start playground",
+          description: error instanceof Error ? error.message : "The playground request failed.",
+          variant: "destructive",
+        });
+        router.refresh();
+      } finally {
+        if (!navigatedToRun) {
+          activeSubmitSignatureRef.current = null;
+          setActiveSubmitSignature(null);
+        }
       }
-
-      toast({
-        title: "Could not start playground",
-        description: result.message,
-        variant: "destructive",
-      });
-      router.refresh();
     });
   }
 
@@ -305,14 +345,14 @@ export function SemanticPlaygroundForm({
                 />
               </label>
 
-              <Button
-                className="rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
-                disabled={isPending}
-                type="submit"
-              >
-                <Play className="h-4 w-4" />
-                {isPending ? "Queueing..." : "Run Playground"}
-              </Button>
+            <Button
+              className="rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
+              disabled={isSubmitPending}
+              type="submit"
+            >
+              <Play className="h-4 w-4" />
+              {isSubmitPending ? "Queueing..." : "Run Playground"}
+            </Button>
             </div>
           </div>
         </section>
@@ -566,6 +606,28 @@ function cleanQueryRows(rows: Array<{ category?: unknown; text?: unknown; queryT
   }
 
   return cleanedRows;
+}
+
+function buildSubmitSignature({
+  campaignId,
+  fetchedFrom,
+  fetchedTo,
+  queries,
+  threshold,
+}: {
+  campaignId: string;
+  fetchedFrom: string;
+  fetchedTo: string;
+  queries: CleanQuery[];
+  threshold: string;
+}) {
+  return JSON.stringify({
+    campaignId,
+    fetchedFrom,
+    fetchedTo,
+    queries,
+    threshold: threshold.trim(),
+  });
 }
 
 async function copyTextToClipboard(text: string) {

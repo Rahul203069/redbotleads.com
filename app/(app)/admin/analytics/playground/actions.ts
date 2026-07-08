@@ -18,6 +18,11 @@ const playgroundQuerySchema = z.object({
   text: z.string().trim().min(3).max(MAX_QUERY_LENGTH),
 });
 
+type ParsedPlaygroundQuery = {
+  category: string | null;
+  text: string;
+};
+
 export type StartSemanticPlaygroundRunResult = {
   status: "success" | "error";
   message: string;
@@ -86,43 +91,110 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
     };
   }
 
-  const run = await prisma.campaignSemanticPlaygroundRun.create({
-    data: {
+  const runRequest = await prisma.$transaction(async (tx) => {
+    const configSignature = buildPlaygroundRunSignature({
       campaignId: campaign.id,
       fetchedFrom,
       fetchedTo,
-      querySnapshot: {
-        campaignName: campaign.name,
-        queries: parsedQueries,
-      } as Prisma.InputJsonValue,
-      queries: {
-        create: parsedQueries.map((query) => ({
-          category: query.category || null,
-          queryText: query.text,
-        })),
-      },
-      statsJson: {
-        totalQueries: parsedQueries.length,
-      } as Prisma.InputJsonValue,
-      status: "QUEUED",
+      queries: parsedQueries,
       threshold,
       userId: session.user.id,
-    },
-    select: {
-      id: true,
-    },
+    });
+
+    await tx.$executeRaw(
+      Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${configSignature})::bigint)`,
+    );
+
+    const activeRuns = await tx.campaignSemanticPlaygroundRun.findMany({
+      where: {
+        campaignId: campaign.id,
+        fetchedFrom,
+        fetchedTo,
+        status: {
+          in: ["QUEUED", "PROCESSING"],
+        },
+        threshold,
+        userId: session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        queries: {
+          orderBy: {
+            createdAt: "asc",
+          },
+          select: {
+            category: true,
+            queryText: true,
+          },
+        },
+      },
+    });
+    const duplicateRun = activeRuns.find((run) => querySetsMatch(run.queries, parsedQueries));
+
+    if (duplicateRun) {
+      return {
+        id: duplicateRun.id,
+        reusedExistingRun: true,
+      };
+    }
+
+    const run = await tx.campaignSemanticPlaygroundRun.create({
+      data: {
+        campaignId: campaign.id,
+        fetchedFrom,
+        fetchedTo,
+        querySnapshot: {
+          campaignName: campaign.name,
+          queries: parsedQueries,
+        } as Prisma.InputJsonValue,
+        queries: {
+          create: parsedQueries.map((query) => ({
+            category: query.category,
+            queryText: query.text,
+          })),
+        },
+        statsJson: {
+          totalQueries: parsedQueries.length,
+        } as Prisma.InputJsonValue,
+        status: "QUEUED",
+        threshold,
+        userId: session.user.id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return {
+      id: run.id,
+      reusedExistingRun: false,
+    };
   });
+
+  if (runRequest.reusedExistingRun) {
+    revalidatePath("/admin/analytics");
+    revalidatePath("/admin/analytics/playground");
+
+    return {
+      status: "success",
+      message: "A matching playground run is already queued or processing.",
+      runId: runRequest.id,
+    };
+  }
 
   try {
     await enqueueSemanticPlaygroundRun({
-      runId: run.id,
+      runId: runRequest.id,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "The playground job could not be added to the queue.";
 
     await prisma.campaignSemanticPlaygroundRun.update({
       where: {
-        id: run.id,
+        id: runRequest.id,
       },
       data: {
         error: message,
@@ -131,10 +203,13 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
       },
     });
 
+    revalidatePath("/admin/analytics");
+    revalidatePath("/admin/analytics/playground");
+
     return {
       status: "error",
       message: `Playground run was saved but queueing failed: ${message}`,
-      runId: run.id,
+      runId: runRequest.id,
     };
   }
 
@@ -144,7 +219,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
   return {
     status: "success",
     message: `Playground run queued for ${campaign.name}.`,
-    runId: run.id,
+    runId: runRequest.id,
   };
 }
 
@@ -158,7 +233,7 @@ function normalizeThreshold(value: FormDataEntryValue | null) {
   return Math.min(1, Math.max(0, parsed));
 }
 
-function parseQueries(value: FormDataEntryValue | null) {
+function parseQueries(value: FormDataEntryValue | null): ParsedPlaygroundQuery[] {
   if (typeof value !== "string" || !value.trim()) {
     return [];
   }
@@ -179,14 +254,67 @@ function parseQueries(value: FormDataEntryValue | null) {
 
   const seen = new Set<string>();
 
-  return result.data.filter((query) => {
-    const key = query.text.trim().toLowerCase();
+  return result.data
+    .map((query) => ({
+      category: normalizeQueryCategory(query.category),
+      text: query.text.trim(),
+    }))
+    .filter((query) => {
+      const key = query.text.toLowerCase();
 
-    if (seen.has(key)) {
-      return false;
-    }
+      if (seen.has(key)) {
+        return false;
+      }
 
-    seen.add(key);
-    return true;
+      seen.add(key);
+      return true;
+    });
+}
+
+function buildPlaygroundRunSignature({
+  campaignId,
+  fetchedFrom,
+  fetchedTo,
+  queries,
+  threshold,
+  userId,
+}: {
+  campaignId: string;
+  fetchedFrom: Date;
+  fetchedTo: Date;
+  queries: ParsedPlaygroundQuery[];
+  threshold: number;
+  userId: string;
+}) {
+  return JSON.stringify({
+    campaignId,
+    fetchedFrom: fetchedFrom.toISOString(),
+    fetchedTo: fetchedTo.toISOString(),
+    queries,
+    threshold,
+    userId,
   });
+}
+
+function querySetsMatch(
+  storedQueries: Array<{ category: string | null; queryText: string }>,
+  inputQueries: ParsedPlaygroundQuery[],
+) {
+  if (storedQueries.length !== inputQueries.length) {
+    return false;
+  }
+
+  return storedQueries.every((query, index) => {
+    const inputQuery = inputQueries[index];
+
+    return (
+      normalizeQueryCategory(query.category) === inputQuery.category
+      && query.queryText.trim() === inputQuery.text
+    );
+  });
+}
+
+function normalizeQueryCategory(value: string | null | undefined) {
+  const category = value?.trim() ?? "";
+  return category.length > 0 ? category : null;
 }

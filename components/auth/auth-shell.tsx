@@ -70,7 +70,7 @@ export function AuthShell({ error, mode }: AuthShellProps) {
         <div className="grid w-full items-center gap-12 lg:grid-cols-[1fr_440px]">
           <section className="space-y-8">
             <div className="inline-flex w-fit items-center">
-              <BrandLogo className="text-4xl font-semibold tracking-[-0.08em] sm:text-5xl" />
+              <BrandLogo className="text-4xl font-semibold tracking-[-0.08em] sm:text-5xl" showMark />
             </div>
 
             <div className="max-w-xl space-y-5">

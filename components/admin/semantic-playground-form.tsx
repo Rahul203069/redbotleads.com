@@ -153,95 +153,97 @@ export function SemanticPlaygroundForm({
 
   return (
     <form className="grid gap-5 xl:grid-cols-[0.8fr_1.25fr]" onSubmit={handleSubmit}>
-      <section className="rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5">
-        <div className="border-b border-[#27272a] pb-4">
+      <section className="flex max-h-[72dvh] min-h-0 flex-col overflow-hidden rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5 xl:max-h-[calc(100dvh-7rem)]">
+        <div className="shrink-0 border-b border-[#27272a] pb-4">
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Campaign</p>
           <h2 className="mt-2 text-[17px] font-bold text-[#ffffff]">Test target</h2>
         </div>
 
-        <div className="grid gap-4 pt-4">
-          <label className="grid gap-2">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Campaign</span>
-            <select
-              className="h-11 w-full rounded-xl border border-[#27272a] bg-[#09090b] px-3 text-sm text-[#fafafa] outline-none transition-colors focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10"
-              onChange={(event) => handleCampaignChange(event.target.value)}
-              value={campaignId}
-            >
-              {campaigns.map((campaign) => (
-                <option key={campaign.id} value={campaign.id}>
-                  {campaign.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          {selectedCampaign ? (
-            <div className="rounded-[18px] bg-[#121212] p-4 text-[13px] leading-5 text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusPill label={selectedCampaign.leadType.toLowerCase()} />
-                <StatusPill label={selectedCampaign.isActive ? "active" : "paused"} />
-                <StatusPill label={`${selectedCampaign.semanticQueries.length} queries`} />
-              </div>
-              <p className="mt-3 text-[#b3b3b3]">{selectedCampaign.description || "No campaign description."}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {selectedCampaign.subreddits.slice(0, 8).map((subreddit) => (
-                  <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]" key={subreddit}>
-                    r/{subreddit}
-                  </span>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+          <div className="grid gap-4 pt-4">
+            <label className="grid gap-2">
+              <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Campaign</span>
+              <select
+                className="h-11 w-full rounded-xl border border-[#27272a] bg-[#09090b] px-3 text-sm text-[#fafafa] outline-none transition-colors focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10"
+                onChange={(event) => handleCampaignChange(event.target.value)}
+                value={campaignId}
+              >
+                {campaigns.map((campaign) => (
+                  <option key={campaign.id} value={campaign.id}>
+                    {campaign.name}
+                  </option>
                 ))}
-                {selectedCampaign.subreddits.length > 8 ? (
-                  <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]">
-                    +{selectedCampaign.subreddits.length - 8}
-                  </span>
-                ) : null}
+              </select>
+            </label>
+
+            {selectedCampaign ? (
+              <div className="rounded-[18px] bg-[#121212] p-4 text-[13px] leading-5 text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusPill label={selectedCampaign.leadType.toLowerCase()} />
+                  <StatusPill label={selectedCampaign.isActive ? "active" : "paused"} />
+                  <StatusPill label={`${selectedCampaign.semanticQueries.length} queries`} />
+                </div>
+                <p className="mt-3 text-[#b3b3b3]">{selectedCampaign.description || "No campaign description."}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {selectedCampaign.subreddits.slice(0, 8).map((subreddit) => (
+                    <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]" key={subreddit}>
+                      r/{subreddit}
+                    </span>
+                  ))}
+                  {selectedCampaign.subreddits.length > 8 ? (
+                    <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]">
+                      +{selectedCampaign.subreddits.length - 8}
+                    </span>
+                  ) : null}
+                </div>
               </div>
+            ) : null}
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-2">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Fetched from</span>
+                <Input
+                  onChange={(event) => setFetchedFrom(event.target.value)}
+                  type="datetime-local"
+                  value={fetchedFrom}
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Fetched to</span>
+                <Input
+                  onChange={(event) => setFetchedTo(event.target.value)}
+                  type="datetime-local"
+                  value={fetchedTo}
+                />
+              </label>
             </div>
-          ) : null}
 
-          <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-2">
-              <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Fetched from</span>
+              <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Minimum semantic score</span>
               <Input
-                onChange={(event) => setFetchedFrom(event.target.value)}
-                type="datetime-local"
-                value={fetchedFrom}
+                max="1"
+                min="0"
+                onChange={(event) => setThreshold(event.target.value)}
+                step="0.01"
+                type="number"
+                value={threshold}
               />
             </label>
-            <label className="grid gap-2">
-              <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Fetched to</span>
-              <Input
-                onChange={(event) => setFetchedTo(event.target.value)}
-                type="datetime-local"
-                value={fetchedTo}
-              />
-            </label>
+
+            <Button
+              className="rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
+              disabled={isPending}
+              type="submit"
+            >
+              <Play className="h-4 w-4" />
+              {isPending ? "Queueing..." : "Run Playground"}
+            </Button>
           </div>
-
-          <label className="grid gap-2">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Minimum semantic score</span>
-            <Input
-              max="1"
-              min="0"
-              onChange={(event) => setThreshold(event.target.value)}
-              step="0.01"
-              type="number"
-              value={threshold}
-            />
-          </label>
-
-          <Button
-            className="rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
-            disabled={isPending}
-            type="submit"
-          >
-            <Play className="h-4 w-4" />
-            {isPending ? "Queueing..." : "Run Playground"}
-          </Button>
         </div>
       </section>
 
-      <section className="rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5">
-        <div className="flex flex-col gap-3 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <section className="flex max-h-[72dvh] min-h-0 flex-col overflow-hidden rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5 xl:max-h-[calc(100dvh-7rem)]">
+        <div className="flex shrink-0 flex-col gap-3 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Draft queries</p>
             <h2 className="mt-2 text-[17px] font-bold text-[#ffffff]">Semantic test set</h2>
@@ -258,7 +260,7 @@ export function SemanticPlaygroundForm({
           </div>
         </div>
 
-        <div className="grid gap-3 pt-4">
+        <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain pt-4 pr-1">
           {rows.map((row, index) => (
             <div className="rounded-[18px] bg-[#121212] p-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]" key={row.id}>
               <div className="grid gap-3 md:grid-cols-[1fr_180px_auto] md:items-start">

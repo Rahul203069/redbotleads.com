@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowLeft, FlaskConical } from "lucide-react";
 
 import { SemanticPlaygroundForm } from "@/components/admin/semantic-playground-form";
+import { SemanticPlaygroundResults } from "@/components/admin/semantic-playground-results";
 import { SemanticPlaygroundRunRefresher } from "@/components/admin/semantic-playground-run-refresher";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
@@ -212,14 +213,14 @@ export default async function AdminSemanticPlaygroundPage({
       />
 
       {recentRuns.length > 0 ? (
-        <section className="rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5">
-          <div className="flex flex-col gap-3 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="flex max-h-[54dvh] min-h-0 flex-col overflow-hidden rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5">
+          <div className="flex shrink-0 flex-col gap-3 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">History</p>
               <h2 className="mt-2 text-[17px] font-bold text-[#ffffff]">Recent playground runs</h2>
             </div>
           </div>
-          <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 grid min-h-0 flex-1 gap-2 overflow-y-auto overscroll-contain pr-1 md:grid-cols-2 xl:grid-cols-4">
             {recentRuns.map((run) => (
               <Link
                 className={`rounded-[16px] border px-4 py-3 transition-colors ${
@@ -272,9 +273,9 @@ export default async function AdminSemanticPlaygroundPage({
           </div>
 
           <div className="mt-5 grid gap-5 xl:grid-cols-[0.75fr_1.25fr]">
-            <div className="rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Run queries</p>
-              <div className="mt-4 grid gap-3">
+            <div className="flex max-h-[60dvh] min-h-0 flex-col overflow-hidden rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] xl:max-h-[calc(100dvh-12rem)]">
+              <p className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Run queries</p>
+              <div className="mt-4 grid min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain pr-1">
                 {selectedRun.queries.map((query, index) => (
                   <div className="rounded-[14px] bg-[#1f1f1f] p-3" key={query.id}>
                     <div className="flex flex-wrap items-center gap-2">
@@ -291,141 +292,22 @@ export default async function AdminSemanticPlaygroundPage({
               </div>
             </div>
 
-            <div className="rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-              <div className="flex flex-col gap-2 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Results</p>
-                  <h3 className="mt-2 text-[17px] font-bold text-[#ffffff]">Matched Reddit posts</h3>
-                </div>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
-                  Showing {selectedRun.results.length} of {getStat(runStats, "semanticMatches")}
-                </span>
-              </div>
-
-              <div className="mt-4 grid gap-3">
-                {selectedRun.results.length === 0 ? (
-                  <div className="rounded-[16px] border border-dashed border-[#3f3f46] p-5 text-[13px] leading-5 text-[#b3b3b3]">
-                    {isRunActive ? "The playground run is still processing." : "No Reddit posts matched this query set and threshold."}
-                  </div>
-                ) : (
-                  selectedRun.results.map((result) => <ResultCard key={result.id} result={result} />)
-                )}
-              </div>
-            </div>
+            <SemanticPlaygroundResults
+              isRunActive={isRunActive}
+              results={selectedRun.results.map((result) => ({
+                ...result,
+                redditItem: {
+                  ...result.redditItem,
+                  createdUtc: result.redditItem.createdUtc.toISOString(),
+                  fetchedAt: result.redditItem.fetchedAt.toISOString(),
+                },
+              }))}
+              totalMatches={getStat(runStats, "semanticMatches")}
+            />
           </div>
         </section>
       ) : null}
     </div>
-  );
-}
-
-function ResultCard({
-  result,
-}: {
-  result: {
-    bestQueryText: string | null;
-    bestScore: number;
-    buyerStage: string | null;
-    category: string | null;
-    classificationStatus: string;
-    disqualifier: string | null;
-    error: string | null;
-    intentType: string | null;
-    label: string | null;
-    model: string | null;
-    painPoints: string[];
-    redditItem: {
-      author: string | null;
-      body: string | null;
-      createdUtc: Date;
-      description: string | null;
-      fetchedAt: Date;
-      subreddit: string;
-      title: string | null;
-      url: string | null;
-    };
-    score: number | null;
-    summary: string | null;
-  };
-}) {
-  const sourceText = getSourcePreview(result.redditItem.body, result.redditItem.description);
-
-  return (
-    <article className="rounded-[16px] bg-[#1f1f1f] p-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusPill label={`semantic ${result.bestScore.toFixed(3)}`} tone="good" />
-            <StatusPill label={result.classificationStatus.toLowerCase()} tone={statusTone(result.classificationStatus)} />
-            {result.label ? <StatusPill label={result.label.toLowerCase()} tone={result.label === "HIGH" ? "good" : "neutral"} /> : null}
-            {result.category ? <StatusPill label={result.category} tone="neutral" /> : null}
-          </div>
-
-          <h4 className="mt-3 text-[15px] font-bold leading-6 text-[#ffffff] [overflow-wrap:anywhere]">
-            {result.redditItem.title || sourceText || "Untitled Reddit post"}
-          </h4>
-          <div className="mt-2 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
-            <span>r/{result.redditItem.subreddit}</span>
-            <span>Fetched {formatDate(result.redditItem.fetchedAt)}</span>
-            <span>Posted {formatDate(result.redditItem.createdUtc)}</span>
-            {result.intentType ? <span>{formatEnum(result.intentType)}</span> : null}
-            {result.buyerStage ? <span>{formatEnum(result.buyerStage)}</span> : null}
-          </div>
-
-          {result.bestQueryText ? (
-            <div className="mt-4 rounded-[14px] bg-[#121212] p-3 text-[13px] leading-5 text-[#cbcbcb]">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">Matched query</span>
-              <p className="mt-2">{result.bestQueryText}</p>
-            </div>
-          ) : null}
-
-          {result.summary ? (
-            <p className="mt-4 text-[14px] leading-6 text-[#cbcbcb]">{result.summary}</p>
-          ) : null}
-
-          {result.disqualifier ? (
-            <p className="mt-3 text-[13px] leading-5 text-[#f2c94c]">{result.disqualifier}</p>
-          ) : null}
-
-          {result.error ? (
-            <p className="mt-3 rounded-[14px] bg-[#3a151b] px-3 py-2 text-[13px] leading-5 text-[#ff9aa5]">
-              {result.error}
-            </p>
-          ) : null}
-
-          {result.painPoints.length > 0 ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {result.painPoints.map((point) => (
-                <span className="rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]" key={point}>
-                  {point}
-                </span>
-              ))}
-            </div>
-          ) : null}
-
-          {sourceText ? <p className="mt-4 text-[13px] leading-5 text-[#b3b3b3]">{sourceText}</p> : null}
-
-          {result.redditItem.url ? (
-            <Link
-              className="mt-4 inline-flex min-h-9 items-center rounded-full bg-[#1ed760] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-colors hover:bg-[#3be477]"
-              href={result.redditItem.url}
-              rel="noreferrer"
-              target="_blank"
-            >
-              View on Reddit
-            </Link>
-          ) : null}
-        </div>
-
-        <div className="w-full rounded-[16px] bg-[#121212] px-4 py-3 text-left shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-auto sm:min-w-[104px] sm:text-right">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">LLM score</div>
-          <div className="mt-2 text-[30px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">
-            {result.score ?? "-"}
-          </div>
-          {result.model ? <div className="mt-2 text-[10px] text-[#b3b3b3]">{result.model}</div> : null}
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -491,18 +373,4 @@ function formatDate(value: Date) {
 
 function formatDateRange(from: Date, to: Date) {
   return `${formatDate(from)} - ${formatDate(to)}`;
-}
-
-function formatEnum(value: string) {
-  return value.toLowerCase().replace(/_/g, " ");
-}
-
-function getSourcePreview(body: string | null, description: string | null) {
-  const content = (body?.trim() || description?.trim() || "").replace(/\s+/g, " ").trim();
-
-  if (content.length <= 360) {
-    return content;
-  }
-
-  return `${content.slice(0, 357)}...`;
 }

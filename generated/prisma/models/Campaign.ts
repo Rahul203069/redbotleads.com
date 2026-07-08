@@ -297,6 +297,7 @@ export type CampaignWhereInput = {
   runs?: Prisma.CampaignRunListRelationFilter
   aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventListRelationFilter
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunListRelationFilter
 }
 
 export type CampaignOrderByWithRelationInput = {
@@ -324,6 +325,7 @@ export type CampaignOrderByWithRelationInput = {
   runs?: Prisma.CampaignRunOrderByRelationAggregateInput
   aiUsageEvents?: Prisma.AiUsageEventOrderByRelationAggregateInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventOrderByRelationAggregateInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunOrderByRelationAggregateInput
 }
 
 export type CampaignWhereUniqueInput = Prisma.AtLeast<{
@@ -354,6 +356,7 @@ export type CampaignWhereUniqueInput = Prisma.AtLeast<{
   runs?: Prisma.CampaignRunListRelationFilter
   aiUsageEvents?: Prisma.AiUsageEventListRelationFilter
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventListRelationFilter
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunListRelationFilter
 }, "id">
 
 export type CampaignOrderByWithAggregationInput = {
@@ -423,6 +426,7 @@ export type CampaignCreateInput = {
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateInput = {
@@ -448,6 +452,7 @@ export type CampaignUncheckedCreateInput = {
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUpdateInput = {
@@ -473,6 +478,7 @@ export type CampaignUpdateInput = {
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateInput = {
@@ -498,6 +504,7 @@ export type CampaignUncheckedUpdateInput = {
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateManyInput = {
@@ -815,6 +822,20 @@ export type CampaignUpdateOneRequiredWithoutSemanticQueriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutSemanticQueriesInput, Prisma.CampaignUpdateWithoutSemanticQueriesInput>, Prisma.CampaignUncheckedUpdateWithoutSemanticQueriesInput>
 }
 
+export type CampaignCreateNestedOneWithoutSemanticPlaygroundRunsInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticPlaygroundRunsInput, Prisma.CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutSemanticPlaygroundRunsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+}
+
+export type CampaignUpdateOneRequiredWithoutSemanticPlaygroundRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticPlaygroundRunsInput, Prisma.CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutSemanticPlaygroundRunsInput
+  upsert?: Prisma.CampaignUpsertWithoutSemanticPlaygroundRunsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutSemanticPlaygroundRunsInput, Prisma.CampaignUpdateWithoutSemanticPlaygroundRunsInput>, Prisma.CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput>
+}
+
 export type CampaignCreateNestedOneWithoutDailySemanticScansInput = {
   create?: Prisma.XOR<Prisma.CampaignCreateWithoutDailySemanticScansInput, Prisma.CampaignUncheckedCreateWithoutDailySemanticScansInput>
   connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutDailySemanticScansInput
@@ -879,6 +900,7 @@ export type CampaignCreateWithoutUserInput = {
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutUserInput = {
@@ -903,6 +925,7 @@ export type CampaignUncheckedCreateWithoutUserInput = {
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutUserInput = {
@@ -974,6 +997,7 @@ export type CampaignCreateWithoutRedditAccountInput = {
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutRedditAccountInput = {
@@ -998,6 +1022,7 @@ export type CampaignUncheckedCreateWithoutRedditAccountInput = {
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutRedditAccountInput = {
@@ -1048,6 +1073,7 @@ export type CampaignCreateWithoutRunsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutRunsInput = {
@@ -1072,6 +1098,7 @@ export type CampaignUncheckedCreateWithoutRunsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutRunsInput = {
@@ -1112,6 +1139,7 @@ export type CampaignUpdateWithoutRunsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutRunsInput = {
@@ -1136,6 +1164,7 @@ export type CampaignUncheckedUpdateWithoutRunsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutInitialRssPollEventsInput = {
@@ -1160,6 +1189,7 @@ export type CampaignCreateWithoutInitialRssPollEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignInput
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutInitialRssPollEventsInput = {
@@ -1184,6 +1214,7 @@ export type CampaignUncheckedCreateWithoutInitialRssPollEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignInput
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutInitialRssPollEventsInput = {
@@ -1224,6 +1255,7 @@ export type CampaignUpdateWithoutInitialRssPollEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignNestedInput
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutInitialRssPollEventsInput = {
@@ -1248,6 +1280,7 @@ export type CampaignUncheckedUpdateWithoutInitialRssPollEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutAiUsageEventsInput = {
@@ -1272,6 +1305,7 @@ export type CampaignCreateWithoutAiUsageEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignInput
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutAiUsageEventsInput = {
@@ -1296,6 +1330,7 @@ export type CampaignUncheckedCreateWithoutAiUsageEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignInput
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutAiUsageEventsInput = {
@@ -1336,6 +1371,7 @@ export type CampaignUpdateWithoutAiUsageEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignNestedInput
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutAiUsageEventsInput = {
@@ -1360,6 +1396,7 @@ export type CampaignUncheckedUpdateWithoutAiUsageEventsInput = {
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutSemanticQueriesInput = {
@@ -1384,6 +1421,7 @@ export type CampaignCreateWithoutSemanticQueriesInput = {
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutSemanticQueriesInput = {
@@ -1408,6 +1446,7 @@ export type CampaignUncheckedCreateWithoutSemanticQueriesInput = {
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutSemanticQueriesInput = {
@@ -1448,6 +1487,7 @@ export type CampaignUpdateWithoutSemanticQueriesInput = {
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutSemanticQueriesInput = {
@@ -1468,6 +1508,123 @@ export type CampaignUncheckedUpdateWithoutSemanticQueriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
   sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignCreateWithoutSemanticPlaygroundRunsInput = {
+  id?: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignsInput
+  redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
+  leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
+  id?: string
+  userId: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  redditAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignCreateOrConnectWithoutSemanticPlaygroundRunsInput = {
+  where: Prisma.CampaignWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticPlaygroundRunsInput, Prisma.CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput>
+}
+
+export type CampaignUpsertWithoutSemanticPlaygroundRunsInput = {
+  update: Prisma.XOR<Prisma.CampaignUpdateWithoutSemanticPlaygroundRunsInput, Prisma.CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput>
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutSemanticPlaygroundRunsInput, Prisma.CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput>
+  where?: Prisma.CampaignWhereInput
+}
+
+export type CampaignUpdateToOneWithWhereWithoutSemanticPlaygroundRunsInput = {
+  where?: Prisma.CampaignWhereInput
+  data: Prisma.XOR<Prisma.CampaignUpdateWithoutSemanticPlaygroundRunsInput, Prisma.CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput>
+}
+
+export type CampaignUpdateWithoutSemanticPlaygroundRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
+  redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  redditAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
@@ -1496,6 +1653,7 @@ export type CampaignCreateWithoutDailySemanticScansInput = {
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutDailySemanticScansInput = {
@@ -1520,6 +1678,7 @@ export type CampaignUncheckedCreateWithoutDailySemanticScansInput = {
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutDailySemanticScansInput = {
@@ -1560,6 +1719,7 @@ export type CampaignUpdateWithoutDailySemanticScansInput = {
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutDailySemanticScansInput = {
@@ -1584,6 +1744,7 @@ export type CampaignUncheckedUpdateWithoutDailySemanticScansInput = {
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutSyncInput = {
@@ -1608,6 +1769,7 @@ export type CampaignCreateWithoutSyncInput = {
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutSyncInput = {
@@ -1632,6 +1794,7 @@ export type CampaignUncheckedCreateWithoutSyncInput = {
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutSyncInput = {
@@ -1672,6 +1835,7 @@ export type CampaignUpdateWithoutSyncInput = {
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutSyncInput = {
@@ -1696,6 +1860,7 @@ export type CampaignUncheckedUpdateWithoutSyncInput = {
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutLeadsInput = {
@@ -1720,6 +1885,7 @@ export type CampaignCreateWithoutLeadsInput = {
   runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutLeadsInput = {
@@ -1744,6 +1910,7 @@ export type CampaignUncheckedCreateWithoutLeadsInput = {
   runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutLeadsInput = {
@@ -1784,6 +1951,7 @@ export type CampaignUpdateWithoutLeadsInput = {
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutLeadsInput = {
@@ -1808,6 +1976,7 @@ export type CampaignUncheckedUpdateWithoutLeadsInput = {
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateManyUserInput = {
@@ -1849,6 +2018,7 @@ export type CampaignUpdateWithoutUserInput = {
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutUserInput = {
@@ -1873,6 +2043,7 @@ export type CampaignUncheckedUpdateWithoutUserInput = {
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateManyWithoutUserInput = {
@@ -1931,6 +2102,7 @@ export type CampaignUpdateWithoutRedditAccountInput = {
   runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
@@ -1955,6 +2127,7 @@ export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
   runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
   aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
   initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateManyWithoutRedditAccountInput = {
@@ -1986,6 +2159,7 @@ export type CampaignCountOutputType = {
   runs: number
   aiUsageEvents: number
   initialRssPollEvents: number
+  semanticPlaygroundRuns: number
 }
 
 export type CampaignCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1995,6 +2169,7 @@ export type CampaignCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   runs?: boolean | CampaignCountOutputTypeCountRunsArgs
   aiUsageEvents?: boolean | CampaignCountOutputTypeCountAiUsageEventsArgs
   initialRssPollEvents?: boolean | CampaignCountOutputTypeCountInitialRssPollEventsArgs
+  semanticPlaygroundRuns?: boolean | CampaignCountOutputTypeCountSemanticPlaygroundRunsArgs
 }
 
 /**
@@ -2049,6 +2224,13 @@ export type CampaignCountOutputTypeCountInitialRssPollEventsArgs<ExtArgs extends
   where?: Prisma.CampaignInitialRssPollEventWhereInput
 }
 
+/**
+ * CampaignCountOutputType without action
+ */
+export type CampaignCountOutputTypeCountSemanticPlaygroundRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignSemanticPlaygroundRunWhereInput
+}
+
 
 export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2075,6 +2257,7 @@ export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   runs?: boolean | Prisma.Campaign$runsArgs<ExtArgs>
   aiUsageEvents?: boolean | Prisma.Campaign$aiUsageEventsArgs<ExtArgs>
   initialRssPollEvents?: boolean | Prisma.Campaign$initialRssPollEventsArgs<ExtArgs>
+  semanticPlaygroundRuns?: boolean | Prisma.Campaign$semanticPlaygroundRunsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["campaign"]>
 
@@ -2147,6 +2330,7 @@ export type CampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   runs?: boolean | Prisma.Campaign$runsArgs<ExtArgs>
   aiUsageEvents?: boolean | Prisma.Campaign$aiUsageEventsArgs<ExtArgs>
   initialRssPollEvents?: boolean | Prisma.Campaign$initialRssPollEventsArgs<ExtArgs>
+  semanticPlaygroundRuns?: boolean | Prisma.Campaign$semanticPlaygroundRunsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CampaignIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2170,6 +2354,7 @@ export type $CampaignPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     runs: Prisma.$CampaignRunPayload<ExtArgs>[]
     aiUsageEvents: Prisma.$AiUsageEventPayload<ExtArgs>[]
     initialRssPollEvents: Prisma.$CampaignInitialRssPollEventPayload<ExtArgs>[]
+    semanticPlaygroundRuns: Prisma.$CampaignSemanticPlaygroundRunPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2590,6 +2775,7 @@ export interface Prisma__CampaignClient<T, Null = never, ExtArgs extends runtime
   runs<T extends Prisma.Campaign$runsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$runsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   aiUsageEvents<T extends Prisma.Campaign$aiUsageEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$aiUsageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiUsageEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   initialRssPollEvents<T extends Prisma.Campaign$initialRssPollEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$initialRssPollEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignInitialRssPollEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  semanticPlaygroundRuns<T extends Prisma.Campaign$semanticPlaygroundRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$semanticPlaygroundRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignSemanticPlaygroundRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3209,6 +3395,30 @@ export type Campaign$initialRssPollEventsArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.CampaignInitialRssPollEventScalarFieldEnum | Prisma.CampaignInitialRssPollEventScalarFieldEnum[]
+}
+
+/**
+ * Campaign.semanticPlaygroundRuns
+ */
+export type Campaign$semanticPlaygroundRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignSemanticPlaygroundRun
+   */
+  select?: Prisma.CampaignSemanticPlaygroundRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignSemanticPlaygroundRun
+   */
+  omit?: Prisma.CampaignSemanticPlaygroundRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignSemanticPlaygroundRunInclude<ExtArgs> | null
+  where?: Prisma.CampaignSemanticPlaygroundRunWhereInput
+  orderBy?: Prisma.CampaignSemanticPlaygroundRunOrderByWithRelationInput | Prisma.CampaignSemanticPlaygroundRunOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignSemanticPlaygroundRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignSemanticPlaygroundRunScalarFieldEnum | Prisma.CampaignSemanticPlaygroundRunScalarFieldEnum[]
 }
 
 /**

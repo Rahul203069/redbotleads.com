@@ -1,0 +1,508 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { ArrowLeft, FlaskConical } from "lucide-react";
+
+import { SemanticPlaygroundForm } from "@/components/admin/semantic-playground-form";
+import { SemanticPlaygroundRunRefresher } from "@/components/admin/semantic-playground-run-refresher";
+import { auth } from "@/lib/auth";
+import { canViewAnalytics } from "@/lib/beta-access";
+import { prisma } from "@/lib/prisma";
+import { semanticMatchThreshold } from "@/worker/config";
+
+type SearchParams = {
+  campaignId?: string;
+  runId?: string;
+};
+
+const MAX_DISPLAYED_RESULTS = 250;
+
+export default async function AdminSemanticPlaygroundPage({
+  searchParams,
+}: {
+  searchParams?: Promise<SearchParams> | SearchParams;
+}) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  if (!canViewAnalytics(session.user.email)) {
+    redirect("/app");
+  }
+
+  const params = await Promise.resolve(searchParams ?? {});
+  const campaigns = await prisma.campaign.findMany({
+    select: {
+      id: true,
+      name: true,
+      leadType: true,
+      description: true,
+      isActive: true,
+      subreddits: true,
+      semanticQueries: {
+        select: {
+          id: true,
+          queryText: true,
+          category: true,
+        },
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
+      updatedAt: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+  const selectedCampaignId =
+    campaigns.find((campaign) => campaign.id === params.campaignId)?.id
+    ?? campaigns[0]?.id
+    ?? null;
+  const defaultFetchedTo = new Date();
+  const defaultFetchedFrom = new Date(defaultFetchedTo.getTime() - 24 * 60 * 60 * 1000);
+  const recentRuns = selectedCampaignId
+    ? await prisma.campaignSemanticPlaygroundRun.findMany({
+        where: {
+          campaignId: selectedCampaignId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 8,
+        select: {
+          id: true,
+          status: true,
+          threshold: true,
+          fetchedFrom: true,
+          fetchedTo: true,
+          createdAt: true,
+          statsJson: true,
+        },
+      })
+    : [];
+  const selectedRunId = params.runId ?? recentRuns[0]?.id ?? null;
+  const selectedRun = selectedRunId
+    ? await prisma.campaignSemanticPlaygroundRun.findFirst({
+        where: {
+          id: selectedRunId,
+          ...(selectedCampaignId
+            ? {
+                campaignId: selectedCampaignId,
+              }
+            : {}),
+        },
+        select: {
+          id: true,
+          status: true,
+          threshold: true,
+          fetchedFrom: true,
+          fetchedTo: true,
+          createdAt: true,
+          queuedAt: true,
+          startedAt: true,
+          completedAt: true,
+          failedAt: true,
+          error: true,
+          statsJson: true,
+          campaign: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          queries: {
+            select: {
+              id: true,
+              queryText: true,
+              category: true,
+            },
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
+          results: {
+            select: {
+              id: true,
+              bestScore: true,
+              bestQueryText: true,
+              classificationStatus: true,
+              score: true,
+              label: true,
+              intentType: true,
+              buyerStage: true,
+              category: true,
+              summary: true,
+              painPoints: true,
+              disqualifier: true,
+              error: true,
+              model: true,
+              redditItem: {
+                select: {
+                  id: true,
+                  subreddit: true,
+                  title: true,
+                  description: true,
+                  body: true,
+                  author: true,
+                  url: true,
+                  fetchedAt: true,
+                  createdUtc: true,
+                },
+              },
+            },
+            orderBy: {
+              bestScore: "desc",
+            },
+            take: MAX_DISPLAYED_RESULTS,
+          },
+        },
+      })
+    : null;
+  const runStats = getStats(selectedRun?.statsJson);
+  const isRunActive = selectedRun?.status === "QUEUED" || selectedRun?.status === "PROCESSING";
+
+  return (
+    <div className="space-y-5 text-[#ffffff]">
+      <SemanticPlaygroundRunRefresher active={isRunActive} />
+
+      <section className="rounded-[24px] bg-[#181818] px-5 py-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:px-6 lg:py-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-3xl">
+            <Link
+              className="inline-flex min-h-9 items-center gap-2 rounded-full bg-[#121212] px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] hover:text-[#ffffff]"
+              href="/admin/analytics"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Admin
+            </Link>
+            <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Admin analytics</p>
+            <h1 className="mt-2 flex items-center gap-3 text-[1.85rem] font-bold text-[#ffffff] lg:text-[2.2rem]">
+              <FlaskConical className="h-7 w-7 text-[#1ed760]" />
+              Playground
+            </h1>
+            <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
+              Test draft semantic queries against already embedded Reddit posts without changing campaign queries, leads, or daily semantic reports.
+            </p>
+          </div>
+          <div className="grid gap-2 rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:grid-cols-3 lg:min-w-[420px]">
+            <Metric compact label="Campaigns" value={String(campaigns.length)} />
+            <Metric compact label="Default min score" value={semanticMatchThreshold.toFixed(2)} />
+            <Metric compact label="Recent runs" value={String(recentRuns.length)} />
+          </div>
+        </div>
+      </section>
+
+      <SemanticPlaygroundForm
+        campaigns={campaigns.map((campaign) => ({
+          id: campaign.id,
+          name: campaign.name,
+          leadType: campaign.leadType,
+          description: campaign.description,
+          isActive: campaign.isActive,
+          subreddits: campaign.subreddits,
+          semanticQueries: campaign.semanticQueries,
+        }))}
+        defaultFetchedFrom={defaultFetchedFrom.toISOString()}
+        defaultFetchedTo={defaultFetchedTo.toISOString()}
+        defaultThreshold={semanticMatchThreshold}
+        key={selectedCampaignId}
+        selectedCampaignId={selectedCampaignId}
+      />
+
+      {recentRuns.length > 0 ? (
+        <section className="rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5">
+          <div className="flex flex-col gap-3 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">History</p>
+              <h2 className="mt-2 text-[17px] font-bold text-[#ffffff]">Recent playground runs</h2>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+            {recentRuns.map((run) => (
+              <Link
+                className={`rounded-[16px] border px-4 py-3 transition-colors ${
+                  selectedRun?.id === run.id
+                    ? "border-[#1ed760]/40 bg-[#1f1f1f] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
+                    : "border-transparent bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#1f1f1f]"
+                }`}
+                href={`/admin/analytics/playground?campaignId=${encodeURIComponent(selectedCampaignId ?? "")}&runId=${encodeURIComponent(run.id)}`}
+                key={run.id}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <StatusPill label={run.status.toLowerCase()} tone={statusTone(run.status)} />
+                  <span className="text-[11px] font-semibold text-[#b3b3b3]">{formatDate(run.createdAt)}</span>
+                </div>
+                <p className="mt-3 text-[12px] leading-5 text-[#cbcbcb]">{formatDateRange(run.fetchedFrom, run.fetchedTo)}</p>
+                <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-[#b3b3b3]">
+                  {getStat(getStats(run.statsJson), "semanticMatches")} matches at {run.threshold.toFixed(2)}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {selectedRun ? (
+        <section className="rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5">
+          <div className="flex flex-col gap-4 border-b border-[#27272a] pb-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusPill label={selectedRun.status.toLowerCase()} tone={statusTone(selectedRun.status)} />
+                <StatusPill label={`min ${selectedRun.threshold.toFixed(2)}`} tone="neutral" />
+                <StatusPill label={`${selectedRun.queries.length} queries`} tone="neutral" />
+              </div>
+              <h2 className="mt-4 text-[22px] font-bold tracking-tight text-[#ffffff]">{selectedRun.campaign.name}</h2>
+              <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
+                {formatDateRange(selectedRun.fetchedFrom, selectedRun.fetchedTo)}
+              </p>
+              {selectedRun.error ? (
+                <p className="mt-3 rounded-[16px] bg-[#3a151b] px-4 py-3 text-[13px] leading-5 text-[#ff9aa5] shadow-[rgb(243,114,127)_0px_0px_0px_1px_inset]">
+                  {selectedRun.error}
+                </p>
+              ) : null}
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[460px]">
+              <Metric label="Candidates" value={String(getStat(runStats, "candidatePosts"))} />
+              <Metric label="Semantic matches" value={String(getStat(runStats, "semanticMatches"))} />
+              <Metric label="Classified" value={String(getStat(runStats, "classified"))} />
+              <Metric label="Failed" value={String(getStat(runStats, "classificationFailed"))} />
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-5 xl:grid-cols-[0.75fr_1.25fr]">
+            <div className="rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Run queries</p>
+              <div className="mt-4 grid gap-3">
+                {selectedRun.queries.map((query, index) => (
+                  <div className="rounded-[14px] bg-[#1f1f1f] p-3" key={query.id}>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1ed760]">Query {index + 1}</span>
+                      {query.category ? (
+                        <span className="rounded-full bg-[#121212] px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]">
+                          {query.category}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-2 text-[13px] leading-5 text-[#cbcbcb]">{query.queryText}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+              <div className="flex flex-col gap-2 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Results</p>
+                  <h3 className="mt-2 text-[17px] font-bold text-[#ffffff]">Matched Reddit posts</h3>
+                </div>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
+                  Showing {selectedRun.results.length} of {getStat(runStats, "semanticMatches")}
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-3">
+                {selectedRun.results.length === 0 ? (
+                  <div className="rounded-[16px] border border-dashed border-[#3f3f46] p-5 text-[13px] leading-5 text-[#b3b3b3]">
+                    {isRunActive ? "The playground run is still processing." : "No Reddit posts matched this query set and threshold."}
+                  </div>
+                ) : (
+                  selectedRun.results.map((result) => <ResultCard key={result.id} result={result} />)
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+function ResultCard({
+  result,
+}: {
+  result: {
+    bestQueryText: string | null;
+    bestScore: number;
+    buyerStage: string | null;
+    category: string | null;
+    classificationStatus: string;
+    disqualifier: string | null;
+    error: string | null;
+    intentType: string | null;
+    label: string | null;
+    model: string | null;
+    painPoints: string[];
+    redditItem: {
+      author: string | null;
+      body: string | null;
+      createdUtc: Date;
+      description: string | null;
+      fetchedAt: Date;
+      subreddit: string;
+      title: string | null;
+      url: string | null;
+    };
+    score: number | null;
+    summary: string | null;
+  };
+}) {
+  const sourceText = getSourcePreview(result.redditItem.body, result.redditItem.description);
+
+  return (
+    <article className="rounded-[16px] bg-[#1f1f1f] p-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusPill label={`semantic ${result.bestScore.toFixed(3)}`} tone="good" />
+            <StatusPill label={result.classificationStatus.toLowerCase()} tone={statusTone(result.classificationStatus)} />
+            {result.label ? <StatusPill label={result.label.toLowerCase()} tone={result.label === "HIGH" ? "good" : "neutral"} /> : null}
+            {result.category ? <StatusPill label={result.category} tone="neutral" /> : null}
+          </div>
+
+          <h4 className="mt-3 text-[15px] font-bold leading-6 text-[#ffffff] [overflow-wrap:anywhere]">
+            {result.redditItem.title || sourceText || "Untitled Reddit post"}
+          </h4>
+          <div className="mt-2 flex flex-wrap gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
+            <span>r/{result.redditItem.subreddit}</span>
+            <span>Fetched {formatDate(result.redditItem.fetchedAt)}</span>
+            <span>Posted {formatDate(result.redditItem.createdUtc)}</span>
+            {result.intentType ? <span>{formatEnum(result.intentType)}</span> : null}
+            {result.buyerStage ? <span>{formatEnum(result.buyerStage)}</span> : null}
+          </div>
+
+          {result.bestQueryText ? (
+            <div className="mt-4 rounded-[14px] bg-[#121212] p-3 text-[13px] leading-5 text-[#cbcbcb]">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">Matched query</span>
+              <p className="mt-2">{result.bestQueryText}</p>
+            </div>
+          ) : null}
+
+          {result.summary ? (
+            <p className="mt-4 text-[14px] leading-6 text-[#cbcbcb]">{result.summary}</p>
+          ) : null}
+
+          {result.disqualifier ? (
+            <p className="mt-3 text-[13px] leading-5 text-[#f2c94c]">{result.disqualifier}</p>
+          ) : null}
+
+          {result.error ? (
+            <p className="mt-3 rounded-[14px] bg-[#3a151b] px-3 py-2 text-[13px] leading-5 text-[#ff9aa5]">
+              {result.error}
+            </p>
+          ) : null}
+
+          {result.painPoints.length > 0 ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {result.painPoints.map((point) => (
+                <span className="rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]" key={point}>
+                  {point}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          {sourceText ? <p className="mt-4 text-[13px] leading-5 text-[#b3b3b3]">{sourceText}</p> : null}
+
+          {result.redditItem.url ? (
+            <Link
+              className="mt-4 inline-flex min-h-9 items-center rounded-full bg-[#1ed760] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-colors hover:bg-[#3be477]"
+              href={result.redditItem.url}
+              rel="noreferrer"
+              target="_blank"
+            >
+              View on Reddit
+            </Link>
+          ) : null}
+        </div>
+
+        <div className="w-full rounded-[16px] bg-[#121212] px-4 py-3 text-left shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-auto sm:min-w-[104px] sm:text-right">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">LLM score</div>
+          <div className="mt-2 text-[30px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">
+            {result.score ?? "-"}
+          </div>
+          {result.model ? <div className="mt-2 text-[10px] text-[#b3b3b3]">{result.model}</div> : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function Metric({ compact = false, label, value }: { compact?: boolean; label: string; value: string }) {
+  return (
+    <div className={`rounded-[16px] bg-[#1f1f1f] px-4 py-3 ${compact ? "bg-transparent px-0 py-0" : ""}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">{label}</p>
+      <p className="mt-2 text-[1.45rem] font-bold leading-none text-[#ffffff]">{value}</p>
+    </div>
+  );
+}
+
+function StatusPill({ label, tone }: { label: string; tone: "good" | "neutral" | "warn" | "bad" }) {
+  const className =
+    tone === "good"
+      ? "bg-[#12331f] text-[#73f5a0] shadow-[rgb(30,215,96)_0px_0px_0px_1px_inset]"
+      : tone === "warn"
+        ? "bg-[#3b2d10] text-[#ffd66e] shadow-[rgb(242,201,76)_0px_0px_0px_1px_inset]"
+        : tone === "bad"
+          ? "bg-[#3a151b] text-[#ff9aa5] shadow-[rgb(243,114,127)_0px_0px_0px_1px_inset]"
+          : "bg-[#1f1f1f] text-[#cbcbcb] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]";
+
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${className}`}>
+      {label}
+    </span>
+  );
+}
+
+function statusTone(status: string): "good" | "neutral" | "warn" | "bad" {
+  if (status === "COMPLETED" || status === "CLASSIFIED" || status === "HIGH") {
+    return "good";
+  }
+
+  if (status === "FAILED") {
+    return "bad";
+  }
+
+  if (status === "PROCESSING" || status === "QUEUED" || status === "PENDING") {
+    return "warn";
+  }
+
+  return "neutral";
+}
+
+function getStats(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+}
+
+function getStat(stats: Record<string, unknown>, key: string) {
+  const value = stats[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function formatDate(value: Date) {
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(value);
+}
+
+function formatDateRange(from: Date, to: Date) {
+  return `${formatDate(from)} - ${formatDate(to)}`;
+}
+
+function formatEnum(value: string) {
+  return value.toLowerCase().replace(/_/g, " ");
+}
+
+function getSourcePreview(body: string | null, description: string | null) {
+  const content = (body?.trim() || description?.trim() || "").replace(/\s+/g, " ").trim();
+
+  if (content.length <= 360) {
+    return content;
+  }
+
+  return `${content.slice(0, 357)}...`;
+}

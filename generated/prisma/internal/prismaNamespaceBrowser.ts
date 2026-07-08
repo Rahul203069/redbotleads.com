@@ -66,6 +66,9 @@ export const ModelName = {
   SubredditRssPollEvent: 'SubredditRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
+  CampaignSemanticPlaygroundRun: 'CampaignSemanticPlaygroundRun',
+  CampaignSemanticPlaygroundQuery: 'CampaignSemanticPlaygroundQuery',
+  CampaignSemanticPlaygroundResult: 'CampaignSemanticPlaygroundResult',
   CampaignDailySemanticScan: 'CampaignDailySemanticScan',
   CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
@@ -368,6 +371,68 @@ export const CampaignSemanticQueryScalarFieldEnum = {
 export type CampaignSemanticQueryScalarFieldEnum = (typeof CampaignSemanticQueryScalarFieldEnum)[keyof typeof CampaignSemanticQueryScalarFieldEnum]
 
 
+export const CampaignSemanticPlaygroundRunScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  status: 'status',
+  threshold: 'threshold',
+  fetchedFrom: 'fetchedFrom',
+  fetchedTo: 'fetchedTo',
+  querySnapshot: 'querySnapshot',
+  statsJson: 'statsJson',
+  error: 'error',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticPlaygroundRunScalarFieldEnum = (typeof CampaignSemanticPlaygroundRunScalarFieldEnum)[keyof typeof CampaignSemanticPlaygroundRunScalarFieldEnum]
+
+
+export const CampaignSemanticPlaygroundQueryScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  queryText: 'queryText',
+  category: 'category',
+  dimensions: 'dimensions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticPlaygroundQueryScalarFieldEnum = (typeof CampaignSemanticPlaygroundQueryScalarFieldEnum)[keyof typeof CampaignSemanticPlaygroundQueryScalarFieldEnum]
+
+
+export const CampaignSemanticPlaygroundResultScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  redditItemId: 'redditItemId',
+  bestScore: 'bestScore',
+  bestQueryId: 'bestQueryId',
+  bestQueryText: 'bestQueryText',
+  classificationStatus: 'classificationStatus',
+  score: 'score',
+  label: 'label',
+  intentType: 'intentType',
+  buyerStage: 'buyerStage',
+  category: 'category',
+  summary: 'summary',
+  painPoints: 'painPoints',
+  disqualifier: 'disqualifier',
+  model: 'model',
+  promptVersion: 'promptVersion',
+  error: 'error',
+  classifiedAt: 'classifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticPlaygroundResultScalarFieldEnum = (typeof CampaignSemanticPlaygroundResultScalarFieldEnum)[keyof typeof CampaignSemanticPlaygroundResultScalarFieldEnum]
+
+
 export const CampaignDailySemanticScanScalarFieldEnum = {
   id: 'id',
   campaignId: 'campaignId',
@@ -550,6 +615,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

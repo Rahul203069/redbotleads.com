@@ -17,6 +17,7 @@
     "worker:rss-polling": "tsx worker/rss-polling.ts",
     "worker:embedding": "tsx worker/embedding.ts",
     "worker:semantic": "tsx worker/semantic.ts",
+    "worker:semantic-playground": "tsx worker/semantic-playground.ts",
     "worker:classification": "tsx worker/classification.ts",
     "worker:notifications": "tsx worker/notifications.ts",
     "db:maintenance": "tsx worker/db-maintenance.ts --once",

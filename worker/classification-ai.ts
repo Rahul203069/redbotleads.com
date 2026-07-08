@@ -21,6 +21,8 @@ type ClassificationInput = {
   userId?: string | null;
   campaignId?: string | null;
   campaignRunId?: string | null;
+  usageMetadata?: Record<string, unknown>;
+  usageOperation?: string;
   campaign: {
     name: string;
     leadType: "PRODUCT" | "SERVICE";
@@ -77,7 +79,8 @@ export async function classifyLeadWithOpenAI(input: ClassificationInput): Promis
       userId: input.userId,
       campaignId: input.campaignId,
       campaignRunId: input.campaignRunId,
-      operation: "lead_classification",
+      operation: input.usageOperation ?? "lead_classification",
+      metadata: input.usageMetadata,
     },
   });
   const responseText = response.content;

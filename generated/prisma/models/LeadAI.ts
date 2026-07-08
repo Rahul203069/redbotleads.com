@@ -490,14 +490,6 @@ export type LeadAICreatepainPointsInput = {
   set: string[]
 }
 
-export type NullableEnumLeadIntentTypeFieldUpdateOperationsInput = {
-  set?: $Enums.LeadIntentType | null
-}
-
-export type NullableEnumBuyerStageFieldUpdateOperationsInput = {
-  set?: $Enums.BuyerStage | null
-}
-
 export type LeadAIUpdatepainPointsInput = {
   set?: string[]
   push?: string | string[]

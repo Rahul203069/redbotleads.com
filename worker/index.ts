@@ -15,6 +15,7 @@ import "./ingestion";
 import "./notifications";
 import "./rss-polling";
 import "./semantic";
+import "./semantic-playground";
 
 workerLogger.info(
   {

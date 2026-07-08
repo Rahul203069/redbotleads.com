@@ -8,6 +8,7 @@ export const ingestionQueueName = "ingestion";
 export const embeddingQueueName = "embedding";
 export const semanticQueueName = "semantic";
 export const dailySemanticQueueName = "daily-semantic";
+export const semanticPlaygroundQueueName = "semantic-playground";
 export const classificationQueueName = "classification";
 export const notificationsQueueName = "notifications";
 export const rssPollingQueueName = "rss-polling";
@@ -15,11 +16,13 @@ export const rssPollingQueueName = "rss-polling";
 export const initialIngestJobName = "INITIAL_INGEST";
 export const dailyIngestJobName = "DAILY_INGEST";
 export const dailySemanticCampaignJobName = "DAILY_SEMANTIC_CAMPAIGN";
+export const semanticPlaygroundRunJobName = "SEMANTIC_PLAYGROUND_RUN";
 export const pollSubredditRssJobName = "POLL_SUBREDDIT_RSS";
 export const matchCampaignRssPollRunJobName = "MATCH_CAMPAIGN_RSS_POLL_RUN";
 
 export type IngestionJobName = typeof initialIngestJobName | typeof dailyIngestJobName;
 export type DailySemanticJobName = typeof dailySemanticCampaignJobName;
+export type SemanticPlaygroundJobName = typeof semanticPlaygroundRunJobName;
 export type RssPollingJobName = typeof pollSubredditRssJobName | typeof matchCampaignRssPollRunJobName;
 export type EmbeddingJobName = "EMBED_LEAD" | "EMBED_LEAD_BATCH" | "EMBED_REDDIT_ITEM";
 export type SemanticJobName = "SEMANTIC_MATCH_LEAD" | "SEMANTIC_MATCH_REDDIT_ITEM";
@@ -43,6 +46,10 @@ export type DailySemanticCampaignJobData = {
   campaignRunId?: string;
   cronRunId?: string;
   queuedAt: string;
+};
+
+export type SemanticPlaygroundRunJobData = {
+  runId: string;
 };
 
 export type PollSubredditRssJobData = {
@@ -129,6 +136,10 @@ export const semanticQueue = new Queue(semanticQueueName, {
 });
 
 export const dailySemanticQueue = new Queue(dailySemanticQueueName, {
+  connection: workerRedisConnection,
+});
+
+export const semanticPlaygroundQueue = new Queue(semanticPlaygroundQueueName, {
   connection: workerRedisConnection,
 });
 
@@ -470,6 +481,18 @@ export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJo
     queuedAt: queuedAt.toISOString(),
   }, {
     jobId: buildJobId("daily-semantic", data.campaignId, queuedAt.toISOString().slice(0, 10)),
+    removeOnComplete: 500,
+    removeOnFail: 500,
+  });
+}
+
+export async function enqueueSemanticPlaygroundRun(data: SemanticPlaygroundRunJobData) {
+  if (!data.runId) {
+    throw new Error("Playground run id is required.");
+  }
+
+  return semanticPlaygroundQueue.add(semanticPlaygroundRunJobName, data, {
+    jobId: buildJobId("semantic-playground", data.runId),
     removeOnComplete: 500,
     removeOnFail: 500,
   });

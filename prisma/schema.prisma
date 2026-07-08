@@ -159,6 +159,7 @@ model User {
   campaignRuns   CampaignRun[]
   aiUsageEvents  AiUsageEvent[]
   telegramPairings TelegramPairing[]
+  semanticPlaygroundRuns CampaignSemanticPlaygroundRun[]
 }
 
 model TelegramPairing {
@@ -291,6 +292,7 @@ model Campaign {
   runs CampaignRun[]
   aiUsageEvents AiUsageEvent[]
   initialRssPollEvents CampaignInitialRssPollEvent[]
+  semanticPlaygroundRuns CampaignSemanticPlaygroundRun[]
 
   @@index([userId, isActive])
   @@index([redditAccountId])
@@ -495,6 +497,92 @@ model CampaignSemanticQuery {
   @@index([campaignId, createdAt(sort: Desc)])
 }
 
+model CampaignSemanticPlaygroundRun {
+  id         String @id @default(cuid())
+  userId     String
+  campaignId String
+
+  status    String @default("QUEUED")
+  threshold Float  @default(0.5)
+
+  fetchedFrom DateTime
+  fetchedTo   DateTime
+
+  querySnapshot Json
+  statsJson     Json?
+  error         String?
+
+  queuedAt    DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  failedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  queries CampaignSemanticPlaygroundQuery[]
+  results CampaignSemanticPlaygroundResult[]
+
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, updatedAt(sort: Desc)])
+}
+
+model CampaignSemanticPlaygroundQuery {
+  id    String @id @default(cuid())
+  runId String
+
+  queryText  String
+  category   String?
+  dimensions Int      @default(1536)
+  embedding  Unsupported("vector(1536)")?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  run CampaignSemanticPlaygroundRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+}
+
+model CampaignSemanticPlaygroundResult {
+  id           String @id @default(cuid())
+  runId        String
+  redditItemId String
+
+  bestScore     Float
+  bestQueryId   String?
+  bestQueryText String?
+
+  classificationStatus String @default("PENDING")
+  score                Int?
+  label                LeadLabel?
+  intentType           LeadIntentType?
+  buyerStage           BuyerStage?
+  category             String?
+  summary              String?
+  painPoints           String[] @default([])
+  disqualifier         String?
+  model                String?
+  promptVersion        String?
+  error                String?
+  classifiedAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  run        CampaignSemanticPlaygroundRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  redditItem RedditItem                     @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+
+  @@unique([runId, redditItemId])
+  @@index([runId, bestScore(sort: Desc)])
+  @@index([redditItemId])
+  @@index([classificationStatus, updatedAt(sort: Desc)])
+}
+
 model CampaignDailySemanticScan {
   id           String @id @default(cuid())
   campaignId   String
@@ -566,6 +654,7 @@ model RedditItem {
   leads Lead[]
   embedding RedditItemEmbedding?
   dailySemanticScans CampaignDailySemanticScan[]
+  semanticPlaygroundResults CampaignSemanticPlaygroundResult[]
 
   @@index([subreddit, createdUtc(sort: Desc)])
   @@index([createdUtc(sort: Desc)])

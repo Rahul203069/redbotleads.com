@@ -399,6 +399,9 @@ export const ModelName = {
   SubredditRssPollEvent: 'SubredditRssPollEvent',
   AiUsageEvent: 'AiUsageEvent',
   CampaignSemanticQuery: 'CampaignSemanticQuery',
+  CampaignSemanticPlaygroundRun: 'CampaignSemanticPlaygroundRun',
+  CampaignSemanticPlaygroundQuery: 'CampaignSemanticPlaygroundQuery',
+  CampaignSemanticPlaygroundResult: 'CampaignSemanticPlaygroundResult',
   CampaignDailySemanticScan: 'CampaignDailySemanticScan',
   CampaignSync: 'CampaignSync',
   RedditItem: 'RedditItem',
@@ -424,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1538,6 +1541,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CampaignSemanticPlaygroundRun: {
+      payload: Prisma.$CampaignSemanticPlaygroundRunPayload<ExtArgs>
+      fields: Prisma.CampaignSemanticPlaygroundRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignSemanticPlaygroundRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignSemanticPlaygroundRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignSemanticPlaygroundRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignSemanticPlaygroundRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignSemanticPlaygroundRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignSemanticPlaygroundRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignSemanticPlaygroundRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignSemanticPlaygroundRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignSemanticPlaygroundRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>
+        }
+        update: {
+          args: Prisma.CampaignSemanticPlaygroundRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignSemanticPlaygroundRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignSemanticPlaygroundRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignSemanticPlaygroundRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignSemanticPlaygroundRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundRunPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignSemanticPlaygroundRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignSemanticPlaygroundRun>
+        }
+        groupBy: {
+          args: Prisma.CampaignSemanticPlaygroundRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticPlaygroundRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignSemanticPlaygroundRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticPlaygroundRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignSemanticPlaygroundQuery: {
+      payload: Prisma.$CampaignSemanticPlaygroundQueryPayload<ExtArgs>
+      fields: Prisma.CampaignSemanticPlaygroundQueryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignSemanticPlaygroundQueryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignSemanticPlaygroundQueryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignSemanticPlaygroundQueryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignSemanticPlaygroundQueryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignSemanticPlaygroundQueryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignSemanticPlaygroundQueryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignSemanticPlaygroundQueryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignSemanticPlaygroundQueryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignSemanticPlaygroundQueryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>
+        }
+        update: {
+          args: Prisma.CampaignSemanticPlaygroundQueryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignSemanticPlaygroundQueryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignSemanticPlaygroundQueryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignSemanticPlaygroundQueryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignSemanticPlaygroundQueryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundQueryPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignSemanticPlaygroundQueryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignSemanticPlaygroundQuery>
+        }
+        groupBy: {
+          args: Prisma.CampaignSemanticPlaygroundQueryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticPlaygroundQueryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignSemanticPlaygroundQueryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticPlaygroundQueryCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignSemanticPlaygroundResult: {
+      payload: Prisma.$CampaignSemanticPlaygroundResultPayload<ExtArgs>
+      fields: Prisma.CampaignSemanticPlaygroundResultFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignSemanticPlaygroundResultFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignSemanticPlaygroundResultFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignSemanticPlaygroundResultFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignSemanticPlaygroundResultFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignSemanticPlaygroundResultFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignSemanticPlaygroundResultCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignSemanticPlaygroundResultCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignSemanticPlaygroundResultCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignSemanticPlaygroundResultDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>
+        }
+        update: {
+          args: Prisma.CampaignSemanticPlaygroundResultUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignSemanticPlaygroundResultDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignSemanticPlaygroundResultUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignSemanticPlaygroundResultUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignSemanticPlaygroundResultUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignSemanticPlaygroundResultPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignSemanticPlaygroundResultAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignSemanticPlaygroundResult>
+        }
+        groupBy: {
+          args: Prisma.CampaignSemanticPlaygroundResultGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticPlaygroundResultGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignSemanticPlaygroundResultCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignSemanticPlaygroundResultCountAggregateOutputType> | number
+        }
+      }
+    }
     CampaignDailySemanticScan: {
       payload: Prisma.$CampaignDailySemanticScanPayload<ExtArgs>
       fields: Prisma.CampaignDailySemanticScanFieldRefs
@@ -2591,6 +2816,68 @@ export const CampaignSemanticQueryScalarFieldEnum = {
 export type CampaignSemanticQueryScalarFieldEnum = (typeof CampaignSemanticQueryScalarFieldEnum)[keyof typeof CampaignSemanticQueryScalarFieldEnum]
 
 
+export const CampaignSemanticPlaygroundRunScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  status: 'status',
+  threshold: 'threshold',
+  fetchedFrom: 'fetchedFrom',
+  fetchedTo: 'fetchedTo',
+  querySnapshot: 'querySnapshot',
+  statsJson: 'statsJson',
+  error: 'error',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  failedAt: 'failedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticPlaygroundRunScalarFieldEnum = (typeof CampaignSemanticPlaygroundRunScalarFieldEnum)[keyof typeof CampaignSemanticPlaygroundRunScalarFieldEnum]
+
+
+export const CampaignSemanticPlaygroundQueryScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  queryText: 'queryText',
+  category: 'category',
+  dimensions: 'dimensions',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticPlaygroundQueryScalarFieldEnum = (typeof CampaignSemanticPlaygroundQueryScalarFieldEnum)[keyof typeof CampaignSemanticPlaygroundQueryScalarFieldEnum]
+
+
+export const CampaignSemanticPlaygroundResultScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  redditItemId: 'redditItemId',
+  bestScore: 'bestScore',
+  bestQueryId: 'bestQueryId',
+  bestQueryText: 'bestQueryText',
+  classificationStatus: 'classificationStatus',
+  score: 'score',
+  label: 'label',
+  intentType: 'intentType',
+  buyerStage: 'buyerStage',
+  category: 'category',
+  summary: 'summary',
+  painPoints: 'painPoints',
+  disqualifier: 'disqualifier',
+  model: 'model',
+  promptVersion: 'promptVersion',
+  error: 'error',
+  classifiedAt: 'classifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignSemanticPlaygroundResultScalarFieldEnum = (typeof CampaignSemanticPlaygroundResultScalarFieldEnum)[keyof typeof CampaignSemanticPlaygroundResultScalarFieldEnum]
+
+
 export const CampaignDailySemanticScanScalarFieldEnum = {
   id: 'id',
   campaignId: 'campaignId',
@@ -2773,6 +3060,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -2968,6 +3262,48 @@ export type ListEnumSubredditRssPollStatusFieldRefInput<$PrismaModel> = FieldRef
 
 
 /**
+ * Reference to a field of type 'LeadLabel'
+ */
+export type EnumLeadLabelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadLabel'>
+    
+
+
+/**
+ * Reference to a field of type 'LeadLabel[]'
+ */
+export type ListEnumLeadLabelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadLabel[]'>
+    
+
+
+/**
+ * Reference to a field of type 'LeadIntentType'
+ */
+export type EnumLeadIntentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadIntentType'>
+    
+
+
+/**
+ * Reference to a field of type 'LeadIntentType[]'
+ */
+export type ListEnumLeadIntentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadIntentType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'BuyerStage'
+ */
+export type EnumBuyerStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BuyerStage'>
+    
+
+
+/**
+ * Reference to a field of type 'BuyerStage[]'
+ */
+export type ListEnumBuyerStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BuyerStage[]'>
+    
+
+
+/**
  * Reference to a field of type 'CampaignDailySemanticScanStatus'
  */
 export type EnumCampaignDailySemanticScanStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignDailySemanticScanStatus'>
@@ -3024,20 +3360,6 @@ export type ListEnumRedditItemTypeFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
- * Reference to a field of type 'LeadLabel'
- */
-export type EnumLeadLabelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadLabel'>
-    
-
-
-/**
- * Reference to a field of type 'LeadLabel[]'
- */
-export type ListEnumLeadLabelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadLabel[]'>
-    
-
-
-/**
  * Reference to a field of type 'LeadStatus'
  */
 export type EnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadStatus'>
@@ -3048,34 +3370,6 @@ export type EnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'LeadStatus[]'
  */
 export type ListEnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'LeadIntentType'
- */
-export type EnumLeadIntentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadIntentType'>
-    
-
-
-/**
- * Reference to a field of type 'LeadIntentType[]'
- */
-export type ListEnumLeadIntentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadIntentType[]'>
-    
-
-
-/**
- * Reference to a field of type 'BuyerStage'
- */
-export type EnumBuyerStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BuyerStage'>
-    
-
-
-/**
- * Reference to a field of type 'BuyerStage[]'
- */
-export type ListEnumBuyerStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BuyerStage[]'>
     
 
 
@@ -3202,6 +3496,9 @@ export type GlobalOmitConfig = {
   subredditRssPollEvent?: Prisma.SubredditRssPollEventOmit
   aiUsageEvent?: Prisma.AiUsageEventOmit
   campaignSemanticQuery?: Prisma.CampaignSemanticQueryOmit
+  campaignSemanticPlaygroundRun?: Prisma.CampaignSemanticPlaygroundRunOmit
+  campaignSemanticPlaygroundQuery?: Prisma.CampaignSemanticPlaygroundQueryOmit
+  campaignSemanticPlaygroundResult?: Prisma.CampaignSemanticPlaygroundResultOmit
   campaignDailySemanticScan?: Prisma.CampaignDailySemanticScanOmit
   campaignSync?: Prisma.CampaignSyncOmit
   redditItem?: Prisma.RedditItemOmit

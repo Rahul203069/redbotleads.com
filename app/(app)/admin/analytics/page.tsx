@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarDays, Database, ScrollText } from "lucide-react";
+import { CalendarDays, Database, FlaskConical, ScrollText } from "lucide-react";
 
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { DailySemanticOverrideButton } from "@/components/admin/daily-semantic-override-button";
@@ -190,10 +190,11 @@ export default async function AdminAnalyticsPage({
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Reports</p>
                 <span className="h-px flex-1 bg-white/8" />
               </div>
-              <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                 <AdminReportLink href="/admin/analytics/daily-leads" icon={<CalendarDays className="h-4 w-4" />} label="Daily Leads" />
                 <AdminReportLink href="/admin/analytics/daily-subreddit" icon={<Database className="h-4 w-4" />} label="Daily Subreddit" />
                 <AdminReportLink href="/admin/analytics/rss-polling" icon={<ScrollText className="h-4 w-4" />} label="RSS Poll Logs" />
+                <AdminReportLink href="/admin/analytics/playground" icon={<FlaskConical className="h-4 w-4" />} label="Playground" />
               </div>
             </div>
 

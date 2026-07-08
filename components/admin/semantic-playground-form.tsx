@@ -344,16 +344,18 @@ export function SemanticPlaygroundForm({
                   value={threshold}
                 />
               </label>
+            </div>
+          </div>
 
+          <div className="mt-4 shrink-0 border-t border-[#27272a] pt-4">
             <Button
-              className="rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
+              className="w-full rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
               disabled={isSubmitPending}
               type="submit"
             >
               <Play className="h-4 w-4" />
               {isSubmitPending ? "Queueing..." : "Run Playground"}
             </Button>
-            </div>
           </div>
         </section>
 

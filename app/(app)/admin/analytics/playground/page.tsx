@@ -16,6 +16,13 @@ type SearchParams = {
 };
 
 const MAX_DISPLAYED_RESULTS = 250;
+const PLAYGROUND_TOTAL_LEAD_SCORE = 50;
+const PLAYGROUND_STRONG_LEAD_LABEL = "HIGH";
+
+type PlaygroundRunLeadMetrics = {
+  strongLeads: number;
+  totalLeads: number;
+};
 
 export default async function AdminSemanticPlaygroundPage({
   searchParams,
@@ -161,7 +168,47 @@ export default async function AdminSemanticPlaygroundPage({
         },
       })
     : null;
+  const runIdsForLeadMetrics = Array.from(
+    new Set([
+      ...recentRuns.map((run) => run.id),
+      ...(selectedRun?.id ? [selectedRun.id] : []),
+    ]),
+  );
+  const [totalLeadCounts, strongLeadCounts] = runIdsForLeadMetrics.length > 0
+    ? await Promise.all([
+        prisma.campaignSemanticPlaygroundResult.groupBy({
+          by: ["runId"],
+          where: {
+            classificationStatus: "CLASSIFIED",
+            runId: {
+              in: runIdsForLeadMetrics,
+            },
+            score: {
+              gte: PLAYGROUND_TOTAL_LEAD_SCORE,
+            },
+          },
+          _count: {
+            _all: true,
+          },
+        }),
+        prisma.campaignSemanticPlaygroundResult.groupBy({
+          by: ["runId"],
+          where: {
+            classificationStatus: "CLASSIFIED",
+            label: PLAYGROUND_STRONG_LEAD_LABEL,
+            runId: {
+              in: runIdsForLeadMetrics,
+            },
+          },
+          _count: {
+            _all: true,
+          },
+        }),
+      ])
+    : [[], []];
+  const leadMetricsByRunId = buildRunLeadMetricsMap(totalLeadCounts, strongLeadCounts);
   const runStats = getStats(selectedRun?.statsJson);
+  const selectedRunLeadMetrics = getRunLeadMetrics(leadMetricsByRunId, selectedRun?.id);
   const isRunActive = selectedRun?.status === "QUEUED" || selectedRun?.status === "PROCESSING";
 
   return (
@@ -221,26 +268,37 @@ export default async function AdminSemanticPlaygroundPage({
             </div>
           </div>
           <div className="mt-4 grid min-h-0 flex-1 gap-2 overflow-y-auto overscroll-contain pr-1 md:grid-cols-2 xl:grid-cols-4">
-            {recentRuns.map((run) => (
-              <Link
-                className={`rounded-[16px] border px-4 py-3 transition-colors ${
-                  selectedRun?.id === run.id
-                    ? "border-[#1ed760]/40 bg-[#1f1f1f] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
-                    : "border-transparent bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#1f1f1f]"
-                }`}
-                href={`/admin/analytics/playground?campaignId=${encodeURIComponent(selectedCampaignId ?? "")}&runId=${encodeURIComponent(run.id)}`}
-                key={run.id}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <StatusPill label={run.status.toLowerCase()} tone={statusTone(run.status)} />
-                  <span className="text-[11px] font-semibold text-[#b3b3b3]">{formatDate(run.createdAt)}</span>
-                </div>
-                <p className="mt-3 text-[12px] leading-5 text-[#cbcbcb]">{formatDateRange(run.fetchedFrom, run.fetchedTo)}</p>
-                <p className="mt-2 text-[11px] uppercase tracking-[0.14em] text-[#b3b3b3]">
-                  {getStat(getStats(run.statsJson), "semanticMatches")} matches at {run.threshold.toFixed(2)}
-                </p>
-              </Link>
-            ))}
+            {recentRuns.map((run) => {
+              const stats = getStats(run.statsJson);
+              const leadMetrics = getRunLeadMetrics(leadMetricsByRunId, run.id);
+
+              return (
+                <Link
+                  className={`rounded-[16px] border px-4 py-3 transition-colors ${
+                    selectedRun?.id === run.id
+                      ? "border-[#1ed760]/40 bg-[#1f1f1f] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
+                      : "border-transparent bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#1f1f1f]"
+                  }`}
+                  href={`/admin/analytics/playground?campaignId=${encodeURIComponent(selectedCampaignId ?? "")}&runId=${encodeURIComponent(run.id)}`}
+                  key={run.id}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <StatusPill label={run.status.toLowerCase()} tone={statusTone(run.status)} />
+                    <span className="text-[11px] font-semibold text-[#b3b3b3]">{formatDate(run.createdAt)}</span>
+                  </div>
+                  <p className="mt-3 text-[12px] leading-5 text-[#cbcbcb]">{formatDateRange(run.fetchedFrom, run.fetchedTo)}</p>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
+                    <MiniMetric label="Semantic" value={String(getStat(stats, "semanticMatches"))} />
+                    <MiniMetric label="Classified" value={String(getStat(stats, "classified"))} />
+                    <MiniMetric label="Total leads" value={String(leadMetrics.totalLeads)} />
+                    <MiniMetric label="Strong" value={String(leadMetrics.strongLeads)} />
+                  </div>
+                  <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8f8f8f]">
+                    Min semantic {run.threshold.toFixed(2)}
+                  </p>
+                </Link>
+              );
+            })}
           </div>
         </section>
       ) : null}
@@ -264,10 +322,12 @@ export default async function AdminSemanticPlaygroundPage({
                 </p>
               ) : null}
             </div>
-            <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[460px]">
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3 xl:min-w-[560px]">
               <Metric label="Candidates" value={String(getStat(runStats, "candidatePosts"))} />
               <Metric label="Semantic matches" value={String(getStat(runStats, "semanticMatches"))} />
               <Metric label="Classified" value={String(getStat(runStats, "classified"))} />
+              <Metric label="Total leads" value={String(selectedRunLeadMetrics.totalLeads)} />
+              <Metric label="Strong leads" value={String(selectedRunLeadMetrics.strongLeads)} />
               <Metric label="Failed" value={String(getStat(runStats, "classificationFailed"))} />
             </div>
           </div>
@@ -327,6 +387,15 @@ function Metric({ compact = false, label, value }: { compact?: boolean; label: s
   );
 }
 
+function MiniMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[12px] bg-[#1f1f1f] px-3 py-2 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
+      <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#8f8f8f]">{label}</p>
+      <p className="mt-1 text-[16px] font-bold leading-none text-[#ffffff]">{value}</p>
+    </div>
+  );
+}
+
 function StatusPill({ label, tone }: { label: string; tone: "good" | "neutral" | "warn" | "bad" }) {
   const className =
     tone === "good"
@@ -369,6 +438,36 @@ function getStats(value: unknown) {
 function getStat(stats: Record<string, unknown>, key: string) {
   const value = stats[key];
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function buildRunLeadMetricsMap(
+  totalLeadCounts: Array<{ runId: string; _count: { _all: number } }>,
+  strongLeadCounts: Array<{ runId: string; _count: { _all: number } }>,
+) {
+  const metrics = new Map<string, PlaygroundRunLeadMetrics>();
+
+  for (const row of totalLeadCounts) {
+    metrics.set(row.runId, {
+      strongLeads: 0,
+      totalLeads: row._count._all,
+    });
+  }
+
+  for (const row of strongLeadCounts) {
+    const current = getRunLeadMetrics(metrics, row.runId);
+    metrics.set(row.runId, {
+      ...current,
+      strongLeads: row._count._all,
+    });
+  }
+
+  return metrics;
+}
+
+function getRunLeadMetrics(metrics: Map<string, PlaygroundRunLeadMetrics>, runId: string | null | undefined) {
+  return runId
+    ? metrics.get(runId) ?? { strongLeads: 0, totalLeads: 0 }
+    : { strongLeads: 0, totalLeads: 0 };
 }
 
 function formatDate(value: Date) {

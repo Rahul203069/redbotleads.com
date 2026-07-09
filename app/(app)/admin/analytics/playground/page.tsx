@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, FlaskConical } from "lucide-react";
 
+import { CopyJsonButton } from "@/components/admin/copy-json-button";
 import { SemanticPlaygroundForm } from "@/components/admin/semantic-playground-form";
 import { SemanticPlaygroundResults } from "@/components/admin/semantic-playground-results";
 import { SemanticPlaygroundRunRefresher } from "@/components/admin/semantic-playground-run-refresher";
@@ -334,7 +335,28 @@ export default async function AdminSemanticPlaygroundPage({
 
           <div className="mt-5 grid gap-5 xl:grid-cols-[0.75fr_1.25fr]">
             <div className="flex max-h-[60dvh] min-h-0 flex-col overflow-hidden rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] xl:max-h-[calc(100dvh-12rem)]">
-              <p className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Run queries</p>
+              <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Run queries</p>
+                <CopyJsonButton
+                  className="min-h-9 rounded-full bg-[#1f1f1f] px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525]"
+                  label="Copy JSON"
+                  payload={{
+                    campaignId: selectedRun.campaign.id,
+                    campaignName: selectedRun.campaign.name,
+                    fetchedFrom: selectedRun.fetchedFrom.toISOString(),
+                    fetchedTo: selectedRun.fetchedTo.toISOString(),
+                    runCreatedAt: selectedRun.createdAt.toISOString(),
+                    runId: selectedRun.id,
+                    semanticQueries: selectedRun.queries.map((query, index) => ({
+                      category: query.category ?? null,
+                      id: query.id,
+                      index: index + 1,
+                      queryText: query.queryText,
+                    })),
+                    threshold: selectedRun.threshold,
+                  }}
+                />
+              </div>
               <div className="mt-4 grid min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain pr-1">
                 {selectedRun.queries.map((query, index) => (
                   <div className="rounded-[14px] bg-[#1f1f1f] p-3" key={query.id}>

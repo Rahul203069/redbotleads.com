@@ -192,6 +192,7 @@ export default async function CampaignDetailPage({
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
   const isAdminAccount = canViewAnalytics(session.user.email);
+  const canExportLeads = isAdminAccount || canManage;
 
   return (
     <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
@@ -237,7 +238,9 @@ export default async function CampaignDetailPage({
                 <CampaignShareDialogButton campaignId={campaign.id} />
               )}
               {isAdminAccount ? <CopyPublicCampaignLinkButton campaignId={campaign.id} kind="leads" /> : null}
-              <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
+              {canExportLeads ? (
+                <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
+              ) : null}
               {canManage ? (
                 <>
                   <EditCampaignDialog

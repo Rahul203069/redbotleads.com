@@ -52,6 +52,20 @@ export default async function CampaignsPage() {
           updatedAt: true,
         },
       },
+      runs: {
+        where: {
+          trigger: "DAILY_SEMANTIC",
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 1,
+        select: {
+          status: true,
+          message: true,
+          updatedAt: true,
+        },
+      },
     },
     orderBy: {
       updatedAt: "desc",
@@ -143,14 +157,7 @@ export default async function CampaignsPage() {
                   description: campaign.description,
                   strongLeads: classifiedLeads.filter((lead) => lead.label === "HIGH").length,
                   partialLeads: classifiedLeads.filter((lead) => lead.label !== "HIGH").length,
-                  sync: campaign.sync
-                    ? {
-                        status: campaign.sync.status,
-                        stage: campaign.sync.stage,
-                        message: campaign.sync.message,
-                        updatedAt: campaign.sync.updatedAt.toISOString(),
-                      }
-                    : null,
+                  sync: getCampaignListSync(campaign.sync, campaign.runs[0] ?? null),
                 };
               })}
             />
@@ -159,6 +166,42 @@ export default async function CampaignsPage() {
       )}
     </div>
   );
+}
+
+function getCampaignListSync(
+  sync: {
+    message: string | null;
+    stage: "NONE" | "QUEUED" | "FETCHING_POSTS" | "FETCHING_COMMENTS" | "CLASSIFYING" | "NOTIFYING" | "COMPLETED" | "FAILED";
+    status: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+    updatedAt: Date;
+  } | null,
+  latestDailySemanticRun: {
+    message: string | null;
+    status: string;
+    updatedAt: Date;
+  } | null,
+) {
+  if (
+    sync?.status === "FAILED" &&
+    latestDailySemanticRun?.status === "COMPLETED" &&
+    latestDailySemanticRun.updatedAt > sync.updatedAt
+  ) {
+    return {
+      status: "COMPLETED" as const,
+      stage: "COMPLETED" as const,
+      message: latestDailySemanticRun.message,
+      updatedAt: latestDailySemanticRun.updatedAt.toISOString(),
+    };
+  }
+
+  return sync
+    ? {
+        status: sync.status,
+        stage: sync.stage,
+        message: sync.message,
+        updatedAt: sync.updatedAt.toISOString(),
+      }
+    : null;
 }
 
 function MetricCard({ label, value }: { label: string; value: string }) {

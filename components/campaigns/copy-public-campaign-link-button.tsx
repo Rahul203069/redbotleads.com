@@ -48,10 +48,10 @@ export function CopyPublicCampaignLinkButton({
   );
 }
 
-function buildPublicUrl(
+export function buildPublicUrl(
   origin: string,
   campaignId: string,
-  searchParams: URLSearchParams,
+  searchParams: Pick<URLSearchParams, "get" | "getAll">,
   kind: "campaign" | "leads",
 ) {
   const url = new URL(kind === "leads" ? `/share/leads/${campaignId}` : `/share/campaigns/${campaignId}`, origin);
@@ -74,7 +74,7 @@ function buildPublicUrl(
   return url.toString();
 }
 
-async function copyToClipboard(value: string) {
+export async function copyToClipboard(value: string) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(value);
     return;

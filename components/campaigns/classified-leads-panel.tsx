@@ -31,21 +31,32 @@ export type ClassifiedLead = {
 const labelFilters = ["ALL", "HIGH", "MED", "LOW"] as const;
 const statusFilters = ["ALL", "NEW", "SAVED", "IGNORED", "REPLIED"] as const;
 const scoreSortOptions = ["SCORE_DESC", "SCORE_ASC", "SEMANTIC_DESC"] as const;
+const nonAdminScoreSortOptions = ["SCORE_DESC", "SCORE_ASC"] as const;
 const MIN_VISIBLE_LEAD_SCORE = 40;
 
 export function ClassifiedLeadsPanel({
+  isFilterLoading = false,
   leads,
   nextSyncLabel = "the next scheduled run",
+  showSemanticSort = true,
+  showStatusFilter = true,
+  shouldWaitForNextSync = false,
   syncStatus = "IDLE",
 }: {
+  isFilterLoading?: boolean;
   leads: ClassifiedLead[];
   nextSyncLabel?: string;
+  showSemanticSort?: boolean;
+  showStatusFilter?: boolean;
+  shouldWaitForNextSync?: boolean;
   syncStatus?: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 }) {
   const [labelFilter, setLabelFilter] = useState<(typeof labelFilters)[number]>("ALL");
   const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>("ALL");
   const [scoreSort, setScoreSort] = useState<(typeof scoreSortOptions)[number]>("SCORE_DESC");
   const [expandedLeadIds, setExpandedLeadIds] = useState<string[]>([]);
+  const activeScoreSort = showSemanticSort || scoreSort !== "SEMANTIC_DESC" ? scoreSort : "SCORE_DESC";
+  const availableScoreSortOptions = showSemanticSort ? scoreSortOptions : nonAdminScoreSortOptions;
 
   const classifiedLeads = useMemo(
     () => leads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE),
@@ -58,7 +69,7 @@ export function ClassifiedLeadsPanel({
           return false;
         }
 
-        if (statusFilter !== "ALL" && lead.status !== statusFilter) {
+        if (showStatusFilter && statusFilter !== "ALL" && lead.status !== statusFilter) {
           return false;
         }
 
@@ -66,22 +77,23 @@ export function ClassifiedLeadsPanel({
       });
 
       nextLeads.sort((left, right) =>
-        scoreSort === "SCORE_DESC"
+        activeScoreSort === "SCORE_DESC"
           ? right.score - left.score
-          : scoreSort === "SCORE_ASC"
+          : activeScoreSort === "SCORE_ASC"
             ? left.score - right.score
             : (right.semanticScore ?? -1) - (left.semanticScore ?? -1),
       );
 
       return nextLeads;
     },
-    [classifiedLeads, labelFilter, scoreSort, statusFilter],
+    [activeScoreSort, classifiedLeads, labelFilter, showStatusFilter, statusFilter],
   );
   const isProcessing = syncStatus === "QUEUED" || syncStatus === "PROCESSING";
+  const shouldShowWaitingState = isProcessing || shouldWaitForNextSync;
   const isCompleted = syncStatus === "COMPLETED";
 
   return (
-    <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
+    <section aria-busy={isFilterLoading} className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
       <div className="border-b border-white/8 pb-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -90,8 +102,8 @@ export function ClassifiedLeadsPanel({
               Only leads that passed semantic matching and finished LLM classification appear here.
             </p>
           </div>
-          <div className="grid w-full gap-3 sm:w-auto sm:grid-cols-3 lg:flex lg:flex-row">
-            {!isProcessing ? (
+          <div className={`grid w-full gap-3 sm:w-auto ${showStatusFilter ? "sm:grid-cols-3" : "sm:grid-cols-2"} lg:flex lg:flex-row`}>
+            {!shouldShowWaitingState && !isFilterLoading ? (
               <>
                 <FilterGroup
                   label="Label"
@@ -99,16 +111,18 @@ export function ClassifiedLeadsPanel({
                   value={labelFilter}
                   onChange={setLabelFilter}
                 />
-                <FilterGroup
-                  label="Status"
-                  options={statusFilters}
-                  value={statusFilter}
-                  onChange={setStatusFilter}
-                />
+                {showStatusFilter ? (
+                  <FilterGroup
+                    label="Status"
+                    options={statusFilters}
+                    value={statusFilter}
+                    onChange={setStatusFilter}
+                  />
+                ) : null}
                 <FilterGroup
                   label="Sort"
-                  options={scoreSortOptions}
-                  value={scoreSort}
+                  options={availableScoreSortOptions}
+                  value={activeScoreSort}
                   onChange={setScoreSort}
                   formatOptionLabel={(option) =>
                     option === "SCORE_DESC"
@@ -124,7 +138,9 @@ export function ClassifiedLeadsPanel({
         </div>
       </div>
       <div className="space-y-4 pt-5">
-        {isProcessing ? (
+        {isFilterLoading ? (
+          <ClassifiedLeadsLoadingSkeleton />
+        ) : shouldShowWaitingState ? (
           <WaitingForNextSyncState nextSyncLabel={nextSyncLabel} />
         ) : isCompleted && classifiedLeads.length === 0 ? (
           <NoLeadsFoundState />
@@ -220,6 +236,53 @@ export function ClassifiedLeadsPanel({
       </div>
     </section>
   );
+}
+
+function ClassifiedLeadsLoadingSkeleton() {
+  return (
+    <div aria-live="polite" className="space-y-4">
+      <p className="sr-only">Loading filtered leads.</p>
+      {Array.from({ length: 3 }).map((_, index) => (
+        <article
+          key={index}
+          className="rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0 flex-1 space-y-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SkeletonBlock className="h-6 w-16 rounded-full" />
+                    <SkeletonBlock className="h-6 w-14 rounded-full" />
+                    <SkeletonBlock className="h-6 w-20 rounded-full" />
+                  </div>
+                  <SkeletonBlock className="mt-4 h-5 w-full max-w-2xl" />
+                  <SkeletonBlock className="mt-3 h-4 w-3/4 max-w-xl" />
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <SkeletonBlock className="h-3 w-20 rounded-full" />
+                    <SkeletonBlock className="h-3 w-24 rounded-full" />
+                    <SkeletonBlock className="h-3 w-16 rounded-full" />
+                  </div>
+                </div>
+                <div className="w-full rounded-[18px] bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-[90px]">
+                  <SkeletonBlock className="h-3 w-12 rounded-full" />
+                  <SkeletonBlock className="mt-3 h-8 w-14" />
+                </div>
+              </div>
+              <div className="rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+                <SkeletonBlock className="h-4 w-full" />
+                <SkeletonBlock className="mt-3 h-4 w-5/6" />
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function SkeletonBlock({ className }: { className: string }) {
+  return <div className={`animate-pulse rounded-[12px] bg-[#2a2a2a] ${className}`} />;
 }
 
 function NoLeadsFoundState() {

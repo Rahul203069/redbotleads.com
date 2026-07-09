@@ -24,6 +24,16 @@ export type DailyLeadDateSelection = {
 
 export type DailyLeadSemanticStatusFilter = (typeof DAILY_LEAD_SEMANTIC_STATUS_OPTIONS)[number];
 export type DailyLeadAnalytics = Awaited<ReturnType<typeof getDailyLeadAnalytics>>;
+export type DailyLeadTrendRow = {
+  day: string;
+  label: string;
+  scanned: number;
+  semanticMatches: number;
+  strongLeads: number;
+  notStrongLeads: number;
+  pendingClassifications: number;
+  classificationFailures: number;
+};
 
 export function parseDailyLeadsPage(value: string | number | undefined) {
   const page = Number(value);
@@ -194,7 +204,7 @@ export async function getDailyLeadAnalytics({
       : {}),
   };
 
-  const [cronRuns, campaignRuns, scanStatusCounts, matchedScansForMetrics, scans] = await Promise.all([
+  const [cronRuns, campaignRuns, scanStatusCounts, matchedScansForMetrics, scans, trendScans] = await Promise.all([
     prisma.cronRun.findMany({
       where: {
         path: DAILY_SEMANTIC_CRON_PATH,
@@ -287,6 +297,18 @@ export async function getDailyLeadAnalytics({
       },
       skip,
       take: effectivePageSize,
+    }),
+    prisma.campaignDailySemanticScan.findMany({
+      where: scanWhere,
+      select: {
+        campaignId: true,
+        redditItemId: true,
+        status: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        updatedAt: "asc",
+      },
     }),
   ]);
 
@@ -401,6 +423,12 @@ export async function getDailyLeadAnalytics({
     scanStatusCounts.find((entry) => entry.status === "MATCHED")?._count._all ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalScans / effectivePageSize));
   const metricLeadByPair = new Map(metricLeads.map((lead) => [buildPairKey(lead.campaignId, lead.redditItemId), lead]));
+  const trendRows = buildDailyLeadTrendRows({
+    from,
+    leadByPair: metricLeadByPair,
+    scans: trendScans,
+    to,
+  });
   const matchedMetricRows = matchedScansForMetrics.map((scan) => {
     const lead = metricLeadByPair.get(buildPairKey(scan.campaignId, scan.redditItemId)) ?? null;
     const notification =
@@ -422,6 +450,7 @@ export async function getDailyLeadAnalytics({
     cronRuns,
     campaignRuns,
     rows,
+    trendRows,
     pagination: {
       page: currentPage,
       pageSize: effectivePageSize,
@@ -452,4 +481,98 @@ export async function getDailyLeadAnalytics({
 
 function buildPairKey(campaignId: string, redditItemId: string) {
   return `${campaignId}:${redditItemId}`;
+}
+
+const MAX_FILLED_TREND_DAYS = 90;
+
+function buildDailyLeadTrendRows({
+  from,
+  leadByPair,
+  scans,
+  to,
+}: {
+  from: Date;
+  leadByPair: Map<string, {
+    ai: {
+      model: string | null;
+    } | null;
+    campaignId: string;
+    redditItemId: string;
+    score: number;
+  }>;
+  scans: Array<{
+    campaignId: string;
+    redditItemId: string;
+    status: "MATCHED" | "NO_MATCH";
+    updatedAt: Date;
+  }>;
+  to: Date;
+}) {
+  const buckets = new Map<string, DailyLeadTrendRow>();
+  const dayCount = Math.ceil((to.getTime() - from.getTime()) / (24 * 60 * 60 * 1000));
+
+  if (from.getUTCFullYear() > 2000 && dayCount > 0 && dayCount <= MAX_FILLED_TREND_DAYS) {
+    const start = Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate());
+
+    for (let index = 0; index < dayCount; index += 1) {
+      const day = new Date(start + index * 24 * 60 * 60 * 1000);
+      const key = formatUtcDayKey(day);
+      buckets.set(key, createTrendBucket(key));
+    }
+  }
+
+  for (const scan of scans) {
+    const key = formatUtcDayKey(scan.updatedAt);
+    const bucket = buckets.get(key) ?? createTrendBucket(key);
+
+    bucket.scanned += 1;
+
+    if (scan.status === "MATCHED") {
+      bucket.semanticMatches += 1;
+      const lead = leadByPair.get(buildPairKey(scan.campaignId, scan.redditItemId));
+      const classificationFailed = lead?.ai?.model === CLASSIFICATION_ERROR_MODEL;
+      const classified = Boolean(lead?.ai && !classificationFailed);
+
+      if (classificationFailed) {
+        bucket.classificationFailures += 1;
+      } else if (classified && lead) {
+        if (lead.score > DAILY_STRONG_LEAD_SCORE) {
+          bucket.strongLeads += 1;
+        } else {
+          bucket.notStrongLeads += 1;
+        }
+      } else {
+        bucket.pendingClassifications += 1;
+      }
+    }
+
+    buckets.set(key, bucket);
+  }
+
+  return Array.from(buckets.values()).sort((left, right) => left.day.localeCompare(right.day));
+}
+
+function createTrendBucket(day: string): DailyLeadTrendRow {
+  return {
+    day,
+    label: formatTrendLabel(day),
+    scanned: 0,
+    semanticMatches: 0,
+    strongLeads: 0,
+    notStrongLeads: 0,
+    pendingClassifications: 0,
+    classificationFailures: 0,
+  };
+}
+
+function formatUtcDayKey(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function formatTrendLabel(day: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  }).format(new Date(`${day}T00:00:00.000Z`));
 }

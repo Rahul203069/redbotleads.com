@@ -1,5 +1,5 @@
 export const BETA_OWNER_EMAILS = ["rs3296471t@gmail.com", "rs3296472t@gmail.com"] as const;
-export const ANALYTICS_OWNER_EMAILS = ["rs3296471t@gmail.com", "rs3296472t@gmail.com"] as const;
+export const ANALYTICS_OWNER_EMAILS = ["rs3296472t@gmail.com"] as const;
 
 const OWNER_EMAILS = new Set<string>(BETA_OWNER_EMAILS);
 const ANALYTICS_EMAILS = new Set<string>(ANALYTICS_OWNER_EMAILS);

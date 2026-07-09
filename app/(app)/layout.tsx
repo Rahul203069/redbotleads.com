@@ -27,13 +27,15 @@ export default async function AuthenticatedAppLayout({
       telegramChatId: true,
     },
   });
-  const shouldShowSlackPrompt = !user?.slackWebhookUrl?.trim() && !user?.telegramChatId?.trim();
+  const isAdminAccount = canViewAnalytics(session.user.email);
+  const shouldShowSlackPrompt =
+    isAdminAccount && !user?.slackWebhookUrl?.trim() && !user?.telegramChatId?.trim();
 
   return (
     <div className="min-h-screen bg-transparent px-4 py-4 text-[#F3F5F4] lg:px-0 lg:py-0">
       <div className="grid min-h-screen w-full grid-cols-1 gap-4 lg:grid-cols-[304px_minmax(0,1fr)] lg:gap-0">
         <div className="lg:sticky lg:top-0 lg:h-screen lg:pl-4 lg:pr-0 lg:py-4 xl:pl-6">
-          <AppSidebar isOwner={canViewAnalytics(session.user.email)} shouldShowSlackConnect={shouldShowSlackPrompt} userLabel={userLabel} />
+          <AppSidebar isOwner={isAdminAccount} shouldShowSlackConnect={shouldShowSlackPrompt} userLabel={userLabel} />
         </div>
         <main className="min-w-0">
           <AppMainShell>{children}</AppMainShell>

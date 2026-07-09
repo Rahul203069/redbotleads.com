@@ -6,6 +6,7 @@ import { CalendarDays } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { DateRange } from "react-day-picker";
 
+import { useCampaignLeadFilterLoading } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
@@ -13,13 +14,14 @@ export function DailyLeadsDateFilter({
   defaultRange = "today",
   enableMultipleDates = false,
 }: {
-  defaultRange?: "all" | "today";
+  defaultRange?: "all" | "last7" | "today";
   enableMultipleDates?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const { isLeadFilterLoading, startLeadFilterLoading } = useCampaignLeadFilterLoading();
   const isAllTime = searchParams.get("range") === "all";
   const selectedDateStarts = useMemo(() => normalizeDateStartParams(searchParams.getAll("date")), [searchParams]);
   const hasSelectedDates = enableMultipleDates && selectedDateStarts.length > 0;
@@ -56,6 +58,7 @@ export function DailyLeadsDateFilter({
       && (selectedDateRange.to ?? selectedDateRange.from) === todayValue
     : !isAllTime && getDateInputValue(searchParams.get("from")) === todayValue;
   const activeRange = pendingRange ?? (isAllTime ? "all" : isToday ? "today" : hasSelectedDates || hasSelectedRange ? "range" : "day");
+  const isNavigating = isPending || isLeadFilterLoading;
 
   useEffect(() => {
     setDateValue(initialDate);
@@ -95,33 +98,58 @@ export function DailyLeadsDateFilter({
     router.replace(
       defaultRange === "all"
         ? buildAllTimeHref(pathname, searchParams)
-        : buildHref(pathname, searchParams, getLocalDayRange(getTodayInputValue())),
+        : defaultRange === "last7"
+          ? buildHref(pathname, searchParams, getLocalRecentDateRange(7))
+          : buildHref(pathname, searchParams, getLocalDayRange(getTodayInputValue())),
     );
   }, [defaultRange, hasRange, pathname, router, searchParams]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const safeDateValue = clampDateInputToToday(dateValue);
+    const range = getLocalDayRange(safeDateValue);
+    const href = buildHref(pathname, searchParams, range);
+
+    if (isCurrentHref(pathname, searchParams, href)) {
+      return;
+    }
+
     setDateValue(safeDateValue);
     setPendingRange("day");
+    startLeadFilterLoading(getLeadDateFilterKey(range));
     startTransition(() => {
-      router.push(buildHref(pathname, searchParams, getLocalDayRange(safeDateValue)));
+      router.push(href);
     });
   }
 
   function handleToday() {
+    const range = getLocalDayRange(todayValue);
+    const href = buildHref(pathname, searchParams, range);
+
+    if (isCurrentHref(pathname, searchParams, href)) {
+      return;
+    }
+
     setPendingRange("today");
     setSelectedDateRange({ from: todayValue, to: todayValue });
+    startLeadFilterLoading(getLeadDateFilterKey(range));
     startTransition(() => {
-      router.push(buildHref(pathname, searchParams, getLocalDayRange(todayValue)));
+      router.push(href);
     });
   }
 
   function handleAllTime() {
+    const href = buildAllTimeHref(pathname, searchParams);
+
+    if (isCurrentHref(pathname, searchParams, href)) {
+      return;
+    }
+
     setPendingRange("all");
     setSelectedDateRange({});
+    startLeadFilterLoading(getLeadDateFilterKey({ range: "all" }));
     startTransition(() => {
-      router.push(buildAllTimeHref(pathname, searchParams));
+      router.push(href);
     });
   }
 
@@ -135,58 +163,59 @@ export function DailyLeadsDateFilter({
 
     const from = safeDateRange.from;
     const to = safeDateRange.to ?? safeDateRange.from;
+    const range = getLocalDateRange(from, to);
+    const href = buildHref(pathname, searchParams, range);
+
+    if (isCurrentHref(pathname, searchParams, href)) {
+      return;
+    }
 
     setPendingRange("range");
+    startLeadFilterLoading(getLeadDateFilterKey(range));
     startTransition(() => {
-      router.push(buildHref(pathname, searchParams, getLocalDateRange(from, to)));
+      router.push(href);
     });
   }
 
   return (
-    <div aria-busy={isPending} className="flex w-full flex-col gap-4 border-t border-white/8 pt-5 sm:flex-row sm:items-center sm:justify-between">
+    <div aria-busy={isNavigating} className="flex w-full flex-col gap-4 border-t border-white/8 pt-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="inline-flex w-fit rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-        <button className={getQuickButtonClass(activeRange === "today", isPending && pendingRange === "today")} onClick={handleToday} type="button">
-          Today
+        <button className={getQuickButtonClass(activeRange === "today", isNavigating && pendingRange === "today")} onClick={handleToday} type="button">
+          {isNavigating && pendingRange === "today" ? (
+            <>
+              <LoadingDot />
+              Today
+            </>
+          ) : (
+            "Today"
+          )}
         </button>
-        <button className={getQuickButtonClass(activeRange === "all", isPending && pendingRange === "all")} onClick={handleAllTime} type="button">
-          All time
+        <button className={getQuickButtonClass(activeRange === "all", isNavigating && pendingRange === "all")} onClick={handleAllTime} type="button">
+          {isNavigating && pendingRange === "all" ? (
+            <>
+              <LoadingDot />
+              All time
+            </>
+          ) : (
+            "All time"
+          )}
         </button>
       </div>
 
       {enableMultipleDates ? (
         <div className="flex w-full flex-col gap-3 sm:w-auto">
           <label className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Range</span>
-            <DatePicker mode="range" value={selectedDateRange} onChange={setSelectedDateRange} />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Date</span>
+            <DatePicker
+              applyDisabled={!selectedDateRange.from || (isNavigating && pendingRange === "range")}
+              applyLabel={isNavigating && pendingRange === "range" ? "Applying" : getRangeApplyLabel(selectedDateRange)}
+              isApplying={isNavigating && pendingRange === "range"}
+              mode="range"
+              onApply={handleApplyRange}
+              onChange={setSelectedDateRange}
+              value={selectedDateRange}
+            />
           </label>
-          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-            {selectedDateRange.from ? (
-              <div className="flex max-w-full flex-wrap gap-2 sm:max-w-[280px]">
-                <button
-                  className="inline-flex min-h-8 items-center rounded-full bg-[#121212] px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#1f1f1f]"
-                  onClick={() => setSelectedDateRange({})}
-                  type="button"
-                >
-                  {formatRangeLabel(selectedDateRange)}
-                </button>
-              </div>
-            ) : null}
-            <button
-              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-[background-color,transform,opacity] duration-150 hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] active:translate-y-px disabled:opacity-50 sm:w-auto"
-              disabled={!selectedDateRange.from || (isPending && pendingRange === "range")}
-              onClick={handleApplyRange}
-              type="button"
-            >
-              {isPending && pendingRange === "range" ? (
-                <>
-                  <LoadingDot />
-                  Applying
-                </>
-              ) : (
-                "Apply"
-              )}
-            </button>
-          </div>
         </div>
       ) : (
         <form className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center" onSubmit={handleSubmit}>
@@ -196,10 +225,10 @@ export function DailyLeadsDateFilter({
           </label>
           <button
             className="inline-flex h-10 w-full items-center justify-center rounded-full bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-[background-color,transform,opacity] duration-150 hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] active:translate-y-px disabled:opacity-80 sm:w-auto"
-            disabled={isPending && pendingRange === "day"}
+            disabled={isNavigating && pendingRange === "day"}
             type="submit"
           >
-            {isPending && pendingRange === "day" ? (
+            {isNavigating && pendingRange === "day" ? (
               <>
                 <LoadingDot />
                 Applying
@@ -236,6 +265,27 @@ function buildAllTimeHref(pathname: string, currentParams: { toString(): string 
   return `${pathname}?${next.toString()}`;
 }
 
+function isCurrentHref(pathname: string, currentParams: { toString(): string }, href: string) {
+  const currentQuery = currentParams.toString();
+  const currentHref = currentQuery ? `${pathname}?${currentQuery}` : pathname;
+
+  return currentHref === href;
+}
+
+function getLeadDateFilterKey(filter: {
+  date?: string[];
+  from?: string;
+  range?: string;
+  to?: string;
+}) {
+  return [
+    filter.range ?? "",
+    filter.from ?? "",
+    filter.to ?? "",
+    ...(filter.date ?? []),
+  ].join("|");
+}
+
 type DateRangeInputValue = {
   from?: string;
   to?: string;
@@ -243,7 +293,11 @@ type DateRangeInputValue = {
 
 type DatePickerProps =
   | {
+      applyDisabled?: boolean;
+      applyLabel?: string;
+      isApplying?: boolean;
       mode: "range";
+      onApply?: () => void;
       onChange: (value: DateRangeInputValue) => void;
       value: DateRangeInputValue;
     }
@@ -254,31 +308,70 @@ type DatePickerProps =
     };
 
 function DatePicker(props: DatePickerProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const today = getTodayDate();
   const selectedDate = props.mode === "single" ? parseDateInputValue(props.value) : null;
   const selectedRange = props.mode === "range" ? parseDateRangeInputValue(props.value) : undefined;
+  const selectedRangeLabel = props.mode === "range" ? formatRangeLabel(props.value) : "";
+  const selectedRangeTitle = props.mode === "range" ? getRangeSummaryTitle(props.value) : "";
+
+  function handlePopoverApply() {
+    if (props.mode !== "range" || props.applyDisabled) {
+      return;
+    }
+
+    props.onApply?.();
+    setIsOpen(false);
+  }
 
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <button
-          className={`inline-flex h-10 w-full items-center justify-between gap-3 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-left text-[13px] font-medium text-[#ffffff] outline-none transition-colors hover:border-[#3f3f46] hover:bg-[#111113] focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10 ${props.mode === "range" ? "sm:w-[300px]" : "sm:w-[184px]"}`}
+          className={`inline-flex h-10 w-full items-center justify-between gap-3 rounded-[12px] border border-[#27272a] bg-[#09090b] px-3 text-left text-[13px] font-medium text-[#ffffff] outline-none transition-colors hover:border-[#3f3f46] hover:bg-[#111113] focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10 ${props.mode === "range" ? "sm:w-[220px]" : "sm:w-[184px]"}`}
           type="button"
         >
-          <span>{props.mode === "range" ? formatRangeLabel(props.value) : formatDisplayDate(selectedDate ?? new Date())}</span>
+          <span className="truncate">{props.mode === "range" ? formatRangeLabel(props.value) : formatDisplayDate(selectedDate ?? new Date())}</span>
           <CalendarDays className="h-4 w-4 text-[#b3b3b3]" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-auto">
+      <PopoverContent
+        align="end"
+        className="w-[min(calc(100vw-2rem),336px)] overflow-hidden rounded-[22px] border-white/10 bg-[#101010] p-0 shadow-[0_22px_80px_rgba(0,0,0,0.65)]"
+      >
         {props.mode === "range" ? (
-          <Calendar
-            disabled={{ after: today }}
-            mode="range"
-            onSelect={(range) => {
-              props.onChange(normalizeDatePickerRange(range, today));
-            }}
-            selected={selectedRange}
-          />
+          <div className="flex flex-col">
+            <Calendar
+              className="px-4 pb-3 pt-4"
+              disabled={{ after: today }}
+              mode="range"
+              onSelect={(range) => {
+                props.onChange(normalizeDatePickerRange(range, today));
+              }}
+              selected={selectedRange}
+            />
+            <div className="mx-3 mb-3 flex flex-col gap-3 rounded-[18px] border border-white/8 bg-[#080808] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#71717a]">{selectedRangeTitle}</p>
+                <p className="mt-1 truncate text-[13px] font-semibold text-[#ffffff]">{selectedRangeLabel}</p>
+              </div>
+              <button
+                className="inline-flex h-11 w-full items-center justify-center rounded-[14px] bg-[#1ed760] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] transition-[background-color,transform,opacity] duration-150 hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] active:translate-y-px disabled:pointer-events-none disabled:opacity-50"
+                disabled={props.applyDisabled}
+                onClick={handlePopoverApply}
+                type="button"
+              >
+                {props.isApplying ? (
+                  <>
+                    <LoadingDot />
+                    {props.applyLabel ?? "Applying"}
+                  </>
+                ) : (
+                  props.applyLabel ?? "Apply"
+                )}
+              </button>
+            </div>
+          </div>
         ) : (
           <Calendar
             disabled={{ after: today }}
@@ -339,7 +432,7 @@ function formatDisplayDate(date: Date) {
 
 function formatRangeLabel(value: DateRangeInputValue) {
   if (!value.from) {
-    return "Choose range";
+    return "Choose date";
   }
 
   const from = parseDateInputValue(value.from);
@@ -352,6 +445,22 @@ function formatRangeLabel(value: DateRangeInputValue) {
   const dayCount = getInclusiveDayCount(from, to);
 
   return `${formatDisplayDate(from)} - ${formatDisplayDate(to)} (${dayCount} days)`;
+}
+
+function getRangeApplyLabel(value: DateRangeInputValue) {
+  return isSingleDateSelection(value) ? "Apply date" : "Apply range";
+}
+
+function getRangeSummaryTitle(value: DateRangeInputValue) {
+  return isSingleDateSelection(value) ? "Selected date" : "Selected range";
+}
+
+function isSingleDateSelection(value: DateRangeInputValue) {
+  if (!value.from) {
+    return true;
+  }
+
+  return (value.to ?? value.from) === value.from;
 }
 
 function LoadingDot() {
@@ -368,6 +477,13 @@ function getQuickButtonClass(active: boolean, pending: boolean) {
 
 function getLocalDayRange(dateValue: string) {
   return getLocalDateRange(dateValue, dateValue);
+}
+
+function getLocalRecentDateRange(days: number) {
+  const today = new Date();
+  const from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - Math.max(0, days - 1));
+
+  return getLocalDateRange(formatDateInput(from), formatDateInput(today));
 }
 
 function getLocalDateRange(fromValue: string, toValue: string) {

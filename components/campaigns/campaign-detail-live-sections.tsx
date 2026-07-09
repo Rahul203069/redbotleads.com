@@ -9,6 +9,7 @@ import {
   type CampaignInitialRssDiagnostics,
 } from "@/actions/campaigns";
 import { ClassifiedLeadsPanel, type ClassifiedLead } from "@/components/campaigns/classified-leads-panel";
+import { useCampaignLeadFilterLoading } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignSyncPanel, type CampaignSync } from "@/components/campaigns/campaign-sync-panel";
 import { InitialRssDiagnosticsPanel } from "@/components/campaigns/initial-rss-diagnostics-panel";
 
@@ -51,6 +52,9 @@ export function CampaignDetailLiveSections({
   nextSyncLabel,
   semanticLastSyncAt,
   semanticNextSyncAt,
+  showInitialRssDiagnostics = true,
+  showSemanticSort = true,
+  shouldWaitForTodaySync,
 }: {
   campaignId: string;
   initialDiagnostics: CampaignInitialRssDiagnostics;
@@ -65,8 +69,12 @@ export function CampaignDetailLiveSections({
   nextSyncLabel: string;
   semanticLastSyncAt: string | null;
   semanticNextSyncAt: string;
+  showInitialRssDiagnostics?: boolean;
+  showSemanticSort?: boolean;
+  shouldWaitForTodaySync?: boolean;
 }) {
   const [, startTransition] = useTransition();
+  const { isLeadFilterLoading } = useCampaignLeadFilterLoading();
   const [leads, setLeads] = useState(initialLeads);
   const [sync, setSync] = useState<CampaignSync>(initialSync);
   const [diagnostics, setDiagnostics] = useState<CampaignInitialRssDiagnostics>(initialDiagnostics);
@@ -143,8 +151,16 @@ export function CampaignDetailLiveSections({
         }}
         sync={sync}
       />
-      <InitialRssDiagnosticsPanel diagnostics={diagnostics} />
-      <ClassifiedLeadsPanel leads={classifiedLeads} nextSyncLabel={nextSync} syncStatus={sync?.status ?? "IDLE"} />
+      {showInitialRssDiagnostics ? <InitialRssDiagnosticsPanel diagnostics={diagnostics} /> : null}
+      <ClassifiedLeadsPanel
+        isFilterLoading={isLeadFilterLoading}
+        leads={classifiedLeads}
+        nextSyncLabel={nextSync}
+        showSemanticSort={showSemanticSort}
+        showStatusFilter={false}
+        shouldWaitForNextSync={shouldWaitForTodaySync}
+        syncStatus={sync?.status ?? "IDLE"}
+      />
     </>
   );
 }

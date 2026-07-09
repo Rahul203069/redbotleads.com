@@ -4,6 +4,8 @@ import { BarChart3, CalendarDays, Clock3 } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
+import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
+import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
 import { EditCampaignDescriptionDialog } from "@/components/campaigns/edit-campaign-description-dialog";
@@ -20,7 +22,11 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
-import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
+import {
+  getDailyLeadDateSelection,
+  type DailyLeadDateRangeValue,
+  type DailyLeadDateSelection,
+} from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
@@ -65,6 +71,7 @@ export default async function CampaignDetailPage({
       ? undefined
       : leadDateSelection.range.to.toISOString(),
   };
+  const leadDateFilterKey = getLeadDateFilterKey(leadDateFilter);
 
   const campaign = await prisma.campaign.findFirst({
     where: buildAccessibleCampaignWhere({
@@ -148,6 +155,12 @@ export default async function CampaignDetailPage({
       failedAt: true,
     },
   });
+  const latestSemanticRunAt = getLatestSemanticRunTimestamp(latestSemanticRun);
+  const semanticNextSyncAt = getNextDailySemanticCronAt();
+  const shouldWaitForTodaySync = shouldWaitForTodayDailySemanticSync({
+    latestSemanticRunAt,
+    selection: leadDateSelection,
+  });
 
   const lastSyncSource =
     sync?.completedAt ??
@@ -181,8 +194,9 @@ export default async function CampaignDetailPage({
   const isAdminAccount = canViewAnalytics(session.user.email);
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
+    <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
+      <div className="space-y-5">
+        <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <Link className="w-full sm:w-auto" href="/campaigns">
@@ -206,19 +220,24 @@ export default async function CampaignDetailPage({
                   </Button>
                 </Link>
               ) : null}
-              <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/daily-leads`}>
-                <Button
-                  className="w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
-                  variant="secondary"
-                >
-                  <CalendarDays className="h-4 w-4" />
-                  Daily leads
-                </Button>
-              </Link>
-              <CopyPublicCampaignLinkButton campaignId={campaign.id} />
+              {isAdminAccount ? (
+                <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/daily-leads`}>
+                  <Button
+                    className="w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
+                    variant="secondary"
+                  >
+                    <CalendarDays className="h-4 w-4" />
+                    Daily leads
+                  </Button>
+                </Link>
+              ) : null}
+              {isAdminAccount ? (
+                <CopyPublicCampaignLinkButton campaignId={campaign.id} />
+              ) : (
+                <CampaignShareDialogButton campaignId={campaign.id} />
+              )}
               {isAdminAccount ? <CopyPublicCampaignLinkButton campaignId={campaign.id} kind="leads" /> : null}
               <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
-              <ScheduledProcessingPill isActive={campaign.isActive} />
               {canManage ? (
                 <>
                   <EditCampaignDialog
@@ -252,6 +271,7 @@ export default async function CampaignDetailPage({
                 {campaign.description || "No campaign description added yet."}
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
+                <ScheduledProcessingPill isActive={campaign.isActive} />
                 <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
                 <HeroChip label={`${leadCount} lead${leadCount === 1 ? "" : "s"} tracked`} />
                 <HeroChip label={`${highIntentCount} strong match${highIntentCount === 1 ? "" : "es"}`} />
@@ -300,17 +320,30 @@ export default async function CampaignDetailPage({
         leadDateFilter={leadDateFilter}
         nextSyncLabel={nextSync}
         semanticLastSyncAt={
-          (
-            latestSemanticRun?.completedAt ??
-            latestSemanticRun?.failedAt ??
-            latestSemanticRun?.startedAt ??
-            latestSemanticRun?.queuedAt
-          )?.toISOString() ?? null
+          latestSemanticRunAt?.toISOString() ?? null
         }
-        semanticNextSyncAt={getNextDailySemanticCronAt().toISOString()}
+        semanticNextSyncAt={semanticNextSyncAt.toISOString()}
+        showInitialRssDiagnostics={isAdminAccount}
+        showSemanticSort={isAdminAccount}
+        shouldWaitForTodaySync={shouldWaitForTodaySync}
       />
-    </div>
+      </div>
+    </CampaignLeadFilterLoadingProvider>
   );
+}
+
+function getLeadDateFilterKey(filter: {
+  date?: string[];
+  from?: string;
+  range?: string;
+  to?: string;
+}) {
+  return [
+    filter.range ?? "",
+    filter.from ?? "",
+    filter.to ?? "",
+    ...(filter.date ?? []),
+  ].join("|");
 }
 
 function getNextDailySemanticCronAt(now = new Date()) {
@@ -331,6 +364,49 @@ function getNextDailySemanticCronAt(now = new Date()) {
   return next;
 }
 
+function getLatestSemanticRunTimestamp(run: {
+  completedAt: Date | null;
+  failedAt: Date | null;
+  queuedAt: Date | null;
+  startedAt: Date | null;
+} | null) {
+  return run?.completedAt ?? run?.failedAt ?? run?.startedAt ?? run?.queuedAt ?? null;
+}
+
+function shouldWaitForTodayDailySemanticSync({
+  latestSemanticRunAt,
+  now = new Date(),
+  selection,
+}: {
+  latestSemanticRunAt: Date | null;
+  now?: Date;
+  selection: DailyLeadDateSelection;
+}) {
+  if (selection.source === "all" || selection.ranges.length !== 1) {
+    return false;
+  }
+
+  const selectedRange = selection.ranges[0];
+
+  if (!isSingleDayCurrentRange(selectedRange, now)) {
+    return false;
+  }
+
+  return !latestSemanticRunAt
+    || latestSemanticRunAt < selectedRange.from
+    || latestSemanticRunAt >= selectedRange.to;
+}
+
+function isSingleDayCurrentRange(range: DailyLeadDateRangeValue, now: Date) {
+  const durationMs = range.to.getTime() - range.from.getTime();
+  const maxSingleDayMs = 26 * 60 * 60 * 1000;
+
+  return durationMs > 0
+    && durationMs <= maxSingleDayMs
+    && range.from <= now
+    && now < range.to;
+}
+
 function HeroChip({ label }: { label: string }) {
   return (
     <span className="inline-flex items-center rounded-full bg-[#121212] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
@@ -342,14 +418,14 @@ function HeroChip({ label }: { label: string }) {
 function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
   return (
     <div
-      className={`inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-full px-5 text-[11px] font-bold uppercase tracking-[0.16em] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-auto ${
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] ${
         isActive
-          ? "bg-[#121212] text-[#1ed760]"
-          : "bg-[#121212] text-[#b3b3b3]"
+          ? "border-[#1ed760]/25 bg-[#1ed760]/10 text-[#7cf5a3]"
+          : "border-[#3f3f46] bg-[#121212] text-[#b3b3b3]"
       }`}
       title={isActive ? "Campaign will run through scheduled daily RSS and semantic jobs." : "Activate this campaign to include it in scheduled daily processing."}
     >
-      <Clock3 className="h-4 w-4" />
+      <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
       {isActive ? "Scheduled daily" : "Paused"}
     </div>
   );

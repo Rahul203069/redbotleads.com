@@ -1,15 +1,18 @@
 import Link from "next/link";
 import type React from "react";
 
+import { DailyLeadsTrendChart } from "@/components/admin/daily-leads-trend-chart";
 import type { DailyLeadAnalytics } from "@/lib/daily-leads-analytics";
 
 export function DailyLeadsReport({
   analytics,
   pageHref,
+  showTrendChart = false,
   showOwner = false,
 }: {
   analytics: DailyLeadAnalytics;
   pageHref: (page: number) => string;
+  showTrendChart?: boolean;
   showOwner?: boolean;
 }) {
   const metrics = analytics.metrics;
@@ -31,6 +34,8 @@ export function DailyLeadsReport({
         <Metric label="Notifications sent" value={metrics.notificationsSent} />
         <Metric label="Notification failures" value={metrics.notificationsFailed} />
       </section>
+
+      {showTrendChart ? <DailyLeadsTrendChart rows={analytics.trendRows} /> : null}
 
       <section className="overflow-hidden rounded-[18px] bg-[#121212] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
         <div className="flex flex-col gap-3 border-b border-[#27272a] bg-[#181818] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">

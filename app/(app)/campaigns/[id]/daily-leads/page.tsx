@@ -6,6 +6,7 @@ import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
 import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semantic-filter";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
+import { canViewAnalytics } from "@/lib/beta-access";
 import {
   buildAccessibleCampaignWhere,
   getCampaignAccessFromRecord,
@@ -81,7 +82,11 @@ export default async function CampaignDailyLeadsPage({
   }
 
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
-  const range = getDailyLeadDateRange(resolvedSearchParams);
+  const isAdminAccount = canViewAnalytics(session.user.email);
+  const hasExplicitDateRange = Boolean(resolvedSearchParams.from || resolvedSearchParams.to || resolvedSearchParams.range);
+  const range = !isAdminAccount && !hasExplicitDateRange
+    ? getRecentDailyAnalyticsRange()
+    : getDailyLeadDateRange(resolvedSearchParams);
   const page = parseDailyLeadsPage(resolvedSearchParams.page);
   const semanticStatus = parseDailyLeadSemanticStatus(resolvedSearchParams.status);
   const analytics = await getDailyLeadAnalytics({
@@ -112,14 +117,18 @@ export default async function CampaignDailyLeadsPage({
       <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#b3b3b3]">Daily leads</p>
+            <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#b3b3b3]">
+              {isAdminAccount ? "Daily leads" : "Daily analytics"}
+            </p>
             <h1 className="mt-3 text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.6rem]">{displayName}</h1>
             <p className="mt-3 max-w-[72ch] text-[15px] leading-6 text-[#cbcbcb]">
-              {campaign.description || "Daily semantic filtering, AI scoring, and notification results for this campaign."}
+              {isAdminAccount
+                ? campaign.description || "Daily semantic filtering, AI scoring, and notification results for this campaign."
+                : campaign.description || "Daily lead trend, semantic matches, AI scoring, and notification results for this campaign."}
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end lg:justify-end">
-            <DailyLeadsDateFilter />
+            <DailyLeadsDateFilter defaultRange={isAdminAccount ? "today" : "last7"} enableMultipleDates={!isAdminAccount} />
             <DailyLeadsSemanticFilter
               currentStatus={semanticStatus}
               hrefForStatus={(targetStatus) =>
@@ -153,9 +162,21 @@ export default async function CampaignDailyLeadsPage({
             status: semanticStatus,
           })
         }
+        showTrendChart={!isAdminAccount}
       />
     </div>
   );
+}
+
+function getRecentDailyAnalyticsRange(now = new Date()): DailyLeadDateRange {
+  const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  const from = new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  return {
+    from,
+    source: "query",
+    to,
+  };
 }
 
 function buildCampaignDailyLeadsHref({

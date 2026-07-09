@@ -121,8 +121,23 @@ export function SemanticQueryEditor({
       return;
     }
 
+    const mergedRows = cleanQueryRows([...rows, ...result.queries]);
+
+    if (mergedRows.status === "error") {
+      toast({
+        title: "Semantic queries not imported",
+        description: mergedRows.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const existingCount = cleanQueryRows(rows);
+    const currentCount = existingCount.status === "success" ? existingCount.queries.length : 0;
+    const addedCount = Math.max(0, mergedRows.queries.length - currentCount);
+
     setRows(
-      result.queries.map((query) => ({
+      mergedRows.queries.map((query) => ({
         id: createLocalId(),
         category: query.category,
         text: query.text,
@@ -132,7 +147,7 @@ export function SemanticQueryEditor({
     setBulkPasteValue("");
     toast({
       title: "Semantic queries imported",
-      description: `${result.queries.length} semantic ${result.queries.length === 1 ? "query" : "queries"} replaced the editor list.`,
+      description: `${addedCount} new semantic ${addedCount === 1 ? "query was" : "queries were"} added to the editor list.`,
     });
   }
 
@@ -355,7 +370,7 @@ export function SemanticQueryEditor({
           <DialogHeader>
             <DialogTitle className="text-xl">Bulk paste semantic queries</DialogTitle>
             <DialogDescription>
-              Replace the editor list with JSON or plain text queries separated by triple commas.
+              Add JSON or plain text queries separated by triple commas to the current editor list.
             </DialogDescription>
           </DialogHeader>
 

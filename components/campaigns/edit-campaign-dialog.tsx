@@ -35,13 +35,20 @@ type EditCampaignDialogProps = {
     recentDays: number;
     minScoreToAlert: number;
     isActive: boolean;
+    semanticQueries?: Array<{
+      id: string;
+      queryText: string;
+      category: string | null;
+    }>;
   };
+  showSemanticQueries?: boolean;
 };
 
-export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
+export function EditCampaignDialog({ campaign, showSemanticQueries = false }: EditCampaignDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [copiedSubreddits, setCopiedSubreddits] = useState(false);
+  const [copiedSemanticQueries, setCopiedSemanticQueries] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [errors, setErrors] = useState<Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>>({});
   const initialDraft = useMemo<Draft>(
@@ -66,6 +73,7 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
       setDraft(initialDraft);
       setErrors({});
       setCopiedSubreddits(false);
+      setCopiedSemanticQueries(false);
     }
   }
 
@@ -140,6 +148,47 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
     }
   }
 
+  async function handleCopySemanticQueries() {
+    const semanticQueries = campaign.semanticQueries ?? [];
+
+    if (semanticQueries.length === 0) {
+      toast({
+        title: "No semantic queries to copy",
+        description: "This campaign does not have semantic queries configured.",
+      });
+      return;
+    }
+
+    const payload = {
+      campaignId: campaign.id,
+      campaignName: campaign.name,
+      copiedAt: new Date().toISOString(),
+      semanticQueries: semanticQueries.map((query, index) => ({
+        category: query.category ?? null,
+        id: query.id,
+        index: index + 1,
+        queryText: query.queryText,
+      })),
+      totalQueries: semanticQueries.length,
+    };
+
+    try {
+      await copyToClipboard(JSON.stringify(payload, null, 2));
+      setCopiedSemanticQueries(true);
+      toast({
+        title: "Semantic queries copied",
+        description: `${semanticQueries.length} semantic ${semanticQueries.length === 1 ? "query" : "queries"} copied as JSON.`,
+      });
+      window.setTimeout(() => setCopiedSemanticQueries(false), 2000);
+    } catch {
+      toast({
+        title: "Could not copy semantic queries",
+        description: "Your browser blocked clipboard access. Try copying again.",
+        variant: "destructive",
+      });
+    }
+  }
+
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
       <DialogTrigger asChild>
@@ -182,6 +231,50 @@ export function EditCampaignDialog({ campaign }: EditCampaignDialogProps) {
                 <Textarea onChange={(event) => updateDraft("description", event.target.value)} value={draft.description} />
               </Field>
             </section>
+
+            {showSemanticQueries ? (
+              <section className="grid gap-5 rounded-[24px] border border-[#27312E] bg-[#161D1B] p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.24em] text-[#6F7C77]">Semantic queries</div>
+                    <div className="mt-2 text-sm text-[#9DA9A4]">Read-only semantic search strings used by the worker.</div>
+                  </div>
+                  <Button
+                    aria-label="Copy semantic queries as JSON"
+                    disabled={!campaign.semanticQueries?.length}
+                    onClick={handleCopySemanticQueries}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                  >
+                    {copiedSemanticQueries ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    {copiedSemanticQueries ? "Copied" : "Copy JSON"}
+                  </Button>
+                </div>
+
+                {campaign.semanticQueries && campaign.semanticQueries.length > 0 ? (
+                  <div className="grid max-h-[280px] gap-3 overflow-y-auto pr-1">
+                    {campaign.semanticQueries.map((query, index) => (
+                      <div className="rounded-[18px] border border-[#27312E] bg-[#111716] p-4" key={query.id}>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#1ed760]">Query {index + 1}</span>
+                          {query.category ? (
+                            <span className="rounded-full bg-[#161D1B] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#C3CBC8]">
+                              {query.category}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-[#C3CBC8]">{query.queryText}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-[18px] border border-dashed border-[#27312E] bg-[#111716] p-4 text-sm leading-6 text-[#9DA9A4]">
+                    No semantic queries are configured for this campaign.
+                  </div>
+                )}
+              </section>
+            ) : null}
 
             <section className="grid gap-5 rounded-[24px] border border-[#27312E] bg-[#161D1B] p-5">
               <div>

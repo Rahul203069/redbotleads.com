@@ -104,6 +104,16 @@ export default async function CampaignDetailPage({
           redditItem: true,
         },
       },
+      semanticQueries: {
+        orderBy: {
+          createdAt: "asc",
+        },
+        select: {
+          id: true,
+          queryText: true,
+          category: true,
+        },
+      },
       sync: {
         select: {
           status: true,
@@ -255,7 +265,9 @@ export default async function CampaignDetailPage({
                       recentDays: campaign.recentDays,
                       minScoreToAlert: campaign.minScoreToAlert,
                       isActive: campaign.isActive,
+                      semanticQueries: campaign.semanticQueries,
                     }}
+                    showSemanticQueries={isAdminAccount}
                   />
                   <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
                 </>

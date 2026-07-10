@@ -10,7 +10,6 @@ import { prisma } from "@/lib/prisma";
 import { enqueueSemanticPlaygroundRun } from "@/worker/queues";
 
 const DEFAULT_THRESHOLD = 0.5;
-const MAX_QUERY_COUNT = 100;
 const MAX_QUERY_LENGTH = 700;
 const MAX_RUN_DESCRIPTION_LENGTH = 1000;
 const MAX_RUN_TITLE_LENGTH = 120;
@@ -508,7 +507,7 @@ function parseQueries(value: FormDataEntryValue | null): ParsedPlaygroundQuery[]
     return [];
   }
 
-  const result = z.array(playgroundQuerySchema).max(MAX_QUERY_COUNT).safeParse(parsed);
+  const result = z.array(playgroundQuerySchema).safeParse(parsed);
 
   if (!result.success) {
     return [];

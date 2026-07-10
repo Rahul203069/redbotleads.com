@@ -37,7 +37,6 @@ type CleanQuery = {
 };
 
 const BULK_QUERY_SEPARATOR = ",,,";
-const MAX_QUERY_COUNT = 100;
 const MAX_QUERY_TEXT_LENGTH = 700;
 const MAX_QUERY_CATEGORY_LENGTH = 80;
 const MAX_RUN_TITLE_LENGTH = 120;
@@ -694,10 +693,6 @@ function cleanQueryRows(rows: Array<{ category?: unknown; text?: unknown; queryT
       text,
     });
     seenTexts.add(dedupeKey);
-
-    if (cleanedRows.length >= MAX_QUERY_COUNT) {
-      break;
-    }
   }
 
   return cleanedRows;

@@ -191,12 +191,14 @@ function parseQueries(value: FormDataEntryValue | null): { status: "success"; qu
     ? parsed
     : isRecord(parsed) && Array.isArray(parsed.semanticQueries)
       ? parsed.semanticQueries
+      : isRecord(parsed) && Array.isArray(parsed.queries)
+        ? parsed.queries
       : null;
 
   if (!rows) {
     return {
       status: "error",
-      message: "Semantic queries must be an array or an object with a semanticQueries array.",
+      message: "Semantic queries must be an array or an object with a semanticQueries or queries array.",
     };
   }
 
@@ -204,11 +206,11 @@ function parseQueries(value: FormDataEntryValue | null): { status: "success"; qu
   const seenTexts = new Set<string>();
 
   for (const [index, row] of rows.entries()) {
-    if (!isRecord(row)) {
+    if (!isRecord(row) && typeof row !== "string") {
       continue;
     }
 
-    const rawText = typeof row.text === "string" ? row.text : typeof row.queryText === "string" ? row.queryText : "";
+    const rawText = typeof row === "string" ? row : typeof row.text === "string" ? row.text : typeof row.queryText === "string" ? row.queryText : "";
     const text = rawText.trim();
 
     if (!text) {
@@ -229,7 +231,7 @@ function parseQueries(value: FormDataEntryValue | null): { status: "success"; qu
       };
     }
 
-    const rawCategory = typeof row.category === "string" ? row.category.trim() : "";
+    const rawCategory = typeof row === "string" ? "" : typeof row.category === "string" ? row.category.trim() : "";
 
     if (rawCategory.length > MAX_QUERY_CATEGORY_LENGTH) {
       return {

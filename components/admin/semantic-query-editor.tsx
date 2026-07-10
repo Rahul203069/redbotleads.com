@@ -40,6 +40,12 @@ type CleanQuery = {
   text: string;
 };
 
+type BulkQueryInputRow = {
+  category?: unknown;
+  text?: unknown;
+  queryText?: unknown;
+} | string;
+
 const BULK_QUERY_SEPARATOR = ",,,";
 const MIN_QUERY_TEXT_LENGTH = 3;
 const MAX_QUERY_TEXT_LENGTH = 700;
@@ -360,7 +366,7 @@ export function SemanticQueryEditor({
           <DialogHeader>
             <DialogTitle className="text-xl">Bulk paste semantic queries</DialogTitle>
             <DialogDescription>
-              Add JSON or plain text queries separated by triple commas to the current editor list.
+              Add JSON, one query per line, or plain text queries separated by triple commas to the current editor list.
             </DialogDescription>
           </DialogHeader>
 
@@ -370,6 +376,10 @@ export function SemanticQueryEditor({
               className="max-h-[48dvh] min-h-[260px] resize-y font-mono text-[13px] leading-5"
               onChange={(event) => setBulkPasteValue(event.target.value)}
               placeholder={`{"semanticQueries":[{"category":"buyer-intent","text":"looking for a CRM recommendation"}]}
+
+or
+query one
+query two
 
 or
 query one,,,query two`}
@@ -428,12 +438,7 @@ function parseBulkQueryInput(value: string): { status: "success"; queries: Clean
     return structuredInput;
   }
 
-  const rows = structuredInput.status === "parsed"
-    ? structuredInput.rows
-    : input.split(BULK_QUERY_SEPARATOR).map((text) => ({
-        category: "",
-        text,
-      }));
+  const rows = structuredInput.status === "parsed" ? structuredInput.rows : parsePlainTextBulkRows(input);
 
   return cleanQueryRows(rows);
 }
@@ -442,7 +447,7 @@ function parseStructuredBulkQueryInput(
   input: string,
 ):
   | { status: "plainText" }
-  | { status: "parsed"; rows: Array<Record<string, unknown>> }
+  | { status: "parsed"; rows: BulkQueryInputRow[] }
   | { status: "error"; message: string } {
   if (!input.startsWith("{") && !input.startsWith("[")) {
     return { status: "plainText" };
@@ -463,28 +468,52 @@ function parseStructuredBulkQueryInput(
     ? parsed
     : isRecord(parsed) && Array.isArray(parsed.semanticQueries)
       ? parsed.semanticQueries
+      : isRecord(parsed) && Array.isArray(parsed.queries)
+        ? parsed.queries
       : null;
 
   if (!rows) {
     return {
       status: "error",
-      message: "JSON must be an array, or an object with a semanticQueries array.",
+      message: "JSON must be an array, or an object with a semanticQueries or queries array.",
     };
   }
 
   return {
     status: "parsed",
-    rows: rows.filter(isRecord),
+    rows: rows.filter((row): row is BulkQueryInputRow => isRecord(row) || typeof row === "string"),
   };
 }
 
-function cleanQueryRows(rows: Array<{ category?: unknown; text?: unknown; queryText?: unknown }>): { status: "success"; queries: CleanQuery[] } | { status: "error"; message: string } {
+function parsePlainTextBulkRows(input: string): BulkQueryInputRow[] {
+  const chunks = input.includes(BULK_QUERY_SEPARATOR)
+    ? input.split(BULK_QUERY_SEPARATOR)
+    : input.split(/\r?\n/);
+
+  return chunks
+    .map((text) => stripListMarker(text).trim())
+    .filter(Boolean);
+}
+
+function stripListMarker(value: string) {
+  return value
+    .replace(/^\s*(?:[-*•]\s+|\d+[\).:-]\s*)/, "")
+    .trim();
+}
+
+function cleanQueryRows(rows: BulkQueryInputRow[]): { status: "success"; queries: CleanQuery[] } | { status: "error"; message: string } {
   const cleanedRows: CleanQuery[] = [];
   const seenTexts = new Set<string>();
 
   for (const [index, row] of rows.entries()) {
-    const textValue = typeof row.text === "string" ? row.text : typeof row.queryText === "string" ? row.queryText : "";
-    const categoryValue = typeof row.category === "string" ? row.category : "";
+    const textValue = typeof row === "string"
+      ? row
+      : typeof row.text === "string"
+        ? row.text
+        : typeof row.queryText === "string"
+          ? row.queryText
+          : "";
+    const categoryValue = typeof row === "string" ? "" : typeof row.category === "string" ? row.category : "";
     const text = textValue.trim();
     const category = categoryValue.trim();
 

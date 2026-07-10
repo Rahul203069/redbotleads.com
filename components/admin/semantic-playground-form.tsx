@@ -84,6 +84,14 @@ export function SemanticPlaygroundForm({
     setRows(buildQueryRows(selectedCampaign));
   }
 
+  function handleClearQueries() {
+    setRows([]);
+    toast({
+      title: "Semantic test set cleared",
+      description: "Add or bulk paste semantic queries before running the playground.",
+    });
+  }
+
   function handleAddQuery() {
     setRows((current) => [
       ...current,
@@ -370,6 +378,10 @@ export function SemanticPlaygroundForm({
                 <RotateCcw className="h-4 w-4" />
                 Reset
               </Button>
+              <Button className="rounded-full" disabled={rows.length === 0} onClick={handleClearQueries} size="sm" type="button" variant="secondary">
+                <Trash2 className="h-4 w-4" />
+                Clear all
+              </Button>
               <Button className="rounded-full" onClick={handleCopyQueries} size="sm" type="button" variant="secondary">
                 <Copy className="h-4 w-4" />
                 Copy JSON
@@ -386,45 +398,51 @@ export function SemanticPlaygroundForm({
           </div>
 
           <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain pt-4 pr-1">
-            {rows.map((row, index) => (
-              <div className="rounded-[18px] bg-[#121212] p-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]" key={row.id}>
-                <div className="grid gap-3 md:grid-cols-[1fr_180px_auto] md:items-start">
-                  <label className="grid gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Query {index + 1}</span>
-                    <Textarea
-                      className="min-h-20 resize-y"
-                      onChange={(event) =>
-                        setRows((current) =>
-                          current.map((item) => (item.id === row.id ? { ...item, text: event.target.value } : item)),
-                        )
-                      }
-                      value={row.text}
-                    />
-                  </label>
-                  <label className="grid gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Category</span>
-                    <Input
-                      onChange={(event) =>
-                        setRows((current) =>
-                          current.map((item) => (item.id === row.id ? { ...item, category: event.target.value } : item)),
-                        )
-                      }
-                      value={row.category}
-                    />
-                  </label>
-                  <Button
-                    aria-label={`Remove query ${index + 1}`}
-                    className="min-h-11 rounded-full md:mt-7"
-                    onClick={() => handleRemoveQuery(row.id)}
-                    size="sm"
-                    type="button"
-                    variant="secondary"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+            {rows.length === 0 ? (
+              <div className="rounded-[18px] border border-dashed border-[#3f3f46] bg-[#121212] p-4 text-[13px] leading-5 text-[#b3b3b3]">
+                No draft semantic queries. Add a query or bulk paste a test set before running the playground.
               </div>
-            ))}
+            ) : (
+              rows.map((row, index) => (
+                <div className="rounded-[18px] bg-[#121212] p-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]" key={row.id}>
+                  <div className="grid gap-3 md:grid-cols-[1fr_180px_auto] md:items-start">
+                    <label className="grid gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Query {index + 1}</span>
+                      <Textarea
+                        className="min-h-20 resize-y"
+                        onChange={(event) =>
+                          setRows((current) =>
+                            current.map((item) => (item.id === row.id ? { ...item, text: event.target.value } : item)),
+                          )
+                        }
+                        value={row.text}
+                      />
+                    </label>
+                    <label className="grid gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Category</span>
+                      <Input
+                        onChange={(event) =>
+                          setRows((current) =>
+                            current.map((item) => (item.id === row.id ? { ...item, category: event.target.value } : item)),
+                          )
+                        }
+                        value={row.category}
+                      />
+                    </label>
+                    <Button
+                      aria-label={`Remove query ${index + 1}`}
+                      className="min-h-11 rounded-full md:mt-7"
+                      onClick={() => handleRemoveQuery(row.id)}
+                      size="sm"
+                      type="button"
+                      variant="secondary"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </section>
       </form>

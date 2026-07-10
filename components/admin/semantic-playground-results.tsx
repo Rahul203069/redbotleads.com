@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowDownWideNarrow, Loader2 } from "lucide-react";
+import { ArrowDownWideNarrow, Check, Copy, Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 
 type PlaygroundResultSort = "semantic" | "llm";
+const MIN_COPY_LEAD_SCORE = 50;
 
 type SemanticPlaygroundProgress = {
   candidatePosts: number;
@@ -55,8 +56,30 @@ export function SemanticPlaygroundResults({
   totalMatches: number;
 }) {
   const [sortBy, setSortBy] = useState<PlaygroundResultSort>("semantic");
+  const [copied, setCopied] = useState(false);
   const sortedResults = useMemo(() => sortResults(results, sortBy), [results, sortBy]);
+  const copyableResults = useMemo(
+    () => sortedResults.filter((result) => (result.score ?? -1) >= MIN_COPY_LEAD_SCORE),
+    [sortedResults],
+  );
   const runStatusLabel = runStatus === "QUEUED" ? "Queued" : "Processing";
+
+  async function handleCopyQualifiedLeads() {
+    await copyTextToClipboard(
+      JSON.stringify(
+        {
+          copiedAt: new Date().toISOString(),
+          minScore: MIN_COPY_LEAD_SCORE,
+          leads: copyableResults.map(formatPlaygroundLeadForJson),
+          totalLeads: copyableResults.length,
+        },
+        null,
+        2,
+      ),
+    );
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <div className="flex max-h-[72dvh] min-h-0 flex-col overflow-hidden rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] xl:max-h-[calc(100dvh-12rem)]">
@@ -77,6 +100,16 @@ export function SemanticPlaygroundResults({
               <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
                 Showing {results.length} of {totalMatches}
               </span>
+
+              <button
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#1f1f1f] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={copyableResults.length === 0}
+                onClick={handleCopyQualifiedLeads}
+                type="button"
+              >
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copied ? "Copied" : "Copy 50+ JSON"}
+              </button>
 
               <div className="inline-flex min-h-10 items-center rounded-full bg-[#1f1f1f] p-1 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
                 <ArrowDownWideNarrow className="ml-2 h-4 w-4 text-[#b3b3b3]" />
@@ -336,4 +369,65 @@ function getSourcePreview(body: string | null, description: string | null) {
   }
 
   return `${content.slice(0, 357)}...`;
+}
+
+function formatPlaygroundLeadForJson(result: SemanticPlaygroundResultItem) {
+  return {
+    id: result.id,
+    score: result.score,
+    semanticScore: result.bestScore,
+    classificationStatus: result.classificationStatus,
+    label: result.label,
+    intentType: result.intentType,
+    buyerStage: result.buyerStage,
+    category: result.category,
+    summary: result.summary,
+    painPoints: result.painPoints,
+    disqualifier: result.disqualifier,
+    model: result.model,
+    error: result.error,
+    matchedQuery: result.bestQueryText,
+    redditItem: {
+      author: result.redditItem.author,
+      body: result.redditItem.body,
+      createdUtc: result.redditItem.createdUtc,
+      description: result.redditItem.description,
+      fetchedAt: result.redditItem.fetchedAt,
+      subreddit: result.redditItem.subreddit,
+      title: result.redditItem.title,
+      url: result.redditItem.url,
+    },
+  };
+}
+
+async function copyTextToClipboard(text: string) {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Fall back to the legacy copy path below.
+    }
+  }
+
+  if (typeof document === "undefined" || !document.body) {
+    return;
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "true");
+  textArea.style.position = "fixed";
+  textArea.style.left = "-9999px";
+  textArea.style.top = "0";
+  textArea.style.opacity = "0";
+
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  try {
+    document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textArea);
+  }
 }

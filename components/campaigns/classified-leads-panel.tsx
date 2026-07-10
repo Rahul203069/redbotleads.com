@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Clock3 } from "lucide-react";
+import { Check, Clock3, Copy } from "lucide-react";
 
 export type ClassifiedLead = {
   id: string;
@@ -33,6 +33,7 @@ const statusFilters = ["ALL", "NEW", "SAVED", "IGNORED", "REPLIED"] as const;
 const scoreSortOptions = ["SCORE_DESC", "SCORE_ASC", "SEMANTIC_DESC"] as const;
 const nonAdminScoreSortOptions = ["SCORE_DESC", "SCORE_ASC"] as const;
 const MIN_VISIBLE_LEAD_SCORE = 40;
+const MIN_COPY_LEAD_SCORE = 50;
 
 export function ClassifiedLeadsPanel({
   isFilterLoading = false,
@@ -55,6 +56,7 @@ export function ClassifiedLeadsPanel({
   const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>("ALL");
   const [scoreSort, setScoreSort] = useState<(typeof scoreSortOptions)[number]>("SCORE_DESC");
   const [expandedLeadIds, setExpandedLeadIds] = useState<string[]>([]);
+  const [copied, setCopied] = useState(false);
   const activeScoreSort = showSemanticSort || scoreSort !== "SEMANTIC_DESC" ? scoreSort : "SCORE_DESC";
   const availableScoreSortOptions = showSemanticSort ? scoreSortOptions : nonAdminScoreSortOptions;
 
@@ -88,9 +90,35 @@ export function ClassifiedLeadsPanel({
     },
     [activeScoreSort, classifiedLeads, labelFilter, showStatusFilter, statusFilter],
   );
+  const copyableLeads = useMemo(
+    () => filteredLeads.filter((lead) => lead.score >= MIN_COPY_LEAD_SCORE),
+    [filteredLeads],
+  );
   const isProcessing = syncStatus === "QUEUED" || syncStatus === "PROCESSING";
   const shouldShowWaitingState = isProcessing || shouldWaitForNextSync;
   const isCompleted = syncStatus === "COMPLETED";
+
+  async function handleCopyVisibleLeads() {
+    await copyTextToClipboard(
+      JSON.stringify(
+        {
+          copiedAt: new Date().toISOString(),
+          filters: {
+            label: labelFilter,
+            minScore: MIN_COPY_LEAD_SCORE,
+            sort: activeScoreSort,
+            status: showStatusFilter ? statusFilter : null,
+          },
+          leads: copyableLeads.map(formatLeadForJson),
+          totalLeads: copyableLeads.length,
+        },
+        null,
+        2,
+      ),
+    );
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <section aria-busy={isFilterLoading} className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-6">
@@ -102,9 +130,21 @@ export function ClassifiedLeadsPanel({
               Only leads that passed semantic matching and finished LLM classification appear here.
             </p>
           </div>
-          <div className={`grid w-full gap-3 sm:w-auto ${showStatusFilter ? "sm:grid-cols-3" : "sm:grid-cols-2"} lg:flex lg:flex-row`}>
+          <div className={`grid w-full gap-3 sm:w-auto ${showStatusFilter ? "sm:grid-cols-4" : "sm:grid-cols-3"} lg:flex lg:flex-row`}>
             {!shouldShowWaitingState && !isFilterLoading ? (
               <>
+                <div className="grid gap-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Export</span>
+                  <button
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-full border-none bg-[#121212] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors hover:bg-[#252525] focus-visible:ring-2 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[160px]"
+                    disabled={copyableLeads.length === 0}
+                    onClick={handleCopyVisibleLeads}
+                    type="button"
+                  >
+                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    {copied ? "Copied" : "Copy JSON"}
+                  </button>
+                </div>
                 <FilterGroup
                   label="Label"
                   options={labelFilters}
@@ -424,4 +464,65 @@ function hasLongContent(body: string | null, description: string | null) {
 
 function formatEnumLabel(value: string) {
   return value.replace(/_/g, " ");
+}
+
+function formatLeadForJson(lead: ClassifiedLead) {
+  return {
+    id: lead.id,
+    score: lead.score,
+    semanticScore: lead.semanticScore,
+    label: lead.label,
+    status: lead.status,
+    createdAt: lead.createdAt,
+    ai: lead.ai
+      ? {
+          intentType: lead.ai.intentType,
+          buyerStage: lead.ai.buyerStage,
+          category: lead.ai.category,
+          summary: lead.ai.summary,
+          painPoints: lead.ai.painPoints,
+          disqualifier: lead.ai.disqualifier,
+        }
+      : null,
+    redditItem: {
+      type: lead.redditItem.type,
+      subreddit: lead.redditItem.subreddit,
+      title: lead.redditItem.title,
+      description: lead.redditItem.description,
+      body: lead.redditItem.body,
+      url: lead.redditItem.url,
+    },
+  };
+}
+
+async function copyTextToClipboard(text: string) {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Fall back to the legacy copy path below.
+    }
+  }
+
+  if (typeof document === "undefined" || !document.body) {
+    return;
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "true");
+  textArea.style.position = "fixed";
+  textArea.style.left = "-9999px";
+  textArea.style.top = "0";
+  textArea.style.opacity = "0";
+
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  try {
+    document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textArea);
+  }
 }

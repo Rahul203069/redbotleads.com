@@ -41,7 +41,6 @@ type CleanQuery = {
 };
 
 const BULK_QUERY_SEPARATOR = ",,,";
-const MAX_QUERY_COUNT = 100;
 const MIN_QUERY_TEXT_LENGTH = 3;
 const MAX_QUERY_TEXT_LENGTH = 700;
 const MAX_QUERY_CATEGORY_LENGTH = 80;
@@ -74,15 +73,6 @@ export function SemanticQueryEditor({
   }
 
   function handleAddQuery() {
-    if (rows.length >= MAX_QUERY_COUNT) {
-      toast({
-        title: "Query limit reached",
-        description: `Keep ${MAX_QUERY_COUNT} or fewer semantic queries.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
     setRows((current) => [
       ...current,
       {
@@ -540,13 +530,6 @@ function cleanQueryRows(rows: Array<{ category?: unknown; text?: unknown; queryT
     return {
       status: "error",
       message: "Add at least one semantic query with 3 or more characters.",
-    };
-  }
-
-  if (cleanedRows.length > MAX_QUERY_COUNT) {
-    return {
-      status: "error",
-      message: `Keep ${MAX_QUERY_COUNT} or fewer semantic queries.`,
     };
   }
 

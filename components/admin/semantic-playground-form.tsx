@@ -40,6 +40,8 @@ const BULK_QUERY_SEPARATOR = ",,,";
 const MAX_QUERY_COUNT = 100;
 const MAX_QUERY_TEXT_LENGTH = 700;
 const MAX_QUERY_CATEGORY_LENGTH = 80;
+const MAX_RUN_TITLE_LENGTH = 120;
+const MAX_RUN_DESCRIPTION_LENGTH = 1000;
 
 export function SemanticPlaygroundForm({
   campaigns,
@@ -63,6 +65,8 @@ export function SemanticPlaygroundForm({
     () => campaigns.find((campaign) => campaign.id === campaignId) ?? null,
     [campaignId, campaigns],
   );
+  const [runTitle, setRunTitle] = useState("");
+  const [runDescription, setRunDescription] = useState("");
   const [rows, setRows] = useState<QueryRow[]>(() => buildQueryRows(selectedCampaign));
   const [fetchedFrom, setFetchedFrom] = useState(() => toLocalInputValue(defaultFetchedFrom));
   const [fetchedTo, setFetchedTo] = useState(() => toLocalInputValue(defaultFetchedTo));
@@ -176,7 +180,45 @@ export function SemanticPlaygroundForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    const cleanedRunTitle = runTitle.trim();
+    const cleanedRunDescription = runDescription.trim();
     const cleanedRows = cleanQueryRows(rows);
+
+    if (cleanedRunTitle.length < 2) {
+      toast({
+        title: "Playground run not started",
+        description: "Add a playground run title.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (cleanedRunTitle.length > MAX_RUN_TITLE_LENGTH) {
+      toast({
+        title: "Playground run not started",
+        description: `Title must be ${MAX_RUN_TITLE_LENGTH} characters or less.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (cleanedRunDescription.length < 3) {
+      toast({
+        title: "Playground run not started",
+        description: "Add a playground run description.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (cleanedRunDescription.length > MAX_RUN_DESCRIPTION_LENGTH) {
+      toast({
+        title: "Playground run not started",
+        description: `Description must be ${MAX_RUN_DESCRIPTION_LENGTH} characters or less.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (!campaignId || cleanedRows.length === 0) {
       toast({
@@ -201,10 +243,12 @@ export function SemanticPlaygroundForm({
 
     const submitSignature = buildSubmitSignature({
       campaignId,
+      description: cleanedRunDescription,
       fetchedFrom: fromIso,
       fetchedTo: toIso,
       queries: cleanedRows,
       threshold,
+      title: cleanedRunTitle,
     });
 
     if (activeSubmitSignatureRef.current === submitSignature) {
@@ -220,9 +264,11 @@ export function SemanticPlaygroundForm({
 
     const formData = new FormData();
     formData.set("campaignId", campaignId);
+    formData.set("description", cleanedRunDescription);
     formData.set("fetchedFrom", fromIso);
     formData.set("fetchedTo", toIso);
     formData.set("threshold", threshold);
+    formData.set("title", cleanedRunTitle);
     formData.set("queriesJson", JSON.stringify(cleanedRows));
 
     startTransition(async () => {
@@ -238,6 +284,8 @@ export function SemanticPlaygroundForm({
             variant: result.status === "success" ? undefined : "destructive",
           });
           navigatedToRun = true;
+          setRunTitle("");
+          setRunDescription("");
           router.push(`/admin/analytics/playground?campaignId=${encodeURIComponent(campaignId)}&runId=${encodeURIComponent(result.runId)}`);
           router.refresh();
           return;
@@ -285,9 +333,33 @@ export function SemanticPlaygroundForm({
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
             <div className="grid gap-4 pt-4">
               <label className="grid gap-2">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Run title</span>
+                <Input
+                  disabled={isSubmitPending}
+                  maxLength={MAX_RUN_TITLE_LENGTH}
+                  onChange={(event) => setRunTitle(event.target.value)}
+                  required
+                  value={runTitle}
+                />
+              </label>
+
+              <label className="grid gap-2">
+                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Run description</span>
+                <Textarea
+                  className="min-h-24 resize-y"
+                  disabled={isSubmitPending}
+                  maxLength={MAX_RUN_DESCRIPTION_LENGTH}
+                  onChange={(event) => setRunDescription(event.target.value)}
+                  required
+                  value={runDescription}
+                />
+              </label>
+
+              <label className="grid gap-2">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Campaign</span>
                 <select
                   className="h-11 w-full rounded-xl border border-[#27272a] bg-[#09090b] px-3 text-sm text-[#fafafa] outline-none transition-colors focus-visible:border-white/28 focus-visible:ring-2 focus-visible:ring-white/10"
+                  disabled={isSubmitPending}
                   onChange={(event) => handleCampaignChange(event.target.value)}
                   value={campaignId}
                 >
@@ -326,6 +398,7 @@ export function SemanticPlaygroundForm({
                 <label className="grid gap-2">
                   <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Fetched from</span>
                   <Input
+                    disabled={isSubmitPending}
                     onChange={(event) => setFetchedFrom(event.target.value)}
                     type="datetime-local"
                     value={fetchedFrom}
@@ -334,6 +407,7 @@ export function SemanticPlaygroundForm({
                 <label className="grid gap-2">
                   <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Fetched to</span>
                   <Input
+                    disabled={isSubmitPending}
                     onChange={(event) => setFetchedTo(event.target.value)}
                     type="datetime-local"
                     value={fetchedTo}
@@ -344,6 +418,7 @@ export function SemanticPlaygroundForm({
               <label className="grid gap-2">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Minimum semantic score</span>
                 <Input
+                  disabled={isSubmitPending}
                   max="1"
                   min="0"
                   onChange={(event) => setThreshold(event.target.value)}
@@ -630,23 +705,29 @@ function cleanQueryRows(rows: Array<{ category?: unknown; text?: unknown; queryT
 
 function buildSubmitSignature({
   campaignId,
+  description,
   fetchedFrom,
   fetchedTo,
   queries,
   threshold,
+  title,
 }: {
   campaignId: string;
+  description: string;
   fetchedFrom: string;
   fetchedTo: string;
   queries: CleanQuery[];
   threshold: string;
+  title: string;
 }) {
   return JSON.stringify({
     campaignId,
+    description,
     fetchedFrom,
     fetchedTo,
     queries,
     threshold: threshold.trim(),
+    title,
   });
 }
 

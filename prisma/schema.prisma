@@ -526,6 +526,8 @@ model CampaignSemanticPlaygroundRun {
   id         String @id @default(cuid())
   userId     String
   campaignId String
+  title      String?
+  description String?
 
   status    String @default("QUEUED")
   threshold Float  @default(0.5)

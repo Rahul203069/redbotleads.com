@@ -12,13 +12,22 @@ import { enqueueSemanticPlaygroundRun } from "@/worker/queues";
 const DEFAULT_THRESHOLD = 0.5;
 const MAX_QUERY_COUNT = 100;
 const MAX_QUERY_LENGTH = 700;
+const MAX_RUN_DESCRIPTION_LENGTH = 1000;
+const MAX_RUN_TITLE_LENGTH = 120;
 const DAILY_SEMANTIC_CRON_UTC_HOUR = 2;
 const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
+
+const playgroundRunMetadataSchema = z.object({
+  description: z.string().trim().min(3, "Add a playground run description.").max(MAX_RUN_DESCRIPTION_LENGTH, `Description must be ${MAX_RUN_DESCRIPTION_LENGTH} characters or less.`),
+  title: z.string().trim().min(2, "Add a playground run title.").max(MAX_RUN_TITLE_LENGTH, `Title must be ${MAX_RUN_TITLE_LENGTH} characters or less.`),
+});
 
 const playgroundQuerySchema = z.object({
   category: z.string().trim().max(80).optional().nullable(),
   text: z.string().trim().min(3).max(MAX_QUERY_LENGTH),
 });
+
+type PlaygroundRunMetadata = z.infer<typeof playgroundRunMetadataSchema>;
 
 type ParsedPlaygroundQuery = {
   category: string | null;
@@ -52,12 +61,20 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
   const fetchedFrom = new Date(String(formData.get("fetchedFrom") ?? ""));
   const fetchedTo = new Date(String(formData.get("fetchedTo") ?? ""));
   const threshold = normalizeThreshold(formData.get("threshold"));
+  const runMetadata = parseRunMetadata(formData);
   const parsedQueries = parseQueries(formData.get("queriesJson"));
 
   if (!campaignId) {
     return {
       status: "error",
       message: "Select a campaign before starting a playground run.",
+    };
+  }
+
+  if (runMetadata.status === "error") {
+    return {
+      status: "error",
+      message: runMetadata.message,
     };
   }
 
@@ -105,6 +122,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
       campaignId: campaign.id,
       fetchedFrom,
       fetchedTo,
+      metadata: runMetadata.metadata,
       queries: parsedQueries,
       threshold,
       userId: session.user.id,
@@ -123,13 +141,17 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
           in: ["QUEUED", "PROCESSING"],
         },
         threshold,
+        title: runMetadata.metadata.title,
         userId: session.user.id,
+        description: runMetadata.metadata.description,
       },
       orderBy: {
         createdAt: "desc",
       },
       select: {
         id: true,
+        description: true,
+        title: true,
         queries: {
           orderBy: {
             createdAt: "asc",
@@ -153,11 +175,14 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
     const run = await tx.campaignSemanticPlaygroundRun.create({
       data: {
         campaignId: campaign.id,
+        description: runMetadata.metadata.description,
         fetchedFrom,
         fetchedTo,
         querySnapshot: {
           campaignName: campaign.name,
+          description: runMetadata.metadata.description,
           queries: parsedQueries,
+          title: runMetadata.metadata.title,
         } as Prisma.InputJsonValue,
         queries: {
           create: parsedQueries.map((query) => ({
@@ -170,6 +195,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
         } as Prisma.InputJsonValue,
         status: "QUEUED",
         threshold,
+        title: runMetadata.metadata.title,
         userId: session.user.id,
       },
       select: {
@@ -450,6 +476,25 @@ function normalizeThreshold(value: FormDataEntryValue | null) {
   return Math.min(1, Math.max(0, parsed));
 }
 
+function parseRunMetadata(formData: FormData): { status: "success"; metadata: PlaygroundRunMetadata } | { status: "error"; message: string } {
+  const parsed = playgroundRunMetadataSchema.safeParse({
+    description: String(formData.get("description") ?? ""),
+    title: String(formData.get("title") ?? ""),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Add a playground run title and description.",
+    };
+  }
+
+  return {
+    status: "success",
+    metadata: parsed.data,
+  };
+}
+
 function parseQueries(value: FormDataEntryValue | null): ParsedPlaygroundQuery[] {
   if (typeof value !== "string" || !value.trim()) {
     return [];
@@ -492,6 +537,7 @@ function buildPlaygroundRunSignature({
   campaignId,
   fetchedFrom,
   fetchedTo,
+  metadata,
   queries,
   threshold,
   userId,
@@ -499,6 +545,7 @@ function buildPlaygroundRunSignature({
   campaignId: string;
   fetchedFrom: Date;
   fetchedTo: Date;
+  metadata: PlaygroundRunMetadata;
   queries: ParsedPlaygroundQuery[];
   threshold: number;
   userId: string;
@@ -507,8 +554,10 @@ function buildPlaygroundRunSignature({
     campaignId,
     fetchedFrom: fetchedFrom.toISOString(),
     fetchedTo: fetchedTo.toISOString(),
+    description: metadata.description,
     queries,
     threshold,
+    title: metadata.title,
     userId,
   });
 }

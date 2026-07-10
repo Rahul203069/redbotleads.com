@@ -38,6 +38,8 @@ export type CampaignSemanticPlaygroundRunMinAggregateOutputType = {
   id: string | null
   userId: string | null
   campaignId: string | null
+  title: string | null
+  description: string | null
   status: string | null
   threshold: number | null
   fetchedFrom: Date | null
@@ -55,6 +57,8 @@ export type CampaignSemanticPlaygroundRunMaxAggregateOutputType = {
   id: string | null
   userId: string | null
   campaignId: string | null
+  title: string | null
+  description: string | null
   status: string | null
   threshold: number | null
   fetchedFrom: Date | null
@@ -72,6 +76,8 @@ export type CampaignSemanticPlaygroundRunCountAggregateOutputType = {
   id: number
   userId: number
   campaignId: number
+  title: number
+  description: number
   status: number
   threshold: number
   fetchedFrom: number
@@ -101,6 +107,8 @@ export type CampaignSemanticPlaygroundRunMinAggregateInputType = {
   id?: true
   userId?: true
   campaignId?: true
+  title?: true
+  description?: true
   status?: true
   threshold?: true
   fetchedFrom?: true
@@ -118,6 +126,8 @@ export type CampaignSemanticPlaygroundRunMaxAggregateInputType = {
   id?: true
   userId?: true
   campaignId?: true
+  title?: true
+  description?: true
   status?: true
   threshold?: true
   fetchedFrom?: true
@@ -135,6 +145,8 @@ export type CampaignSemanticPlaygroundRunCountAggregateInputType = {
   id?: true
   userId?: true
   campaignId?: true
+  title?: true
+  description?: true
   status?: true
   threshold?: true
   fetchedFrom?: true
@@ -241,6 +253,8 @@ export type CampaignSemanticPlaygroundRunGroupByOutputType = {
   id: string
   userId: string
   campaignId: string
+  title: string | null
+  description: string | null
   status: string
   threshold: number
   fetchedFrom: Date
@@ -283,6 +297,8 @@ export type CampaignSemanticPlaygroundRunWhereInput = {
   id?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   userId?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   campaignId?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
+  title?: Prisma.StringNullableFilter<"CampaignSemanticPlaygroundRun"> | string | null
+  description?: Prisma.StringNullableFilter<"CampaignSemanticPlaygroundRun"> | string | null
   status?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   threshold?: Prisma.FloatFilter<"CampaignSemanticPlaygroundRun"> | number
   fetchedFrom?: Prisma.DateTimeFilter<"CampaignSemanticPlaygroundRun"> | Date | string
@@ -306,6 +322,8 @@ export type CampaignSemanticPlaygroundRunOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   threshold?: Prisma.SortOrder
   fetchedFrom?: Prisma.SortOrder
@@ -332,6 +350,8 @@ export type CampaignSemanticPlaygroundRunWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.CampaignSemanticPlaygroundRunWhereInput | Prisma.CampaignSemanticPlaygroundRunWhereInput[]
   userId?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   campaignId?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
+  title?: Prisma.StringNullableFilter<"CampaignSemanticPlaygroundRun"> | string | null
+  description?: Prisma.StringNullableFilter<"CampaignSemanticPlaygroundRun"> | string | null
   status?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   threshold?: Prisma.FloatFilter<"CampaignSemanticPlaygroundRun"> | number
   fetchedFrom?: Prisma.DateTimeFilter<"CampaignSemanticPlaygroundRun"> | Date | string
@@ -355,6 +375,8 @@ export type CampaignSemanticPlaygroundRunOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   threshold?: Prisma.SortOrder
   fetchedFrom?: Prisma.SortOrder
@@ -382,6 +404,8 @@ export type CampaignSemanticPlaygroundRunScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | string
   userId?: Prisma.StringWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | string
   campaignId?: Prisma.StringWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | string
+  title?: Prisma.StringNullableWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | string | null
+  description?: Prisma.StringNullableWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | string
   threshold?: Prisma.FloatWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | number
   fetchedFrom?: Prisma.DateTimeWithAggregatesFilter<"CampaignSemanticPlaygroundRun"> | Date | string
@@ -399,6 +423,8 @@ export type CampaignSemanticPlaygroundRunScalarWhereWithAggregatesInput = {
 
 export type CampaignSemanticPlaygroundRunCreateInput = {
   id?: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -422,6 +448,8 @@ export type CampaignSemanticPlaygroundRunUncheckedCreateInput = {
   id?: string
   userId: string
   campaignId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -441,6 +469,8 @@ export type CampaignSemanticPlaygroundRunUncheckedCreateInput = {
 
 export type CampaignSemanticPlaygroundRunUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -464,6 +494,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -485,6 +517,8 @@ export type CampaignSemanticPlaygroundRunCreateManyInput = {
   id?: string
   userId: string
   campaignId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -502,6 +536,8 @@ export type CampaignSemanticPlaygroundRunCreateManyInput = {
 
 export type CampaignSemanticPlaygroundRunUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -521,6 +557,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -550,6 +588,8 @@ export type CampaignSemanticPlaygroundRunCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   threshold?: Prisma.SortOrder
   fetchedFrom?: Prisma.SortOrder
@@ -573,6 +613,8 @@ export type CampaignSemanticPlaygroundRunMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   threshold?: Prisma.SortOrder
   fetchedFrom?: Prisma.SortOrder
@@ -590,6 +632,8 @@ export type CampaignSemanticPlaygroundRunMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
+  title?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   status?: Prisma.SortOrder
   threshold?: Prisma.SortOrder
   fetchedFrom?: Prisma.SortOrder
@@ -726,6 +770,8 @@ export type CampaignSemanticPlaygroundRunUpdateOneRequiredWithoutResultsNestedIn
 
 export type CampaignSemanticPlaygroundRunCreateWithoutUserInput = {
   id?: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -747,6 +793,8 @@ export type CampaignSemanticPlaygroundRunCreateWithoutUserInput = {
 export type CampaignSemanticPlaygroundRunUncheckedCreateWithoutUserInput = {
   id?: string
   campaignId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -797,6 +845,8 @@ export type CampaignSemanticPlaygroundRunScalarWhereInput = {
   id?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   userId?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   campaignId?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
+  title?: Prisma.StringNullableFilter<"CampaignSemanticPlaygroundRun"> | string | null
+  description?: Prisma.StringNullableFilter<"CampaignSemanticPlaygroundRun"> | string | null
   status?: Prisma.StringFilter<"CampaignSemanticPlaygroundRun"> | string
   threshold?: Prisma.FloatFilter<"CampaignSemanticPlaygroundRun"> | number
   fetchedFrom?: Prisma.DateTimeFilter<"CampaignSemanticPlaygroundRun"> | Date | string
@@ -814,6 +864,8 @@ export type CampaignSemanticPlaygroundRunScalarWhereInput = {
 
 export type CampaignSemanticPlaygroundRunCreateWithoutCampaignInput = {
   id?: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -835,6 +887,8 @@ export type CampaignSemanticPlaygroundRunCreateWithoutCampaignInput = {
 export type CampaignSemanticPlaygroundRunUncheckedCreateWithoutCampaignInput = {
   id?: string
   userId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -880,6 +934,8 @@ export type CampaignSemanticPlaygroundRunUpdateManyWithWhereWithoutCampaignInput
 
 export type CampaignSemanticPlaygroundRunCreateWithoutQueriesInput = {
   id?: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -902,6 +958,8 @@ export type CampaignSemanticPlaygroundRunUncheckedCreateWithoutQueriesInput = {
   id?: string
   userId: string
   campaignId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -936,6 +994,8 @@ export type CampaignSemanticPlaygroundRunUpdateToOneWithWhereWithoutQueriesInput
 
 export type CampaignSemanticPlaygroundRunUpdateWithoutQueriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -958,6 +1018,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutQueriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -976,6 +1038,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutQueriesInput = {
 
 export type CampaignSemanticPlaygroundRunCreateWithoutResultsInput = {
   id?: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -998,6 +1062,8 @@ export type CampaignSemanticPlaygroundRunUncheckedCreateWithoutResultsInput = {
   id?: string
   userId: string
   campaignId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -1032,6 +1098,8 @@ export type CampaignSemanticPlaygroundRunUpdateToOneWithWhereWithoutResultsInput
 
 export type CampaignSemanticPlaygroundRunUpdateWithoutResultsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1054,6 +1122,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutResultsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1073,6 +1143,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutResultsInput = {
 export type CampaignSemanticPlaygroundRunCreateManyUserInput = {
   id?: string
   campaignId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -1090,6 +1162,8 @@ export type CampaignSemanticPlaygroundRunCreateManyUserInput = {
 
 export type CampaignSemanticPlaygroundRunUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1111,6 +1185,8 @@ export type CampaignSemanticPlaygroundRunUpdateWithoutUserInput = {
 export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1131,6 +1207,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutUserInput = {
 export type CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1149,6 +1227,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserInput = {
 export type CampaignSemanticPlaygroundRunCreateManyCampaignInput = {
   id?: string
   userId: string
+  title?: string | null
+  description?: string | null
   status?: string
   threshold?: number
   fetchedFrom: Date | string
@@ -1166,6 +1246,8 @@ export type CampaignSemanticPlaygroundRunCreateManyCampaignInput = {
 
 export type CampaignSemanticPlaygroundRunUpdateWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1187,6 +1269,8 @@ export type CampaignSemanticPlaygroundRunUpdateWithoutCampaignInput = {
 export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1207,6 +1291,8 @@ export type CampaignSemanticPlaygroundRunUncheckedUpdateWithoutCampaignInput = {
 export type CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   threshold?: Prisma.FloatFieldUpdateOperationsInput | number
   fetchedFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1266,6 +1352,8 @@ export type CampaignSemanticPlaygroundRunSelect<ExtArgs extends runtime.Types.Ex
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  title?: boolean
+  description?: boolean
   status?: boolean
   threshold?: boolean
   fetchedFrom?: boolean
@@ -1290,6 +1378,8 @@ export type CampaignSemanticPlaygroundRunSelectCreateManyAndReturn<ExtArgs exten
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  title?: boolean
+  description?: boolean
   status?: boolean
   threshold?: boolean
   fetchedFrom?: boolean
@@ -1311,6 +1401,8 @@ export type CampaignSemanticPlaygroundRunSelectUpdateManyAndReturn<ExtArgs exten
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  title?: boolean
+  description?: boolean
   status?: boolean
   threshold?: boolean
   fetchedFrom?: boolean
@@ -1332,6 +1424,8 @@ export type CampaignSemanticPlaygroundRunSelectScalar = {
   id?: boolean
   userId?: boolean
   campaignId?: boolean
+  title?: boolean
+  description?: boolean
   status?: boolean
   threshold?: boolean
   fetchedFrom?: boolean
@@ -1347,7 +1441,7 @@ export type CampaignSemanticPlaygroundRunSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CampaignSemanticPlaygroundRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "campaignId" | "status" | "threshold" | "fetchedFrom" | "fetchedTo" | "querySnapshot" | "statsJson" | "error" | "queuedAt" | "startedAt" | "completedAt" | "failedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignSemanticPlaygroundRun"]>
+export type CampaignSemanticPlaygroundRunOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "campaignId" | "title" | "description" | "status" | "threshold" | "fetchedFrom" | "fetchedTo" | "querySnapshot" | "statsJson" | "error" | "queuedAt" | "startedAt" | "completedAt" | "failedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignSemanticPlaygroundRun"]>
 export type CampaignSemanticPlaygroundRunInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
@@ -1376,6 +1470,8 @@ export type $CampaignSemanticPlaygroundRunPayload<ExtArgs extends runtime.Types.
     id: string
     userId: string
     campaignId: string
+    title: string | null
+    description: string | null
     status: string
     threshold: number
     fetchedFrom: Date
@@ -1819,6 +1915,8 @@ export interface CampaignSemanticPlaygroundRunFieldRefs {
   readonly id: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'String'>
   readonly userId: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'String'>
   readonly campaignId: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'String'>
+  readonly title: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'String'>
+  readonly description: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'String'>
   readonly status: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'String'>
   readonly threshold: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'Float'>
   readonly fetchedFrom: Prisma.FieldRef<"CampaignSemanticPlaygroundRun", 'DateTime'>

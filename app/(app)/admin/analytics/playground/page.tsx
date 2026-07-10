@@ -82,6 +82,8 @@ export default async function AdminSemanticPlaygroundPage({
         take: 8,
         select: {
           id: true,
+          title: true,
+          description: true,
           status: true,
           threshold: true,
           fetchedFrom: true,
@@ -104,6 +106,8 @@ export default async function AdminSemanticPlaygroundPage({
         },
         select: {
           id: true,
+          title: true,
+          description: true,
           status: true,
           threshold: true,
           fetchedFrom: true,
@@ -287,6 +291,8 @@ export default async function AdminSemanticPlaygroundPage({
                     <StatusPill label={run.status.toLowerCase()} tone={statusTone(run.status)} />
                     <span className="text-[11px] font-semibold text-[#b3b3b3]">{formatDate(run.createdAt)}</span>
                   </div>
+                  <h3 className="mt-3 truncate text-[15px] font-bold text-[#ffffff]">{getRunTitle(run.title)}</h3>
+                  <p className="mt-1 min-h-10 text-[12px] leading-5 text-[#b3b3b3]">{getRunDescription(run.description) ?? "No run description."}</p>
                   <p className="mt-3 text-[12px] leading-5 text-[#cbcbcb]">{formatDateRange(run.fetchedFrom, run.fetchedTo)}</p>
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <MiniMetric label="Semantic" value={String(getStat(stats, "semanticMatches"))} />
@@ -313,8 +319,10 @@ export default async function AdminSemanticPlaygroundPage({
                 <StatusPill label={`min ${selectedRun.threshold.toFixed(2)}`} tone="neutral" />
                 <StatusPill label={`${selectedRun.queries.length} queries`} tone="neutral" />
               </div>
-              <h2 className="mt-4 text-[22px] font-bold tracking-tight text-[#ffffff]">{selectedRun.campaign.name}</h2>
+              <h2 className="mt-4 text-[22px] font-bold tracking-tight text-[#ffffff]">{getRunTitle(selectedRun.title)}</h2>
+              <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">{getRunDescription(selectedRun.description) ?? "No run description."}</p>
               <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
+                {selectedRun.campaign.name} - {" "}
                 {formatDateRange(selectedRun.fetchedFrom, selectedRun.fetchedTo)}
               </p>
               {selectedRun.error ? (
@@ -343,10 +351,12 @@ export default async function AdminSemanticPlaygroundPage({
                   payload={{
                     campaignId: selectedRun.campaign.id,
                     campaignName: selectedRun.campaign.name,
+                    description: selectedRun.description,
                     fetchedFrom: selectedRun.fetchedFrom.toISOString(),
                     fetchedTo: selectedRun.fetchedTo.toISOString(),
                     runCreatedAt: selectedRun.createdAt.toISOString(),
                     runId: selectedRun.id,
+                    title: selectedRun.title,
                     semanticQueries: selectedRun.queries.map((query, index) => ({
                       category: query.category ?? null,
                       id: query.id,
@@ -490,6 +500,15 @@ function getRunLeadMetrics(metrics: Map<string, PlaygroundRunLeadMetrics>, runId
   return runId
     ? metrics.get(runId) ?? { strongLeads: 0, totalLeads: 0 }
     : { strongLeads: 0, totalLeads: 0 };
+}
+
+function getRunTitle(title: string | null) {
+  return title?.trim() || "Untitled playground run";
+}
+
+function getRunDescription(description: string | null) {
+  const normalizedDescription = description?.trim() ?? "";
+  return normalizedDescription.length > 0 ? normalizedDescription : null;
 }
 
 function formatDate(value: Date) {

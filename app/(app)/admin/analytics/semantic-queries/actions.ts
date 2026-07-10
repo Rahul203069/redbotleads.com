@@ -8,7 +8,8 @@ import { canViewAnalytics } from "@/lib/beta-access";
 import { generateEmbeddings } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 
-const MAX_QUERY_COUNT = 100;
+const EMBEDDING_BATCH_SIZE = 100;
+const INSERT_BATCH_SIZE = 100;
 const MIN_QUERY_TEXT_LENGTH = 3;
 const MAX_QUERY_TEXT_LENGTH = 700;
 const MAX_QUERY_CATEGORY_LENGTH = 80;
@@ -22,6 +23,11 @@ type SavedSemanticQuery = {
   category: string | null;
   id: string;
   queryText: string;
+};
+
+type EmbeddedSemanticQuery = SavedSemanticQuery & {
+  dimensions: number;
+  embedding: number[];
 };
 
 export type SaveCampaignSemanticQueriesResult =
@@ -80,22 +86,13 @@ export async function saveCampaignSemanticQueries(formData: FormData): Promise<S
     };
   }
 
-  let embeddingResult: Awaited<ReturnType<typeof generateEmbeddings>>;
+  let savedQueries: EmbeddedSemanticQuery[];
 
   try {
-    embeddingResult = await generateEmbeddings({
-      dimensions: 1536,
-      input: parsedQueries.queries.map((query) => query.text),
-      model: "text-embedding-3-small",
-      usage: {
-        campaignId: campaign.id,
-        metadata: {
-          queryCount: parsedQueries.queries.length,
-          source: "admin_semantic_query_editor",
-        },
-        operation: "campaign_semantic_query_embedding",
-        userId: session.user.id,
-      },
+    savedQueries = await embedSemanticQueries({
+      campaignId: campaign.id,
+      queries: parsedQueries.queries,
+      userId: session.user.id,
     });
   } catch (error) {
     return {
@@ -104,13 +101,6 @@ export async function saveCampaignSemanticQueries(formData: FormData): Promise<S
     };
   }
 
-  const savedQueries = parsedQueries.queries.map((query, index) => ({
-    category: query.category,
-    embedding: embeddingResult.embeddings[index],
-    id: crypto.randomUUID(),
-    queryText: query.text,
-  }));
-
   try {
     await prisma.$transaction(
       async (tx) => {
@@ -118,36 +108,38 @@ export async function saveCampaignSemanticQueries(formData: FormData): Promise<S
           Prisma.sql`DELETE FROM "CampaignSemanticQuery" WHERE "campaignId" = ${campaign.id}`,
         );
 
-        const rows = savedQueries.map((query) => {
-          const vectorLiteral = `[${query.embedding.join(",")}]`;
+        for (const chunk of chunkArray(savedQueries, INSERT_BATCH_SIZE)) {
+          const rows = chunk.map((query) => {
+            const vectorLiteral = `[${query.embedding.join(",")}]`;
 
-          return Prisma.sql`(
-            ${query.id},
-            ${campaign.id},
-            ${query.queryText},
-            ${query.category},
-            ${embeddingResult.dimensions},
-            CAST(${vectorLiteral} AS vector),
-            CURRENT_TIMESTAMP,
-            CURRENT_TIMESTAMP
-          )`;
-        });
+            return Prisma.sql`(
+              ${query.id},
+              ${campaign.id},
+              ${query.queryText},
+              ${query.category},
+              ${query.dimensions},
+              CAST(${vectorLiteral} AS vector),
+              CURRENT_TIMESTAMP,
+              CURRENT_TIMESTAMP
+            )`;
+          });
 
-        await tx.$executeRaw(
-          Prisma.sql`
-            INSERT INTO "CampaignSemanticQuery" (
-              "id",
-              "campaignId",
-              "queryText",
-              "category",
-              "dimensions",
-              "embedding",
-              "createdAt",
-              "updatedAt"
-            )
-            VALUES ${Prisma.join(rows)}
-          `,
-        );
+          await tx.$executeRaw(
+            Prisma.sql`
+              INSERT INTO "CampaignSemanticQuery" (
+                "id",
+                "campaignId",
+                "queryText",
+                "category",
+                "dimensions",
+                "embedding",
+                "createdAt",
+                "updatedAt"
+              )
+              VALUES ${Prisma.join(rows)}
+            `,
+          );
+        }
       },
       {
         maxWait: 5_000,
@@ -266,17 +258,62 @@ function parseQueries(value: FormDataEntryValue | null): { status: "success"; qu
     };
   }
 
-  if (queries.length > MAX_QUERY_COUNT) {
-    return {
-      status: "error",
-      message: `Keep ${MAX_QUERY_COUNT} or fewer semantic queries.`,
-    };
-  }
-
   return {
     status: "success",
     queries,
   };
+}
+
+async function embedSemanticQueries({
+  campaignId,
+  queries,
+  userId,
+}: {
+  campaignId: string;
+  queries: ParsedSemanticQuery[];
+  userId: string;
+}) {
+  const savedQueries: EmbeddedSemanticQuery[] = [];
+
+  for (const chunk of chunkArray(queries, EMBEDDING_BATCH_SIZE)) {
+    const embeddingResult = await generateEmbeddings({
+      dimensions: 1536,
+      input: chunk.map((query) => query.text),
+      model: "text-embedding-3-small",
+      usage: {
+        campaignId,
+        metadata: {
+          batchSize: chunk.length,
+          queryCount: queries.length,
+          source: "admin_semantic_query_editor",
+        },
+        operation: "campaign_semantic_query_embedding",
+        userId,
+      },
+    });
+
+    for (const [index, query] of chunk.entries()) {
+      savedQueries.push({
+        category: query.category,
+        dimensions: embeddingResult.dimensions,
+        embedding: embeddingResult.embeddings[index],
+        id: crypto.randomUUID(),
+        queryText: query.text,
+      });
+    }
+  }
+
+  return savedQueries;
+}
+
+function chunkArray<T>(items: T[], chunkSize: number) {
+  const chunks: T[][] = [];
+
+  for (let index = 0; index < items.length; index += chunkSize) {
+    chunks.push(items.slice(index, index + chunkSize));
+  }
+
+  return chunks;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

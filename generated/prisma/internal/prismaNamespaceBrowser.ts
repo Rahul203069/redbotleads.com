@@ -391,6 +391,8 @@ export const CampaignSemanticPlaygroundRunScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   campaignId: 'campaignId',
+  title: 'title',
+  description: 'description',
   status: 'status',
   threshold: 'threshold',
   fetchedFrom: 'fetchedFrom',

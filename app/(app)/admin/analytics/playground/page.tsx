@@ -232,7 +232,7 @@ export default async function AdminSemanticPlaygroundPage({
               Playground
             </h1>
             <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
-              Test draft semantic queries against already embedded Reddit posts without changing campaign queries, leads, or daily semantic reports.
+              Test draft semantic queries against already embedded Reddit posts, then manually promote useful classified results into campaign leads.
             </p>
           </div>
           <div className="grid gap-2 rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:grid-cols-3 lg:min-w-[420px]">

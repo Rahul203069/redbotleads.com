@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma, type LeadLabel } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -12,6 +12,8 @@ import { enqueueSemanticPlaygroundRun } from "@/worker/queues";
 const DEFAULT_THRESHOLD = 0.5;
 const MAX_QUERY_COUNT = 100;
 const MAX_QUERY_LENGTH = 700;
+const DAILY_SEMANTIC_CRON_UTC_HOUR = 2;
+const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
 
 const playgroundQuerySchema = z.object({
   category: z.string().trim().max(80).optional().nullable(),
@@ -27,6 +29,13 @@ export type StartSemanticPlaygroundRunResult = {
   status: "success" | "error";
   message: string;
   runId?: string;
+};
+
+export type AddPlaygroundResultToLeadResult = {
+  status: "success" | "error";
+  message: string;
+  leadId?: string;
+  created?: boolean;
 };
 
 export async function startSemanticPlaygroundRun(formData: FormData): Promise<StartSemanticPlaygroundRunResult> {
@@ -223,6 +232,214 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
   };
 }
 
+export async function addPlaygroundResultToCampaignLead(formData: FormData): Promise<AddPlaygroundResultToLeadResult> {
+  const session = await auth();
+
+  if (!session?.user?.id || !canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to add playground results to leads.",
+    };
+  }
+
+  const resultId = String(formData.get("resultId") ?? "").trim();
+  const syncAtValue = String(formData.get("syncAt") ?? "").trim();
+
+  if (!resultId) {
+    return {
+      status: "error",
+      message: "Choose a playground result before adding it to leads.",
+    };
+  }
+
+  const playgroundResult = await prisma.campaignSemanticPlaygroundResult.findUnique({
+    where: {
+      id: resultId,
+    },
+    select: {
+      bestQueryId: true,
+      bestQueryText: true,
+      bestScore: true,
+      buyerStage: true,
+      category: true,
+      classificationStatus: true,
+      disqualifier: true,
+      intentType: true,
+      label: true,
+      model: true,
+      painPoints: true,
+      promptVersion: true,
+      redditItemId: true,
+      redditItem: {
+        select: {
+          fetchedAt: true,
+        },
+      },
+      score: true,
+      summary: true,
+      run: {
+        select: {
+          campaign: {
+            select: {
+              id: true,
+              name: true,
+              userId: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!playgroundResult) {
+    return {
+      status: "error",
+      message: "Playground result was not found.",
+    };
+  }
+
+  if (playgroundResult.classificationStatus !== "CLASSIFIED" || playgroundResult.score === null) {
+    return {
+      status: "error",
+      message: "Only classified playground results with an LLM score can be added to leads.",
+    };
+  }
+
+  const campaign = playgroundResult.run.campaign;
+  const score = playgroundResult.score;
+  const label = playgroundResult.label ?? labelFromScore(score);
+  const inferredSyncAt = getNextDailySemanticSyncBoundary(playgroundResult.redditItem.fetchedAt);
+  const overrideSyncAt = syncAtValue ? new Date(syncAtValue) : null;
+
+  if (overrideSyncAt && Number.isNaN(overrideSyncAt.getTime())) {
+    return {
+      status: "error",
+      message: "Choose a valid sync timestamp.",
+    };
+  }
+
+  const syncAt = overrideSyncAt ?? inferredSyncAt;
+
+  const promotedLead = await prisma.$transaction(async (tx) => {
+    const existingLead = await tx.lead.findUnique({
+      where: {
+        userId_redditItemId_campaignId: {
+          campaignId: campaign.id,
+          redditItemId: playgroundResult.redditItemId,
+          userId: campaign.userId,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const lead = existingLead
+      ? await tx.lead.update({
+          where: {
+            id: existingLead.id,
+          },
+          data: {
+            createdAt: syncAt,
+            label,
+            score,
+            updatedAt: syncAt,
+          },
+          select: {
+            id: true,
+          },
+        })
+      : await tx.lead.create({
+          data: {
+            campaignId: campaign.id,
+            createdAt: syncAt,
+            label,
+            redditItemId: playgroundResult.redditItemId,
+            score,
+            updatedAt: syncAt,
+            userId: campaign.userId,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+    await tx.leadAI.upsert({
+      where: {
+        leadId: lead.id,
+      },
+      update: {
+        buyerStage: playgroundResult.buyerStage,
+        category: playgroundResult.category,
+        disqualifier: playgroundResult.disqualifier,
+        intentType: playgroundResult.intentType,
+        model: playgroundResult.model,
+        painPoints: playgroundResult.painPoints,
+        promptVersion: playgroundResult.promptVersion,
+        summary: playgroundResult.summary,
+      },
+      create: {
+        buyerStage: playgroundResult.buyerStage,
+        category: playgroundResult.category,
+        disqualifier: playgroundResult.disqualifier,
+        intentType: playgroundResult.intentType,
+        leadId: lead.id,
+        model: playgroundResult.model,
+        painPoints: playgroundResult.painPoints,
+        promptVersion: playgroundResult.promptVersion,
+        summary: playgroundResult.summary,
+      },
+    });
+
+    await tx.campaignDailySemanticScan.upsert({
+      where: {
+        campaignId_redditItemId: {
+          campaignId: campaign.id,
+          redditItemId: playgroundResult.redditItemId,
+        },
+      },
+      update: {
+        bestQueryId: playgroundResult.bestQueryId,
+        bestQueryText: playgroundResult.bestQueryText,
+        bestScore: playgroundResult.bestScore,
+        createdAt: syncAt,
+        status: "MATCHED",
+        updatedAt: syncAt,
+      },
+      create: {
+        bestQueryId: playgroundResult.bestQueryId,
+        bestQueryText: playgroundResult.bestQueryText,
+        bestScore: playgroundResult.bestScore,
+        campaignId: campaign.id,
+        createdAt: syncAt,
+        redditItemId: playgroundResult.redditItemId,
+        status: "MATCHED",
+        updatedAt: syncAt,
+      },
+    });
+
+    return {
+      id: lead.id,
+      created: !existingLead,
+    };
+  });
+
+  revalidatePath("/admin/analytics");
+  revalidatePath("/admin/analytics/daily-leads");
+  revalidatePath("/admin/analytics/playground");
+  revalidatePath(`/campaigns/${campaign.id}`);
+  revalidatePath(`/campaigns/${campaign.id}/daily-leads`);
+
+  return {
+    status: "success",
+    message: promotedLead.created
+      ? `Added this playground result to ${campaign.name} leads.`
+      : `Updated the existing ${campaign.name} lead with this playground result.`,
+    leadId: promotedLead.id,
+    created: promotedLead.created,
+  };
+}
+
 function normalizeThreshold(value: FormDataEntryValue | null) {
   const parsed = Number.parseFloat(String(value ?? ""));
 
@@ -317,4 +534,34 @@ function querySetsMatch(
 function normalizeQueryCategory(value: string | null | undefined) {
   const category = value?.trim() ?? "";
   return category.length > 0 ? category : null;
+}
+
+function labelFromScore(score: number): LeadLabel {
+  if (score >= 75) {
+    return "HIGH";
+  }
+
+  if (score >= 50) {
+    return "MED";
+  }
+
+  return "LOW";
+}
+
+function getNextDailySemanticSyncBoundary(source: Date) {
+  const boundary = new Date(Date.UTC(
+    source.getUTCFullYear(),
+    source.getUTCMonth(),
+    source.getUTCDate(),
+    DAILY_SEMANTIC_CRON_UTC_HOUR,
+    DAILY_SEMANTIC_CRON_UTC_MINUTE,
+    0,
+    0,
+  ));
+
+  if (boundary.getTime() <= source.getTime()) {
+    boundary.setUTCDate(boundary.getUTCDate() + 1);
+  }
+
+  return boundary;
 }

@@ -172,8 +172,8 @@ VM files:
 What goes where:
 
 - `Vercel`
-  - `DATABASE_URL=<TLS PgBouncer URL for db.redbotleads.com>`
-  - `REDIS_URL=redis://:<REDIS_PASSWORD>@<your-vm-ip-or-domain>:6379`
+  - `DATABASE_URL=postgresql://reddit_leads_app:<password>@<your-static-ip>:6432/reddit_leads?sslmode=verify-full`
+  - `REDIS_URL=<managed Redis URL, or another TLS-protected Redis endpoint>`
   - `NEXTAUTH_URL=<your production URL>`
   - `NEXTAUTH_SECRET=...`
   - `GOOGLE_CLIENT_ID=...`

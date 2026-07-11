@@ -864,10 +864,13 @@ postgresql://APP_USER:PASSWORD@postgres:5432/reddit_leads
 Vercel connects remotely through PgBouncer:
 
 ```text
-postgresql://APP_USER:PASSWORD@db.redbotleads.com:6432/reddit_leads?sslmode=verify-full
+postgresql://APP_USER:PASSWORD@STATIC_PUBLIC_IP:6432/reddit_leads?sslmode=verify-full
 ```
 
 The hostname and TLS policy differ because the network path differs.
+For a literal IP address, the Node client must verify the certificate against
+the IP SAN. The app handles this explicitly so `sslmode=verify-full` remains a
+strict TLS setting instead of being downgraded.
 
 ## 17. Health Checks and Readiness
 

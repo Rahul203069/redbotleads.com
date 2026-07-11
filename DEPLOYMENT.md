@@ -102,9 +102,14 @@ docker compose --env-file .env.vm -f compose.vm.yaml run --rm \
 Set the production `DATABASE_URL` to the limited application role:
 
 ```env
-DATABASE_URL=postgresql://reddit_leads_app:URL_ENCODED_PASSWORD@db.redbotleads.com:6432/reddit_leads?sslmode=verify-full
+DATABASE_URL=postgresql://reddit_leads_app:URL_ENCODED_PASSWORD@3.136.16.18:6432/reddit_leads?sslmode=verify-full
 DATABASE_POOL_MAX=2
 ```
+
+The application includes explicit static-IP TLS identity verification for this
+URL shape. Keep `sslmode=verify-full`; do not downgrade to `sslmode=require`
+unless you intentionally accept encrypted but non-identity-verified database
+connections.
 
 Keep the embedding contract unchanged:
 

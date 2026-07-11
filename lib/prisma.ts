@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
+import { withPostgresSslIdentity } from "./postgres-ssl";
 
 const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: PrismaClient;
@@ -14,12 +15,14 @@ if (!connectionString) {
 const configuredPoolMax = Number.parseInt(process.env.DATABASE_POOL_MAX ?? "", 10);
 const poolMax = Number.isInteger(configuredPoolMax) && configuredPoolMax > 0 ? configuredPoolMax : 5;
 
-const adapter = new PrismaPg({
-  connectionString,
-  max: poolMax,
-  connectionTimeoutMillis: 10_000,
-  idleTimeoutMillis: 30_000,
-});
+const adapter = new PrismaPg(
+  withPostgresSslIdentity({
+    connectionString,
+    max: poolMax,
+    connectionTimeoutMillis: 10_000,
+    idleTimeoutMillis: 30_000,
+  }),
+);
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 

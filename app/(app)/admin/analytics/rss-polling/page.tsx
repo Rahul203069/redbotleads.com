@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-
 import { RssPollLogCopyButton } from "@/components/admin/rss-poll-log-copy-button";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
@@ -33,68 +32,6 @@ const windowOptions = [
   { label: "7d", value: "7d", hours: 24 * 7 },
   { label: "30d", value: "30d", hours: 24 * 30 },
 ] as const;
-
-
-
-
-"use client";
-
-import { useEffect, useState } from "react";
-
-type BrowserDateTimeProps = {
-  value: string;
-  className?: string;
-  fallbackTimeZone?: string;
-};
-
-const DEFAULT_FALLBACK_TIME_ZONE = "Asia/Kolkata";
-
-export function BrowserDateTime({
-  value,
-  className,
-  fallbackTimeZone = DEFAULT_FALLBACK_TIME_ZONE,
-}: BrowserDateTimeProps) {
-  const [displayValue, setDisplayValue] = useState(() =>
-    formatDateTime(value, fallbackTimeZone),
-  );
-
-  useEffect(() => {
-    const browserTimeZone =
-      Intl.DateTimeFormat().resolvedOptions().timeZone || fallbackTimeZone;
-
-    setDisplayValue(formatDateTime(value, browserTimeZone));
-  }, [value, fallbackTimeZone]);
-
-  return (
-    <time className={className} dateTime={value} title={new Date(value).toISOString()}>
-      {displayValue}
-    </time>
-  );
-}
-
-function formatDateTime(value: string, timeZone: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Invalid date";
-  }
-
-  return new Intl.DateTimeFormat("en-IN", {
-    timeZone,
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-    timeZoneName: "short",
-  }).format(date);
-}
-
-
-
-
 
 export default async function AdminRssPollingLogsPage({
   searchParams,
@@ -266,7 +203,7 @@ export default async function AdminRssPollingLogsPage({
                   <Th>Subreddit</Th>
                   <Th>Source</Th>
                   <Th>Status</Th>
-                  <Th>Requested (local)</Th>
+                  <Th>Requested</Th>
                   <Th>Gap</Th>
                   <Th>HTTP</Th>
                   <Th>RL used</Th>
@@ -294,20 +231,20 @@ export default async function AdminRssPollingLogsPage({
                     <Td>
                       <StatusPill status={event.status} />
                     </Td>
-                    <Td><BrowserDateTime value={event.requestedAt.toISOString()} /></Td>
+                    <Td><LocalDateTime value={event.requestedAt} /></Td>
                     <Td>{formatGap(events[index + 1], event)}</Td>
                     <Td>{event.httpStatus ? `${event.httpStatus} ${event.statusText ?? ""}`.trim() : "-"}</Td>
                     <Td>{event.ratelimitUsed ?? "-"}</Td>
                     <Td>{event.ratelimitRemaining ?? "-"}</Td>
                     <Td>{event.ratelimitReset ?? "-"}</Td>
                     <Td>{formatDuration(event.waitMs)}</Td>
-                    <Td>{event.nextRequestAt ? <BrowserDateTime value={event.nextRequestAt.toISOString()} /> : "Not set"}</Td>
-                    <Td>{event.retryUntil ? <BrowserDateTime value={event.retryUntil.toISOString()} /> : "-"}</Td>
+                    <Td>{event.nextRequestAt ? <LocalDateTime value={event.nextRequestAt} /> : "Not set"}</Td>
+                    <Td>{event.retryUntil ? <LocalDateTime value={event.retryUntil} /> : "-"}</Td>
                     <Td>{event.fetchedPosts ?? "-"}</Td>
                     <Td>{event.existingPosts ?? "-"}</Td>
                     <Td>{event.createdPosts ?? "-"}</Td>
                     <Td>{event.queuedEmbeddings ?? "-"}</Td>
-                    <Td>{event.backoffUntil ? <BrowserDateTime value={event.backoffUntil.toISOString()} /> : "-"}</Td>
+                    <Td>{event.backoffUntil ? <LocalDateTime value={event.backoffUntil} /> : "-"}</Td>
                     <Td>
                       <EventDetail event={event} />
                     </Td>
@@ -318,6 +255,8 @@ export default async function AdminRssPollingLogsPage({
           </div>
         )}
       </section>
+
+      <BrowserTimezoneScript />
     </div>
   );
 }
@@ -359,7 +298,7 @@ function EventDetail({
       <span className="text-[#f8c15c]">
         {event.retryUntil ? (
           <>
-            Retry at <BrowserDateTime value={event.retryUntil.toISOString()} />
+            Retry at <LocalDateTime value={event.retryUntil} />
           </>
         ) : (
           `Retry after ${event.retryAfter}`
@@ -497,6 +436,130 @@ function serializeEvent(event: {
 
 function formatStatus(value: string) {
   return value.toLowerCase().replace(/_/g, " ");
+}
+
+function LocalDateTime({ value }: { value: Date }) {
+  const isoValue = value.toISOString();
+
+  return (
+    <time
+      data-local-date-time={isoValue}
+      dateTime={isoValue}
+      suppressHydrationWarning
+      title={`${isoValue} (UTC)`}
+    >
+      {formatDateTimeInIst(value)}
+    </time>
+  );
+}
+
+/**
+ * Server-rendered fallback.
+ * JavaScript below replaces this with the browser's own timezone.
+ */
+function formatDateTimeInIst(value: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZoneName: "short",
+  }).format(value);
+}
+
+/**
+ * Keeps everything in this single page file.
+ *
+ * The page remains a Server Component, so auth and Prisma continue working.
+ * This small browser script converts every <time> element to the visitor's
+ * browser timezone after the HTML loads. It also watches for Next.js
+ * client-side navigation/filter updates.
+ */
+function BrowserTimezoneScript() {
+  const script = String.raw`
+    (() => {
+      const selector = "[data-local-date-time]";
+
+      const formatDates = (root = document) => {
+        const browserTimeZone =
+          Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Kolkata";
+
+        const formatter = new Intl.DateTimeFormat(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZoneName: "short",
+        });
+
+        root.querySelectorAll(selector).forEach((element) => {
+          const isoValue = element.getAttribute("data-local-date-time");
+
+          if (
+            !isoValue ||
+            element.getAttribute("data-formatted-time-zone") === browserTimeZone
+          ) {
+            return;
+          }
+
+          const date = new Date(isoValue);
+
+          if (Number.isNaN(date.getTime())) {
+            return;
+          }
+
+          let formatted = formatter.format(date);
+
+          // Chrome may display GMT+5:30 instead of IST for India.
+          if (
+            browserTimeZone === "Asia/Kolkata" ||
+            browserTimeZone === "Asia/Calcutta"
+          ) {
+            formatted = formatted
+              .replace("GMT+5:30", "IST")
+              .replace("UTC+5:30", "IST");
+          }
+
+          element.textContent = formatted;
+          element.setAttribute("data-formatted-time-zone", browserTimeZone);
+          element.setAttribute(
+            "title",
+            isoValue + " (UTC) • Browser timezone: " + browserTimeZone
+          );
+        });
+      };
+
+      formatDates();
+
+      const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          for (const node of mutation.addedNodes) {
+            if (!(node instanceof Element)) continue;
+
+            if (node.matches(selector)) {
+              formatDates(node.parentElement || document);
+            } else if (node.querySelector(selector)) {
+              formatDates(node);
+            }
+          }
+        }
+      });
+
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
+
+      window.addEventListener("pageshow", () => formatDates());
+    })();
+  `;
+
+  return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
 
 function formatDuration(value: number | null) {

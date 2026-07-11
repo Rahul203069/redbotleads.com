@@ -21,6 +21,8 @@
 
 # production
 /build
+/backups
+/deploy/tls/*.pem
 
 # misc
 .DS_Store
@@ -34,6 +36,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.docker.example
+!.env.vm.example
 !.env.rss-poll-worker.example
 
 # vercel

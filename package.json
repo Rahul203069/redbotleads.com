@@ -22,6 +22,7 @@
     "worker:notifications": "tsx worker/notifications.ts",
     "db:maintenance": "tsx worker/db-maintenance.ts --once",
     "db:maintenance:dry-run": "tsx worker/db-maintenance.ts --once --dry-run --no-vacuum",
+    "db:verify-vector": "node scripts/verify-pgvector.mjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"

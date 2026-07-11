@@ -1,4 +1,74 @@
 services:
+  postgres:
+    image: pgvector/pgvector:0.8.1-pg16
+    container_name: reddit-leads-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_OWNER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_OWNER_PASSWORD}
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command:
+      - postgres
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=1536MB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - work_mem=8MB
+      - -c
+      - max_connections=30
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - log_min_duration_statement=1000
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./deploy/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 1400m
+
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.24.1-p0
+    container_name: reddit-leads-pgbouncer
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_APP_USER}:${POSTGRES_APP_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      AUTH_TYPE: scram-sha-256
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 100
+      DEFAULT_POOL_SIZE: 10
+      RESERVE_POOL_SIZE: 2
+      MAX_DB_CONNECTIONS: 12
+      MAX_PREPARED_STATEMENTS: 100
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      CLIENT_TLS_SSLMODE: require
+      CLIENT_TLS_CERT_FILE: /etc/pgbouncer/tls/fullchain.pem
+      CLIENT_TLS_KEY_FILE: /etc/pgbouncer/tls/privkey.pem
+    ports:
+      - "6432:5432"
+    volumes:
+      - ./deploy/tls:/etc/pgbouncer/tls:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U $$POSTGRES_APP_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    mem_limit: 100m
+
   redis:
     image: redis:7-alpine
     container_name: reddit-leads-redis
@@ -6,7 +76,7 @@ services:
     command:
       - sh
       - -c
-      - exec redis-server --appendonly yes --bind 0.0.0.0 --protected-mode yes --requirepass "$$REDIS_PASSWORD"
+      - exec redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy noeviction --bind 0.0.0.0 --protected-mode yes --requirepass "$$REDIS_PASSWORD"
     env_file:
       - .env.vm
     ports:
@@ -18,6 +88,18 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    mem_limit: 320m
+
+  migrate:
+    build:
+      context: .
+      target: worker-runner
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_OWNER_USER}:${POSTGRES_OWNER_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    command: ["npx", "prisma", "migrate", "deploy"]
 
   worker:
     build:
@@ -26,12 +108,19 @@ services:
     container_name: reddit-leads-worker
     restart: unless-stopped
     depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
     env_file:
       - .env.vm
     environment:
+      DATABASE_URL: postgresql://${POSTGRES_APP_USER}:${POSTGRES_APP_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_POOL_MAX: 5
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+    mem_limit: 1100m
 
   db-maintenance-worker:
     build:
@@ -39,9 +128,19 @@ services:
       target: worker-runner
     container_name: reddit-leads-db-maintenance-worker
     restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     env_file:
       - .env.vm
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_APP_USER}:${POSTGRES_APP_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_POOL_MAX: 2
     command: ["npm", "run", "worker:db-maintenance"]
+    mem_limit: 400m
 
 volumes:
+  postgres-data:
   redis-data:

@@ -2,10 +2,10 @@ node_modules
 .next
 .git
 .gitignore
-.env
-.env.local
-.env.development
-.env.production
+.env*
+backups
+deploy/tls/*.pem
+clipboard-*.png
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

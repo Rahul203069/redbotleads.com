@@ -245,6 +245,7 @@ The application role:
 - Connects to the application database
 - Reads and changes application rows
 - Uses tables created by future owner migrations
+- Maintains application tables with PostgreSQL's `MAINTAIN` privilege
 - Cannot administer the schema
 
 The initialization script grants current schema access and configures default

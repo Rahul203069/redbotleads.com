@@ -47,9 +47,20 @@ async function bootstrapFreshDatabase() {
   await client.query("CREATE SCHEMA public AUTHORIZATION CURRENT_USER");
   await client.query(`GRANT USAGE ON SCHEMA public TO ${escapeIdentifier(appUser)}`);
   await client.query("CREATE EXTENSION IF NOT EXISTS vector");
-  await client.end();
 
   runPrisma(["db", "push"]);
+
+  const escapedAppUser = escapeIdentifier(appUser);
+  await client.query(`GRANT USAGE ON SCHEMA public TO ${escapedAppUser}`);
+  await client.query(`GRANT SELECT, INSERT, UPDATE, DELETE, MAINTAIN ON ALL TABLES IN SCHEMA public TO ${escapedAppUser}`);
+  await client.query(`GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO ${escapedAppUser}`);
+  await client.query(
+    `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE, MAINTAIN ON TABLES TO ${escapedAppUser}`,
+  );
+  await client.query(
+    `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO ${escapedAppUser}`,
+  );
+  await client.end();
 
   const migrations = readdirSync(migrationsDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())

@@ -2,7 +2,7 @@
 
 ## VM topology
 
-The Ubuntu 24.04 Lightsail VM runs PostgreSQL 16 with pgvector, PgBouncer,
+The Ubuntu 24.04 Lightsail VM runs PostgreSQL 17 with pgvector, PgBouncer,
 Redis, the application worker, and the database-maintenance worker. PostgreSQL
 port `5432` is private to Docker. Vercel connects to TLS PgBouncer at
 `db.redbotleads.com:6432`.

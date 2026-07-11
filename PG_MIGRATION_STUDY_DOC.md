@@ -157,10 +157,10 @@ required.
 The Compose stack uses:
 
 ```yaml
-image: pgvector/pgvector:0.8.1-pg16
+image: pgvector/pgvector:0.8.5-pg17
 ```
 
-This pins PostgreSQL to major version 16 and pgvector to version 0.8.1.
+This pins PostgreSQL to major version 17 and pgvector to version 0.8.5.
 
 Using an unpinned `latest` image could change behavior during an ordinary
 redeployment. Database upgrades require more care than stateless application

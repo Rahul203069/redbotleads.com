@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+
 import { RssPollLogCopyButton } from "@/components/admin/rss-poll-log-copy-button";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
@@ -32,6 +33,68 @@ const windowOptions = [
   { label: "7d", value: "7d", hours: 24 * 7 },
   { label: "30d", value: "30d", hours: 24 * 30 },
 ] as const;
+
+
+
+
+"use client";
+
+import { useEffect, useState } from "react";
+
+type BrowserDateTimeProps = {
+  value: string;
+  className?: string;
+  fallbackTimeZone?: string;
+};
+
+const DEFAULT_FALLBACK_TIME_ZONE = "Asia/Kolkata";
+
+export function BrowserDateTime({
+  value,
+  className,
+  fallbackTimeZone = DEFAULT_FALLBACK_TIME_ZONE,
+}: BrowserDateTimeProps) {
+  const [displayValue, setDisplayValue] = useState(() =>
+    formatDateTime(value, fallbackTimeZone),
+  );
+
+  useEffect(() => {
+    const browserTimeZone =
+      Intl.DateTimeFormat().resolvedOptions().timeZone || fallbackTimeZone;
+
+    setDisplayValue(formatDateTime(value, browserTimeZone));
+  }, [value, fallbackTimeZone]);
+
+  return (
+    <time className={className} dateTime={value} title={new Date(value).toISOString()}>
+      {displayValue}
+    </time>
+  );
+}
+
+function formatDateTime(value: string, timeZone: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+    timeZoneName: "short",
+  }).format(date);
+}
+
+
+
+
 
 export default async function AdminRssPollingLogsPage({
   searchParams,
@@ -203,7 +266,7 @@ export default async function AdminRssPollingLogsPage({
                   <Th>Subreddit</Th>
                   <Th>Source</Th>
                   <Th>Status</Th>
-                  <Th>Requested</Th>
+                  <Th>Requested (local)</Th>
                   <Th>Gap</Th>
                   <Th>HTTP</Th>
                   <Th>RL used</Th>
@@ -231,20 +294,20 @@ export default async function AdminRssPollingLogsPage({
                     <Td>
                       <StatusPill status={event.status} />
                     </Td>
-                    <Td>{formatDateTime(event.requestedAt)}</Td>
+                    <Td><BrowserDateTime value={event.requestedAt.toISOString()} /></Td>
                     <Td>{formatGap(events[index + 1], event)}</Td>
                     <Td>{event.httpStatus ? `${event.httpStatus} ${event.statusText ?? ""}`.trim() : "-"}</Td>
                     <Td>{event.ratelimitUsed ?? "-"}</Td>
                     <Td>{event.ratelimitRemaining ?? "-"}</Td>
                     <Td>{event.ratelimitReset ?? "-"}</Td>
                     <Td>{formatDuration(event.waitMs)}</Td>
-                    <Td>{event.nextRequestAt ? formatDateTime(event.nextRequestAt) : "Not set"}</Td>
-                    <Td>{event.retryUntil ? formatDateTime(event.retryUntil) : "-"}</Td>
+                    <Td>{event.nextRequestAt ? <BrowserDateTime value={event.nextRequestAt.toISOString()} /> : "Not set"}</Td>
+                    <Td>{event.retryUntil ? <BrowserDateTime value={event.retryUntil.toISOString()} /> : "-"}</Td>
                     <Td>{event.fetchedPosts ?? "-"}</Td>
                     <Td>{event.existingPosts ?? "-"}</Td>
                     <Td>{event.createdPosts ?? "-"}</Td>
                     <Td>{event.queuedEmbeddings ?? "-"}</Td>
-                    <Td>{event.backoffUntil ? formatDateTime(event.backoffUntil) : "-"}</Td>
+                    <Td>{event.backoffUntil ? <BrowserDateTime value={event.backoffUntil.toISOString()} /> : "-"}</Td>
                     <Td>
                       <EventDetail event={event} />
                     </Td>
@@ -294,7 +357,13 @@ function EventDetail({
   if (event.retryUntil || event.retryAfter) {
     return (
       <span className="text-[#f8c15c]">
-        {event.retryUntil ? `Retry at ${formatDateTime(event.retryUntil)}` : `Retry after ${event.retryAfter}`}
+        {event.retryUntil ? (
+          <>
+            Retry at <BrowserDateTime value={event.retryUntil.toISOString()} />
+          </>
+        ) : (
+          `Retry after ${event.retryAfter}`
+        )}
       </span>
     );
   }
@@ -428,16 +497,6 @@ function serializeEvent(event: {
 
 function formatStatus(value: string) {
   return value.toLowerCase().replace(/_/g, " ");
-}
-
-function formatDateTime(value: Date) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-  }).format(value);
 }
 
 function formatDuration(value: number | null) {

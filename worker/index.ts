@@ -7,7 +7,7 @@ import {
   redditRssRetryBackoffMs,
 } from "./config";
 import { workerLogger } from "./logger";
-
+import "./rss-poll-refiller";
 import "./classification";
 import "./daily-semantic";
 import "./embedding";

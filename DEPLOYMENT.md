@@ -72,9 +72,16 @@ Adjust `/home/ubuntu/redbotleads.com` if the repository is elsewhere.
 
 ```bash
 docker compose --env-file .env.vm -f compose.vm.yaml up -d postgres redis
-docker compose --env-file .env.vm -f compose.vm.yaml run --rm migrate
+docker compose --env-file .env.vm -f compose.vm.yaml run --rm \
+  -e FRESH_DATABASE_BOOTSTRAP=true migrate
 docker compose --env-file .env.vm -f compose.vm.yaml up --build -d
 ```
+
+The first command intentionally bootstraps a fresh database from the current
+Prisma schema and records the repository's legacy incremental migrations as an
+applied baseline. The flag resets the `public` schema and must never be used on
+a database containing data. Later deployments run normal `prisma migrate
+deploy` automatically without this flag.
 
 The application role is created only when the PostgreSQL volume is initialized.
 Changing its name or password later requires an explicit `ALTER ROLE` or a new

@@ -280,14 +280,19 @@ Do not solve a permissions problem by giving every process superuser access.
 
 ## 6. Prisma Migrations and Dependency Ordering
 
-The Compose stack contains a `migrate` service that runs:
+The repository's historical migration chain starts with incremental vector
+changes and does not contain the original core-schema migration. The Compose
+stack therefore has an explicit fresh-database bootstrap mode:
 
 ```text
-npx prisma migrate deploy
+FRESH_DATABASE_BOOTSTRAP=true node scripts/deploy-database.mjs
 ```
 
-`migrate deploy` applies committed production migrations. It does not create a
-development shadow database or generate a new migration interactively.
+Bootstrap mode resets only the new database's `public` schema, enables pgvector,
+pushes the current Prisma schema, and records the legacy migrations as an
+applied baseline. It must never be enabled for a database containing data.
+After the baseline exists, the same service runs ordinary `prisma migrate
+deploy`, which applies only future committed production migrations.
 
 Workers use this dependency:
 

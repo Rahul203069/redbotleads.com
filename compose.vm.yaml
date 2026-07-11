@@ -99,7 +99,8 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://${POSTGRES_OWNER_USER}:${POSTGRES_OWNER_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    command: ["npx", "prisma", "migrate", "deploy"]
+      POSTGRES_APP_USER: ${POSTGRES_APP_USER}
+    command: ["node", "scripts/deploy-database.mjs"]
 
   worker:
     build:

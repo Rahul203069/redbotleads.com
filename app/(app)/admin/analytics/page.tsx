@@ -55,6 +55,7 @@ export default async function AdminAnalyticsPage({
   searchParams?: Promise<AnalyticsSearchParams> | AnalyticsSearchParams;
 }) {
   const session = await auth();
+  console.log("AdminAnalyticsPage session:", session);
 
   if (!session?.user?.id) {
     redirect("/login");

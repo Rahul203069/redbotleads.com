@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { WorkspaceLeadsTrendChart, type WorkspaceLeadsTrendRow } from "@/components/campaigns/workspace-leads-trend-chart";
 import { auth } from "@/lib/auth";
@@ -10,6 +11,14 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
+import {
+  addDaysToDateKey,
+  BROWSER_TIME_ZONE_COOKIE,
+  formatDateTimeInTimeZone,
+  getDateKeyInTimeZone,
+  getDayRangeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
 const STRONG_LEAD_SCORE = 75;
@@ -35,7 +44,11 @@ export default async function AppHomePage() {
 
   const now = new Date();
   const dayAgo = new Date(now.valueOf() - DAY_IN_MS);
-  const trendFrom = getUtcDayStart(new Date(now.valueOf() - (DASHBOARD_TREND_DAYS - 1) * DAY_IN_MS));
+  const cookieStore = await cookies();
+  const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
+  const todayKey = getDateKeyInTimeZone(now, browserTimeZone);
+  const trendStartKey = addDaysToDateKey(todayKey, -(DASHBOARD_TREND_DAYS - 1));
+  const trendFrom = getDayRangeInTimeZone(trendStartKey, browserTimeZone).from;
 
   const campaign = await prisma.campaign.findFirst({
     where: buildAccessibleCampaignWhere({
@@ -181,10 +194,11 @@ export default async function AppHomePage() {
     retainedScanCount: trendScans.length,
   });
   const trendRows = buildWorkspaceLeadsTrendRows({
-    from: trendFrom,
     leadByPair: new Map(trendLeads.map((lead) => [buildTrendPairKey(lead.campaignId, lead.redditItemId), lead])),
-    scannedByDay: buildRecordedScansByDay(completedSemanticRuns),
+    scannedByDay: buildRecordedScansByDay(completedSemanticRuns, browserTimeZone),
     scans: trendScans,
+    startDateKey: trendStartKey,
+    timeZone: browserTimeZone,
   });
 
   return (
@@ -210,7 +224,7 @@ export default async function AppHomePage() {
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Campaign status" value={campaign ? formatStatus(campaign.isActive ? campaignStatus : "PAUSED") : "None"} />
-        <StatCard label="Next sync" value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt) : "Paused"} />
+        <StatCard label="Next sync" value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
         <StatCard label="Total leads" value={String(visibleLeads).padStart(2, "0")} />
         <StatCard label="New strong leads" value={String(newStrongLeads).padStart(2, "0")} />
       </section>
@@ -220,7 +234,7 @@ export default async function AppHomePage() {
           description="A 14-day view of every Reddit lead found and the strongest opportunities identified for this campaign."
           title="Campaign performance"
         >
-          <WorkspaceLeadsTrendChart rows={trendRows} scanSummary={scanSummary} />
+          <WorkspaceLeadsTrendChart rows={trendRows} scanSummary={scanSummary} timeZone={browserTimeZone} />
         </SectionCard>
 
         <SectionCard
@@ -253,7 +267,7 @@ export default async function AppHomePage() {
                     {lead.ai?.summary || "Lead classified and ready for review."}
                   </p>
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-[12px] text-[#b3b3b3]">{formatDate(lead.createdAt)}</span>
+                    <span className="text-[12px] text-[#b3b3b3]">{formatDate(lead.createdAt, browserTimeZone)}</span>
                     <div className="flex flex-wrap gap-2">
                       {campaign ? <MiniLink href={`/campaigns/${campaign.id}`}>Open</MiniLink> : null}
                       {lead.redditItem.url ? (
@@ -611,7 +625,11 @@ function StatusPill({ status }: { status: "IDLE" | "QUEUED" | "PROCESSING" | "CO
   );
 }
 
-function formatDate(value: Date) {
+function formatDate(value: Date, timeZone?: string) {
+  if (timeZone) {
+    return formatDateTimeInTimeZone(value, timeZone);
+  }
+
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -644,12 +662,12 @@ function getNextSyncAt(campaign: {
 }
 
 function buildWorkspaceLeadsTrendRows({
-  from,
   leadByPair,
   scannedByDay,
   scans,
+  startDateKey,
+  timeZone,
 }: {
-  from: Date;
   leadByPair: Map<string, {
     ai: {
       id: string;
@@ -665,12 +683,13 @@ function buildWorkspaceLeadsTrendRows({
     status: "MATCHED" | "NO_MATCH";
     updatedAt: Date;
   }>;
+  startDateKey: string;
+  timeZone: string;
 }) {
   const rows = new Map<string, WorkspaceLeadsTrendRow>();
 
   for (let index = 0; index < DASHBOARD_TREND_DAYS; index += 1) {
-    const day = new Date(from.getTime() + index * DAY_IN_MS);
-    const key = getUtcDayKey(day);
+    const key = addDaysToDateKey(startDateKey, index);
     rows.set(key, {
       day: key,
       label: formatTrendLabel(key),
@@ -689,7 +708,7 @@ function buildWorkspaceLeadsTrendRows({
   }
 
   for (const scan of scans) {
-    const key = getUtcDayKey(scan.updatedAt);
+    const key = getDateKeyInTimeZone(scan.updatedAt, timeZone);
     const row = rows.get(key);
 
     if (!row) {
@@ -763,6 +782,7 @@ function buildRecordedScansByDay(
     createdAt: Date;
     statsJson: unknown;
   }>,
+  timeZone: string,
 ) {
   const scannedByDay = new Map<string, number>();
 
@@ -773,7 +793,7 @@ function buildRecordedScansByDay(
       continue;
     }
 
-    const key = getUtcDayKey(run.completedAt ?? run.createdAt);
+    const key = getDateKeyInTimeZone(run.completedAt ?? run.createdAt, timeZone);
     scannedByDay.set(key, (scannedByDay.get(key) ?? 0) + scanned);
   }
 
@@ -796,14 +816,6 @@ function getRecordedScannedPosts(statsJson: unknown) {
 
 function buildTrendPairKey(campaignId: string, redditItemId: string) {
   return `${campaignId}:${redditItemId}`;
-}
-
-function getUtcDayStart(value: Date) {
-  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
-}
-
-function getUtcDayKey(value: Date) {
-  return value.toISOString().slice(0, 10);
 }
 
 function formatTrendLabel(day: string) {

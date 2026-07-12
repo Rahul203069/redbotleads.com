@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { BarChart3, CalendarCheck2, CalendarDays, Clock3 } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
@@ -28,6 +29,14 @@ import {
   type DailyLeadDateSelection,
 } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
+import {
+  BROWSER_TIME_ZONE_COOKIE,
+  formatDateInTimeZone,
+  formatDateTimeInTimeZone,
+  getDateKeyInTimeZone,
+  getDayRangeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
@@ -54,12 +63,18 @@ export default async function CampaignDetailPage({
     redirect("/login");
   }
 
+  const isAdminAccount = canViewAnalytics(session.user.email);
+  const cookieStore = await cookies();
+  const browserTimeZone = isAdminAccount
+    ? "UTC"
+    : normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const { id } = await params;
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
+  const todayRange = getDayRangeInTimeZone(getDateKeyInTimeZone(new Date(), browserTimeZone), browserTimeZone);
   const leadDateSelection = getDailyLeadDateSelection(
     resolvedSearchParams.date || resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
       ? resolvedSearchParams
-      : { range: "today" },
+      : { from: todayRange.from.toISOString(), to: todayRange.to.toISOString() },
   );
   const leadDateFilter = {
     date: leadDateSelection.source === "dates" ? leadDateSelection.dateStarts : undefined,
@@ -178,12 +193,7 @@ export default async function CampaignDetailPage({
     sync?.lastHeartbeat ??
     campaign.updatedAt;
   const nextSyncSource = new Date(lastSyncSource.getTime() + 24 * 60 * 60 * 1000);
-  const nextSync = new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(nextSyncSource);
+  const nextSync = formatDateTimeInTimeZone(nextSyncSource, browserTimeZone);
   const initialLeads = await getCampaignLeadViewsForUser({
     campaignId: campaign.id,
     ...(leadDateSelection.source === "dates"
@@ -202,7 +212,6 @@ export default async function CampaignDetailPage({
     ?? initialDiagnostics?.run.queuedAt
     ?? campaign.createdAt.toISOString();
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
-  const isAdminAccount = canViewAnalytics(session.user.email);
   const canExportLeads = isAdminAccount || canManage;
 
   return (
@@ -284,7 +293,7 @@ export default async function CampaignDetailPage({
                 <div className="mt-5 flex flex-wrap gap-2">
                   <ScheduledProcessingPill isActive={campaign.isActive} />
                   <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
-                  <TrackedSincePill date={firstSyncAt} />
+                  <TrackedSincePill date={firstSyncAt} timeZone={browserTimeZone} />
                 </div>
               </div>
               {!isAdminAccount ? (
@@ -433,14 +442,14 @@ function HeroChip({ label }: { label: string }) {
   );
 }
 
-function TrackedSincePill({ date }: { date: string }) {
+function TrackedSincePill({ date, timeZone }: { date: string; timeZone: string }) {
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full bg-[#121212] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
-      title={`Campaign has been tracking Reddit leads since ${formatTrackedSinceDate(date)}.`}
+      title={`Campaign has been tracking Reddit leads since ${formatTrackedSinceDate(date, timeZone)}.`}
     >
       <CalendarCheck2 aria-hidden="true" className="h-3.5 w-3.5 text-[#b3b3b3]" />
-      Tracked since {formatTrackedSinceDate(date)}
+      Tracked since {formatTrackedSinceDate(date, timeZone)}
     </span>
   );
 }
@@ -461,18 +470,14 @@ function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
   );
 }
 
-function formatTrackedSinceDate(value: string) {
+function formatTrackedSinceDate(value: string, timeZone: string) {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return "campaign start";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(date);
+  return formatDateInTimeZone(date, timeZone);
 }
 
 function BackIcon() {

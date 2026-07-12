@@ -3,17 +3,20 @@ import type React from "react";
 
 import { DailyLeadsTrendChart } from "@/components/admin/daily-leads-trend-chart";
 import type { DailyLeadAnalytics } from "@/lib/daily-leads-analytics";
+import { formatDateTimeInTimeZone, normalizeTimeZone } from "@/lib/time-zone";
 
 export function DailyLeadsReport({
   analytics,
   pageHref,
   showTrendChart = false,
   showOwner = false,
+  timeZone = "UTC",
 }: {
   analytics: DailyLeadAnalytics;
   pageHref: (page: number) => string;
   showTrendChart?: boolean;
   showOwner?: boolean;
+  timeZone?: string;
 }) {
   const metrics = analytics.metrics;
   const pagination = analytics.pagination;
@@ -98,12 +101,12 @@ export function DailyLeadsReport({
                       <StatusPill status={row.runStatus} />
                       {row.campaignRunId ? <div className="mt-1 text-[10px] text-[#8f8f8f]">{shortId(row.campaignRunId)}</div> : null}
                     </Td>
-                    <Td>{formatDateTime(row.scannedAt)}</Td>
+                    <Td>{formatDateTime(row.scannedAt, timeZone)}</Td>
                     <Td>r/{row.redditItem.subreddit}</Td>
                     <Td>
                       <div className="max-w-[360px]">
                         <div className="line-clamp-2 font-semibold text-[#ffffff]">{row.redditItem.title || row.redditItem.body || "Untitled Reddit item"}</div>
-                        <div className="mt-1 text-[11px] text-[#8f8f8f]">Posted {formatDate(row.redditItem.createdUtc)}</div>
+                        <div className="mt-1 text-[11px] text-[#8f8f8f]">Posted {formatDate(row.redditItem.createdUtc, timeZone)}</div>
                       </div>
                     </Td>
                     <Td>
@@ -220,19 +223,15 @@ function formatStatus(value: string) {
   return value.toLowerCase().replace(/_/g, " ");
 }
 
-function formatDateTime(value: Date) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(value);
+function formatDateTime(value: Date, timeZone: string) {
+  return formatDateTimeInTimeZone(value, timeZone);
 }
 
-function formatDate(value: Date) {
+function formatDate(value: Date, timeZone: string) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
+    timeZone: normalizeTimeZone(timeZone),
   }).format(value);
 }
 

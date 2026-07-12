@@ -23,6 +23,7 @@ export type WorkspaceLeadsTrendRow = {
 export function WorkspaceLeadsTrendChart({
   rows,
   scanSummary,
+  timeZone,
 }: {
   rows: WorkspaceLeadsTrendRow[];
   scanSummary: {
@@ -30,6 +31,7 @@ export function WorkspaceLeadsTrendChart({
     estimated: boolean;
     value: number;
   };
+  timeZone: string;
 }) {
   const totals = rows.reduce(
     (sum, row) => ({
@@ -73,7 +75,9 @@ export function WorkspaceLeadsTrendChart({
           <div className="flex flex-col gap-1 px-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-[13px] font-semibold text-[#fdfdfd]">Daily lead activity</p>
-              <p className="mt-1 text-[12px] text-[#8f8f8f]">Last {rows.length} days · UTC</p>
+              <p className="mt-1 text-[12px] text-[#8f8f8f]">
+                Last {rows.length} days · {formatTimeZoneLabel(timeZone)}
+              </p>
             </div>
             {bestDay && bestDay.totalLeads > 0 ? (
               <p className="text-[12px] text-[#b3b3b3]">
@@ -139,6 +143,10 @@ export function WorkspaceLeadsTrendChart({
       )}
     </div>
   );
+}
+
+function formatTimeZoneLabel(timeZone: string) {
+  return timeZone.replace(/_/g, " ");
 }
 
 function TrendMetric({

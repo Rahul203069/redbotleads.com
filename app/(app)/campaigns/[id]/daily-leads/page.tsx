@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
@@ -21,6 +22,13 @@ import {
   parseDailyLeadsPage,
 } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
+import {
+  addDaysToDateKey,
+  BROWSER_TIME_ZONE_COOKIE,
+  getDateKeyInTimeZone,
+  getDayRangeInTimeZone,
+  normalizeTimeZone,
+} from "@/lib/time-zone";
 
 type SearchParams = {
   from?: string;
@@ -83,9 +91,13 @@ export default async function CampaignDailyLeadsPage({
 
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
   const isAdminAccount = canViewAnalytics(session.user.email);
+  const cookieStore = await cookies();
+  const browserTimeZone = isAdminAccount
+    ? "UTC"
+    : normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const hasExplicitDateRange = Boolean(resolvedSearchParams.from || resolvedSearchParams.to || resolvedSearchParams.range);
   const range = !isAdminAccount && !hasExplicitDateRange
-    ? getRecentDailyAnalyticsRange()
+    ? getRecentDailyAnalyticsRange(new Date(), browserTimeZone)
     : getDailyLeadDateRange(resolvedSearchParams);
   const page = parseDailyLeadsPage(resolvedSearchParams.page);
   const semanticStatus = parseDailyLeadSemanticStatus(resolvedSearchParams.status);
@@ -94,6 +106,7 @@ export default async function CampaignDailyLeadsPage({
     from: range.from,
     page,
     semanticStatus,
+    timeZone: browserTimeZone,
     to: range.to,
   });
   const displayName = getCampaignDisplayName(campaign, access);
@@ -163,14 +176,16 @@ export default async function CampaignDailyLeadsPage({
           })
         }
         showTrendChart={!isAdminAccount}
+        timeZone={browserTimeZone}
       />
     </div>
   );
 }
 
-function getRecentDailyAnalyticsRange(now = new Date()): DailyLeadDateRange {
-  const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
-  const from = new Date(to.getTime() - 7 * 24 * 60 * 60 * 1000);
+function getRecentDailyAnalyticsRange(now = new Date(), timeZone = "UTC"): DailyLeadDateRange {
+  const todayKey = getDateKeyInTimeZone(now, timeZone);
+  const from = getDayRangeInTimeZone(addDaysToDateKey(todayKey, -6), timeZone).from;
+  const to = getDayRangeInTimeZone(todayKey, timeZone).to;
 
   return {
     from,

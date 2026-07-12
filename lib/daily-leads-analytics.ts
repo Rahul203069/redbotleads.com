@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { addDaysToDateKey, getDateKeyInTimeZone, normalizeTimeZone } from "@/lib/time-zone";
 
 export const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
 export const DAILY_STRONG_LEAD_SCORE = 75;
@@ -163,6 +164,7 @@ export async function getDailyLeadAnalytics({
   page = 1,
   pageSize = DAILY_LEADS_PAGE_SIZE,
   semanticStatus = "ALL",
+  timeZone = "UTC",
 }: {
   campaignId?: string;
   from: Date;
@@ -171,6 +173,7 @@ export async function getDailyLeadAnalytics({
   page?: number;
   pageSize?: number;
   semanticStatus?: DailyLeadSemanticStatusFilter;
+  timeZone?: string;
 }) {
   const currentPage = Math.max(1, Math.floor(page));
   const effectivePageSize = Math.max(1, Math.min(100, Math.floor(pageSize)));
@@ -427,6 +430,7 @@ export async function getDailyLeadAnalytics({
     from,
     leadByPair: metricLeadByPair,
     scans: trendScans,
+    timeZone,
     to,
   });
   const matchedMetricRows = matchedScansForMetrics.map((scan) => {
@@ -489,6 +493,7 @@ function buildDailyLeadTrendRows({
   from,
   leadByPair,
   scans,
+  timeZone,
   to,
 }: {
   from: Date;
@@ -506,23 +511,24 @@ function buildDailyLeadTrendRows({
     status: "MATCHED" | "NO_MATCH";
     updatedAt: Date;
   }>;
+  timeZone: string;
   to: Date;
 }) {
   const buckets = new Map<string, DailyLeadTrendRow>();
-  const dayCount = Math.ceil((to.getTime() - from.getTime()) / (24 * 60 * 60 * 1000));
+  const safeTimeZone = normalizeTimeZone(timeZone);
+  const startKey = getDateKeyInTimeZone(from, safeTimeZone);
+  const endKey = getDateKeyInTimeZone(new Date(Math.max(from.getTime(), to.getTime() - 1)), safeTimeZone);
+  const dayCount = getCalendarDayDistance(startKey, endKey) + 1;
 
   if (from.getUTCFullYear() > 2000 && dayCount > 0 && dayCount <= MAX_FILLED_TREND_DAYS) {
-    const start = Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate());
-
     for (let index = 0; index < dayCount; index += 1) {
-      const day = new Date(start + index * 24 * 60 * 60 * 1000);
-      const key = formatUtcDayKey(day);
+      const key = addDaysToDateKey(startKey, index);
       buckets.set(key, createTrendBucket(key));
     }
   }
 
   for (const scan of scans) {
-    const key = formatUtcDayKey(scan.updatedAt);
+    const key = getDateKeyInTimeZone(scan.updatedAt, safeTimeZone);
     const bucket = buckets.get(key) ?? createTrendBucket(key);
 
     bucket.scanned += 1;
@@ -565,8 +571,11 @@ function createTrendBucket(day: string): DailyLeadTrendRow {
   };
 }
 
-function formatUtcDayKey(date: Date) {
-  return date.toISOString().slice(0, 10);
+function getCalendarDayDistance(fromKey: string, toKey: string) {
+  return Math.round(
+    (new Date(`${toKey}T00:00:00.000Z`).getTime() - new Date(`${fromKey}T00:00:00.000Z`).getTime())
+      / (24 * 60 * 60 * 1000),
+  );
 }
 
 function formatTrendLabel(day: string) {

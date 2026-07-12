@@ -1,11 +1,14 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { AppMainShell } from "@/components/app/app-main-shell";
 import { AppSidebar } from "@/components/app/app-sidebar";
+import { BrowserTimeZoneSync } from "@/components/app/browser-time-zone-sync";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
+import { BROWSER_TIME_ZONE_COOKIE, normalizeTimeZone } from "@/lib/time-zone";
 
 export default async function AuthenticatedAppLayout({
   children,
@@ -20,6 +23,8 @@ export default async function AuthenticatedAppLayout({
 
   const userLabel = session.user.name ?? session.user.email ?? "Authenticated user";
   const isAdminAccount = canViewAnalytics(session.user.email);
+  const cookieStore = await cookies();
+  const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const [user, nonAdminCampaign] = await Promise.all([
     prisma.user.findUnique({
       where: {
@@ -50,6 +55,7 @@ export default async function AuthenticatedAppLayout({
 
   return (
     <div className="min-h-screen bg-transparent px-4 py-4 text-[#F3F5F4] lg:px-0 lg:py-0">
+      {!isAdminAccount ? <BrowserTimeZoneSync initialTimeZone={browserTimeZone} /> : null}
       <div className="grid min-h-screen w-full grid-cols-1 gap-4 lg:grid-cols-[304px_minmax(0,1fr)] lg:gap-0">
         <div className="lg:sticky lg:top-0 lg:h-screen lg:pl-4 lg:pr-0 lg:py-4 xl:pl-6">
           <AppSidebar

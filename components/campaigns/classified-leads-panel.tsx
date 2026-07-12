@@ -39,6 +39,7 @@ export function ClassifiedLeadsPanel({
   isFilterLoading = false,
   leads,
   nextSyncLabel = "the next scheduled run",
+  showJsonExport = true,
   showSemanticSort = true,
   showStatusFilter = true,
   shouldWaitForNextSync = false,
@@ -47,6 +48,7 @@ export function ClassifiedLeadsPanel({
   isFilterLoading?: boolean;
   leads: ClassifiedLead[];
   nextSyncLabel?: string;
+  showJsonExport?: boolean;
   showSemanticSort?: boolean;
   showStatusFilter?: boolean;
   shouldWaitForNextSync?: boolean;
@@ -133,18 +135,20 @@ export function ClassifiedLeadsPanel({
           <div className={`grid w-full gap-3 sm:w-auto ${showStatusFilter ? "sm:grid-cols-4" : "sm:grid-cols-3"} lg:flex lg:flex-row`}>
             {!shouldShowWaitingState && !isFilterLoading ? (
               <>
-                <div className="grid gap-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Export</span>
-                  <button
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-full border-none bg-[#121212] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors hover:bg-[#252525] focus-visible:ring-2 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[160px]"
-                    disabled={copyableLeads.length === 0}
-                    onClick={handleCopyVisibleLeads}
-                    type="button"
-                  >
-                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    {copied ? "Copied" : "Copy JSON"}
-                  </button>
-                </div>
+                {showJsonExport ? (
+                  <div className="grid gap-2">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Export</span>
+                    <button
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-full border-none bg-[#121212] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors hover:bg-[#252525] focus-visible:ring-2 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[160px]"
+                      disabled={copyableLeads.length === 0}
+                      onClick={handleCopyVisibleLeads}
+                      type="button"
+                    >
+                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                      {copied ? "Copied" : "Copy JSON"}
+                    </button>
+                  </div>
+                ) : null}
                 <FilterGroup
                   label="Label"
                   options={labelFilters}

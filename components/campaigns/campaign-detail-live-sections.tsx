@@ -53,6 +53,7 @@ export function CampaignDetailLiveSections({
   semanticLastSyncAt,
   semanticNextSyncAt,
   showInitialRssDiagnostics = true,
+  showJsonExport = true,
   showSemanticSort = true,
   shouldWaitForTodaySync,
 }: {
@@ -70,6 +71,7 @@ export function CampaignDetailLiveSections({
   semanticLastSyncAt: string | null;
   semanticNextSyncAt: string;
   showInitialRssDiagnostics?: boolean;
+  showJsonExport?: boolean;
   showSemanticSort?: boolean;
   shouldWaitForTodaySync?: boolean;
 }) {
@@ -156,6 +158,7 @@ export function CampaignDetailLiveSections({
         isFilterLoading={isLeadFilterLoading}
         leads={classifiedLeads}
         nextSyncLabel={nextSync}
+        showJsonExport={showJsonExport}
         showSemanticSort={showSemanticSort}
         showStatusFilter={false}
         shouldWaitForNextSync={shouldWaitForTodaySync}

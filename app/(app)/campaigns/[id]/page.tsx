@@ -220,7 +220,7 @@ export default async function CampaignDetailPage({
               </Button>
             </Link>
             <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-stretch lg:justify-end">
-              {sync?.status === "COMPLETED" ? (
+              {isAdminAccount && sync?.status === "COMPLETED" ? (
                 <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/analytics`}>
                   <Button
                     className="w-full rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477] sm:w-auto"
@@ -339,6 +339,7 @@ export default async function CampaignDetailPage({
         }
         semanticNextSyncAt={semanticNextSyncAt.toISOString()}
         showInitialRssDiagnostics={isAdminAccount}
+        showJsonExport={isAdminAccount}
         showSemanticSort={isAdminAccount}
         shouldWaitForTodaySync={shouldWaitForTodaySync}
       />

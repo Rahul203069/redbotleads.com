@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { SubredditAnalyticsReport } from "@/components/campaigns/subreddit-analytics-report";
 import { auth } from "@/lib/auth";
+import { canViewAnalytics } from "@/lib/beta-access";
 import {
   buildAccessibleCampaignWhere,
   getCampaignAccessFromRecord,
@@ -24,6 +25,10 @@ export default async function CampaignAnalyticsPage({
 
   if (!session?.user?.id) {
     redirect("/login");
+  }
+
+  if (!canViewAnalytics(session.user.email)) {
+    notFound();
   }
 
   const { id } = await params;

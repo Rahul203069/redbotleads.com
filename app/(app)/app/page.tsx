@@ -75,7 +75,7 @@ export default async function AppHomePage() {
     },
   });
 
-  const [recentStrongLeads, trendScans] = campaign
+  const [recentStrongLeads, trendScans, completedSemanticRuns] = campaign
     ? await Promise.all([
         prisma.lead.findMany({
           where: {
@@ -127,8 +127,23 @@ export default async function AppHomePage() {
             updatedAt: "asc",
           },
         }),
+        prisma.campaignRun.findMany({
+          where: {
+            campaignId: campaign.id,
+            status: "COMPLETED",
+            trigger: "DAILY_SEMANTIC",
+          },
+          select: {
+            completedAt: true,
+            createdAt: true,
+            statsJson: true,
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        }),
       ])
-    : [[], []];
+    : [[], [], []];
 
   const visibleLeads = campaign?.leads.filter((lead) => lead.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE).length ?? 0;
   const newStrongLeads = campaign?.leads.filter(
@@ -161,9 +176,14 @@ export default async function AppHomePage() {
           score: true,
         },
       });
+  const scanSummary = buildCampaignScanSummary({
+    completedRuns: completedSemanticRuns,
+    retainedScanCount: trendScans.length,
+  });
   const trendRows = buildWorkspaceLeadsTrendRows({
     from: trendFrom,
     leadByPair: new Map(trendLeads.map((lead) => [buildTrendPairKey(lead.campaignId, lead.redditItemId), lead])),
+    scannedByDay: buildRecordedScansByDay(completedSemanticRuns),
     scans: trendScans,
   });
 
@@ -200,7 +220,7 @@ export default async function AppHomePage() {
           description="A 14-day view of every Reddit lead found and the strongest opportunities identified for this campaign."
           title="Campaign performance"
         >
-          <WorkspaceLeadsTrendChart rows={trendRows} />
+          <WorkspaceLeadsTrendChart rows={trendRows} scanSummary={scanSummary} />
         </SectionCard>
 
         <SectionCard
@@ -626,6 +646,7 @@ function getNextSyncAt(campaign: {
 function buildWorkspaceLeadsTrendRows({
   from,
   leadByPair,
+  scannedByDay,
   scans,
 }: {
   from: Date;
@@ -637,6 +658,7 @@ function buildWorkspaceLeadsTrendRows({
     redditItemId: string;
     score: number;
   }>;
+  scannedByDay: Map<string, number>;
   scans: Array<{
     campaignId: string;
     redditItemId: string;
@@ -658,6 +680,14 @@ function buildWorkspaceLeadsTrendRows({
     });
   }
 
+  for (const [key, scanned] of scannedByDay) {
+    const row = rows.get(key);
+
+    if (row) {
+      row.scanned = scanned;
+    }
+  }
+
   for (const scan of scans) {
     const key = getUtcDayKey(scan.updatedAt);
     const row = rows.get(key);
@@ -666,7 +696,9 @@ function buildWorkspaceLeadsTrendRows({
       continue;
     }
 
-    row.scanned += 1;
+    if (!scannedByDay.has(key)) {
+      row.scanned += 1;
+    }
 
     if (scan.status === "MATCHED") {
       const lead = leadByPair.get(buildTrendPairKey(scan.campaignId, scan.redditItemId));
@@ -682,6 +714,84 @@ function buildWorkspaceLeadsTrendRows({
   }
 
   return Array.from(rows.values());
+}
+
+function buildCampaignScanSummary({
+  completedRuns,
+  retainedScanCount,
+}: {
+  completedRuns: Array<{
+    statsJson: unknown;
+  }>;
+  retainedScanCount: number;
+}) {
+  const recordedCounts = completedRuns
+    .map((run) => getRecordedScannedPosts(run.statsJson))
+    .filter((count): count is number => count !== null);
+
+  if (recordedCounts.length === 0) {
+    return {
+      detail: retainedScanCount > 0 ? "Estimated from retained scan history" : "No completed scan history yet",
+      estimated: retainedScanCount > 0,
+      value: retainedScanCount,
+    };
+  }
+
+  const recordedTotal = recordedCounts.reduce((sum, count) => sum + count, 0);
+  const missingRunCount = completedRuns.length - recordedCounts.length;
+
+  if (missingRunCount === 0) {
+    return {
+      detail: `${completedRuns.length} completed sync${completedRuns.length === 1 ? "" : "s"}`,
+      estimated: false,
+      value: recordedTotal,
+    };
+  }
+
+  const averagePerRecordedRun = recordedTotal / recordedCounts.length;
+
+  return {
+    detail: `Estimated from ${recordedCounts.length} recorded sync${recordedCounts.length === 1 ? "" : "s"}`,
+    estimated: true,
+    value: Math.round(recordedTotal + averagePerRecordedRun * missingRunCount),
+  };
+}
+
+function buildRecordedScansByDay(
+  completedRuns: Array<{
+    completedAt: Date | null;
+    createdAt: Date;
+    statsJson: unknown;
+  }>,
+) {
+  const scannedByDay = new Map<string, number>();
+
+  for (const run of completedRuns) {
+    const scanned = getRecordedScannedPosts(run.statsJson);
+
+    if (scanned === null) {
+      continue;
+    }
+
+    const key = getUtcDayKey(run.completedAt ?? run.createdAt);
+    scannedByDay.set(key, (scannedByDay.get(key) ?? 0) + scanned);
+  }
+
+  return scannedByDay;
+}
+
+function getRecordedScannedPosts(statsJson: unknown) {
+  if (!statsJson || typeof statsJson !== "object" || Array.isArray(statsJson)) {
+    return null;
+  }
+
+  const scannedPosts = (statsJson as Record<string, unknown>).scannedPosts;
+
+  if (typeof scannedPosts !== "number" || !Number.isFinite(scannedPosts) || scannedPosts < 0) {
+    return null;
+  }
+
+  return Math.round(scannedPosts);
 }
 
 function buildTrendPairKey(campaignId: string, redditItemId: string) {

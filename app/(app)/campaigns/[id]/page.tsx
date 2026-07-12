@@ -8,9 +8,9 @@ import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campai
 import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
-import { EditCampaignDescriptionDialog } from "@/components/campaigns/edit-campaign-description-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
+import { ViewCampaignDescriptionDialog } from "@/components/campaigns/view-campaign-description-dialog";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
@@ -290,7 +290,7 @@ export default async function CampaignDetailPage({
               {!isAdminAccount ? (
                 <div className="grid shrink-0 gap-3 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
                   <CampaignShareDialogButton campaignId={campaign.id} />
-                  <EditCampaignDescriptionDialog campaignId={campaign.id} description={campaign.description} />
+                  <ViewCampaignDescriptionDialog description={campaign.description} />
                 </div>
               ) : null}
             </div>

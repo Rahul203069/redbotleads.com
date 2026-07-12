@@ -20,7 +20,17 @@ export type WorkspaceLeadsTrendRow = {
   strongLeads: number;
 };
 
-export function WorkspaceLeadsTrendChart({ rows }: { rows: WorkspaceLeadsTrendRow[] }) {
+export function WorkspaceLeadsTrendChart({
+  rows,
+  scanSummary,
+}: {
+  rows: WorkspaceLeadsTrendRow[];
+  scanSummary: {
+    detail: string;
+    estimated: boolean;
+    value: number;
+  };
+}) {
   const totals = rows.reduce(
     (sum, row) => ({
       scanned: sum.scanned + row.scanned,
@@ -43,7 +53,12 @@ export function WorkspaceLeadsTrendChart({ rows }: { rows: WorkspaceLeadsTrendRo
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <TrendMetric detail="Reddit posts reviewed" label="Scanned" value={totals.scanned} />
+        <TrendMetric
+          detail={scanSummary.detail}
+          label="Total scanned"
+          prefix={scanSummary.estimated ? "≈" : ""}
+          value={scanSummary.value}
+        />
         <TrendMetric detail="Matched in 14 days" label="Leads found" value={totals.totalLeads} tone="blue" />
         <TrendMetric detail="Score above 75" label="Strong leads" value={totals.strongLeads} tone="green" />
         <TrendMetric detail="Of all leads found" label="Strong lead rate" suffix="%" value={strongLeadRate} tone="green" />
@@ -129,12 +144,14 @@ export function WorkspaceLeadsTrendChart({ rows }: { rows: WorkspaceLeadsTrendRo
 function TrendMetric({
   detail,
   label,
+  prefix = "",
   suffix = "",
   tone = "neutral",
   value,
 }: {
   detail: string;
   label: string;
+  prefix?: string;
   suffix?: string;
   tone?: "blue" | "green" | "neutral";
   value: number;
@@ -149,7 +166,9 @@ function TrendMetric({
   return (
     <div className="rounded-[16px] bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
       <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">{label}</div>
-      <div className={`mt-2 text-[24px] font-bold leading-none tracking-[-0.04em] ${toneClass}`}>{value}{suffix}</div>
+      <div className={`mt-2 text-[24px] font-bold leading-none tracking-[-0.04em] ${toneClass}`}>
+        {prefix}{value.toLocaleString("en-US")}{suffix}
+      </div>
       <div className="mt-2 text-[11px] text-[#8f8f8f]">{detail}</div>
     </div>
   );

@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { FormEvent } from "react";
-import { CalendarCheck2, CalendarDays } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { labelDayButton, type DateRange } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 
 import { useCampaignLeadFilterLoading } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { Calendar } from "@/components/ui/calendar";
@@ -13,11 +13,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 export function DailyLeadsDateFilter({
   defaultRange = "today",
   enableMultipleDates = false,
-  firstSyncAt,
 }: {
   defaultRange?: "all" | "last7" | "today";
   enableMultipleDates?: boolean;
-  firstSyncAt?: string | null;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -212,7 +210,6 @@ export function DailyLeadsDateFilter({
               applyDisabled={!selectedDateRange.from || (isNavigating && pendingRange === "range")}
               applyLabel={isNavigating && pendingRange === "range" ? "Applying" : getRangeApplyLabel(selectedDateRange)}
               isApplying={isNavigating && pendingRange === "range"}
-              firstSyncAt={firstSyncAt}
               mode="range"
               onApply={handleApplyRange}
               onChange={setSelectedDateRange}
@@ -294,9 +291,7 @@ type DateRangeInputValue = {
   to?: string;
 };
 
-type DatePickerProps = {
-  firstSyncAt?: string | null;
-} & (
+type DatePickerProps =
   | {
       applyDisabled?: boolean;
       applyLabel?: string;
@@ -310,8 +305,7 @@ type DatePickerProps = {
       mode: "single";
       onChange: (value: string) => void;
       value: string;
-    }
-);
+    };
 
 function DatePicker(props: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -320,7 +314,6 @@ function DatePicker(props: DatePickerProps) {
   const selectedRange = props.mode === "range" ? parseDateRangeInputValue(props.value) : undefined;
   const selectedRangeLabel = props.mode === "range" ? formatRangeLabel(props.value) : "";
   const selectedRangeTitle = props.mode === "range" ? getRangeSummaryTitle(props.value) : "";
-  const firstSyncDate = parseOptionalDate(props.firstSyncAt);
 
   function handlePopoverApply() {
     if (props.mode !== "range" || props.applyDisabled) {
@@ -351,23 +344,12 @@ function DatePicker(props: DatePickerProps) {
             <Calendar
               className="px-4 pb-3 pt-4"
               disabled={{ after: today }}
-              labels={{
-                labelDayButton: (date, modifiers, options, dateLib) => {
-                  const label = labelDayButton(date, modifiers, options, dateLib);
-                  return modifiers.firstSync ? `${label}, first campaign sync` : label;
-                },
-              }}
               mode="range"
-              modifiers={firstSyncDate ? { firstSync: firstSyncDate } : undefined}
-              modifiersClassNames={{
-                firstSync: "[&>button]:ring-2 [&>button]:ring-[#60a5fa] [&>button]:ring-offset-2 [&>button]:ring-offset-[#101010]",
-              }}
               onSelect={(range) => {
                 props.onChange(normalizeDatePickerRange(range, today));
               }}
               selected={selectedRange}
             />
-            {firstSyncDate ? <FirstSyncLegend date={firstSyncDate} /> : null}
             <div className="mx-3 mb-3 flex flex-col gap-3 rounded-[18px] border border-white/8 bg-[#080808] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#71717a]">{selectedRangeTitle}</p>
@@ -416,27 +398,6 @@ function parseDateRangeInputValue(value: DateRangeInputValue): DateRange | undef
     from: parseDateInputValue(value.from),
     to: value.to ? parseDateInputValue(value.to) : undefined,
   };
-}
-
-function parseOptionalDate(value: string | null | undefined) {
-  if (!value) {
-    return undefined;
-  }
-
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? undefined : date;
-}
-
-function FirstSyncLegend({ date }: { date: Date }) {
-  return (
-    <div className="mx-3 mb-3 flex items-center gap-2 rounded-[14px] border border-[#60a5fa]/25 bg-[#60a5fa]/8 px-3 py-2 text-[12px] text-[#dbeafe]">
-      <CalendarCheck2 aria-hidden="true" className="h-4 w-4 shrink-0 text-[#60a5fa]" />
-      <span className="font-semibold">First sync</span>
-      <time className="ml-auto tabular-nums text-[#bfdbfe]" dateTime={date.toISOString()}>
-        {formatDisplayDate(date)}
-      </time>
-    </div>
-  );
 }
 
 function normalizeDatePickerRange(value: DateRange | undefined, maxDate: Date): DateRangeInputValue {

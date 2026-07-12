@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { BarChart3, CalendarDays, Clock3 } from "lucide-react";
+import { BarChart3, CalendarCheck2, CalendarDays, Clock3 } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
@@ -202,8 +202,6 @@ export default async function CampaignDetailPage({
     ?? initialDiagnostics?.run.queuedAt
     ?? campaign.createdAt.toISOString();
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
-  const leadCount = classifiedLeads.length;
-  const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
   const isAdminAccount = canViewAnalytics(session.user.email);
   const canExportLeads = isAdminAccount || canManage;
 
@@ -291,12 +289,11 @@ export default async function CampaignDetailPage({
               <div className="mt-5 flex flex-wrap gap-2">
                 <ScheduledProcessingPill isActive={campaign.isActive} />
                 <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
-                <HeroChip label={`${leadCount} lead${leadCount === 1 ? "" : "s"} tracked`} />
-                <HeroChip label={`${highIntentCount} strong match${highIntentCount === 1 ? "" : "es"}`} />
+                <TrackedSincePill date={firstSyncAt} />
               </div>
             </div>
             <div className="w-full">
-              <DailyLeadsDateFilter defaultRange="all" enableMultipleDates firstSyncAt={firstSyncAt} />
+              <DailyLeadsDateFilter defaultRange="all" enableMultipleDates />
             </div>
           </div>
         </div>
@@ -434,6 +431,18 @@ function HeroChip({ label }: { label: string }) {
   );
 }
 
+function TrackedSincePill({ date }: { date: string }) {
+  return (
+    <span
+      className="inline-flex items-center gap-1.5 rounded-full bg-[#121212] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
+      title={`Campaign has been tracking Reddit leads since ${formatTrackedSinceDate(date)}.`}
+    >
+      <CalendarCheck2 aria-hidden="true" className="h-3.5 w-3.5 text-[#b3b3b3]" />
+      Tracked since {formatTrackedSinceDate(date)}
+    </span>
+  );
+}
+
 function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
   return (
     <div
@@ -448,6 +457,20 @@ function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
       {isActive ? "Scheduled daily" : "Paused"}
     </div>
   );
+}
+
+function formatTrackedSinceDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "campaign start";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 }
 
 function BackIcon() {

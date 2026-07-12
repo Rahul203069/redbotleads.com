@@ -59,7 +59,7 @@ export default async function CampaignDetailPage({
   const leadDateSelection = getDailyLeadDateSelection(
     resolvedSearchParams.date || resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
       ? resolvedSearchParams
-      : { range: "all" },
+      : { range: "today" },
   );
   const leadDateFilter = {
     date: leadDateSelection.source === "dates" ? leadDateSelection.dateStarts : undefined,
@@ -210,29 +210,29 @@ export default async function CampaignDetailPage({
       <div className="space-y-5">
         <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <Link className="w-full sm:w-auto" href="/campaigns">
-              <Button
-                className="w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
-                variant="secondary"
-              >
-                <BackIcon />
-                Back to campaigns
-              </Button>
-            </Link>
-            <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-stretch lg:justify-end">
-              {isAdminAccount && sync?.status === "COMPLETED" ? (
-                <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/analytics`}>
-                  <Button
-                    className="w-full rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477] sm:w-auto"
-                    variant="secondary"
-                  >
-                    <BarChart3 className="h-4 w-4" />
-                    Analytics
-                  </Button>
-                </Link>
-              ) : null}
-              {isAdminAccount ? (
+          {isAdminAccount ? (
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <Link className="w-full sm:w-auto" href="/campaigns">
+                <Button
+                  className="w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
+                  variant="secondary"
+                >
+                  <BackIcon />
+                  Back to campaigns
+                </Button>
+              </Link>
+              <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-stretch lg:ml-auto lg:justify-end">
+                {sync?.status === "COMPLETED" ? (
+                  <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/analytics`}>
+                    <Button
+                      className="w-full rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477] sm:w-auto"
+                      variant="secondary"
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                      Analytics
+                    </Button>
+                  </Link>
+                ) : null}
                 <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/daily-leads`}>
                   <Button
                     className="w-full rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] sm:w-auto"
@@ -242,58 +242,60 @@ export default async function CampaignDetailPage({
                     Daily leads
                   </Button>
                 </Link>
-              ) : null}
-              {isAdminAccount ? (
                 <CopyPublicCampaignLinkButton campaignId={campaign.id} />
-              ) : (
-                <CampaignShareDialogButton campaignId={campaign.id} />
-              )}
-              {isAdminAccount ? <CopyPublicCampaignLinkButton campaignId={campaign.id} kind="leads" /> : null}
-              {canExportLeads ? (
-                <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
-              ) : null}
-              {canManage ? (
-                <>
-                  <EditCampaignDialog
-                    campaign={{
-                      id: campaign.id,
-                      name: campaign.name,
-                      leadType: campaign.leadType,
-                      description: campaign.description,
-                      keywords: campaign.keywords,
-                      negativeKeywords: campaign.negativeKeywords,
-                      subreddits: campaign.subreddits,
-                      recentDays: campaign.recentDays,
-                      minScoreToAlert: campaign.minScoreToAlert,
-                      isActive: campaign.isActive,
-                      semanticQueries: campaign.semanticQueries,
-                    }}
-                    showSemanticQueries={isAdminAccount}
-                  />
-                  <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
-                </>
-              ) : (
-                <EditCampaignDescriptionDialog campaignId={campaign.id} description={campaign.description} />
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-5">
-            <div className="min-w-0 max-w-3xl">
-              <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
-                {displayName}
-              </h1>
-              <p className="mt-3 max-w-[60ch] text-[15px] leading-6 text-[#cbcbcb] sm:truncate">
-                {campaign.description || "No campaign description added yet."}
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                <ScheduledProcessingPill isActive={campaign.isActive} />
-                <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
-                <TrackedSincePill date={firstSyncAt} />
+                <CopyPublicCampaignLinkButton campaignId={campaign.id} kind="leads" />
+                {canExportLeads ? (
+                  <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
+                ) : null}
+                {canManage ? (
+                  <>
+                    <EditCampaignDialog
+                      campaign={{
+                        id: campaign.id,
+                        name: campaign.name,
+                        leadType: campaign.leadType,
+                        description: campaign.description,
+                        keywords: campaign.keywords,
+                        negativeKeywords: campaign.negativeKeywords,
+                        subreddits: campaign.subreddits,
+                        recentDays: campaign.recentDays,
+                        minScoreToAlert: campaign.minScoreToAlert,
+                        isActive: campaign.isActive,
+                        semanticQueries: campaign.semanticQueries,
+                      }}
+                      showSemanticQueries
+                    />
+                    <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />
+                  </>
+                ) : null}
               </div>
             </div>
+          ) : null}
+
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0 max-w-3xl">
+                <h1 className="text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd] lg:text-[2.75rem]">
+                  {displayName}
+                </h1>
+                <p className="mt-3 max-w-[60ch] text-[15px] leading-6 text-[#cbcbcb] sm:truncate">
+                  {campaign.description || "No campaign description added yet."}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <ScheduledProcessingPill isActive={campaign.isActive} />
+                  <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
+                  <TrackedSincePill date={firstSyncAt} />
+                </div>
+              </div>
+              {!isAdminAccount ? (
+                <div className="grid shrink-0 gap-3 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+                  <CampaignShareDialogButton campaignId={campaign.id} />
+                  <EditCampaignDescriptionDialog campaignId={campaign.id} description={campaign.description} />
+                </div>
+              ) : null}
+            </div>
             <div className="w-full">
-              <DailyLeadsDateFilter defaultRange="all" enableMultipleDates />
+              <DailyLeadsDateFilter defaultRange="today" enableMultipleDates />
             </div>
           </div>
         </div>

@@ -38,14 +38,24 @@ const ownerNavItems = [
 ];
 
 type AppSidebarProps = {
+  campaignHref?: string;
   isOwner?: boolean;
   shouldShowSlackConnect?: boolean;
   userLabel: string;
 };
 
-export function AppSidebar({ isOwner = false, shouldShowSlackConnect = false, userLabel }: AppSidebarProps) {
+export function AppSidebar({
+  campaignHref = "/campaigns",
+  isOwner = false,
+  shouldShowSlackConnect = false,
+  userLabel,
+}: AppSidebarProps) {
   const pathname = usePathname();
-  const visibleNavItems = isOwner ? [...navItems, ...ownerNavItems] : navItems;
+  const visibleNavItems = (isOwner ? [...navItems, ...ownerNavItems] : navItems).map((item) =>
+    !isOwner && item.href === "/campaigns"
+      ? { ...item, href: campaignHref, label: "Campaign" }
+      : item,
+  );
 
   return (
     <>

@@ -33,7 +33,7 @@ const statusFilters = ["ALL", "NEW", "SAVED", "IGNORED", "REPLIED"] as const;
 const scoreSortOptions = ["SCORE_DESC", "SCORE_ASC", "SEMANTIC_DESC"] as const;
 const nonAdminScoreSortOptions = ["SCORE_DESC", "SCORE_ASC"] as const;
 const MIN_VISIBLE_LEAD_SCORE = 40;
-const MIN_COPY_LEAD_SCORE = 50;
+const MIN_COPY_LEAD_SCORE = 40;
 
 export function ClassifiedLeadsPanel({
   isFilterLoading = false,

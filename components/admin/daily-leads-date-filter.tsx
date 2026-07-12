@@ -41,13 +41,20 @@ export function DailyLeadsDateFilter({
       });
     }
 
-    return searchParams.get("from") && searchParams.get("to")
-      ? normalizeDateRangeValue({
-          from: getDateInputValue(searchParams.get("from")),
-          to: getExclusiveToDateInputValue(searchParams.get("to")),
-        })
-      : {};
-  }, [enableMultipleDates, isAllTime, searchParams, selectedDateStarts]);
+    if (searchParams.get("from") && searchParams.get("to")) {
+      return normalizeDateRangeValue({
+        from: getDateInputValue(searchParams.get("from")),
+        to: getExclusiveToDateInputValue(searchParams.get("to")),
+      });
+    }
+
+    if (defaultRange === "today") {
+      const today = getTodayInputValue();
+      return { from: today, to: today };
+    }
+
+    return {};
+  }, [defaultRange, enableMultipleDates, isAllTime, searchParams, selectedDateStarts]);
   const todayValue = useMemo(() => getTodayInputValue(), []);
   const [dateValue, setDateValue] = useState(initialDate);
   const [selectedDateRange, setSelectedDateRange] = useState<DateRangeInputValue>(initialDateRangeValue);
@@ -91,16 +98,14 @@ export function DailyLeadsDateFilter({
   }, [enableMultipleDates, isAllTime, pathname, router, searchParams, selectedDateStarts]);
 
   useEffect(() => {
-    if (hasRange) {
+    if (hasRange || defaultRange === "today") {
       return;
     }
 
     router.replace(
       defaultRange === "all"
         ? buildAllTimeHref(pathname, searchParams)
-        : defaultRange === "last7"
-          ? buildHref(pathname, searchParams, getLocalRecentDateRange(7))
-          : buildHref(pathname, searchParams, getLocalDayRange(getTodayInputValue())),
+        : buildHref(pathname, searchParams, getLocalRecentDateRange(7)),
     );
   }, [defaultRange, hasRange, pathname, router, searchParams]);
 
@@ -123,6 +128,10 @@ export function DailyLeadsDateFilter({
   }
 
   function handleToday() {
+    if (isToday && !hasRange) {
+      return;
+    }
+
     const range = getLocalDayRange(todayValue);
     const href = buildHref(pathname, searchParams, range);
 

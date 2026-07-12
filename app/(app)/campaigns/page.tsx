@@ -4,7 +4,7 @@ import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-a
 import { CampaignList } from "@/components/campaigns/campaign-list";
 import { CampaignWizard } from "@/components/campaigns/campaign-wizard";
 import { auth } from "@/lib/auth";
-import { isOwnerEmail } from "@/lib/beta-access";
+import { canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
 import {
   buildAccessibleCampaignWhere,
   getCampaignAccessFromRecord,
@@ -19,11 +19,25 @@ export default async function CampaignsPage() {
     redirect("/login");
   }
 
+  const accessibleCampaignWhere = buildAccessibleCampaignWhere({
+    email: session.user.email,
+    userId: session.user.id,
+  });
+
+  if (!canViewAnalytics(session.user.email)) {
+    const campaign = await prisma.campaign.findFirst({
+      where: accessibleCampaignWhere,
+      select: { id: true },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    if (campaign) {
+      redirect(`/campaigns/${campaign.id}`);
+    }
+  }
+
   const campaigns = await prisma.campaign.findMany({
-    where: buildAccessibleCampaignWhere({
-      email: session.user.email,
-      userId: session.user.id,
-    }),
+    where: accessibleCampaignWhere,
     include: {
       clientAccesses: {
         where: {

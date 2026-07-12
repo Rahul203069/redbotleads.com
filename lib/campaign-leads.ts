@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import type { DailyLeadDateRangeValue } from "@/lib/daily-leads-analytics";
 
-export const PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE = 50;
+export const PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE = 40;
 
 export type CampaignLeadView = {
   id: string;

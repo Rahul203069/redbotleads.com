@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 
 type PlaygroundResultSort = "semantic" | "llm";
-const MIN_COPY_LEAD_SCORE = 50;
+const MIN_COPY_LEAD_SCORE = 40;
 const IST_OFFSET_MINUTES = 330;
 const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
 const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
@@ -118,7 +118,7 @@ export function SemanticPlaygroundResults({
                 type="button"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copied" : "Copy 50+ JSON"}
+                {copied ? "Copied" : "Copy 40+ JSON"}
               </button>
 
               <div className="inline-flex min-h-10 items-center rounded-full bg-[#1f1f1f] p-1 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">

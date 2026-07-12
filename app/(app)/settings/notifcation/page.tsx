@@ -3,6 +3,13 @@ import { redirect } from "next/navigation";
 import { NotificationSettingsForm } from "@/components/settings/notification-settings-form";
 import { SettingsBackLink } from "@/components/settings/settings-back-link";
 import { auth } from "@/lib/auth";
+import { canViewAnalytics } from "@/lib/beta-access";
+import {
+  buildAccessibleCampaignWhere,
+  getCampaignAccessFromRecord,
+  getCampaignDisplayName,
+  normalizeAccessEmail,
+} from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
 
 export default async function NotificationSettingsPage({
@@ -38,6 +45,41 @@ export default async function NotificationSettingsPage({
   if (!user) {
     redirect("/login");
   }
+
+  const isAdminAccount = canViewAnalytics(session.user.email);
+  const notificationCampaign = !isAdminAccount
+    ? await prisma.campaign.findFirst({
+        where: buildAccessibleCampaignWhere({
+          email: session.user.email,
+          userId: session.user.id,
+        }),
+        orderBy: {
+          updatedAt: "desc",
+        },
+        select: {
+          id: true,
+          name: true,
+          userId: true,
+          minScoreToAlert: true,
+          clientAccesses: {
+            where: {
+              normalizedEmail: normalizeAccessEmail(session.user.email),
+            },
+            select: {
+              displayName: true,
+              normalizedEmail: true,
+            },
+          },
+        },
+      })
+    : null;
+  const campaignAccess = notificationCampaign
+    ? getCampaignAccessFromRecord({
+        campaign: notificationCampaign,
+        email: session.user.email,
+        userId: session.user.id,
+      })
+    : null;
 
   return (
     <div className="space-y-5">
@@ -78,27 +120,25 @@ export default async function NotificationSettingsPage({
         </a>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+      <div className="max-w-3xl">
         <NotificationSettingsForm
           defaultEmailAlertsEnabled={user.emailAlertsEnabled}
           defaultPreferredAlertChannel={user.preferredAlertChannel}
+          notificationThresholdCampaign={
+            notificationCampaign && campaignAccess
+              ? {
+                  id: notificationCampaign.id,
+                  name: getCampaignDisplayName(notificationCampaign, campaignAccess),
+                  minScoreToAlert: notificationCampaign.minScoreToAlert,
+                }
+              : null
+          }
           slackChannelName={user.slackChannelName}
           slackConfigurationUrl={user.slackConfigurationUrl}
           slackTeamName={user.slackTeamName}
           telegramConnectedAt={user.telegramConnectedAt?.toISOString() ?? null}
           telegramUsername={user.telegramUsername}
         />
-
-        <div className="rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
-            What this does
-          </div>
-          <div className="mt-4 space-y-3 text-[14px] leading-6 text-[#cbcbcb]">
-            <p>The primary channel controls where high-score lead alerts are sent first.</p>
-            <p>Slack OAuth lets you choose a workspace channel without pasting webhook URLs manually.</p>
-            <p>Telegram opens the shared bot with a secure one-time pairing link, then stores your chat automatically.</p>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -7,10 +7,12 @@ import {
   disconnectSlack,
   disconnectTelegram,
   sendTelegramTestMessage,
+  updateNotificationAlertThreshold,
   updateNotificationSettings,
   type SettingsActionState,
 } from "@/actions/settings";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 
 const initialState: SettingsActionState = {
@@ -25,9 +27,15 @@ export function NotificationSettingsForm({
   telegramConnectedAt,
   telegramUsername,
   defaultPreferredAlertChannel,
+  notificationThresholdCampaign,
 }: {
   defaultEmailAlertsEnabled: boolean;
   defaultPreferredAlertChannel: "EMAIL" | "SLACK" | "TELEGRAM";
+  notificationThresholdCampaign?: {
+    id: string;
+    minScoreToAlert: number;
+    name: string;
+  } | null;
   slackChannelName?: string | null;
   slackConfigurationUrl?: string | null;
   slackTeamName?: string | null;
@@ -41,6 +49,10 @@ export function NotificationSettingsForm({
   const [telegramConnectState, telegramConnectAction, isConnectingTelegram] = useActionState(connectTelegram, initialState);
   const [telegramDisconnectState, telegramDisconnectAction, isDisconnectingTelegram] = useActionState(disconnectTelegram, initialState);
   const [telegramTestState, telegramTestAction, isTestingTelegram] = useActionState(sendTelegramTestMessage, initialState);
+  const [thresholdState, thresholdAction, isSavingThreshold] = useActionState(
+    updateNotificationAlertThreshold,
+    initialState,
+  );
   const isSlackConnected = Boolean(slackTeamName || slackChannelName || slackConfigurationUrl);
   const slackLabel = [slackTeamName, slackChannelName ? `#${slackChannelName}` : null].filter(Boolean).join(" / ");
   const isTelegramConnected = Boolean(telegramConnectedAt);
@@ -63,6 +75,23 @@ export function NotificationSettingsForm({
       });
     }
   }, [state, toast]);
+
+  useEffect(() => {
+    if (thresholdState.status === "success" && thresholdState.message) {
+      toast({
+        title: "Alert score updated",
+        description: thresholdState.message,
+      });
+    }
+
+    if (thresholdState.status === "error" && thresholdState.message) {
+      toast({
+        title: "Could not update alert score",
+        description: thresholdState.message,
+        variant: "destructive",
+      });
+    }
+  }, [thresholdState, toast]);
 
   useEffect(() => {
     if (disconnectState.status === "success" && disconnectState.message) {
@@ -169,10 +198,58 @@ export function NotificationSettingsForm({
 
         <div className="border-t border-white/8 pt-5">
           <div className="text-sm leading-6 text-[#b3b3b3]">
-            Preference saves automatically. Connect a channel before using it for real alerts.
+            Channel preference saves automatically. Connect a channel before using it for real alerts.
           </div>
         </div>
       </form>
+
+      {notificationThresholdCampaign ? (
+        <form
+          action={thresholdAction}
+          className="grid gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
+        >
+          <input name="notificationCampaignId" type="hidden" value={notificationThresholdCampaign.id} />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="min-w-0">
+              <div className="text-sm font-medium text-[#fdfdfd]">Minimum score for alerts</div>
+              <div className="mt-1 text-sm leading-6 text-[#b3b3b3]">
+                Only leads at or above this score will send Slack or Telegram alerts.
+              </div>
+              <div className="mt-2 truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7c7c7c]">
+                Applies to {notificationThresholdCampaign.name}
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:w-48">
+              <label className="sr-only" htmlFor="minScoreToAlert">
+                Minimum score for alerts
+              </label>
+              <Input
+                className="h-12 rounded-2xl border-0 bg-[#1f1f1f] px-4 text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] placeholder:text-[#7c7c7c] focus-visible:ring-[#1ed760]"
+                defaultValue={notificationThresholdCampaign.minScoreToAlert}
+                id="minScoreToAlert"
+                max={100}
+                min={1}
+                name="minScoreToAlert"
+                type="number"
+              />
+              <Button
+                className="h-10 rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-none hover:bg-[#3be477]"
+                disabled={isSavingThreshold}
+                type="submit"
+              >
+                {isSavingThreshold ? "Saving..." : "Save score"}
+              </Button>
+            </div>
+          </div>
+
+          {thresholdState.status === "error" && thresholdState.message ? (
+            <div className="rounded-[18px] bg-[#241313] px-4 py-3 text-sm text-[#fee2e2] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+              {thresholdState.message}
+            </div>
+          ) : null}
+        </form>
+      ) : null}
 
       <div className="grid gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

@@ -17,6 +17,7 @@ type TelegramWebhookUpdate = {
 };
 
 export async function POST(request: NextRequest) {
+  const notificationSettingsUrl = getNotificationSettingsUrl(request);
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim();
   const actualSecret = request.headers.get("x-telegram-bot-api-secret-token")?.trim();
 
@@ -53,7 +54,9 @@ export async function POST(request: NextRequest) {
 
   if (!code) {
     console.info("Telegram webhook start command missing pairing code");
-    await safeTelegramReply(String(chatId), "Open Telegram from the Connect Telegram button in Redbot Leads.");
+    await safeTelegramReply(String(chatId), "Open Telegram from the Connect Telegram button in Redbot Leads.", {
+      appUrl: notificationSettingsUrl,
+    });
     return NextResponse.json({ ok: true });
   }
 
@@ -73,7 +76,9 @@ export async function POST(request: NextRequest) {
 
   if (!pairing) {
     console.warn("Telegram webhook pairing not found or expired");
-    await safeTelegramReply(String(chatId), "This Telegram connection link is expired. Please generate a new one in settings.");
+    await safeTelegramReply(String(chatId), "This Telegram connection link is expired. Please generate a new one in settings.", {
+      appUrl: notificationSettingsUrl,
+    });
     return NextResponse.json({ ok: true });
   }
 
@@ -105,7 +110,9 @@ export async function POST(request: NextRequest) {
     userId: pairing.userId,
   });
 
-  await safeTelegramReply(String(chatId), "Telegram connected. Lead alerts can now be sent here.You can go back to Redleadsai and continue using the app.");
+  await safeTelegramReply(String(chatId), "Telegram connected. Lead alerts can now be sent here. Tap below to return to Redbot Leads.", {
+    appUrl: notificationSettingsUrl,
+  });
 
   return NextResponse.json({ ok: true });
 }
@@ -114,12 +121,35 @@ export async function GET() {
   return NextResponse.json({ ok: true });
 }
 
-async function safeTelegramReply(chatId: string, text: string) {
+function getNotificationSettingsUrl(request: NextRequest) {
+  const baseUrl = process.env.NEXTAUTH_URL?.trim() || request.nextUrl.origin;
+  return new URL("/settings/notifcation", baseUrl).toString();
+}
+
+async function safeTelegramReply(
+  chatId: string,
+  text: string,
+  options?: {
+    appUrl?: string;
+  },
+) {
   try {
     await sendTelegramMessage({
       chatId,
       text,
       disableWebPagePreview: true,
+      replyMarkup: options?.appUrl
+        ? {
+            inline_keyboard: [
+              [
+                {
+                  text: "Back to notification settings",
+                  url: options.appUrl,
+                },
+              ],
+            ],
+          }
+        : undefined,
     });
   } catch (error) {
     console.error("Telegram webhook reply failed", error);

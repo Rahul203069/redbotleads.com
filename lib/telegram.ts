@@ -2,6 +2,9 @@ export type TelegramSendMessageInput = {
   chatId: string;
   text: string;
   disableWebPagePreview?: boolean;
+  replyMarkup?: {
+    inline_keyboard: Array<Array<{ text: string; url: string }>>;
+  };
 };
 
 type TelegramErrorResponse = {
@@ -74,6 +77,7 @@ export async function sendTelegramMessage(input: TelegramSendMessageInput) {
       chat_id: input.chatId,
       text: input.text,
       disable_web_page_preview: input.disableWebPagePreview ?? false,
+      ...(input.replyMarkup ? { reply_markup: input.replyMarkup } : {}),
     }),
     cache: "no-store",
   });

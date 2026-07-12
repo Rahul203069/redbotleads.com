@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
+import { canViewAnalytics } from "@/lib/beta-access";
+import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
 import { getTelegramBotStartUrl, sendTelegramMessage } from "@/lib/telegram";
 
@@ -57,6 +59,90 @@ export async function updateNotificationSettings(
   return {
     status: "success",
     message: "Notification preferences updated.",
+  };
+}
+
+export async function updateNotificationAlertThreshold(
+  _prevState: SettingsActionState,
+  formData: FormData,
+): Promise<SettingsActionState> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to update notification score.",
+    };
+  }
+
+  if (canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "Admin users should update campaign alert scores from campaign settings.",
+    };
+  }
+
+  const campaignId = String(formData.get("notificationCampaignId") ?? "").trim();
+  const rawScore = String(formData.get("minScoreToAlert") ?? "").trim();
+  const minScoreToAlert = Number(rawScore);
+
+  if (!campaignId) {
+    return {
+      status: "error",
+      message: "No campaign is available for this notification setting.",
+    };
+  }
+
+  if (!Number.isInteger(minScoreToAlert) || minScoreToAlert < 1 || minScoreToAlert > 100) {
+    return {
+      status: "error",
+      message: "Minimum score must be a whole number between 1 and 100.",
+    };
+  }
+
+  try {
+    const campaign = await prisma.campaign.findFirst({
+      where: buildAccessibleCampaignWhere({
+        campaignId,
+        email: session.user.email,
+        userId: session.user.id,
+      }),
+      select: {
+        id: true,
+      },
+    });
+
+    if (!campaign) {
+      return {
+        status: "error",
+        message: "Campaign was not found for this account.",
+      };
+    }
+
+    await prisma.campaign.update({
+      where: {
+        id: campaign.id,
+      },
+      data: {
+        minScoreToAlert,
+      },
+    });
+  } catch (error) {
+    console.error("Notification alert threshold update failed", error);
+
+    return {
+      status: "error",
+      message: error instanceof Error ? `Save failed: ${error.message}` : "Could not update notification score.",
+    };
+  }
+
+  revalidatePath("/settings");
+  revalidatePath("/settings/notifcation");
+  revalidatePath(`/campaigns/${campaignId}`);
+
+  return {
+    status: "success",
+    message: "Notification score updated.",
   };
 }
 

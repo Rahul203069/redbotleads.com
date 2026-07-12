@@ -13,8 +13,8 @@ const DEFAULT_THRESHOLD = 0.5;
 const MAX_QUERY_LENGTH = 700;
 const MAX_RUN_DESCRIPTION_LENGTH = 1000;
 const MAX_RUN_TITLE_LENGTH = 120;
-const DAILY_SEMANTIC_CRON_UTC_HOUR = 2;
-const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
+const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
+const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 const playgroundRunMetadataSchema = z.object({
   description: z.string().trim().min(3, "Add a playground run description.").max(MAX_RUN_DESCRIPTION_LENGTH, `Description must be ${MAX_RUN_DESCRIPTION_LENGTH} characters or less.`),

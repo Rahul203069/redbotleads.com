@@ -31,8 +31,8 @@ import { prisma } from "@/lib/prisma";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
-const DAILY_SEMANTIC_CRON_UTC_HOUR = 2;
-const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
+const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
+const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 type SearchParams = {
   date?: string | string[];
@@ -198,6 +198,9 @@ export default async function CampaignDetailPage({
     email: session.user.email,
   });
   const initialDiagnostics = await getCampaignInitialRssDiagnostics(campaign.id);
+  const firstSyncAt = initialDiagnostics?.run.startedAt
+    ?? initialDiagnostics?.run.queuedAt
+    ?? campaign.createdAt.toISOString();
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
@@ -293,7 +296,7 @@ export default async function CampaignDetailPage({
               </div>
             </div>
             <div className="w-full">
-              <DailyLeadsDateFilter defaultRange="all" enableMultipleDates />
+              <DailyLeadsDateFilter defaultRange="all" enableMultipleDates firstSyncAt={firstSyncAt} />
             </div>
           </div>
         </div>

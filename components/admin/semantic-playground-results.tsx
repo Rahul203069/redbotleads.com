@@ -15,8 +15,8 @@ import { useToast } from "@/components/ui/use-toast";
 type PlaygroundResultSort = "semantic" | "llm";
 const MIN_COPY_LEAD_SCORE = 50;
 const IST_OFFSET_MINUTES = 330;
-const DAILY_SEMANTIC_CRON_UTC_HOUR = 2;
-const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
+const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
+const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 type SemanticPlaygroundProgress = {
   candidatePosts: number;
@@ -434,7 +434,7 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
                 value={syncAt}
               />
               <span className="text-[12px] leading-5 text-[#b3b3b3]">
-                Auto-selected from fetched time using the next 08:00 IST daily semantic sync boundary.
+                Auto-selected from fetched time using the next 15:00 UTC daily semantic sync boundary (08:00 PDT / 07:00 PST).
               </span>
             </label>
 

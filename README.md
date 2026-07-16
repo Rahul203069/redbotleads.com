@@ -252,9 +252,10 @@ The repo includes a Vercel Cron job at `/api/cron/daily-semantic`.
 
 What it does:
 
-- finds active campaigns with subreddits and semantic queries
+- finds active campaigns with semantic queries
 - enqueues `DAILY_SEMANTIC_CAMPAIGN` jobs on the `daily-semantic` queue
-- compares embedded Reddit posts already stored in the database against campaign semantic queries
+- builds a shared pool from subreddits linked to all active campaigns, excluding subreddits with daily RSS polling disabled
+- compares each campaign's semantic queries against recent embedded posts from that complete shared polling pool, not only the campaign's linked subreddits
 - records matched and unmatched scan results so each campaign does not rescan the same post
 - creates or reuses `Lead` records for semantic matches above the configured threshold
 - enqueues existing LLM classification jobs for matched leads that have not already been classified

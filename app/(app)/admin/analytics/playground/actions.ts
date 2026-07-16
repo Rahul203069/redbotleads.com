@@ -7,6 +7,11 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
+import {
+  getPlaygroundCandidateScopeFromSnapshot,
+  PLAYGROUND_CANDIDATE_SCOPES,
+  type PlaygroundCandidateScope,
+} from "@/lib/semantic-playground-scope";
 import { enqueueSemanticPlaygroundRun } from "@/worker/queues";
 
 const DEFAULT_THRESHOLD = 0.5;
@@ -25,6 +30,8 @@ const playgroundQuerySchema = z.object({
   category: z.string().trim().max(80).optional().nullable(),
   text: z.string().trim().min(3).max(MAX_QUERY_LENGTH),
 });
+
+const playgroundCandidateScopeSchema = z.enum(PLAYGROUND_CANDIDATE_SCOPES);
 
 type PlaygroundRunMetadata = z.infer<typeof playgroundRunMetadataSchema>;
 
@@ -57,6 +64,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
   }
 
   const campaignId = String(formData.get("campaignId") ?? "").trim();
+  const candidateScopeResult = playgroundCandidateScopeSchema.safeParse(formData.get("candidateScope"));
   const fetchedFrom = new Date(String(formData.get("fetchedFrom") ?? ""));
   const fetchedTo = new Date(String(formData.get("fetchedTo") ?? ""));
   const threshold = normalizeThreshold(formData.get("threshold"));
@@ -69,6 +77,15 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
       message: "Select a campaign before starting a playground run.",
     };
   }
+
+  if (!candidateScopeResult.success) {
+    return {
+      status: "error",
+      message: "Choose whether to test campaign subreddits or the global polling pool.",
+    };
+  }
+
+  const candidateScope = candidateScopeResult.data;
 
   if (runMetadata.status === "error") {
     return {
@@ -109,7 +126,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
     };
   }
 
-  if (campaign.subreddits.length === 0) {
+  if (candidateScope === "CAMPAIGN" && campaign.subreddits.length === 0) {
     return {
       status: "error",
       message: "This campaign does not track any subreddits.",
@@ -119,6 +136,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
   const runRequest = await prisma.$transaction(async (tx) => {
     const configSignature = buildPlaygroundRunSignature({
       campaignId: campaign.id,
+      candidateScope,
       fetchedFrom,
       fetchedTo,
       metadata: runMetadata.metadata,
@@ -151,6 +169,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
         id: true,
         description: true,
         title: true,
+        querySnapshot: true,
         queries: {
           orderBy: {
             createdAt: "asc",
@@ -162,7 +181,10 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
         },
       },
     });
-    const duplicateRun = activeRuns.find((run) => querySetsMatch(run.queries, parsedQueries));
+    const duplicateRun = activeRuns.find((run) =>
+      getPlaygroundCandidateScopeFromSnapshot(run.querySnapshot) === candidateScope
+      && querySetsMatch(run.queries, parsedQueries),
+    );
 
     if (duplicateRun) {
       return {
@@ -179,6 +201,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
         fetchedTo,
         querySnapshot: {
           campaignName: campaign.name,
+          candidateScope,
           description: runMetadata.metadata.description,
           queries: parsedQueries,
           title: runMetadata.metadata.title,
@@ -190,6 +213,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
           })),
         },
         statsJson: {
+          candidateScope,
           totalQueries: parsedQueries.length,
         } as Prisma.InputJsonValue,
         status: "QUEUED",
@@ -534,6 +558,7 @@ function parseQueries(value: FormDataEntryValue | null): ParsedPlaygroundQuery[]
 
 function buildPlaygroundRunSignature({
   campaignId,
+  candidateScope,
   fetchedFrom,
   fetchedTo,
   metadata,
@@ -542,6 +567,7 @@ function buildPlaygroundRunSignature({
   userId,
 }: {
   campaignId: string;
+  candidateScope: PlaygroundCandidateScope;
   fetchedFrom: Date;
   fetchedTo: Date;
   metadata: PlaygroundRunMetadata;
@@ -551,6 +577,7 @@ function buildPlaygroundRunSignature({
 }) {
   return JSON.stringify({
     campaignId,
+    candidateScope,
     fetchedFrom: fetchedFrom.toISOString(),
     fetchedTo: fetchedTo.toISOString(),
     description: metadata.description,

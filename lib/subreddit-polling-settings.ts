@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { normalizeSubredditName } from "@/lib/subreddit-name";
+
+export { normalizeSubredditName } from "@/lib/subreddit-name";
 
 export type SubredditDailyRssPollingState = {
   subreddit: string;
@@ -146,13 +149,4 @@ export async function setSubredditDailyRssPollingEnabled(input: {
     disabledAt: state.dailyRssPollingDisabledAt?.toISOString() ?? null,
     disabledBy: state.dailyRssPollingDisabledBy,
   };
-}
-
-export function normalizeSubredditName(value: string) {
-  return String(value ?? "")
-    .trim()
-    .replace(/^r\//i, "")
-    .replace(/^\/?r\//i, "")
-    .replace(/^\/+|\/+$/g, "")
-    .toLowerCase();
 }

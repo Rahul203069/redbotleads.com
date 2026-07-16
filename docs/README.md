@@ -11,6 +11,7 @@ Root-level references:
 
 - [README.md](C:\Users\rs329\goal\my-app\README.md)
 - [ARCHITECTURE.md](C:\Users\rs329\goal\my-app\ARCHITECTURE.md)
+- [SERVER-OPERATIONS-README.md](C:\Users\rs329\goal\my-app\SERVER-OPERATIONS-README.md)
 - [UI-DESIGN-README.md](C:\Users\rs329\goal\my-app\UI-DESIGN-README.md)
 
 Current architecture choice:

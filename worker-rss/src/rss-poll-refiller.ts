@@ -3,8 +3,8 @@ import "dotenv/config";
 import { randomUUID } from "node:crypto";
 import Redis from "ioredis";
 
+import { getDailyRssSubredditPool } from "./daily-rss-subreddit-pool";
 import { prisma } from "./prisma";
-import { getDisabledDailyRssSubredditSet } from "./subreddit-polling-settings";
 
 import {
   rssPollRefillHighWatermark,
@@ -171,22 +171,7 @@ async function loadCircularCandidates({
   liveSubreddits: Set<string>;
 }) {
   const now = new Date();
-  const campaigns = await prisma.campaign.findMany({
-    where: {
-      isActive: true,
-      subreddits: {
-        isEmpty: false,
-      },
-    },
-    select: {
-      subreddits: true,
-    },
-  });
-  const allSubreddits = Array.from(
-    new Set(campaigns.flatMap((campaign) => campaign.subreddits.map(normalizeSubredditName)).filter(Boolean)),
-  ).sort();
-  const disabledSubreddits = await getDisabledDailyRssSubredditSet(allSubreddits);
-  const enabledSubreddits = allSubreddits.filter((subreddit) => !disabledSubreddits.has(subreddit));
+  const { allSubreddits, enabledSubreddits } = await getDailyRssSubredditPool();
   const cursorBySubreddit = new Map(
     (
       await prisma.ingestCursor.findMany({

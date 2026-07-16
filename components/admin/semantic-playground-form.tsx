@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardPaste, Copy, Plus, Play, RotateCcw, Trash2 } from "lucide-react";
+import { ClipboardPaste, Copy, Globe2, ListTree, Plus, Play, RotateCcw, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useRef, useState, useTransition } from "react";
 
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import type { PlaygroundCandidateScope } from "@/lib/semantic-playground-scope";
 
 type CampaignOption = {
   id: string;
@@ -70,6 +71,7 @@ export function SemanticPlaygroundForm({
   const [fetchedFrom, setFetchedFrom] = useState(() => toLocalInputValue(defaultFetchedFrom));
   const [fetchedTo, setFetchedTo] = useState(() => toLocalInputValue(defaultFetchedTo));
   const [threshold, setThreshold] = useState(String(defaultThreshold));
+  const [candidateScope, setCandidateScope] = useState<PlaygroundCandidateScope>("CAMPAIGN");
   const [bulkPasteOpen, setBulkPasteOpen] = useState(false);
   const [bulkPasteValue, setBulkPasteValue] = useState("");
   const [activeSubmitSignature, setActiveSubmitSignature] = useState<string | null>(null);
@@ -242,6 +244,7 @@ export function SemanticPlaygroundForm({
 
     const submitSignature = buildSubmitSignature({
       campaignId,
+      candidateScope,
       description: cleanedRunDescription,
       fetchedFrom: fromIso,
       fetchedTo: toIso,
@@ -263,6 +266,7 @@ export function SemanticPlaygroundForm({
 
     const formData = new FormData();
     formData.set("campaignId", campaignId);
+    formData.set("candidateScope", candidateScope);
     formData.set("description", cleanedRunDescription);
     formData.set("fetchedFrom", fromIso);
     formData.set("fetchedTo", toIso);
@@ -392,6 +396,32 @@ export function SemanticPlaygroundForm({
                   </div>
                 </div>
               ) : null}
+
+              <fieldset className="grid gap-2">
+                <legend className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">
+                  Reddit item scope
+                </legend>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <ScopeOption
+                    checked={candidateScope === "CAMPAIGN"}
+                    description="Only embedded posts from subreddits linked to this campaign."
+                    disabled={isSubmitPending}
+                    icon={<ListTree className="h-4 w-4" />}
+                    label="Campaign only"
+                    onChange={() => setCandidateScope("CAMPAIGN")}
+                    value="CAMPAIGN"
+                  />
+                  <ScopeOption
+                    checked={candidateScope === "GLOBAL"}
+                    description="Embedded posts from every subreddit enabled for daily RSS polling."
+                    disabled={isSubmitPending}
+                    icon={<Globe2 className="h-4 w-4" />}
+                    label="Global polling pool"
+                    onChange={() => setCandidateScope("GLOBAL")}
+                    value="GLOBAL"
+                  />
+                </div>
+              </fieldset>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="grid gap-2">
@@ -700,6 +730,7 @@ function cleanQueryRows(rows: Array<{ category?: unknown; text?: unknown; queryT
 
 function buildSubmitSignature({
   campaignId,
+  candidateScope,
   description,
   fetchedFrom,
   fetchedTo,
@@ -708,6 +739,7 @@ function buildSubmitSignature({
   title,
 }: {
   campaignId: string;
+  candidateScope: PlaygroundCandidateScope;
   description: string;
   fetchedFrom: string;
   fetchedTo: string;
@@ -717,6 +749,7 @@ function buildSubmitSignature({
 }) {
   return JSON.stringify({
     campaignId,
+    candidateScope,
     description,
     fetchedFrom,
     fetchedTo,
@@ -724,6 +757,59 @@ function buildSubmitSignature({
     threshold: threshold.trim(),
     title,
   });
+}
+
+function ScopeOption({
+  checked,
+  description,
+  disabled,
+  icon,
+  label,
+  onChange,
+  value,
+}: {
+  checked: boolean;
+  description: string;
+  disabled: boolean;
+  icon: React.ReactNode;
+  label: string;
+  onChange: () => void;
+  value: PlaygroundCandidateScope;
+}) {
+  return (
+    <label
+      className={`relative flex min-h-28 cursor-pointer gap-3 rounded-[16px] border p-3 transition-colors focus-within:ring-2 focus-within:ring-[#1ed760]/50 ${
+        checked
+          ? "border-[#1ed760]/50 bg-[#1ed760]/8 text-[#ffffff]"
+          : "border-[#27272a] bg-[#121212] text-[#cbcbcb] hover:border-[#3f3f46] hover:bg-[#1f1f1f]"
+      } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
+    >
+      <input
+        checked={checked}
+        className="sr-only"
+        disabled={disabled}
+        name="candidateScope"
+        onChange={onChange}
+        type="radio"
+        value={value}
+      />
+      <span
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${
+          checked ? "bg-[#1ed760] text-[#121212]" : "bg-[#1f1f1f] text-[#b3b3b3]"
+        }`}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[12px] font-bold text-[#ffffff]">{label}</span>
+        <span className="mt-1 block text-[11px] leading-4 text-[#b3b3b3]">{description}</span>
+      </span>
+      <span
+        aria-hidden
+        className={`absolute right-3 top-3 h-2.5 w-2.5 rounded-full ${checked ? "bg-[#1ed760]" : "bg-[#3f3f46]"}`}
+      />
+    </label>
+  );
 }
 
 async function copyTextToClipboard(text: string) {

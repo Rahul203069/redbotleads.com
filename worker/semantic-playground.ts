@@ -1,8 +1,11 @@
 import "dotenv/config";
 
 import { Prisma } from "../generated/prisma/client";
+import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
 import { prisma } from "@/lib/prisma";
 import { generateEmbeddings } from "@/lib/openai";
+import { getPlaygroundCandidateScopeFromSnapshot } from "@/lib/semantic-playground-scope";
+import { normalizeSubredditNames } from "@/lib/subreddit-name";
 import { Worker } from "bullmq";
 
 import { classifyLeadWithOpenAI } from "./classification-ai";
@@ -74,6 +77,7 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
         threshold: true,
         fetchedFrom: true,
         fetchedTo: true,
+        querySnapshot: true,
         campaign: {
           select: {
             id: true,
@@ -103,14 +107,32 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
       return { skipped: true, reason: "run_not_found" };
     }
 
+    const candidateScope = getPlaygroundCandidateScopeFromSnapshot(run.querySnapshot);
+    const subredditPool = candidateScope === "GLOBAL"
+      ? await getDailyRssSubredditPool()
+      : null;
+    const subreddits = candidateScope === "GLOBAL"
+      ? subredditPool?.enabledSubreddits ?? []
+      : normalizeSubredditNames(run.campaign.subreddits);
+    const scopeStats = {
+      candidateScope,
+      subredditCount: subreddits.length,
+      ...(candidateScope === "GLOBAL"
+        ? { disabledSubredditCount: subredditPool?.disabledSubreddits.length ?? 0 }
+        : {}),
+    };
+
     await markRunProcessing(run.id, {
+      ...scopeStats,
       totalQueries: run.queries.length,
     });
 
-    const subreddits = Array.from(new Set(run.campaign.subreddits.map(normalizeSubredditName).filter(Boolean)));
-
     if (subreddits.length === 0) {
-      await markRunCompleted(run.id, "Campaign has no subreddits to test.", {
+      const emptyScopeMessage = candidateScope === "GLOBAL"
+        ? "No subreddits are enabled in the global daily RSS polling pool."
+        : "Campaign has no subreddits to test.";
+      await markRunCompleted(run.id, emptyScopeMessage, {
+        ...scopeStats,
         totalQueries: run.queries.length,
         candidatePosts: 0,
         semanticMatches: 0,
@@ -118,11 +140,16 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
         classificationFailed: 0,
         durationMs: Date.now() - startedAt,
       });
-      return { skipped: true, reason: "no_subreddits" };
+      return {
+        skipped: true,
+        reason: candidateScope === "GLOBAL" ? "no_global_subreddits" : "no_campaign_subreddits",
+        ...scopeStats,
+      };
     }
 
     if (run.queries.length === 0) {
       await markRunCompleted(run.id, "No playground semantic queries were provided.", {
+        ...scopeStats,
         totalQueries: 0,
         candidatePosts: 0,
         semanticMatches: 0,
@@ -155,6 +182,7 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
 
     await upsertPlaygroundResults(run.id, matches);
     await updateRunStats(run.id, {
+      ...scopeStats,
       totalQueries: run.queries.length,
       candidatePosts,
       semanticMatches: matches.length,
@@ -265,6 +293,7 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
       }
 
       await updateRunStats(run.id, {
+        ...scopeStats,
         totalQueries: run.queries.length,
         candidatePosts,
         semanticMatches: matches.length,
@@ -276,6 +305,7 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
     const durationMs = Date.now() - startedAt;
 
     await markRunCompleted(run.id, "Semantic playground run completed.", {
+      ...scopeStats,
       totalQueries: run.queries.length,
       candidatePosts,
       semanticMatches: matches.length,
@@ -292,6 +322,7 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
         durationMs,
         jobId,
         runId: run.id,
+        ...scopeStats,
         semanticMatches: matches.length,
         threshold: run.threshold,
       },
@@ -304,6 +335,7 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
       classificationFailed,
       durationMs,
       runId: run.id,
+      ...scopeStats,
       semanticMatches: matches.length,
     };
   } catch (error) {
@@ -541,14 +573,6 @@ function chunkQueries(queries: PlaygroundQueryRow[]) {
   return chunks;
 }
 
-function normalizeSubredditName(value: string) {
-  return String(value ?? "")
-    .trim()
-    .replace(/^r\//i, "")
-    .replace(/^\/?r\//i, "")
-    .replace(/^\/+|\/+$/g, "")
-    .toLowerCase();
-}
 
 function normalizeThreshold(value: number) {
   if (!Number.isFinite(value)) {

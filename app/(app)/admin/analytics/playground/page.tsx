@@ -9,6 +9,10 @@ import { SemanticPlaygroundRunRefresher } from "@/components/admin/semantic-play
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
+import {
+  getPlaygroundCandidateScopeFromSnapshot,
+  getPlaygroundCandidateScopeLabel,
+} from "@/lib/semantic-playground-scope";
 import { semanticMatchThreshold } from "@/worker/config";
 
 type SearchParams = {
@@ -89,6 +93,7 @@ export default async function AdminSemanticPlaygroundPage({
           fetchedFrom: true,
           fetchedTo: true,
           createdAt: true,
+          querySnapshot: true,
           statsJson: true,
         },
       })
@@ -118,6 +123,7 @@ export default async function AdminSemanticPlaygroundPage({
           completedAt: true,
           failedAt: true,
           error: true,
+          querySnapshot: true,
           statsJson: true,
           campaign: {
             select: {
@@ -213,6 +219,7 @@ export default async function AdminSemanticPlaygroundPage({
     : [[], []];
   const leadMetricsByRunId = buildRunLeadMetricsMap(totalLeadCounts, strongLeadCounts);
   const runStats = getStats(selectedRun?.statsJson);
+  const selectedRunCandidateScope = getPlaygroundCandidateScopeFromSnapshot(selectedRun?.querySnapshot);
   const selectedRunLeadMetrics = getRunLeadMetrics(leadMetricsByRunId, selectedRun?.id);
   const isRunActive = selectedRun?.status === "QUEUED" || selectedRun?.status === "PROCESSING";
 
@@ -275,6 +282,7 @@ export default async function AdminSemanticPlaygroundPage({
           <div className="mt-4 grid min-h-0 flex-1 gap-2 overflow-y-auto overscroll-contain pr-1 md:grid-cols-2 xl:grid-cols-4">
             {recentRuns.map((run) => {
               const stats = getStats(run.statsJson);
+              const candidateScope = getPlaygroundCandidateScopeFromSnapshot(run.querySnapshot);
               const leadMetrics = getRunLeadMetrics(leadMetricsByRunId, run.id);
 
               return (
@@ -301,7 +309,7 @@ export default async function AdminSemanticPlaygroundPage({
                     <MiniMetric label="Strong" value={String(leadMetrics.strongLeads)} />
                   </div>
                   <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#8f8f8f]">
-                    Min semantic {run.threshold.toFixed(2)}
+                    {getPlaygroundCandidateScopeLabel(candidateScope)} · Min semantic {run.threshold.toFixed(2)}
                   </p>
                 </Link>
               );
@@ -318,6 +326,7 @@ export default async function AdminSemanticPlaygroundPage({
                 <StatusPill label={selectedRun.status.toLowerCase()} tone={statusTone(selectedRun.status)} />
                 <StatusPill label={`min ${selectedRun.threshold.toFixed(2)}`} tone="neutral" />
                 <StatusPill label={`${selectedRun.queries.length} queries`} tone="neutral" />
+                <StatusPill label={getPlaygroundCandidateScopeLabel(selectedRunCandidateScope)} tone="neutral" />
               </div>
               <h2 className="mt-4 text-[22px] font-bold tracking-tight text-[#ffffff]">{getRunTitle(selectedRun.title)}</h2>
               <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">{getRunDescription(selectedRun.description) ?? "No run description."}</p>
@@ -351,6 +360,7 @@ export default async function AdminSemanticPlaygroundPage({
                   payload={{
                     campaignId: selectedRun.campaign.id,
                     campaignName: selectedRun.campaign.name,
+                    candidateScope: selectedRunCandidateScope,
                     description: selectedRun.description,
                     fetchedFrom: selectedRun.fetchedFrom.toISOString(),
                     fetchedTo: selectedRun.fetchedTo.toISOString(),

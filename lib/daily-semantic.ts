@@ -13,9 +13,6 @@ export async function enqueueDailySemanticCampaigns(options?: {
   const campaigns = await prisma.campaign.findMany({
     where: {
       isActive: true,
-      subreddits: {
-        isEmpty: false,
-      },
       semanticQueries: {
         some: {},
       },

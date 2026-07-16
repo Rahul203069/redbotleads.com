@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { Prisma } from "../generated/prisma/client";
+import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
 import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
@@ -74,7 +75,6 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     select: {
       id: true,
       userId: true,
-      subreddits: true,
     },
   });
 
@@ -86,12 +86,24 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
 
   await markCampaignRunProcessing(data.campaignRunId, "Starting daily semantic search for this campaign.");
 
-  const subreddits = Array.from(new Set(campaign.subreddits.map(normalizeSubredditName).filter(Boolean)));
+  const subredditPool = await getDailyRssSubredditPool();
+  const subreddits = subredditPool.enabledSubreddits;
 
   if (subreddits.length === 0) {
-    await markCampaignRunCompleted(data.campaignRunId, "Skipping daily semantic search because campaign has no subreddits.");
-    workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping daily semantic search because campaign has no subreddits");
-    return { skipped: true, reason: "no_subreddits" };
+    const stats = {
+      globalSubredditCount: 0,
+      disabledSubredditCount: subredditPool.disabledSubreddits.length,
+    };
+    await markCampaignRunCompleted(
+      data.campaignRunId,
+      "Skipping daily semantic search because no subreddits are enabled for daily RSS polling.",
+      stats,
+    );
+    workerLogger.info(
+      { jobId, campaignId: campaign.id, ...stats },
+      "Skipping daily semantic search because the global daily RSS subreddit pool is empty",
+    );
+    return { skipped: true, reason: "no_enabled_daily_rss_subreddits", ...stats };
   }
 
   const semanticQueryCount = await prisma.campaignSemanticQuery.count({
@@ -194,6 +206,8 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
       createdLeads,
       reusedLeads,
       queuedClassifications,
+      globalSubredditCount: subreddits.length,
+      disabledSubredditCount: subredditPool.disabledSubreddits.length,
       durationMs,
     },
     "Daily semantic campaign search completed",
@@ -206,6 +220,8 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     createdLeads,
     reusedLeads,
     queuedClassifications,
+    globalSubredditCount: subreddits.length,
+    disabledSubredditCount: subredditPool.disabledSubreddits.length,
     totalLeadsFound: matchedPosts,
     pendingClassifications: queuedClassifications,
     durationMs,
@@ -363,13 +379,4 @@ async function ensureLead({
 
     throw error;
   }
-}
-
-function normalizeSubredditName(value: string) {
-  return String(value ?? "")
-    .trim()
-    .replace(/^r\//i, "")
-    .replace(/^\/?r\//i, "")
-    .replace(/^\/+|\/+$/g, "")
-    .toLowerCase();
 }

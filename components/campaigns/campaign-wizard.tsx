@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { ClipLoader } from "react-spinners";
 import { submitCampaign } from "@/actions/campaigns";
+import { SemanticQueryDraftEditor } from "@/components/semantic-queries/semantic-query-draft-editor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,8 +18,10 @@ import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { cleanSemanticQueryRows, type SemanticQueryDraftRow } from "@/lib/semantic-queries";
 
 type CampaignWizardProps = {
+  isAdminAccount: boolean;
   triggerLabel: string;
   triggerVariant?: "default" | "secondary";
 };
@@ -33,6 +36,7 @@ type Draft = {
   recentDays: string;
   minScoreToAlert: string;
   isActive: boolean;
+  semanticQueries: SemanticQueryDraftRow[];
 };
 
 const initialDraft: Draft = {
@@ -45,9 +49,10 @@ const initialDraft: Draft = {
   recentDays: "7",
   minScoreToAlert: "75",
   isActive: true,
+  semanticQueries: [],
 };
 
-const steps = [
+const standardSteps = [
   {
     title: "Basics",
     description: "Start with a campaign name and whether you are tracking a product or a service.",
@@ -68,6 +73,15 @@ const steps = [
     title: "Alerting",
     description: "Set the score threshold and activation state, then review before saving.",
   },
+] as const;
+
+const adminSteps = [
+  ...standardSteps.slice(0, 4),
+  {
+    title: "Semantic queries",
+    description: "Import the manual semantic search strings that this campaign will embed and use for retrieval.",
+  },
+  standardSteps[4],
 ] as const;
 
 const saveStageDefinitions = [
@@ -92,13 +106,23 @@ const saveStageDefinitions = [
     description: "Scheduling the first ingestion run for the new campaign.",
   },
 ] as const;
+
+const adminSaveStageDefinitions = [
+  saveStageDefinitions[0],
+  {
+    title: "Generating embeddings",
+    description: "Embedding the manually supplied semantic query strings for retrieval.",
+  },
+  saveStageDefinitions[3],
+  saveStageDefinitions[4],
+] as const;
 const SUBREDDIT_LOADING_STEPS = [
   "Searching the web for relevant communities",
   "Comparing likely buyer and operator subreddits",
   "Validating public subreddits before adding them",
 ] as const;
 
-export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: CampaignWizardProps) {
+export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = "default" }: CampaignWizardProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
@@ -108,15 +132,20 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
   const [aiTarget, setAiTarget] = useState<"keywords" | "negativeKeywords" | "subreddits" | null>(null);
   const [serverState, setServerState] = useState<{
     message?: string;
-    fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>;
+    fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>>;
   }>({});
   const [isPending, startTransition] = useTransition();
   const [saveStageIndex, setSaveStageIndex] = useState(0);
   const [aiElapsedSeconds, setAiElapsedSeconds] = useState(0);
 
+  const steps = isAdminAccount ? adminSteps : standardSteps;
   const currentStep = steps[stepIndex];
   const progress = ((stepIndex + 1) / steps.length) * 100;
   const saveStages = useMemo(() => {
+    if (isAdminAccount) {
+      return adminSaveStageDefinitions;
+    }
+
     if (!draft.description.trim()) {
       return [
         saveStageDefinitions[0],
@@ -129,7 +158,7 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
     }
 
     return saveStageDefinitions;
-  }, [draft.description, draft.isActive]);
+  }, [draft.description, draft.isActive, isAdminAccount]);
 
   function resetWizard() {
     setOpen(false);
@@ -157,9 +186,12 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
     if (stepIndex === 1) return serverState.fieldErrors?.description;
     if (stepIndex === 2) return serverState.fieldErrors?.keywords;
     if (stepIndex === 3) return serverState.fieldErrors?.subreddits;
-    if (stepIndex === 4) return serverState.fieldErrors?.recentDays ?? serverState.fieldErrors?.minScoreToAlert;
+    if (isAdminAccount && stepIndex === 4) return serverState.fieldErrors?.semanticQueries;
+    if (stepIndex === (isAdminAccount ? 5 : 4)) {
+      return serverState.fieldErrors?.recentDays ?? serverState.fieldErrors?.minScoreToAlert;
+    }
     return undefined;
-  }, [serverState.fieldErrors, stepIndex]);
+  }, [isAdminAccount, serverState.fieldErrors, stepIndex]);
 
   function updateDraft<K extends keyof Draft>(key: K, value: Draft[K]) {
     setStepError(null);
@@ -177,7 +209,7 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
   }
 
   function nextStep() {
-    const error = validateStep(stepIndex, draft);
+    const error = validateStep(stepIndex, draft, isAdminAccount);
     setStepError(error);
     setServerState({});
 
@@ -195,7 +227,7 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
   }
 
   function saveCampaign() {
-    const validation = validateDraftForSubmit(draft);
+    const validation = validateDraftForSubmit(draft, isAdminAccount);
     setStepError(validation?.message ?? null);
 
     if (validation) {
@@ -214,6 +246,14 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
     formData.set("subreddits", draft.subreddits.join("\n"));
     formData.set("recentDays", draft.recentDays);
     formData.set("minScoreToAlert", draft.minScoreToAlert);
+
+    if (isAdminAccount) {
+      const semanticQueries = cleanSemanticQueryRows(draft.semanticQueries);
+
+      if (semanticQueries.status === "success") {
+        formData.set("semanticQueriesJson", JSON.stringify(semanticQueries.queries));
+      }
+    }
 
     if (draft.isActive) {
       formData.set("isActive", "on");
@@ -236,7 +276,7 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
         fieldErrors: result.fieldErrors,
       });
 
-      const erroredStep = getErroredStep(result.fieldErrors);
+      const erroredStep = getErroredStep(result.fieldErrors, isAdminAccount);
       if (erroredStep !== null) {
         setStepIndex(erroredStep);
       }
@@ -424,9 +464,10 @@ export function CampaignWizard({ triggerLabel, triggerVariant = "default" }: Cam
                 <SaveProgressPanel activeIndex={saveStageIndex} stages={saveStages} />
               ) : (
                 renderStep(stepIndex, draft, updateDraft, {
-                  aiPending,
+                 aiPending,
                   aiTarget,
                   aiElapsedSeconds,
+                  isAdminAccount,
                   onGenerateKeywords: () => generateAiSuggestions("keywords"),
                   onGenerateNegativeKeywords: () => generateAiSuggestions("negativeKeywords"),
                   onGenerateSubreddits: generateSubreddits,
@@ -493,6 +534,7 @@ function renderStep(
     aiPending: boolean;
     aiTarget: "keywords" | "negativeKeywords" | "subreddits" | null;
     aiElapsedSeconds: number;
+    isAdminAccount: boolean;
     onGenerateKeywords: () => void;
     onGenerateNegativeKeywords: () => void;
     onGenerateSubreddits: () => void;
@@ -599,6 +641,21 @@ function renderStep(
     );
   }
 
+  if (options.isAdminAccount && stepIndex === 4) {
+    return (
+      <div className="rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+        <SemanticQueryDraftEditor
+          emptyMessage="Import or add at least one semantic query before continuing."
+          eyebrow="Admin-only setup"
+          listClassName="grid max-h-[320px] gap-3 overflow-y-auto overscroll-contain pt-4 pr-1"
+          onChange={(rows) => updateDraft("semanticQueries", rows)}
+          rows={draft.semanticQueries}
+          title="Manual semantic queries"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-5">
       <Field hint="Choose how far back the first sync should scan. Maximum 10 days." label="How recent should leads be?">
@@ -647,7 +704,7 @@ function renderStep(
   );
 }
 
-function validateStep(stepIndex: number, draft: Draft) {
+function validateStep(stepIndex: number, draft: Draft, isAdminAccount: boolean) {
   if (stepIndex === 0 && draft.name.trim().length < 2) {
     return "Campaign name must be at least 2 characters.";
   }
@@ -660,7 +717,15 @@ function validateStep(stepIndex: number, draft: Draft) {
     return "Add at least one subreddit before continuing.";
   }
 
-  if (stepIndex === 4) {
+  if (isAdminAccount && stepIndex === 4) {
+    const semanticQueries = cleanSemanticQueryRows(draft.semanticQueries);
+
+    if (semanticQueries.status === "error") {
+      return semanticQueries.message;
+    }
+  }
+
+  if (stepIndex === (isAdminAccount ? 5 : 4)) {
     const recentDays = Number(draft.recentDays);
     const score = Number(draft.minScoreToAlert);
 
@@ -676,11 +741,11 @@ function validateStep(stepIndex: number, draft: Draft) {
   return null;
 }
 
-function validateDraftForSubmit(draft: Draft) {
-  const stepChecks = [0, 2, 3, 4] as const;
+function validateDraftForSubmit(draft: Draft, isAdminAccount: boolean) {
+  const stepChecks = isAdminAccount ? [0, 2, 3, 4, 5] : [0, 2, 3, 4];
 
   for (const step of stepChecks) {
-    const message = validateStep(step, draft);
+    const message = validateStep(step, draft, isAdminAccount);
     if (message) {
       return {
         stepIndex: step,
@@ -693,7 +758,8 @@ function validateDraftForSubmit(draft: Draft) {
 }
 
 function getErroredStep(
-  fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>,
+  fieldErrors: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>> | undefined,
+  isAdminAccount: boolean,
 ) {
   if (!fieldErrors) {
     return null;
@@ -703,8 +769,9 @@ function getErroredStep(
   if (fieldErrors.description) return 1;
   if (fieldErrors.keywords) return 2;
   if (fieldErrors.subreddits) return 3;
-  if (fieldErrors.recentDays) return 4;
-  if (fieldErrors.minScoreToAlert) return 4;
+  if (fieldErrors.semanticQueries && isAdminAccount) return 4;
+  if (fieldErrors.recentDays) return isAdminAccount ? 5 : 4;
+  if (fieldErrors.minScoreToAlert) return isAdminAccount ? 5 : 4;
 
   return null;
 }

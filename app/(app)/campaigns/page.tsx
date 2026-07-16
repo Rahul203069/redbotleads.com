@@ -107,7 +107,7 @@ export default async function CampaignsPage() {
             </p>
           </div>
           {canCreateCampaigns ? (
-            <CampaignWizard triggerLabel="Create campaign" />
+            <CampaignWizard isAdminAccount={canViewAnalytics(session.user.email)} triggerLabel="Create campaign" />
           ) : (
             <BetaCampaignAccessButton label="Create campaign" />
           )}
@@ -135,7 +135,7 @@ export default async function CampaignsPage() {
             </p>
             <div className="mt-6">
               {canCreateCampaigns ? (
-                <CampaignWizard triggerLabel="Create first campaign" />
+                <CampaignWizard isAdminAccount={canViewAnalytics(session.user.email)} triggerLabel="Create first campaign" />
               ) : (
                 <BetaCampaignAccessButton label="Create first campaign" />
               )}

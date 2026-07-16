@@ -2,10 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { Prisma } from "../generated/prisma/client";
-
 import { auth } from "@/lib/auth";
-import { BETA_OWNER_ONLY_MESSAGE, isOwnerEmail } from "@/lib/beta-access";
+import { BETA_OWNER_ONLY_MESSAGE, canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
+import { persistCampaignSemanticQueries } from "@/lib/campaign-semantic-queries";
 import {
   buildAccessibleCampaignWhere,
   canEditCampaignDescription,
@@ -13,8 +12,9 @@ import {
 } from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
-import { generateEmbeddings, generateStructuredOutput } from "@/lib/openai";
+import { generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
+import { parseSemanticQueriesJson, type CleanSemanticQuery } from "@/lib/semantic-queries";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const keywordPhrase = z
@@ -43,7 +43,7 @@ const campaignDescriptionSchema = z.object({
 export type CampaignActionState = {
   status: "idle" | "success" | "error";
   message?: string;
-  fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>;
+  fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>>;
 };
 
 const semanticQuerySchema = z.object({
@@ -75,6 +75,8 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     };
   }
 
+  const isAdminAccount = canViewAnalytics(session.user.email);
+
   const parsedInput = parseCampaignFormData(formData);
 
   const parsed = createCampaignSchema.safeParse(parsedInput);
@@ -105,6 +107,24 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
     };
   }
 
+  let manualSemanticQueries: CleanSemanticQuery[] = [];
+
+  if (isAdminAccount) {
+    const parsedSemanticQueries = parseSemanticQueriesJson(String(formData.get("semanticQueriesJson") ?? ""));
+
+    if (parsedSemanticQueries.status === "error") {
+      return {
+        status: "error",
+        message: parsedSemanticQueries.message,
+        fieldErrors: {
+          semanticQueries: parsedSemanticQueries.message,
+        },
+      };
+    }
+
+    manualSemanticQueries = parsedSemanticQueries.queries;
+  }
+
   let campaignId = "";
   try {
     const campaign = await prisma.campaign.create({
@@ -127,12 +147,26 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
 
     campaignId = campaign.id;
 
-    if (parsed.data.description) {
+    if (isAdminAccount) {
+      await persistCampaignSemanticQueries({
+        campaignId: campaign.id,
+        mode: "append",
+        queries: manualSemanticQueries,
+        source: "admin_campaign_creation",
+        userId: session.user.id,
+      });
+    } else if (parsed.data.description) {
       const semanticQueries = await generateCampaignSemanticQueries(parsed.data.description, parsed.data.leadType, {
         campaignId: campaign.id,
         userId: session.user.id,
       });
-      await persistCampaignSemanticQueries(campaign.id, semanticQueries, session.user.id);
+      await persistCampaignSemanticQueries({
+        campaignId: campaign.id,
+        mode: "append",
+        queries: semanticQueries,
+        source: "automatic_campaign_creation",
+        userId: session.user.id,
+      });
     }
   } catch (error) {
     console.error("Campaign create failed", error);
@@ -363,90 +397,6 @@ function buildProductSemanticQueryPrompt(productDescription: string) {
       '"""',
     ].join("\n"),
   };
-}
-
-async function persistCampaignSemanticQueries(
-  campaignId: string,
-  queries: Array<{
-    text: string;
-    category: string;
-  }>,
-  userId: string,
-) {
-  const normalizedQueries = dedupeSemanticQueries(queries);
-
-  if (normalizedQueries.length === 0) {
-    return;
-  }
-
-  const embeddingResult = await generateEmbeddings({
-    input: normalizedQueries.map((query) => query.text),
-    model: "text-embedding-3-small",
-    dimensions: 1536,
-    usage: {
-      userId,
-      campaignId,
-      operation: "campaign_semantic_query_embedding",
-      metadata: {
-        queryCount: normalizedQueries.length,
-      },
-    },
-  });
-
-  await prisma.$executeRaw(
-    Prisma.sql`DELETE FROM "CampaignSemanticQuery" WHERE "campaignId" = ${campaignId}`,
-  );
-
-  const rows = normalizedQueries.map((query, index) => {
-    const vectorLiteral = `[${embeddingResult.embeddings[index].join(",")}]`;
-
-    return Prisma.sql`(
-      ${crypto.randomUUID()},
-      ${campaignId},
-      ${query.text},
-      ${query.category},
-      ${embeddingResult.dimensions},
-      CAST(${vectorLiteral} AS vector),
-      CURRENT_TIMESTAMP,
-      CURRENT_TIMESTAMP
-    )`;
-  });
-
-  await prisma.$executeRaw(
-    Prisma.sql`
-      INSERT INTO "CampaignSemanticQuery" (
-        "id",
-        "campaignId",
-        "queryText",
-        "category",
-        "dimensions",
-        "embedding",
-        "createdAt",
-        "updatedAt"
-      )
-      VALUES ${Prisma.join(rows)}
-    `,
-  );
-}
-
-function dedupeSemanticQueries(
-  queries: Array<{
-    text: string;
-    category: string;
-  }>,
-) {
-  const seen = new Set<string>();
-
-  return queries.filter((query) => {
-    const normalizedText = query.text.trim().toLowerCase();
-
-    if (!normalizedText || seen.has(normalizedText)) {
-      return false;
-    }
-
-    seen.add(normalizedText);
-    return true;
-  });
 }
 
 export async function updateCampaign(formData: FormData): Promise<CampaignActionState> {

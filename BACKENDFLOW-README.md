@@ -16,6 +16,7 @@ The current backend flow is:
    - optional keywords
    - optional negative keywords
    - required subreddits
+   - required manually supplied semantic queries for admin accounts
    - recent-days window
    - minimum alert score
    - active or paused state
@@ -24,7 +25,7 @@ The current backend flow is:
    - negative keywords
    - subreddit suggestions
 4. On save, the server creates the `Campaign` row.
-5. If description exists, the server generates 30 semantic queries and embeds them into `CampaignSemanticQuery`.
+5. For admin accounts, the server embeds the manually supplied semantic queries without running semantic-query text generation. For other accounts with a description, it generates and embeds the semantic queries automatically.
 6. If the campaign is active, the server enqueues the initial ingestion job.
 7. Ingestion worker fetches recent Reddit RSS posts from the selected subreddits.
 8. Ingestion applies basic keyword and negative-keyword filtering.
@@ -70,6 +71,7 @@ The create payload validates:
 - `recentDays`: integer 1 to 10
 - `minScoreToAlert`: integer 1 to 100
 - `isActive`: boolean
+- `semanticQueriesJson`: required for admin accounts; normalized query text with an optional category
 
 Normalization behavior:
 
@@ -94,9 +96,11 @@ Stored fields include:
 - minimum alert score
 - active flag
 
-### 3.3 Semantic Query Generation
+### 3.3 Semantic Query Setup
 
-This happens only if `description` is present.
+Admin accounts use a manual setup path. The wizard accepts JSON arrays, `queries` or `semanticQueries` wrappers, one query per line, and triple-comma-separated text. Repeated imports append unique queries to the in-progress campaign draft. The server validates the final JSON again, generates 1,536-dimension embeddings, and inserts the query rows without calling semantic-query text generation.
+
+For non-admin accounts, automatic generation happens only if `description` is present.
 
 If the user leaves description empty:
 
@@ -109,8 +113,7 @@ If description exists:
 1. Generate 30 semantic queries with AI.
 2. Deduplicate them by normalized text.
 3. Generate embeddings for the deduped query texts.
-4. Delete any prior `CampaignSemanticQuery` rows for that campaign.
-5. Insert fresh rows with:
+4. Insert fresh rows with:
    - query text
    - category
    - embedding vector

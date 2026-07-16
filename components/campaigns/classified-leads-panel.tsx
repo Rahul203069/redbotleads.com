@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { Check, Clock3, Copy } from "lucide-react";
 
+import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign-lead-dialog";
+
 export type ClassifiedLead = {
   id: string;
   score: number;
@@ -36,6 +38,8 @@ const MIN_VISIBLE_LEAD_SCORE = 40;
 const MIN_COPY_LEAD_SCORE = 40;
 
 export function ClassifiedLeadsPanel({
+  campaignId,
+  canDeleteLeads = false,
   isFilterLoading = false,
   leads,
   nextSyncLabel = "the next scheduled run",
@@ -44,7 +48,10 @@ export function ClassifiedLeadsPanel({
   showStatusFilter = true,
   shouldWaitForNextSync = false,
   syncStatus = "IDLE",
+  onLeadDeleted,
 }: {
+  campaignId: string;
+  canDeleteLeads?: boolean;
   isFilterLoading?: boolean;
   leads: ClassifiedLead[];
   nextSyncLabel?: string;
@@ -53,6 +60,7 @@ export function ClassifiedLeadsPanel({
   showStatusFilter?: boolean;
   shouldWaitForNextSync?: boolean;
   syncStatus?: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  onLeadDeleted?: (leadId: string) => void;
 }) {
   const [labelFilter, setLabelFilter] = useState<(typeof labelFilters)[number]>("ALL");
   const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>("ALL");
@@ -261,6 +269,18 @@ export function ClassifiedLeadsPanel({
                   ) : null}
 
                   <div className="flex flex-wrap items-center gap-3 pt-1 sm:justify-end">
+                    {canDeleteLeads && onLeadDeleted ? (
+                      <DeleteCampaignLeadDialog
+                        campaignId={campaignId}
+                        lead={{
+                          id: lead.id,
+                          score: lead.score,
+                          subreddit: lead.redditItem.subreddit,
+                          title: lead.redditItem.title,
+                        }}
+                        onDeleted={onLeadDeleted}
+                      />
+                    ) : null}
                     {lead.redditItem.url ? (
                       <a
                         className="inline-flex w-full items-center justify-center rounded-full bg-[#1ed760] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#121212] transition-colors hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] sm:w-auto"

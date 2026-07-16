@@ -53,5 +53,5 @@ export function CampaignLeadsLiveSection({
     };
   }, [campaignId, shouldPoll]);
 
-  return <ClassifiedLeadsPanel leads={leads} syncStatus={syncStatus} />;
+  return <ClassifiedLeadsPanel campaignId={campaignId} leads={leads} syncStatus={syncStatus} />;
 }

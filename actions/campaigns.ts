@@ -2,8 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { BETA_OWNER_ONLY_MESSAGE, canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
+import {
+  buildDailySemanticRunStatsAfterLeadDeletion,
+  getCampaignLeadDeletionRevalidationPaths,
+} from "@/lib/campaign-lead-deletion";
 import { persistCampaignSemanticQueries } from "@/lib/campaign-semantic-queries";
 import {
   buildAccessibleCampaignWhere,
@@ -40,9 +45,15 @@ const campaignDescriptionSchema = z.object({
   description: z.string().trim().max(4000, "Description must be 4,000 characters or less.").optional(),
 });
 
+const deleteCampaignLeadSchema = z.object({
+  campaignId: z.string().trim().min(1, "Campaign ID is missing."),
+  leadId: z.string().trim().min(1, "Lead ID is missing."),
+});
+
 export type CampaignActionState = {
   status: "idle" | "success" | "error";
   message?: string;
+  deletedLeadId?: string;
   fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>>;
 };
 
@@ -753,6 +764,170 @@ export async function getCampaignLeads(
     userId: session.user.id,
     email: session.user.email,
   });
+}
+
+export async function deleteCampaignLead(formData: FormData): Promise<CampaignActionState> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to delete a lead.",
+    };
+  }
+
+  if (!canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to delete campaign leads.",
+    };
+  }
+
+  const parsed = deleteCampaignLeadSchema.safeParse({
+    campaignId: formData.get("campaignId"),
+    leadId: formData.get("leadId"),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Campaign and lead IDs are required.",
+    };
+  }
+
+  try {
+    const deleted = await prisma.$transaction(async (tx) => {
+      const lead = await tx.lead.findFirst({
+        where: {
+          id: parsed.data.leadId,
+          campaignId: parsed.data.campaignId,
+        },
+        select: {
+          id: true,
+          redditItemId: true,
+        },
+      });
+
+      if (!lead) {
+        return null;
+      }
+
+      const scan = await tx.campaignDailySemanticScan.findUnique({
+        where: {
+          campaignId_redditItemId: {
+            campaignId: parsed.data.campaignId,
+            redditItemId: lead.redditItemId,
+          },
+        },
+        select: {
+          campaignRunId: true,
+        },
+      });
+
+      await tx.lead.delete({
+        where: {
+          id: lead.id,
+        },
+      });
+      await tx.campaignDailySemanticScan.deleteMany({
+        where: {
+          campaignId: parsed.data.campaignId,
+          redditItemId: lead.redditItemId,
+        },
+      });
+
+      if (scan?.campaignRunId) {
+        const run = await tx.campaignRun.findUnique({
+          where: {
+            id: scan.campaignRunId,
+          },
+          select: {
+            campaignId: true,
+            statsJson: true,
+          },
+        });
+
+        if (run) {
+          const [matchedScans, noMatchScans, leads] = await Promise.all([
+            tx.campaignDailySemanticScan.count({
+              where: {
+                campaignRunId: scan.campaignRunId,
+                status: "MATCHED",
+              },
+            }),
+            tx.campaignDailySemanticScan.count({
+              where: {
+                campaignRunId: scan.campaignRunId,
+                status: "NO_MATCH",
+              },
+            }),
+            tx.lead.findMany({
+              where: {
+                campaignId: run.campaignId,
+                redditItem: {
+                  dailySemanticScans: {
+                    some: {
+                      campaignRunId: scan.campaignRunId,
+                      status: "MATCHED",
+                    },
+                  },
+                },
+              },
+              select: {
+                score: true,
+                ai: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            }),
+          ]);
+          const statsJson = buildDailySemanticRunStatsAfterLeadDeletion({
+            existingStats: run.statsJson,
+            leads,
+            matchedScans,
+            noMatchScans,
+          });
+
+          await tx.campaignRun.update({
+            where: {
+              id: scan.campaignRunId,
+            },
+            data: {
+              statsJson: statsJson as Prisma.InputJsonValue,
+            },
+          });
+        }
+      }
+
+      return lead;
+    });
+
+    if (!deleted) {
+      return {
+        status: "error",
+        message: "Lead not found in this campaign.",
+      };
+    }
+  } catch (error) {
+    console.error("Campaign lead delete failed", error);
+
+    return {
+      status: "error",
+      message: error instanceof Error ? `Delete failed: ${error.message}` : "Delete failed while removing the lead.",
+    };
+  }
+
+  for (const path of getCampaignLeadDeletionRevalidationPaths(parsed.data.campaignId)) {
+    revalidatePath(path);
+  }
+
+  return {
+    status: "success",
+    message: "Lead deleted from the campaign and its shared links.",
+    deletedLeadId: parsed.data.leadId,
+  };
 }
 
 export type CampaignInitialRssDiagnostics = {

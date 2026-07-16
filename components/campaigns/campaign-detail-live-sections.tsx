@@ -45,6 +45,7 @@ function normalizeSync(sync: unknown): CampaignSync {
 
 export function CampaignDetailLiveSections({
   campaignId,
+  canDeleteLeads = false,
   initialDiagnostics,
   initialLeads,
   initialSync,
@@ -58,6 +59,7 @@ export function CampaignDetailLiveSections({
   shouldWaitForTodaySync,
 }: {
   campaignId: string;
+  canDeleteLeads?: boolean;
   initialDiagnostics: CampaignInitialRssDiagnostics;
   initialLeads: ClassifiedLead[];
   initialSync: CampaignSync;
@@ -155,6 +157,8 @@ export function CampaignDetailLiveSections({
       />
       {showInitialRssDiagnostics ? <InitialRssDiagnosticsPanel diagnostics={diagnostics} /> : null}
       <ClassifiedLeadsPanel
+        campaignId={campaignId}
+        canDeleteLeads={canDeleteLeads}
         isFilterLoading={isLeadFilterLoading}
         leads={classifiedLeads}
         nextSyncLabel={nextSync}
@@ -163,6 +167,9 @@ export function CampaignDetailLiveSections({
         showStatusFilter={false}
         shouldWaitForNextSync={shouldWaitForTodaySync}
         syncStatus={sync?.status ?? "IDLE"}
+        onLeadDeleted={(leadId) => {
+          setLeads((current) => current.filter((lead) => lead.id !== leadId));
+        }}
       />
     </>
   );

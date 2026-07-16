@@ -312,6 +312,7 @@ export default async function CampaignDetailPage({
 
       <CampaignDetailLiveSections
         campaignId={campaign.id}
+        canDeleteLeads={isAdminAccount}
         initialDiagnostics={initialDiagnostics}
         initialLeads={classifiedLeads}
         initialSync={

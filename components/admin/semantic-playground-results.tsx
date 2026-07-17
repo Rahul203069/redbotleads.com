@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowDownWideNarrow, Check, Copy, Loader2, Plus } from "lucide-react";
+import { ArrowDownWideNarrow, Check, Copy, ExternalLink, Loader2, Plus } from "lucide-react";
 import type { ReactNode } from "react";
 import { useMemo, useState, useTransition } from "react";
 
@@ -92,16 +92,19 @@ export function SemanticPlaygroundResults({
   }
 
   return (
-    <div className="flex max-h-[72dvh] min-h-0 flex-col overflow-hidden rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] xl:max-h-[calc(100dvh-12rem)]">
-      <div className="flex shrink-0 flex-col gap-3 border-b border-[#27272a] pb-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Results</p>
-          <h3 className="mt-2 text-[17px] font-bold text-[#ffffff]">Matched Reddit posts</h3>
+    <div className="flex max-h-[80dvh] min-h-[560px] flex-col overflow-hidden rounded-[18px] border border-white/[0.06] bg-[#111111] p-4">
+      <div className="flex shrink-0 flex-col gap-3 border-b border-white/[0.06] pb-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#1ed760] text-[11px] font-black text-[#0d160f]">03</span>
+          <div>
+            <h3 className="text-[16px] font-bold text-[#ffffff]">Matched Reddit posts</h3>
+            <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">Review semantic fit, LLM score, and qualification details.</p>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           {isRunActive ? (
-            <span className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#1f1f1f] px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffd66e] shadow-[rgb(242,201,76)_0px_0px_0px_1px_inset]">
+            <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#f2c94c]/25 bg-[#f2c94c]/10 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffd66e]">
               <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
               {runStatusLabel}
             </span>
@@ -112,7 +115,7 @@ export function SemanticPlaygroundResults({
               </span>
 
               <button
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[#1f1f1f] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/[0.08] bg-[#1b1b1b] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] transition-colors hover:bg-[#252525] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/60 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={copyableResults.length === 0}
                 onClick={handleCopyQualifiedLeads}
                 type="button"
@@ -121,7 +124,7 @@ export function SemanticPlaygroundResults({
                 {copied ? "Copied" : "Copy 40+ JSON"}
               </button>
 
-              <div className="inline-flex min-h-10 items-center rounded-full bg-[#1f1f1f] p-1 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
+              <div className="inline-flex min-h-10 items-center rounded-full border border-white/[0.08] bg-[#1b1b1b] p-1">
                 <ArrowDownWideNarrow className="ml-2 h-4 w-4 text-[#b3b3b3]" />
                 <SortButton active={sortBy === "semantic"} onClick={() => setSortBy("semantic")}>
                   Semantic
@@ -139,7 +142,7 @@ export function SemanticPlaygroundResults({
         {isRunActive ? (
           <ProcessingState progress={progress} runStatusLabel={runStatusLabel} />
         ) : sortedResults.length === 0 ? (
-          <div className="rounded-[16px] border border-dashed border-[#3f3f46] p-5 text-[13px] leading-5 text-[#b3b3b3]">
+          <div className="rounded-[16px] border border-dashed border-[#3f3f46] bg-[#151515] p-5 text-[13px] leading-5 text-[#b3b3b3]">
             No Reddit posts matched this query set and threshold.
           </div>
         ) : (
@@ -159,7 +162,7 @@ function ProcessingState({
 }) {
   return (
     <div aria-busy="true" aria-live="polite" className="grid gap-3">
-      <div className="rounded-[16px] bg-[#1f1f1f] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+      <div className="rounded-[16px] border border-white/[0.06] bg-[#181818] p-4">
         <div className="flex items-start gap-3">
           <span className="mt-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#3b2d10] text-[#ffd66e] shadow-[rgb(242,201,76)_0px_0px_0px_1px_inset]">
             <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
@@ -181,7 +184,7 @@ function ProcessingState({
       </div>
 
       {[0, 1, 2].map((item) => (
-        <div className="rounded-[16px] bg-[#1f1f1f] p-4 motion-safe:animate-pulse" key={item}>
+        <div className="rounded-[16px] border border-white/[0.06] bg-[#181818] p-4 motion-safe:animate-pulse" key={item}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex gap-2">
@@ -202,7 +205,7 @@ function ProcessingState({
 
 function ProgressMetric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-[14px] bg-[#121212] px-3 py-3 shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
+    <div className="rounded-[14px] border border-white/[0.06] bg-[#111111] px-3 py-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">{label}</p>
       <p className="mt-2 text-[22px] font-bold leading-none text-[#ffffff]">{value}</p>
     </div>
@@ -291,7 +294,7 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
 
   return (
     <>
-      <article className="rounded-[16px] bg-[#1f1f1f] p-4">
+      <article className="rounded-[18px] border border-white/[0.06] bg-[#181818] p-4 transition-colors hover:border-white/[0.1]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
@@ -313,7 +316,7 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
             </div>
 
             {result.bestQueryText ? (
-              <div className="mt-4 rounded-[14px] bg-[#121212] p-3 text-[13px] leading-5 text-[#cbcbcb]">
+              <div className="mt-4 rounded-[14px] border border-white/[0.05] bg-[#111111] p-3 text-[13px] leading-5 text-[#cbcbcb]">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#b3b3b3]">Matched query</span>
                 <p className="mt-2">{result.bestQueryText}</p>
               </div>
@@ -353,11 +356,12 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
                   rel="noreferrer"
                   target="_blank"
                 >
+                  <ExternalLink className="h-3.5 w-3.5" />
                   View on Reddit
                 </Link>
               ) : null}
               <button
-                className="inline-flex min-h-9 items-center gap-2 rounded-full bg-[#121212] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#252525] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/[0.08] bg-[#111111] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] transition-colors hover:bg-[#252525] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/60 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!canAddToLeads}
                 onClick={handleOpenAddDialog}
                 type="button"
@@ -368,7 +372,7 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
             </div>
           </div>
 
-          <div className="w-full rounded-[16px] bg-[#121212] px-4 py-3 text-left shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-auto sm:min-w-[104px] sm:text-right">
+          <div className="w-full rounded-[16px] border border-white/[0.06] bg-[#111111] px-4 py-3 text-left sm:w-auto sm:min-w-[104px] sm:text-right">
             <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">LLM score</div>
             <div className="mt-2 text-[30px] font-bold leading-none text-[#ffffff]">
               {result.score ?? "-"}

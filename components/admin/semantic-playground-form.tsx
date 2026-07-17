@@ -323,7 +323,7 @@ export function SemanticPlaygroundForm({
 
   if (campaigns.length === 0) {
     return (
-      <section className="rounded-[24px] bg-[#181818] p-5 text-[14px] leading-6 text-[#cbcbcb] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
+      <section className="rounded-[24px] border border-white/[0.06] bg-[#181818] p-5 text-[14px] leading-6 text-[#cbcbcb] shadow-[rgba(0,0,0,0.22)_0px_10px_28px]">
         No campaigns are available for playground testing.
       </section>
     );
@@ -331,15 +331,17 @@ export function SemanticPlaygroundForm({
 
   return (
     <>
-      <form className="grid gap-5 xl:grid-cols-[0.8fr_1.25fr]" onSubmit={handleSubmit}>
-        <section className="flex max-h-[72dvh] min-h-0 flex-col overflow-hidden rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5 xl:max-h-[calc(100dvh-7rem)]">
-          <div className="shrink-0 border-b border-[#27272a] pb-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Campaign</p>
-            <h2 className="mt-2 text-[17px] font-bold text-[#ffffff]">Test target</h2>
+      <form className="grid items-start gap-5 xl:grid-cols-[minmax(340px,0.78fr)_minmax(0,1.35fr)]" onSubmit={handleSubmit}>
+        <section className="rounded-[24px] border border-white/[0.06] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.22)_0px_10px_28px] lg:p-5">
+          <div className="flex items-start gap-3 border-b border-white/[0.06] pb-4">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#1ed760] text-[11px] font-black text-[#0d160f]">01</span>
+            <div>
+              <h2 className="text-[16px] font-bold text-[#ffffff]">Run configuration</h2>
+              <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">Define the campaign context and Reddit candidate window.</p>
+            </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
-            <div className="grid gap-4 pt-4">
+          <div className="grid gap-4 pt-4">
               <label className="grid gap-2">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Run title</span>
                 <Input
@@ -403,21 +405,21 @@ export function SemanticPlaygroundForm({
               </label>
 
               {selectedCampaign ? (
-                <div className="rounded-[18px] bg-[#121212] p-4 text-[13px] leading-5 text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+                <div className="rounded-[18px] border border-white/[0.06] bg-[#111111] p-4 text-[13px] leading-5 text-[#cbcbcb]">
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusPill label={selectedCampaign.leadType.toLowerCase()} />
                     <StatusPill label={selectedCampaign.isActive ? "active" : "paused"} />
                     <StatusPill label={`${selectedCampaign.semanticQueries.length} queries`} />
                   </div>
-                  <p className="mt-3 text-[#b3b3b3]">{selectedCampaign.description || "No campaign description."}</p>
+                  <p className="mt-3 line-clamp-3 text-[#8f8f8f]">{selectedCampaign.description || "No campaign description."}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {selectedCampaign.subreddits.slice(0, 8).map((subreddit) => (
-                      <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]" key={subreddit}>
+                      <span className="rounded-full border border-white/[0.06] bg-[#1b1b1b] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#a1a1aa]" key={subreddit}>
                         r/{subreddit}
                       </span>
                     ))}
                     {selectedCampaign.subreddits.length > 8 ? (
-                      <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#cbcbcb]">
+                      <span className="rounded-full border border-white/[0.06] bg-[#1b1b1b] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#a1a1aa]">
                         +{selectedCampaign.subreddits.length - 8}
                       </span>
                     ) : null}
@@ -484,12 +486,11 @@ export function SemanticPlaygroundForm({
                   value={threshold}
                 />
               </label>
-            </div>
           </div>
 
-          <div className="mt-4 shrink-0 border-t border-[#27272a] pt-4">
+          <div className="mt-5 border-t border-white/[0.06] pt-4">
             <Button
-              className="w-full rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
+              className="min-h-11 w-full rounded-full border-none bg-[#1ed760] text-[11px] font-bold uppercase tracking-[0.14em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
               disabled={isSubmitPending}
               type="submit"
             >
@@ -499,11 +500,17 @@ export function SemanticPlaygroundForm({
           </div>
         </section>
 
-        <section className="flex max-h-[72dvh] min-h-0 flex-col overflow-hidden rounded-[24px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] lg:p-5 xl:max-h-[calc(100dvh-7rem)]">
-          <div className="flex shrink-0 flex-col gap-3 border-b border-[#27272a] pb-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Draft queries</p>
-              <h2 className="mt-2 text-[17px] font-bold text-[#ffffff]">Semantic test set</h2>
+        <section className="flex max-h-[900px] min-h-[520px] flex-col overflow-hidden rounded-[24px] border border-white/[0.06] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.22)_0px_10px_28px] lg:p-5">
+          <div className="flex shrink-0 flex-col gap-3 border-b border-white/[0.06] pb-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#242424] text-[11px] font-black text-[#d4d4d8]">02</span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-[16px] font-bold text-[#ffffff]">Semantic query set</h2>
+                  <span className="rounded-full bg-[#242424] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#a1a1aa]">{rows.length} queries</span>
+                </div>
+                <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">Edit the matching phrases used for this test only.</p>
+              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button className="rounded-full" onClick={handleResetQueries} size="sm" type="button" variant="secondary">
@@ -536,7 +543,7 @@ export function SemanticPlaygroundForm({
               </div>
             ) : (
               rows.map((row, index) => (
-                <div className="rounded-[18px] bg-[#121212] p-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]" key={row.id}>
+                <div className="rounded-[18px] border border-white/[0.06] bg-[#111111] p-3" key={row.id}>
                   <div className="grid gap-3 md:grid-cols-[1fr_180px_auto] md:items-start">
                     <label className="grid gap-2">
                       <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Query {index + 1}</span>

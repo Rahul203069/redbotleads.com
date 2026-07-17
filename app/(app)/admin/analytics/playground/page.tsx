@@ -5,6 +5,7 @@ import { Activity, ArrowLeft, Clock3, FlaskConical, Layers3, PlayCircle } from "
 import { CopyJsonButton } from "@/components/admin/copy-json-button";
 import { SemanticPlaygroundForm } from "@/components/admin/semantic-playground-form";
 import { SemanticPlaygroundResults } from "@/components/admin/semantic-playground-results";
+import { SemanticPlaygroundRunComparisonSelector } from "@/components/admin/semantic-playground-run-comparison-selector";
 import { SemanticPlaygroundRunRefresher } from "@/components/admin/semantic-playground-run-refresher";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
@@ -77,29 +78,53 @@ export default async function AdminSemanticPlaygroundPage({
     ?? null;
   const defaultFetchedTo = new Date();
   const defaultFetchedFrom = new Date(defaultFetchedTo.getTime() - 24 * 60 * 60 * 1000);
-  const recentRuns = selectedCampaignId
-    ? await prisma.campaignSemanticPlaygroundRun.findMany({
-        where: {
-          campaignId: selectedCampaignId,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: 8,
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          status: true,
-          threshold: true,
-          fetchedFrom: true,
-          fetchedTo: true,
-          createdAt: true,
-          querySnapshot: true,
-          statsJson: true,
-        },
-      })
-    : [];
+  const [recentRuns, comparisonRuns] = selectedCampaignId
+    ? await Promise.all([
+        prisma.campaignSemanticPlaygroundRun.findMany({
+          where: {
+            campaignId: selectedCampaignId,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 8,
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            status: true,
+            threshold: true,
+            fetchedFrom: true,
+            fetchedTo: true,
+            createdAt: true,
+            querySnapshot: true,
+            statsJson: true,
+          },
+        }),
+        prisma.campaignSemanticPlaygroundRun.findMany({
+          where: {
+            campaignId: selectedCampaignId,
+            status: "COMPLETED",
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 20,
+          select: {
+            id: true,
+            title: true,
+            threshold: true,
+            createdAt: true,
+            querySnapshot: true,
+            _count: {
+              select: {
+                queries: true,
+              },
+            },
+          },
+        }),
+      ])
+    : [[], []];
   const selectedRunId = params.runId ?? recentRuns[0]?.id ?? null;
   const selectedRun = selectedRunId
     ? await prisma.campaignSemanticPlaygroundRun.findFirst({
@@ -185,6 +210,7 @@ export default async function AdminSemanticPlaygroundPage({
   const runIdsForLeadMetrics = Array.from(
     new Set([
       ...recentRuns.map((run) => run.id),
+      ...comparisonRuns.map((run) => run.id),
       ...(selectedRun?.id ? [selectedRun.id] : []),
     ]),
   );
@@ -213,6 +239,9 @@ export default async function AdminSemanticPlaygroundPage({
             runId: {
               in: runIdsForLeadMetrics,
             },
+            score: {
+              gte: PLAYGROUND_TOTAL_LEAD_SCORE,
+            },
           },
           _count: {
             _all: true,
@@ -230,6 +259,20 @@ export default async function AdminSemanticPlaygroundPage({
   );
   const selectedRunLeadMetrics = getRunLeadMetrics(leadMetricsByRunId, selectedRun?.id);
   const isRunActive = selectedRun?.status === "QUEUED" || selectedRun?.status === "PROCESSING";
+  const comparisonRunOptions = comparisonRuns.map((run) => {
+    const metrics = getRunLeadMetrics(leadMetricsByRunId, run.id);
+
+    return {
+      candidateScope: getPlaygroundCandidateScopeLabel(getPlaygroundCandidateScopeFromSnapshot(run.querySnapshot)),
+      createdAt: run.createdAt.toISOString(),
+      id: run.id,
+      queryCount: run._count.queries,
+      strongLeads: metrics.strongLeads,
+      threshold: run.threshold,
+      title: getRunTitle(run.title),
+      totalLeads: metrics.totalLeads,
+    };
+  });
 
   return (
     <div className="space-y-6 text-[#ffffff]">
@@ -301,6 +344,7 @@ export default async function AdminSemanticPlaygroundPage({
                 <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">Compare the last eight tests for the selected campaign.</p>
               </div>
             </div>
+            <SemanticPlaygroundRunComparisonSelector runs={comparisonRunOptions} />
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-4">
             {recentRuns.map((run) => {

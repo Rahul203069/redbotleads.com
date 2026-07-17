@@ -41,7 +41,7 @@ const BULK_QUERY_SEPARATOR = ",,,";
 const MAX_QUERY_TEXT_LENGTH = 700;
 const MAX_QUERY_CATEGORY_LENGTH = 80;
 const MAX_RUN_TITLE_LENGTH = 120;
-const MAX_RUN_DESCRIPTION_LENGTH = 1000;
+const MAX_FILTERING_DESCRIPTION_LENGTH = 4000;
 
 export function SemanticPlaygroundForm({
   campaigns,
@@ -66,7 +66,7 @@ export function SemanticPlaygroundForm({
     [campaignId, campaigns],
   );
   const [runTitle, setRunTitle] = useState("");
-  const [runDescription, setRunDescription] = useState("");
+  const [filteringDescription, setFilteringDescription] = useState(selectedCampaign?.description ?? "");
   const [rows, setRows] = useState<QueryRow[]>(() => buildQueryRows(selectedCampaign));
   const [fetchedFrom, setFetchedFrom] = useState(() => toLocalInputValue(defaultFetchedFrom));
   const [fetchedTo, setFetchedTo] = useState(() => toLocalInputValue(defaultFetchedTo));
@@ -81,8 +81,13 @@ export function SemanticPlaygroundForm({
     const nextCampaign = campaigns.find((campaign) => campaign.id === nextCampaignId) ?? null;
 
     setCampaignId(nextCampaignId);
+    setFilteringDescription(nextCampaign?.description ?? "");
     setRows(buildQueryRows(nextCampaign));
     router.push(`/admin/analytics/playground?campaignId=${encodeURIComponent(nextCampaignId)}`);
+  }
+
+  function handleResetFilteringDescription() {
+    setFilteringDescription(selectedCampaign?.description ?? "");
   }
 
   function handleResetQueries() {
@@ -182,7 +187,7 @@ export function SemanticPlaygroundForm({
     event.preventDefault();
 
     const cleanedRunTitle = runTitle.trim();
-    const cleanedRunDescription = runDescription.trim();
+    const cleanedFilteringDescription = filteringDescription.trim();
     const cleanedRows = cleanQueryRows(rows);
 
     if (cleanedRunTitle.length < 2) {
@@ -203,19 +208,19 @@ export function SemanticPlaygroundForm({
       return;
     }
 
-    if (cleanedRunDescription.length < 3) {
+    if (cleanedFilteringDescription.length < 3) {
       toast({
         title: "Playground run not started",
-        description: "Add a playground run description.",
+        description: "Add an LLM filtering description.",
         variant: "destructive",
       });
       return;
     }
 
-    if (cleanedRunDescription.length > MAX_RUN_DESCRIPTION_LENGTH) {
+    if (cleanedFilteringDescription.length > MAX_FILTERING_DESCRIPTION_LENGTH) {
       toast({
         title: "Playground run not started",
-        description: `Description must be ${MAX_RUN_DESCRIPTION_LENGTH} characters or less.`,
+        description: `Filtering description must be ${MAX_FILTERING_DESCRIPTION_LENGTH} characters or less.`,
         variant: "destructive",
       });
       return;
@@ -245,7 +250,7 @@ export function SemanticPlaygroundForm({
     const submitSignature = buildSubmitSignature({
       campaignId,
       candidateScope,
-      description: cleanedRunDescription,
+      filteringDescription: cleanedFilteringDescription,
       fetchedFrom: fromIso,
       fetchedTo: toIso,
       queries: cleanedRows,
@@ -267,7 +272,7 @@ export function SemanticPlaygroundForm({
     const formData = new FormData();
     formData.set("campaignId", campaignId);
     formData.set("candidateScope", candidateScope);
-    formData.set("description", cleanedRunDescription);
+    formData.set("filteringDescription", cleanedFilteringDescription);
     formData.set("fetchedFrom", fromIso);
     formData.set("fetchedTo", toIso);
     formData.set("threshold", threshold);
@@ -288,7 +293,7 @@ export function SemanticPlaygroundForm({
           });
           navigatedToRun = true;
           setRunTitle("");
-          setRunDescription("");
+          setFilteringDescription(selectedCampaign?.description ?? "");
           router.push(`/admin/analytics/playground?campaignId=${encodeURIComponent(campaignId)}&runId=${encodeURIComponent(result.runId)}`);
           router.refresh();
           return;
@@ -346,17 +351,40 @@ export function SemanticPlaygroundForm({
                 />
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Run description</span>
+              <div className="grid gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]" htmlFor="playground-filtering-description">
+                    LLM filtering description
+                  </label>
+                  <Button
+                    className="h-8 rounded-full px-3 text-[10px] font-bold uppercase tracking-[0.12em]"
+                    disabled={isSubmitPending || filteringDescription === (selectedCampaign?.description ?? "")}
+                    onClick={handleResetFilteringDescription}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Reset
+                  </Button>
+                </div>
                 <Textarea
-                  className="min-h-24 resize-y"
+                  aria-describedby="playground-filtering-description-help"
+                  className="min-h-32 resize-y"
                   disabled={isSubmitPending}
-                  maxLength={MAX_RUN_DESCRIPTION_LENGTH}
-                  onChange={(event) => setRunDescription(event.target.value)}
+                  id="playground-filtering-description"
+                  maxLength={MAX_FILTERING_DESCRIPTION_LENGTH}
+                  onChange={(event) => setFilteringDescription(event.target.value)}
                   required
-                  value={runDescription}
+                  value={filteringDescription}
                 />
-              </label>
+                <div className="flex items-start justify-between gap-3 text-[11px] leading-4 text-[#8f8f8f]" id="playground-filtering-description-help">
+                  <p>This description is the primary fit criteria for LLM scoring and applies only to this run.</p>
+                  <span className="shrink-0 tabular-nums">
+                    {filteringDescription.length}/{MAX_FILTERING_DESCRIPTION_LENGTH}
+                  </span>
+                </div>
+              </div>
 
               <label className="grid gap-2">
                 <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3]">Campaign</span>
@@ -731,7 +759,7 @@ function cleanQueryRows(rows: Array<{ category?: unknown; text?: unknown; queryT
 function buildSubmitSignature({
   campaignId,
   candidateScope,
-  description,
+  filteringDescription,
   fetchedFrom,
   fetchedTo,
   queries,
@@ -740,7 +768,7 @@ function buildSubmitSignature({
 }: {
   campaignId: string;
   candidateScope: PlaygroundCandidateScope;
-  description: string;
+  filteringDescription: string;
   fetchedFrom: string;
   fetchedTo: string;
   queries: CleanQuery[];
@@ -750,7 +778,7 @@ function buildSubmitSignature({
   return JSON.stringify({
     campaignId,
     candidateScope,
-    description,
+    filteringDescription,
     fetchedFrom,
     fetchedTo,
     queries,

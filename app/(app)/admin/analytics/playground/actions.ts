@@ -9,6 +9,7 @@ import { canViewAnalytics } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
 import {
   getPlaygroundCandidateScopeFromSnapshot,
+  getPlaygroundFilteringDescriptionFromSnapshot,
   PLAYGROUND_CANDIDATE_SCOPES,
   type PlaygroundCandidateScope,
 } from "@/lib/semantic-playground-scope";
@@ -16,13 +17,13 @@ import { enqueueSemanticPlaygroundRun } from "@/worker/queues";
 
 const DEFAULT_THRESHOLD = 0.5;
 const MAX_QUERY_LENGTH = 700;
-const MAX_RUN_DESCRIPTION_LENGTH = 1000;
+const MAX_FILTERING_DESCRIPTION_LENGTH = 4000;
 const MAX_RUN_TITLE_LENGTH = 120;
 const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
 const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 const playgroundRunMetadataSchema = z.object({
-  description: z.string().trim().min(3, "Add a playground run description.").max(MAX_RUN_DESCRIPTION_LENGTH, `Description must be ${MAX_RUN_DESCRIPTION_LENGTH} characters or less.`),
+  filteringDescription: z.string().trim().min(3, "Add an LLM filtering description.").max(MAX_FILTERING_DESCRIPTION_LENGTH, `Filtering description must be ${MAX_FILTERING_DESCRIPTION_LENGTH} characters or less.`),
   title: z.string().trim().min(2, "Add a playground run title.").max(MAX_RUN_TITLE_LENGTH, `Title must be ${MAX_RUN_TITLE_LENGTH} characters or less.`),
 });
 
@@ -160,7 +161,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
         threshold,
         title: runMetadata.metadata.title,
         userId: session.user.id,
-        description: runMetadata.metadata.description,
+        description: runMetadata.metadata.filteringDescription,
       },
       orderBy: {
         createdAt: "desc",
@@ -183,6 +184,7 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
     });
     const duplicateRun = activeRuns.find((run) =>
       getPlaygroundCandidateScopeFromSnapshot(run.querySnapshot) === candidateScope
+      && getPlaygroundFilteringDescriptionFromSnapshot(run.querySnapshot) === runMetadata.metadata.filteringDescription
       && querySetsMatch(run.queries, parsedQueries),
     );
 
@@ -196,13 +198,13 @@ export async function startSemanticPlaygroundRun(formData: FormData): Promise<St
     const run = await tx.campaignSemanticPlaygroundRun.create({
       data: {
         campaignId: campaign.id,
-        description: runMetadata.metadata.description,
+        description: runMetadata.metadata.filteringDescription,
         fetchedFrom,
         fetchedTo,
         querySnapshot: {
           campaignName: campaign.name,
           candidateScope,
-          description: runMetadata.metadata.description,
+          filteringDescription: runMetadata.metadata.filteringDescription,
           queries: parsedQueries,
           title: runMetadata.metadata.title,
         } as Prisma.InputJsonValue,
@@ -501,14 +503,14 @@ function normalizeThreshold(value: FormDataEntryValue | null) {
 
 function parseRunMetadata(formData: FormData): { status: "success"; metadata: PlaygroundRunMetadata } | { status: "error"; message: string } {
   const parsed = playgroundRunMetadataSchema.safeParse({
-    description: String(formData.get("description") ?? ""),
+    filteringDescription: String(formData.get("filteringDescription") ?? ""),
     title: String(formData.get("title") ?? ""),
   });
 
   if (!parsed.success) {
     return {
       status: "error",
-      message: parsed.error.issues[0]?.message ?? "Add a playground run title and description.",
+      message: parsed.error.issues[0]?.message ?? "Add a playground run title and LLM filtering description.",
     };
   }
 
@@ -580,7 +582,7 @@ function buildPlaygroundRunSignature({
     candidateScope,
     fetchedFrom: fetchedFrom.toISOString(),
     fetchedTo: fetchedTo.toISOString(),
-    description: metadata.description,
+    filteringDescription: metadata.filteringDescription,
     queries,
     threshold,
     title: metadata.title,

@@ -12,6 +12,8 @@ import { prisma } from "@/lib/prisma";
 import {
   getPlaygroundCandidateScopeFromSnapshot,
   getPlaygroundCandidateScopeLabel,
+  getPlaygroundFilteringDescriptionFromSnapshot,
+  resolvePlaygroundFilteringDescription,
 } from "@/lib/semantic-playground-scope";
 import { semanticMatchThreshold } from "@/worker/config";
 
@@ -129,6 +131,7 @@ export default async function AdminSemanticPlaygroundPage({
             select: {
               id: true,
               name: true,
+              description: true,
             },
           },
           queries: {
@@ -220,6 +223,11 @@ export default async function AdminSemanticPlaygroundPage({
   const leadMetricsByRunId = buildRunLeadMetricsMap(totalLeadCounts, strongLeadCounts);
   const runStats = getStats(selectedRun?.statsJson);
   const selectedRunCandidateScope = getPlaygroundCandidateScopeFromSnapshot(selectedRun?.querySnapshot);
+  const selectedRunSnapshotDescription = getPlaygroundFilteringDescriptionFromSnapshot(selectedRun?.querySnapshot);
+  const selectedRunFilteringDescription = resolvePlaygroundFilteringDescription(
+    selectedRun?.querySnapshot,
+    selectedRun?.campaign.description,
+  );
   const selectedRunLeadMetrics = getRunLeadMetrics(leadMetricsByRunId, selectedRun?.id);
   const isRunActive = selectedRun?.status === "QUEUED" || selectedRun?.status === "PROCESSING";
 
@@ -283,6 +291,7 @@ export default async function AdminSemanticPlaygroundPage({
             {recentRuns.map((run) => {
               const stats = getStats(run.statsJson);
               const candidateScope = getPlaygroundCandidateScopeFromSnapshot(run.querySnapshot);
+              const filteringDescription = getPlaygroundFilteringDescriptionFromSnapshot(run.querySnapshot);
               const leadMetrics = getRunLeadMetrics(leadMetricsByRunId, run.id);
 
               return (
@@ -300,7 +309,9 @@ export default async function AdminSemanticPlaygroundPage({
                     <span className="text-[11px] font-semibold text-[#b3b3b3]">{formatDate(run.createdAt)}</span>
                   </div>
                   <h3 className="mt-3 truncate text-[15px] font-bold text-[#ffffff]">{getRunTitle(run.title)}</h3>
-                  <p className="mt-1 min-h-10 text-[12px] leading-5 text-[#b3b3b3]">{getRunDescription(run.description) ?? "No run description."}</p>
+                  <p className="mt-1 min-h-10 text-[12px] leading-5 text-[#b3b3b3]">
+                    {filteringDescription ?? "Legacy run used the campaign description."}
+                  </p>
                   <p className="mt-3 text-[12px] leading-5 text-[#cbcbcb]">{formatDateRange(run.fetchedFrom, run.fetchedTo)}</p>
                   <div className="mt-3 grid grid-cols-2 gap-2">
                     <MiniMetric label="Semantic" value={String(getStat(stats, "semanticMatches"))} />
@@ -329,7 +340,12 @@ export default async function AdminSemanticPlaygroundPage({
                 <StatusPill label={getPlaygroundCandidateScopeLabel(selectedRunCandidateScope)} tone="neutral" />
               </div>
               <h2 className="mt-4 text-[22px] font-bold tracking-tight text-[#ffffff]">{getRunTitle(selectedRun.title)}</h2>
-              <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">{getRunDescription(selectedRun.description) ?? "No run description."}</p>
+              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8f8f8f]">
+                LLM filtering description{selectedRunSnapshotDescription ? "" : " · campaign fallback"}
+              </p>
+              <p className="mt-1 text-[14px] leading-6 text-[#cbcbcb]">
+                {selectedRunFilteringDescription ?? "No campaign description was available for this run."}
+              </p>
               <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">
                 {selectedRun.campaign.name} - {" "}
                 {formatDateRange(selectedRun.fetchedFrom, selectedRun.fetchedTo)}
@@ -361,7 +377,7 @@ export default async function AdminSemanticPlaygroundPage({
                     campaignId: selectedRun.campaign.id,
                     campaignName: selectedRun.campaign.name,
                     candidateScope: selectedRunCandidateScope,
-                    description: selectedRun.description,
+                    filteringDescription: selectedRunFilteringDescription,
                     fetchedFrom: selectedRun.fetchedFrom.toISOString(),
                     fetchedTo: selectedRun.fetchedTo.toISOString(),
                     runCreatedAt: selectedRun.createdAt.toISOString(),
@@ -514,11 +530,6 @@ function getRunLeadMetrics(metrics: Map<string, PlaygroundRunLeadMetrics>, runId
 
 function getRunTitle(title: string | null) {
   return title?.trim() || "Untitled playground run";
-}
-
-function getRunDescription(description: string | null) {
-  const normalizedDescription = description?.trim() ?? "";
-  return normalizedDescription.length > 0 ? normalizedDescription : null;
 }
 
 function formatDate(value: Date) {

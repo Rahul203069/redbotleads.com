@@ -14,6 +14,22 @@ export function getPlaygroundCandidateScopeFromSnapshot(snapshot: unknown): Play
   return parsePlaygroundCandidateScope(snapshot.candidateScope);
 }
 
+export function getPlaygroundFilteringDescriptionFromSnapshot(snapshot: unknown) {
+  if (!isRecord(snapshot) || typeof snapshot.filteringDescription !== "string") {
+    return null;
+  }
+
+  const filteringDescription = snapshot.filteringDescription.trim();
+  return filteringDescription.length > 0 ? filteringDescription : null;
+}
+
+export function resolvePlaygroundFilteringDescription(
+  snapshot: unknown,
+  campaignDescription: string | null | undefined,
+) {
+  return getPlaygroundFilteringDescriptionFromSnapshot(snapshot) ?? campaignDescription ?? null;
+}
+
 export function getPlaygroundCandidateScopeLabel(scope: PlaygroundCandidateScope) {
   return scope === "GLOBAL" ? "Global polling pool" : "Campaign subreddits";
 }

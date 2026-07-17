@@ -4,7 +4,10 @@ import { Prisma } from "../generated/prisma/client";
 import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
 import { prisma } from "@/lib/prisma";
 import { generateEmbeddings } from "@/lib/openai";
-import { getPlaygroundCandidateScopeFromSnapshot } from "@/lib/semantic-playground-scope";
+import {
+  getPlaygroundCandidateScopeFromSnapshot,
+  resolvePlaygroundFilteringDescription,
+} from "@/lib/semantic-playground-scope";
 import { normalizeSubredditNames } from "@/lib/subreddit-name";
 import { Worker } from "bullmq";
 
@@ -108,6 +111,10 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
     }
 
     const candidateScope = getPlaygroundCandidateScopeFromSnapshot(run.querySnapshot);
+    const filteringDescription = resolvePlaygroundFilteringDescription(
+      run.querySnapshot,
+      run.campaign.description,
+    );
     const subredditPool = candidateScope === "GLOBAL"
       ? await getDailyRssSubredditPool()
       : null;
@@ -224,7 +231,7 @@ async function runSemanticPlayground(data: SemanticPlaygroundRunJobData, jobId: 
           campaign: {
             name: run.campaign.name,
             leadType: run.campaign.leadType,
-            description: run.campaign.description,
+            description: filteringDescription,
             keywords: run.campaign.keywords,
             negativeKeywords: run.campaign.negativeKeywords,
             subreddits: run.campaign.subreddits,

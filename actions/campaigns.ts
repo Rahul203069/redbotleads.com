@@ -17,10 +17,15 @@ import {
 } from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
+import {
+  getManualCampaignSemanticState,
+  type ManualCampaignSemanticState,
+} from "@/lib/manual-campaign-semantic";
 import { generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { parseSemanticQueriesJson, type CleanSemanticQuery } from "@/lib/semantic-queries";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
+import { enqueueManualSemanticCampaign } from "@/worker/queues";
 
 const keywordPhrase = z
   .string()
@@ -53,8 +58,16 @@ const deleteCampaignLeadSchema = z.object({
 export type CampaignActionState = {
   status: "idle" | "success" | "error";
   message?: string;
+  campaignId?: string;
   deletedLeadId?: string;
+  manualSemanticState?: ManualCampaignSemanticState;
   fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>>;
+};
+
+export type ManualCampaignSemanticActionResult = {
+  status: "success" | "error";
+  message: string;
+  state: ManualCampaignSemanticState;
 };
 
 const semanticQuerySchema = z.object({
@@ -202,8 +215,15 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
 
   revalidatePath("/campaigns");
 
+  const manualSemanticState = await getManualCampaignSemanticState({
+    campaignId,
+    userId: session.user.id,
+  });
+
   return {
     status: "success",
+    campaignId,
+    manualSemanticState,
     message: parsed.data.isActive
       ? "Campaign created. It will be processed after the next scheduled daily RSS and daily semantic run."
       : "Campaign created.",
@@ -528,6 +548,99 @@ export async function manualSyncCampaign(formData: FormData): Promise<CampaignAc
   return {
     status: "error",
     message: "Manual sync is disabled. Campaigns are processed by scheduled daily RSS and daily semantic runs.",
+  };
+}
+
+export async function getCampaignManualSemanticStatus(campaignId: string): Promise<ManualCampaignSemanticState> {
+  const session = await auth();
+
+  if (!session?.user?.id || !isOwnerEmail(session.user.email)) {
+    return unavailableManualSemanticState("You do not have permission to run this lead search.");
+  }
+
+  return getManualCampaignSemanticState({
+    campaignId: String(campaignId ?? "").trim(),
+    userId: session.user.id,
+  });
+}
+
+export async function runNewCampaignSemanticOverride(campaignId: string): Promise<ManualCampaignSemanticActionResult> {
+  const session = await auth();
+
+  if (!session?.user?.id || !isOwnerEmail(session.user.email)) {
+    const state = unavailableManualSemanticState("You do not have permission to run this lead search.");
+    return {
+      status: "error",
+      message: state.message,
+      state,
+    };
+  }
+
+  const normalizedCampaignId = String(campaignId ?? "").trim();
+  const currentState = await getManualCampaignSemanticState({
+    campaignId: normalizedCampaignId,
+    userId: session.user.id,
+  });
+
+  if (currentState.status === "QUEUED" || currentState.status === "PROCESSING") {
+    return {
+      status: "success",
+      message: currentState.message,
+      state: currentState,
+    };
+  }
+
+  if (!currentState.canRun) {
+    return {
+      status: "error",
+      message: currentState.message,
+      state: currentState,
+    };
+  }
+
+  try {
+    await enqueueManualSemanticCampaign({
+      campaignId: normalizedCampaignId,
+      queuedAt: new Date().toISOString(),
+    });
+
+    const state = await getManualCampaignSemanticState({
+      campaignId: normalizedCampaignId,
+      userId: session.user.id,
+    });
+
+    revalidatePath("/campaigns");
+    revalidatePath(`/campaigns/${normalizedCampaignId}`);
+    revalidatePath(`/campaigns/${normalizedCampaignId}/daily-leads`);
+    revalidatePath("/admin/analytics/daily-leads");
+
+    return {
+      status: "success",
+      message: "The first semantic lead search is queued.",
+      state,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "The first semantic lead search could not be queued.";
+    const state = await getManualCampaignSemanticState({
+      campaignId: normalizedCampaignId,
+      userId: session.user.id,
+    });
+
+    return {
+      status: "error",
+      message,
+      state,
+    };
+  }
+}
+
+function unavailableManualSemanticState(message: string): ManualCampaignSemanticState {
+  return {
+    canRun: false,
+    message,
+    runId: null,
+    status: "UNAVAILABLE",
+    stats: null,
   };
 }
 

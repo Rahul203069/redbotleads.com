@@ -2,11 +2,13 @@ import "dotenv/config";
 
 import { Prisma } from "../generated/prisma/client";
 import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
+import { getSemanticLookbackHours } from "@/lib/manual-campaign-semantic";
 import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
 import {
   dailySemanticCandidateBatchSize,
+  dailySemanticInitialLookbackHours,
   dailySemanticLookbackHours,
   dailySemanticTopKPerQuery,
   semanticMatchThreshold,
@@ -119,7 +121,25 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
   }
 
   const startedAt = Date.now();
-  const lookbackSince = new Date(Date.now() - dailySemanticLookbackHours * 60 * 60 * 1000);
+  const hasCompletedSemanticRun = Boolean(await prisma.campaignRun.findFirst({
+    where: {
+      campaignId: campaign.id,
+      id: data.campaignRunId ? { not: data.campaignRunId } : undefined,
+      status: "COMPLETED",
+      trigger: {
+        in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+      },
+    },
+    select: {
+      id: true,
+    },
+  }));
+  const lookbackHours = getSemanticLookbackHours({
+    hasCompletedSemanticRun,
+    initialLookbackHours: dailySemanticInitialLookbackHours,
+    recurringLookbackHours: dailySemanticLookbackHours,
+  });
+  const lookbackSince = new Date(Date.now() - lookbackHours * 60 * 60 * 1000);
   let scannedPosts = 0;
   let matchedPosts = 0;
   let noMatchPosts = 0;
@@ -208,6 +228,8 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
       queuedClassifications,
       globalSubredditCount: subreddits.length,
       disabledSubredditCount: subredditPool.disabledSubreddits.length,
+      lookbackHours,
+      runSource: data.source ?? "scheduled",
       durationMs,
     },
     "Daily semantic campaign search completed",
@@ -222,6 +244,8 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     queuedClassifications,
     globalSubredditCount: subreddits.length,
     disabledSubredditCount: subredditPool.disabledSubreddits.length,
+    lookbackHours,
+    runSource: data.source ?? "scheduled",
     totalLeadsFound: matchedPosts,
     pendingClassifications: queuedClassifications,
     durationMs,

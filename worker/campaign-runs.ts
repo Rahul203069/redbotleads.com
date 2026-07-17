@@ -1,7 +1,7 @@
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
-type RunTrigger = "CAMPAIGN_CREATED" | "MANUAL_RESYNC" | "DAILY_SYNC" | "RSS_POLL_MATCH" | "DAILY_SEMANTIC";
+type RunTrigger = "CAMPAIGN_CREATED" | "MANUAL_RESYNC" | "DAILY_SYNC" | "RSS_POLL_MATCH" | "DAILY_SEMANTIC" | "MANUAL_SEMANTIC";
 type RunStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
@@ -146,8 +146,8 @@ export async function refreshDailySemanticCampaignRunStats(campaignRunId: string
     status: leads.length > classifiedLeads.length ? "PROCESSING" : "COMPLETED",
     message:
       leads.length > classifiedLeads.length
-        ? "Daily semantic leads are waiting for AI scoring."
-        : "Daily semantic search and scoring complete.",
+        ? "Semantic leads are waiting for AI scoring."
+        : "Semantic search and scoring complete.",
     completedAt: leads.length > classifiedLeads.length ? undefined : new Date(),
     statsJson: stats,
   });

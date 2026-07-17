@@ -11,6 +11,7 @@ import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
+import { NewCampaignSemanticRunControl } from "@/components/campaigns/new-campaign-semantic-run-control";
 import { ViewCampaignDescriptionDialog } from "@/components/campaigns/view-campaign-description-dialog";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
@@ -23,6 +24,7 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
+import { getManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
 import {
   getDailyLeadDateSelection,
   type DailyLeadDateRangeValue,
@@ -164,22 +166,32 @@ export default async function CampaignDetailPage({
   const displayName = getCampaignDisplayName(campaign, access);
   const canManage = canManageCampaign(access);
 
-  const sync = await reconcileCampaignSyncState(campaign.id);
-  const latestSemanticRun = await prisma.campaignRun.findFirst({
-    where: {
-      campaignId: campaign.id,
-      trigger: "DAILY_SEMANTIC",
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      queuedAt: true,
-      startedAt: true,
-      completedAt: true,
-      failedAt: true,
-    },
-  });
+  const [sync, latestSemanticRun, manualSemanticState] = await Promise.all([
+    reconcileCampaignSyncState(campaign.id),
+    prisma.campaignRun.findFirst({
+      where: {
+        campaignId: campaign.id,
+        trigger: {
+          in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        queuedAt: true,
+        startedAt: true,
+        completedAt: true,
+        failedAt: true,
+      },
+    }),
+    isAdminAccount
+      ? getManualCampaignSemanticState({
+          campaignId: campaign.id,
+          userId: session.user.id,
+        })
+      : Promise.resolve(null),
+  ]);
   const latestSemanticRunAt = getLatestSemanticRunTimestamp(latestSemanticRun);
   const semanticNextSyncAt = getNextDailySemanticCronAt();
   const shouldWaitForTodaySync = shouldWaitForTodayDailySemanticSync({
@@ -231,7 +243,14 @@ export default async function CampaignDetailPage({
                 </Button>
               </Link>
               <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-stretch lg:ml-auto lg:justify-end">
-                {sync?.status === "COMPLETED" ? (
+                {manualSemanticState ? (
+                  <NewCampaignSemanticRunControl
+                    campaignId={campaign.id}
+                    hideWhenComplete
+                    initialState={manualSemanticState}
+                  />
+                ) : null}
+                {sync?.status === "COMPLETED" || latestSemanticRun?.completedAt ? (
                   <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/analytics`}>
                     <Button
                       className="w-full rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477] sm:w-auto"

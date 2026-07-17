@@ -34,6 +34,7 @@ const envSchema = z.object({
   RSS_POLL_REFILL_HIGH_WATERMARK: z.coerce.number().int().positive().optional(),
   RSS_POLL_REFILL_INTERVAL_MS: z.coerce.number().int().positive().optional(),
   RSS_POLL_REFILL_LOCK_TTL_MS: z.coerce.number().int().positive().optional(),
+  DAILY_SEMANTIC_INITIAL_LOOKBACK_HOURS: z.coerce.number().int().positive().optional(),
   DAILY_SEMANTIC_LOOKBACK_HOURS: z.coerce.number().int().positive().optional(),
   DAILY_SEMANTIC_CANDIDATE_BATCH_SIZE: z.coerce.number().int().positive().optional(),
   DAILY_SEMANTIC_TOP_K_PER_QUERY: z.coerce.number().int().positive().optional(),
@@ -72,6 +73,7 @@ export const rssPollRefillLowWatermark = workerEnv.RSS_POLL_REFILL_LOW_WATERMARK
 export const rssPollRefillHighWatermark = workerEnv.RSS_POLL_REFILL_HIGH_WATERMARK ?? 100;
 export const rssPollRefillIntervalMs = workerEnv.RSS_POLL_REFILL_INTERVAL_MS ?? 30000;
 export const rssPollRefillLockTtlMs = workerEnv.RSS_POLL_REFILL_LOCK_TTL_MS ?? 60000;
+export const dailySemanticInitialLookbackHours = workerEnv.DAILY_SEMANTIC_INITIAL_LOOKBACK_HOURS ?? 25;
 export const dailySemanticLookbackHours = workerEnv.DAILY_SEMANTIC_LOOKBACK_HOURS ?? 36;
 export const dailySemanticCandidateBatchSize = workerEnv.DAILY_SEMANTIC_CANDIDATE_BATCH_SIZE ?? 1000;
 export const dailySemanticTopKPerQuery = workerEnv.DAILY_SEMANTIC_TOP_K_PER_QUERY ?? 1000;

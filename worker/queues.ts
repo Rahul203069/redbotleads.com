@@ -1,7 +1,7 @@
 import { Queue } from "bullmq";
 
 import { markCampaignFailed, markCampaignQueued } from "./campaign-sync";
-import { createCampaignRun } from "./campaign-runs";
+import { createCampaignRun, markCampaignRunFailed } from "./campaign-runs";
 import { redisQueueTimeoutMs, workerRedisConnection } from "./config";
 
 export const ingestionQueueName = "ingestion";
@@ -46,6 +46,7 @@ export type DailySemanticCampaignJobData = {
   campaignRunId?: string;
   cronRunId?: string;
   queuedAt: string;
+  source?: "scheduled" | "manual_initial";
 };
 
 export type SemanticPlaygroundRunJobData = {
@@ -195,8 +196,7 @@ async function getLiveRssPollingJobForSubreddit(subreddit: string) {
   });
 }
 
-async function getLiveDailySemanticJobForCampaign(campaignId: string, queuedAt: string) {
-  const queuedDay = queuedAt.slice(0, 10);
+async function getLiveDailySemanticJobForCampaign(campaignId: string) {
   const jobs = await dailySemanticQueue.getJobs(
     [...LIVE_JOB_STATES],
     0,
@@ -207,8 +207,7 @@ async function getLiveDailySemanticJobForCampaign(campaignId: string, queuedAt: 
   return jobs.find((job) => {
     const data = job.data as Record<string, unknown> | undefined;
     return job.name === dailySemanticCampaignJobName
-      && data?.campaignId === campaignId
-      && String(data?.queuedAt ?? "").slice(0, 10) === queuedDay;
+      && data?.campaignId === campaignId;
   });
 }
 
@@ -459,7 +458,14 @@ export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJo
     throw new Error("A valid queuedAt timestamp is required for daily semantic search.");
   }
 
-  const existingLiveJob = await getLiveDailySemanticJobForCampaign(data.campaignId, queuedAt.toISOString());
+  const jobId = buildJobId("daily-semantic", data.campaignId, queuedAt.toISOString().slice(0, 10));
+  const existingJob = await dailySemanticQueue.getJob(jobId);
+
+  if (existingJob) {
+    return existingJob;
+  }
+
+  const existingLiveJob = await getLiveDailySemanticJobForCampaign(data.campaignId);
 
   if (existingLiveJob) {
     return existingLiveJob;
@@ -479,11 +485,91 @@ export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJo
     campaignRunId: campaignRun.id,
     cronRunId: data.cronRunId,
     queuedAt: queuedAt.toISOString(),
+    source: data.source ?? "scheduled",
   }, {
-    jobId: buildJobId("daily-semantic", data.campaignId, queuedAt.toISOString().slice(0, 10)),
+    jobId,
     removeOnComplete: 500,
     removeOnFail: 500,
   });
+}
+
+export async function ensureDailySemanticQueueReady() {
+  await withTimeout(
+    dailySemanticQueue.waitUntilReady(),
+    redisQueueTimeoutMs,
+    "Daily semantic queue readiness check",
+    "QUEUE_TIMEOUT",
+  );
+
+  const client = await dailySemanticQueue.client;
+  const redisResponse = await withTimeout(
+    client.ping(),
+    redisQueueTimeoutMs,
+    "Redis ping",
+    "QUEUE_TIMEOUT",
+  );
+
+  if (redisResponse !== "PONG") {
+    throw new InitialIngestQueueError("REDIS_UNAVAILABLE", "Redis did not return a healthy PONG response.");
+  }
+
+  const workersCount = await withTimeout(
+    dailySemanticQueue.getWorkersCount(),
+    redisQueueTimeoutMs,
+    "Daily semantic worker availability check",
+    "QUEUE_TIMEOUT",
+  );
+
+  if (workersCount < 1) {
+    throw new InitialIngestQueueError("WORKER_UNAVAILABLE", "No live daily semantic worker is connected.");
+  }
+}
+
+export async function enqueueManualSemanticCampaign({
+  campaignId,
+  queuedAt,
+}: {
+  campaignId: string;
+  queuedAt: string;
+}) {
+  await ensureDailySemanticQueueReady();
+
+  const parsedQueuedAt = new Date(queuedAt);
+
+  if (!campaignId || Number.isNaN(parsedQueuedAt.getTime())) {
+    throw new Error("A campaign id and valid queuedAt timestamp are required for manual semantic search.");
+  }
+
+  const existingLiveJob = await getLiveDailySemanticJobForCampaign(campaignId);
+
+  if (existingLiveJob) {
+    return existingLiveJob;
+  }
+
+  const campaignRun = await createCampaignRun({
+    campaignId,
+    trigger: "MANUAL_SEMANTIC",
+    message: "Manual first semantic lead search queued.",
+  });
+
+  try {
+    return await dailySemanticQueue.add(dailySemanticCampaignJobName, {
+      campaignId,
+      campaignRunId: campaignRun.id,
+      queuedAt: parsedQueuedAt.toISOString(),
+      source: "manual_initial",
+    }, {
+      jobId: buildJobId("manual-semantic", campaignId, campaignRun.id),
+      removeOnComplete: 500,
+      removeOnFail: 500,
+    });
+  } catch (error) {
+    await markCampaignRunFailed(
+      campaignRun.id,
+      error instanceof Error ? error.message : "Manual semantic search could not be queued.",
+    );
+    throw error;
+  }
 }
 
 export async function enqueueSemanticPlaygroundRun(data: SemanticPlaygroundRunJobData) {

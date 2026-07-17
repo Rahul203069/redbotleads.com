@@ -195,7 +195,9 @@ export async function getDailyLeadAnalytics({
       : {}),
   };
   const runWhere = {
-    trigger: "DAILY_SEMANTIC",
+    trigger: {
+      in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+    },
     createdAt: {
       gte: from,
       lt: to,

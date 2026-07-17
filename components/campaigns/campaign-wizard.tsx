@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { ClipLoader } from "react-spinners";
+import { useRouter } from "next/navigation";
 import { submitCampaign } from "@/actions/campaigns";
+import { NewCampaignSemanticRunControl } from "@/components/campaigns/new-campaign-semantic-run-control";
 import { SemanticQueryDraftEditor } from "@/components/semantic-queries/semantic-query-draft-editor";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +21,7 @@ import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { cleanSemanticQueryRows, type SemanticQueryDraftRow } from "@/lib/semantic-queries";
+import type { ManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
 
 type CampaignWizardProps = {
   isAdminAccount: boolean;
@@ -123,6 +126,7 @@ const SUBREDDIT_LOADING_STEPS = [
 ] as const;
 
 export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = "default" }: CampaignWizardProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
@@ -137,10 +141,15 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
   const [isPending, startTransition] = useTransition();
   const [saveStageIndex, setSaveStageIndex] = useState(0);
   const [aiElapsedSeconds, setAiElapsedSeconds] = useState(0);
+  const [createdCampaign, setCreatedCampaign] = useState<{
+    id: string;
+    manualSemanticState: ManualCampaignSemanticState;
+    name: string;
+  } | null>(null);
 
   const steps = isAdminAccount ? adminSteps : standardSteps;
   const currentStep = steps[stepIndex];
-  const progress = ((stepIndex + 1) / steps.length) * 100;
+  const progress = createdCampaign ? 100 : ((stepIndex + 1) / steps.length) * 100;
   const saveStages = useMemo(() => {
     if (isAdminAccount) {
       return adminSaveStageDefinitions;
@@ -166,6 +175,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
     setDraft(initialDraft);
     setStepError(null);
     setServerState({});
+    setCreatedCampaign(null);
   }
 
   function handleOpenChange(nextOpen: boolean) {
@@ -267,7 +277,16 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
           title: "Campaign created",
           description: result.message,
         });
-        resetWizard();
+        if (result.campaignId && result.manualSemanticState) {
+          setCreatedCampaign({
+            id: result.campaignId,
+            manualSemanticState: result.manualSemanticState,
+            name: draft.name,
+          });
+          router.refresh();
+        } else {
+          resetWizard();
+        }
         return;
       }
 
@@ -429,13 +448,15 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
           <div className="flex-1 overflow-y-auto p-6 lg:p-8">
             <DialogHeader>
               <div className="inline-flex w-fit items-center rounded-full bg-[#121212] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-                Campaign setup
+                {createdCampaign ? "Campaign ready" : "Campaign setup"}
               </div>
               <DialogTitle className="mt-4 text-[2rem] font-bold tracking-[-0.04em] text-[#fdfdfd]">
-                Create campaign
+                {createdCampaign ? `${createdCampaign.name} was created` : "Create campaign"}
               </DialogTitle>
               <DialogDescription className="max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
-                Build the targeting rule one step at a time so nothing important gets skipped.
+                {createdCampaign
+                  ? "You can wait for the scheduled run or search the already-polled Reddit pool immediately."
+                  : "Build the targeting rule one step at a time so nothing important gets skipped."}
               </DialogDescription>
             </DialogHeader>
 
@@ -444,7 +465,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
                 <div className="h-2 rounded-full bg-[#1ed760] transition-all" style={{ width: `${progress}%` }} />
               </div>
 
-              {!isPending ? (
+              {!isPending && !createdCampaign ? (
                 <div className="mt-6">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">
                     Step {stepIndex + 1}
@@ -462,6 +483,17 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
             <div className="mt-8 min-h-[320px] pb-2">
               {isPending ? (
                 <SaveProgressPanel activeIndex={saveStageIndex} stages={saveStages} />
+              ) : createdCampaign ? (
+                <div className="space-y-5">
+                  <div className="rounded-[22px] bg-[#12331f] px-5 py-4 text-[13px] leading-6 text-[#a7f3c0] shadow-[rgb(30,215,96)_0px_0px_0px_1px_inset]">
+                    Campaign settings and semantic-query embeddings were saved successfully.
+                  </div>
+                  <NewCampaignSemanticRunControl
+                    campaignId={createdCampaign.id}
+                    initialState={createdCampaign.manualSemanticState}
+                    surface="panel"
+                  />
+                </div>
               ) : (
                 renderStep(stepIndex, draft, updateDraft, {
                  aiPending,
@@ -475,7 +507,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
               )}
             </div>
 
-            {!isPending && (stepError || serverFieldError) ? (
+            {!isPending && !createdCampaign && (stepError || serverFieldError) ? (
               <div className="mt-4 rounded-[18px] bg-[#241313] px-4 py-3 text-sm text-[#fee2e2] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
                 {stepError ?? serverFieldError}
               </div>
@@ -485,10 +517,29 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
           <div className="border-t border-white/8 bg-[#181818] px-6 py-5 lg:px-8">
             <DialogFooter className="gap-4">
               <div className="text-[12px] leading-5 text-[#b3b3b3]">
-                All fields are saved only after the final step completes.
+                {createdCampaign
+                  ? "The scheduled daily semantic run remains enabled."
+                  : "All fields are saved only after the final step completes."}
               </div>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-                {stepIndex > 0 && !isPending ? (
+                {createdCampaign ? (
+                  <>
+                    <Button
+                      className="rounded-full border-none bg-[#1f1f1f] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525]"
+                      onClick={resetWizard}
+                      type="button"
+                      variant="secondary"
+                    >
+                      Close
+                    </Button>
+                    <a
+                      className="inline-flex h-11 w-full items-center justify-center rounded-full bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] transition-colors hover:bg-[#3be477] sm:w-auto"
+                      href={`/campaigns/${createdCampaign.id}`}
+                    >
+                      View campaign
+                    </a>
+                  </>
+                ) : stepIndex > 0 && !isPending ? (
                   <Button
                     onClick={previousStep}
                     type="button"
@@ -498,7 +549,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
                     Back
                   </Button>
                 ) : null}
-                {stepIndex < steps.length - 1 ? (
+                {!createdCampaign && (stepIndex < steps.length - 1 ? (
                   <Button
                     disabled={isPending}
                     onClick={nextStep}
@@ -516,7 +567,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
                   >
                     {isPending ? "Saving..." : "Save campaign"}
                   </Button>
-                )}
+                ))}
               </div>
             </DialogFooter>
           </div>

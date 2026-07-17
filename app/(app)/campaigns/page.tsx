@@ -68,7 +68,9 @@ export default async function CampaignsPage() {
       },
       runs: {
         where: {
-          trigger: "DAILY_SEMANTIC",
+          trigger: {
+            in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+          },
         },
         orderBy: {
           createdAt: "desc",

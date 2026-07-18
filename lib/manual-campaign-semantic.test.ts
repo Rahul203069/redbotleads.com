@@ -6,8 +6,8 @@ import {
   resolveManualCampaignSemanticState,
 } from "./manual-campaign-semantic";
 
-test("uses 25 hours until a semantic run completes, then the recurring window", () => {
-  assert.equal(getSemanticLookbackHours({ hasCompletedSemanticRun: false, recurringLookbackHours: 36 }), 25);
+test("uses 36 hours until a semantic run completes, then the recurring window", () => {
+  assert.equal(getSemanticLookbackHours({ hasCompletedSemanticRun: false, recurringLookbackHours: 36 }), 36);
   assert.equal(getSemanticLookbackHours({ hasCompletedSemanticRun: true, recurringLookbackHours: 36 }), 36);
 });
 

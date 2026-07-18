@@ -683,11 +683,11 @@ Worker concurrency:
 Current prompt version:
 
 - Product campaigns: `lead-classifier-v3-product`
-- Service campaigns: `lead-classifier-v2-service`
+- Service campaigns: `lead-classifier-v3-service`
 
 ### 10.4 Classification Prompt
 
-Product campaigns use the v3 product prompt below. Service campaigns continue to use the v2 service prompt in code.
+Product campaigns use the v3 product prompt below. Service campaigns use the optimized v3 service prompt in `worker/classification-ai.ts`.
 
 Product system prompt:
 

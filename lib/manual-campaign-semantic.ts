@@ -1,5 +1,5 @@
 export const CAMPAIGN_SEMANTIC_RUN_TRIGGERS = ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"] as const;
-export const INITIAL_SEMANTIC_LOOKBACK_HOURS = 25;
+export const INITIAL_SEMANTIC_LOOKBACK_HOURS = 36;
 
 export type ManualCampaignSemanticState = {
   canRun: boolean;
@@ -87,7 +87,7 @@ export function resolveManualCampaignSemanticState({
 
   return {
     canRun: true,
-    message: "Search the last 25 hours of already-polled Reddit posts now.",
+    message: "Search the last 36 hours of already-polled Reddit posts now.",
     runId: null,
     status: "READY",
     stats: null,

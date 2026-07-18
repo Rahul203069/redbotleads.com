@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { BrandLogo } from "@/components/app/brand-logo";
+import { PublicCampaignDescription } from "@/components/campaigns/public-campaign-description";
 import { PublicCampaignLeadCards } from "@/components/campaigns/public-campaign-lead-cards";
 import {
   PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE,
@@ -107,9 +108,7 @@ export default async function PublicCampaignResultsPage({
               <h1 className="mt-5 text-[1.85rem] font-bold leading-tight text-[#fdfdfd] [overflow-wrap:anywhere] sm:text-[2.5rem] lg:text-[3rem]">
                 {publicCampaignName}
               </h1>
-              <p className="mt-4 max-w-[70ch] text-[15px] leading-6 text-[#cbcbcb]">
-                {campaign.description || "No campaign description was added."}
-              </p>
+              <PublicCampaignDescription description={campaign.description} />
             </div>
           </div>
           <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-white/8 pt-5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#b3b3b3] sm:gap-3 sm:tracking-[0.18em]">

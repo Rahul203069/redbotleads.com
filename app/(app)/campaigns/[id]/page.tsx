@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { BarChart3, CalendarCheck2, CalendarDays, Clock3 } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
+import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
@@ -250,6 +251,12 @@ export default async function CampaignDetailPage({
                     initialState={manualSemanticState}
                   />
                 ) : null}
+                <CampaignActiveToggle
+                  campaignId={campaign.id}
+                  campaignName={displayName}
+                  initialIsActive={campaign.isActive}
+                  presentation="page"
+                />
                 {sync?.status === "COMPLETED" || latestSemanticRun?.completedAt ? (
                   <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/analytics`}>
                     <Button

@@ -21,12 +21,14 @@ type CampaignActiveToggleProps = {
   campaignId: string;
   campaignName: string;
   initialIsActive: boolean;
+  presentation?: "compact" | "page";
 };
 
 export function CampaignActiveToggle({
   campaignId,
   campaignName,
   initialIsActive,
+  presentation = "compact",
 }: CampaignActiveToggleProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -64,12 +66,16 @@ export function CampaignActiveToggle({
   if (!isActive) {
     return (
       <Button
-        className="h-8 rounded-full border-none bg-[#1ed760] px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] hover:bg-[#3be477]"
+        className={`${
+          presentation === "page"
+            ? "h-11 px-5 text-[11px] tracking-[0.16em]"
+            : "h-8 px-3 text-[10px] tracking-[0.12em]"
+        } rounded-full border-none bg-[#1ed760] font-bold uppercase text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] transition-colors hover:bg-[#3be477]`}
         disabled={isPending}
         onClick={() => submit(true)}
         type="button"
       >
-        <Play className="h-3.5 w-3.5" />
+        <Play className={presentation === "page" ? "h-4 w-4" : "h-3.5 w-3.5"} />
         {isPending ? "Activating" : "Activate"}
       </Button>
     );
@@ -79,12 +85,16 @@ export function CampaignActiveToggle({
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
         <Button
-          className="h-8 rounded-full border-none bg-[#2a1014] px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[#f3727f] shadow-[rgb(42,16,20)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#3a151b]"
+          className={`${
+            presentation === "page"
+              ? "h-11 px-5 text-[11px] tracking-[0.16em]"
+              : "h-8 px-3 text-[10px] tracking-[0.12em]"
+          } rounded-full border-none bg-[#2a1014] font-bold uppercase text-[#f3727f] shadow-[rgb(42,16,20)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#3a151b]`}
           disabled={isPending}
           type="button"
           variant="secondary"
         >
-          <Pause className="h-3.5 w-3.5" />
+          <Pause className={presentation === "page" ? "h-4 w-4" : "h-3.5 w-3.5"} />
           Pause
         </Button>
       </DialogTrigger>

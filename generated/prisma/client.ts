@@ -87,6 +87,11 @@ export type RedditAccount = Prisma.RedditAccountModel
  */
 export type Campaign = Prisma.CampaignModel
 /**
+ * Model CampaignPublicVisitor
+ *
+ */
+export type CampaignPublicVisitor = Prisma.CampaignPublicVisitorModel
+/**
  * Model CampaignClientAccess
  * 
  */

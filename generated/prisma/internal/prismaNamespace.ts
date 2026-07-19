@@ -393,6 +393,7 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   RedditAccount: 'RedditAccount',
   Campaign: 'Campaign',
+  CampaignPublicVisitor: 'CampaignPublicVisitor',
   CampaignClientAccess: 'CampaignClientAccess',
   CampaignRun: 'CampaignRun',
   CronRun: 'CronRun',
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignClientAccess" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignPublicVisitor" | "campaignClientAccess" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1095,6 +1096,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CampaignCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CampaignCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignPublicVisitor: {
+      payload: Prisma.$CampaignPublicVisitorPayload<ExtArgs>
+      fields: Prisma.CampaignPublicVisitorFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignPublicVisitorFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignPublicVisitorFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignPublicVisitorFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignPublicVisitorFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignPublicVisitorFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignPublicVisitorCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignPublicVisitorCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignPublicVisitorCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignPublicVisitorDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>
+        }
+        update: {
+          args: Prisma.CampaignPublicVisitorUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignPublicVisitorDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignPublicVisitorUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignPublicVisitorUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignPublicVisitorUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignPublicVisitorPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignPublicVisitorAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignPublicVisitor>
+        }
+        groupBy: {
+          args: Prisma.CampaignPublicVisitorGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignPublicVisitorGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignPublicVisitorCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignPublicVisitorCountAggregateOutputType> | number
         }
       }
     }
@@ -2748,6 +2823,19 @@ export const CampaignScalarFieldEnum = {
 export type CampaignScalarFieldEnum = (typeof CampaignScalarFieldEnum)[keyof typeof CampaignScalarFieldEnum]
 
 
+export const CampaignPublicVisitorScalarFieldEnum = {
+  id: 'id',
+  campaignId: 'campaignId',
+  visitorHash: 'visitorHash',
+  campaignViews: 'campaignViews',
+  leadsViews: 'leadsViews',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignPublicVisitorScalarFieldEnum = (typeof CampaignPublicVisitorScalarFieldEnum)[keyof typeof CampaignPublicVisitorScalarFieldEnum]
+
+
 export const CampaignClientAccessScalarFieldEnum = {
   id: 'id',
   campaignId: 'campaignId',
@@ -3582,6 +3670,7 @@ export type GlobalOmitConfig = {
   verificationToken?: Prisma.VerificationTokenOmit
   redditAccount?: Prisma.RedditAccountOmit
   campaign?: Prisma.CampaignOmit
+  campaignPublicVisitor?: Prisma.CampaignPublicVisitorOmit
   campaignClientAccess?: Prisma.CampaignClientAccessOmit
   campaignRun?: Prisma.CampaignRunOmit
   cronRun?: Prisma.CronRunOmit

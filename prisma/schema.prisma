@@ -296,9 +296,26 @@ model Campaign {
   initialRssPollEvents CampaignInitialRssPollEvent[]
   semanticPlaygroundRuns CampaignSemanticPlaygroundRun[]
   clientAccesses CampaignClientAccess[]
+  publicVisitors CampaignPublicVisitor[]
 
   @@index([userId, isActive])
   @@index([redditAccountId])
+}
+
+model CampaignPublicVisitor {
+  id            String @id @default(cuid())
+  campaignId    String
+  visitorHash   String
+  campaignViews Int    @default(0)
+  leadsViews    Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, visitorHash])
+  @@index([campaignId, updatedAt(sort: Desc)])
 }
 
 model CampaignClientAccess {

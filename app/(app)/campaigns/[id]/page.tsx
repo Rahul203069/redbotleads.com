@@ -7,6 +7,7 @@ import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
+import { CampaignPublicViewStats } from "@/components/campaigns/campaign-public-view-stats";
 import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
@@ -32,6 +33,7 @@ import {
   type DailyLeadDateSelection,
 } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
+import { getPublicShareViewStats } from "@/lib/public-share-analytics";
 import {
   BROWSER_TIME_ZONE_COOKIE,
   formatDateInTimeZone,
@@ -207,20 +209,23 @@ export default async function CampaignDetailPage({
     campaign.updatedAt;
   const nextSyncSource = new Date(lastSyncSource.getTime() + 24 * 60 * 60 * 1000);
   const nextSync = formatDateTimeInTimeZone(nextSyncSource, browserTimeZone);
-  const initialLeads = await getCampaignLeadViewsForUser({
-    campaignId: campaign.id,
-    ...(leadDateSelection.source === "dates"
-      ? {
-          dateRanges: leadDateSelection.ranges,
-        }
-      : {
-          from: leadDateSelection.range.from,
-          to: leadDateSelection.range.to,
+  const [initialLeads, initialDiagnostics, publicViewStats] = await Promise.all([
+    getCampaignLeadViewsForUser({
+      campaignId: campaign.id,
+      ...(leadDateSelection.source === "dates"
+        ? {
+            dateRanges: leadDateSelection.ranges,
+          }
+        : {
+            from: leadDateSelection.range.from,
+            to: leadDateSelection.range.to,
+        }),
+      userId: session.user.id,
+      email: session.user.email,
     }),
-    userId: session.user.id,
-    email: session.user.email,
-  });
-  const initialDiagnostics = await getCampaignInitialRssDiagnostics(campaign.id);
+    getCampaignInitialRssDiagnostics(campaign.id),
+    canManage ? getPublicShareViewStats(campaign.id) : Promise.resolve(null),
+  ]);
   const firstSyncAt = initialDiagnostics?.run.startedAt
     ?? initialDiagnostics?.run.queuedAt
     ?? campaign.createdAt.toISOString();
@@ -335,6 +340,8 @@ export default async function CampaignDetailPage({
           </div>
         </div>
       </section>
+
+      {publicViewStats ? <CampaignPublicViewStats stats={publicViewStats} /> : null}
 
       <CampaignDetailLiveSections
         campaignId={campaign.id}

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BrandLogo } from "@/components/app/brand-logo";
 import { PublicCampaignDescription } from "@/components/campaigns/public-campaign-description";
 import { PublicCampaignLeadCards } from "@/components/campaigns/public-campaign-lead-cards";
+import { PublicShareViewTracker } from "@/components/campaigns/public-share-view-tracker";
 import {
   PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE,
   getPublicCampaignLeadViews,
@@ -81,6 +82,7 @@ export default async function PublicCampaignResultsPage({
 
   return (
     <main className="min-h-screen bg-[#050505] px-3 py-3 text-[#fdfdfd] sm:px-6 sm:py-5 lg:px-8">
+      <PublicShareViewTracker campaignId={campaign.id} kind="campaign" />
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-5">
         <header className="flex flex-col gap-3 rounded-[20px] bg-[#181818] px-4 py-4 shadow-[rgba(0,0,0,0.35)_0px_8px_16px] sm:flex-row sm:items-center sm:justify-between sm:rounded-[24px] sm:px-5">
           <div className="flex min-w-0 items-center gap-3">

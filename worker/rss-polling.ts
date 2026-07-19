@@ -26,6 +26,7 @@ import { createSubredditRssPollDiagnostics } from "./subreddit-rss-poll-diagnost
 
 const REDDIT_RATE_LIMIT_BACKOFF_MS = 60 * 60 * 1000;
 const REDDIT_TRANSIENT_BACKOFF_MS = 15 * 60 * 1000;
+const MAX_REDDIT_POST_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 const CAMPAIGN_MATCH_RETRY_DELAY_MS = 2 * 60 * 1000;
 const CAMPAIGN_MATCH_MAX_ATTEMPTS = 8;
 
@@ -117,6 +118,7 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   }
 
   const startedAt = Date.now();
+  const oldestAllowedPostCreatedAt = startedAt - MAX_REDDIT_POST_AGE_MS;
   let fetchedPosts = 0;
   let existingPosts = 0;
   let createdPosts = 0;
@@ -134,6 +136,10 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
 
     for (const post of posts) {
       if (isKnownPostBoundary(post, cursor?.lastPostFullname ?? null, cursor?.lastFetchedPostsAt ?? null)) {
+        break;
+      }
+
+      if (post.createdUtc.getTime() < oldestAllowedPostCreatedAt) {
         break;
       }
 

@@ -4,6 +4,7 @@ import { Prisma } from "../generated/prisma/client";
 import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
 import { getSemanticLookbackHours } from "@/lib/manual-campaign-semantic";
 import { prisma } from "@/lib/prisma";
+import { getRedditPostRecencyCutoff } from "@/lib/reddit-post-recency";
 import { Worker } from "bullmq";
 
 import {
@@ -139,7 +140,8 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     initialLookbackHours: dailySemanticInitialLookbackHours,
     recurringLookbackHours: dailySemanticLookbackHours,
   });
-  const lookbackSince = new Date(Date.now() - lookbackHours * 60 * 60 * 1000);
+  const lookbackSince = new Date(startedAt - lookbackHours * 60 * 60 * 1000);
+  const redditPostRecencyCutoff = getRedditPostRecencyCutoff(new Date(startedAt));
   let scannedPosts = 0;
   let matchedPosts = 0;
   let noMatchPosts = 0;
@@ -151,6 +153,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     const candidateRows = await loadCandidateRows({
       campaignId: campaign.id,
       lookbackSince,
+      redditPostRecencyCutoff,
       subreddits,
     });
 
@@ -275,10 +278,12 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
 async function loadCandidateRows({
   campaignId,
   lookbackSince,
+  redditPostRecencyCutoff,
   subreddits,
 }: {
   campaignId: string;
   lookbackSince: Date;
+  redditPostRecencyCutoff: Date;
   subreddits: string[];
 }) {
   return prisma.$queryRaw<CandidateRow[]>(
@@ -292,6 +297,7 @@ async function loadCandidateRows({
        AND "scan"."redditItemId" = "ri"."id"
       WHERE "ri"."type" = 'POST'
         AND "ri"."subreddit" IN (${Prisma.join(subreddits)})
+        AND "ri"."createdUtc" >= ${redditPostRecencyCutoff}
         AND "ri"."fetchedAt" >= ${lookbackSince}
         AND "rie"."embedding" IS NOT NULL
         AND "scan"."id" IS NULL

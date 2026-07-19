@@ -6,6 +6,7 @@ import {
   getDisabledDailyRssSubredditSet,
   isSubredditDailyRssPollingEnabled,
 } from "@/lib/subreddit-polling-settings";
+import { getRedditPostRecencyCutoff } from "@/lib/reddit-post-recency";
 import { Worker } from "bullmq";
 
 import { workerIngestionConcurrency, workerRedisConnection } from "./config";
@@ -26,7 +27,6 @@ import { createSubredditRssPollDiagnostics } from "./subreddit-rss-poll-diagnost
 
 const REDDIT_RATE_LIMIT_BACKOFF_MS = 60 * 60 * 1000;
 const REDDIT_TRANSIENT_BACKOFF_MS = 15 * 60 * 1000;
-const MAX_REDDIT_POST_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 const CAMPAIGN_MATCH_RETRY_DELAY_MS = 2 * 60 * 1000;
 const CAMPAIGN_MATCH_MAX_ATTEMPTS = 8;
 
@@ -118,7 +118,7 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   }
 
   const startedAt = Date.now();
-  const oldestAllowedPostCreatedAt = startedAt - MAX_REDDIT_POST_AGE_MS;
+  const oldestAllowedPostCreatedAt = getRedditPostRecencyCutoff(new Date(startedAt)).getTime();
   let fetchedPosts = 0;
   let existingPosts = 0;
   let createdPosts = 0;
@@ -259,6 +259,7 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
 
 async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, jobId: string) {
   const runStartedAt = new Date(data.runStartedAt);
+  const redditPostRecencyCutoff = getRedditPostRecencyCutoff();
   const attempt = data.attempt ?? 0;
   const requestedSubreddits = Array.from(new Set(data.expectedSubreddits.map(normalizeSubredditName).filter(Boolean)));
   const disabledSubreddits = await getDisabledDailyRssSubredditSet(requestedSubreddits);
@@ -351,6 +352,9 @@ async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, 
   const [missingEmbeddingCount, candidateItems] = await Promise.all([
     prisma.redditItem.count({
       where: {
+        createdUtc: {
+          gte: redditPostRecencyCutoff,
+        },
         fetchedAt: {
           gte: runStartedAt,
         },
@@ -362,6 +366,9 @@ async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, 
     }),
     prisma.redditItem.findMany({
       where: {
+        createdUtc: {
+          gte: redditPostRecencyCutoff,
+        },
         fetchedAt: {
           gte: runStartedAt,
         },

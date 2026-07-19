@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { isRedditPostOutsideRecencyWindow } from "@/lib/reddit-post-recency";
 import { Worker } from "bullmq";
 
 import { finalizeCampaignLeadProcessing } from "./campaign-finalization";
@@ -12,6 +13,9 @@ import { enqueueLeadClassification, semanticQueueName, type SemanticJobData } fr
 
 const SEMANTIC_FILTER_MODEL = "semantic-threshold-filter";
 const SEMANTIC_FILTER_PROMPT_VERSION = "semantic-threshold-v1";
+const SEMANTIC_RECENCY_PROMPT_VERSION = "semantic-recency-v1";
+const SEMANTIC_RECENCY_CATEGORY = "outside_recency_window";
+const SEMANTIC_RECENCY_SUMMARY = "Filtered out because the Reddit post is older than 3 days.";
 
 const worker = new Worker<SemanticJobData>(
   semanticQueueName,
@@ -69,6 +73,7 @@ async function runRssPollSemanticMatch(
     select: {
       id: true,
       subreddit: true,
+      createdUtc: true,
       embedding: {
         select: {
           redditItemId: true,
@@ -76,6 +81,19 @@ async function runRssPollSemanticMatch(
       },
     },
   });
+
+  if (candidate && isRedditPostOutsideRecencyWindow(candidate.createdUtc)) {
+    workerLogger.info(
+      {
+        jobId,
+        campaignId: data.campaignId,
+        redditItemId: candidate.id,
+        createdUtc: candidate.createdUtc,
+      },
+      "Skipping RSS semantic match because the Reddit post is older than 3 days",
+    );
+    return { skipped: true, reason: SEMANTIC_RECENCY_CATEGORY };
+  }
 
   if (!candidate?.embedding) {
     workerLogger.warn(
@@ -219,12 +237,72 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
       id: true,
       campaignId: true,
       redditItemId: true,
+      ai: {
+        select: {
+          id: true,
+        },
+      },
+      redditItem: {
+        select: {
+          createdUtc: true,
+        },
+      },
     },
   });
 
   if (!lead) {
     workerLogger.warn({ jobId, leadId: data.leadId, campaignId: data.campaignId }, "Lead not found for semantic matching");
     return { skipped: true, reason: "lead_not_found" };
+  }
+
+  if (isRedditPostOutsideRecencyWindow(lead.redditItem.createdUtc)) {
+    if (lead.ai) {
+      const semanticCounts = await countSemanticProgress(lead.campaignId);
+
+      await finalizeCampaignLeadProcessing({
+        campaignId: lead.campaignId,
+        campaignRunId: data.campaignRunId,
+        completeMessage: "Lead processing complete for this campaign sync.",
+        stats: {
+          semanticCheckedLeads: semanticCounts.checked,
+          semanticPassedLeads: semanticCounts.passed,
+          semanticFilteredLeads: semanticCounts.filtered,
+        },
+      });
+
+      workerLogger.info(
+        {
+          jobId,
+          leadId: lead.id,
+          campaignId: lead.campaignId,
+          redditItemId: lead.redditItemId,
+          createdUtc: lead.redditItem.createdUtc,
+        },
+        "Skipping stale semantic lead because it already has an AI result",
+      );
+
+      return {
+        leadId: lead.id,
+        skipped: true,
+        reason: "lead_already_processed",
+      };
+    }
+
+    await recordRecencyFilteredLead({
+      campaignId: lead.campaignId,
+      campaignRunId: data.campaignRunId,
+      createdUtc: lead.redditItem.createdUtc,
+      jobId,
+      leadId: lead.id,
+      redditItemId: lead.redditItemId,
+    });
+
+    return {
+      leadId: lead.id,
+      passed: false,
+      skipped: true,
+      reason: SEMANTIC_RECENCY_CATEGORY,
+    };
   }
 
   const campaignQueryCount = await prisma.campaignSemanticQuery.count({
@@ -354,6 +432,74 @@ async function runSemanticMatch(data: Extract<SemanticJobData, { leadId: string 
     matchedQuery: bestMatch.queryText,
     passed: false,
   };
+}
+
+async function recordRecencyFilteredLead({
+  campaignId,
+  campaignRunId,
+  createdUtc,
+  jobId,
+  leadId,
+  redditItemId,
+}: {
+  campaignId: string;
+  campaignRunId?: string;
+  createdUtc: Date;
+  jobId: string;
+  leadId: string;
+  redditItemId: string;
+}) {
+  await prisma.leadAI.upsert({
+    where: {
+      leadId,
+    },
+    update: {
+      model: SEMANTIC_FILTER_MODEL,
+      promptVersion: SEMANTIC_RECENCY_PROMPT_VERSION,
+      category: SEMANTIC_RECENCY_CATEGORY,
+      summary: SEMANTIC_RECENCY_SUMMARY,
+      painPoints: [],
+    },
+    create: {
+      leadId,
+      model: SEMANTIC_FILTER_MODEL,
+      promptVersion: SEMANTIC_RECENCY_PROMPT_VERSION,
+      category: SEMANTIC_RECENCY_CATEGORY,
+      summary: SEMANTIC_RECENCY_SUMMARY,
+      painPoints: [],
+    },
+  });
+
+  await upsertDailySemanticScan({
+    campaignId,
+    campaignRunId,
+    redditItemId,
+    status: "NO_MATCH",
+  });
+
+  const semanticCounts = await countSemanticProgress(campaignId);
+
+  await finalizeCampaignLeadProcessing({
+    campaignId,
+    campaignRunId,
+    completeMessage: "Lead processing complete for this campaign sync.",
+    stats: {
+      semanticCheckedLeads: semanticCounts.checked,
+      semanticPassedLeads: semanticCounts.passed,
+      semanticFilteredLeads: semanticCounts.filtered,
+    },
+  });
+
+  workerLogger.info(
+    {
+      jobId,
+      leadId,
+      campaignId,
+      redditItemId,
+      createdUtc,
+    },
+    "Lead was filtered before semantic matching because the Reddit post is older than 3 days",
+  );
 }
 
 async function findBestSemanticMatch({

@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import {
+  getAdminClassifiedLeads,
+  type AdminClassifiedLead,
+  type CampaignLeadDateFilter,
+} from "@/lib/admin-classified-leads";
 import { BETA_OWNER_ONLY_MESSAGE, canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
 import {
   buildDailySemanticRunStatsAfterLeadDeletion,
@@ -897,12 +902,7 @@ export async function getCampaignSyncStatuses(campaignIds: string[]) {
 
 export async function getCampaignLeads(
   campaignId: string,
-  dateFilter?: {
-    date?: string | string[];
-    from?: string;
-    range?: string;
-    to?: string;
-  },
+  dateFilter?: CampaignLeadDateFilter,
 ) {
   const session = await auth();
 
@@ -925,6 +925,73 @@ export async function getCampaignLeads(
     userId: session.user.id,
     email: session.user.email,
   });
+}
+
+export type AdminClassifiedLeadsResult =
+  | {
+      status: "success";
+      leads: AdminClassifiedLead[];
+    }
+  | {
+      status: "error";
+      message: string;
+    };
+
+export async function getAdminCampaignClassifiedLeads(
+  campaignId: string,
+  dateFilter: CampaignLeadDateFilter,
+): Promise<AdminClassifiedLeadsResult> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to view classified leads.",
+    };
+  }
+
+  if (!canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to view all classified leads.",
+    };
+  }
+
+  if (!campaignId) {
+    return {
+      status: "error",
+      message: "A campaign is required.",
+    };
+  }
+
+  try {
+    const selection = getDailyLeadDateSelection(dateFilter);
+    const leads = await getCampaignLeadViewsForUser({
+      campaignId,
+      ...(selection.source === "dates"
+        ? {
+            dateRanges: selection.ranges,
+          }
+        : {
+            from: selection.range.from,
+            to: selection.range.to,
+          }),
+      userId: session.user.id,
+      email: session.user.email,
+    });
+
+    return {
+      status: "success",
+      leads: getAdminClassifiedLeads(leads),
+    };
+  } catch (error) {
+    console.error("Failed to load admin classified leads", error);
+
+    return {
+      status: "error",
+      message: "The classified leads could not be loaded. Try again.",
+    };
+  }
 }
 
 export async function deleteCampaignLead(formData: FormData): Promise<CampaignActionState> {

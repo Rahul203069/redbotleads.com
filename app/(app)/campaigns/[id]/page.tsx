@@ -9,6 +9,7 @@ import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-deta
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignPublicViewStats } from "@/components/campaigns/campaign-public-view-stats";
 import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
+import { AdminClassifiedLeadsDialog } from "@/components/campaigns/admin-classified-leads-dialog";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
@@ -231,6 +232,7 @@ export default async function CampaignDetailPage({
     ?? campaign.createdAt.toISOString();
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
   const canExportLeads = isAdminAccount || canManage;
+  const leadDateLabel = getLeadDateSelectionLabel(leadDateSelection, browserTimeZone);
 
   return (
     <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
@@ -287,6 +289,13 @@ export default async function CampaignDetailPage({
                 {canExportLeads ? (
                   <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
                 ) : null}
+                <AdminClassifiedLeadsDialog
+                  key={leadDateFilterKey}
+                  campaignId={campaign.id}
+                  campaignName={displayName}
+                  dateFilter={leadDateFilter}
+                  dateLabel={leadDateLabel}
+                />
                 {canManage ? (
                   <>
                     <EditCampaignDialog
@@ -407,6 +416,32 @@ function getLeadDateFilterKey(filter: {
     filter.to ?? "",
     ...(filter.date ?? []),
   ].join("|");
+}
+
+function getLeadDateSelectionLabel(selection: DailyLeadDateSelection, timeZone: string) {
+  if (selection.source === "all") {
+    return "All time";
+  }
+
+  if (selection.source === "dates") {
+    const labels = selection.ranges.map((range) => formatDateInTimeZone(range.from, timeZone));
+
+    if (labels.length === 1) {
+      return labels[0];
+    }
+
+    if (labels.length <= 3) {
+      return labels.join(", ");
+    }
+
+    return `${labels.length} selected dates`;
+  }
+
+  const fromLabel = formatDateInTimeZone(selection.range.from, timeZone);
+  const inclusiveTo = new Date(selection.range.to.getTime() - 1);
+  const toLabel = formatDateInTimeZone(inclusiveTo, timeZone);
+
+  return fromLabel === toLabel ? fromLabel : `${fromLabel} – ${toLabel}`;
 }
 
 function getNextDailySemanticCronAt(now = new Date()) {

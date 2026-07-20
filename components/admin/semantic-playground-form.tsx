@@ -41,7 +41,6 @@ const BULK_QUERY_SEPARATOR = ",,,";
 const MAX_QUERY_TEXT_LENGTH = 700;
 const MAX_QUERY_CATEGORY_LENGTH = 80;
 const MAX_RUN_TITLE_LENGTH = 120;
-const MAX_FILTERING_DESCRIPTION_LENGTH = 4000;
 
 export function SemanticPlaygroundForm({
   campaigns,
@@ -217,15 +216,6 @@ export function SemanticPlaygroundForm({
       return;
     }
 
-    if (cleanedFilteringDescription.length > MAX_FILTERING_DESCRIPTION_LENGTH) {
-      toast({
-        title: "Playground run not started",
-        description: `Filtering description must be ${MAX_FILTERING_DESCRIPTION_LENGTH} characters or less.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (!campaignId || cleanedRows.length === 0) {
       toast({
         title: "Playground run not started",
@@ -375,17 +365,13 @@ export function SemanticPlaygroundForm({
                   className="min-h-32 resize-y"
                   disabled={isSubmitPending}
                   id="playground-filtering-description"
-                  maxLength={MAX_FILTERING_DESCRIPTION_LENGTH}
                   onChange={(event) => setFilteringDescription(event.target.value)}
                   required
                   value={filteringDescription}
                 />
-                <div className="flex items-start justify-between gap-3 text-[11px] leading-4 text-[#8f8f8f]" id="playground-filtering-description-help">
-                  <p>This description is the primary fit criteria for LLM scoring and applies only to this run.</p>
-                  <span className="shrink-0 tabular-nums">
-                    {filteringDescription.length}/{MAX_FILTERING_DESCRIPTION_LENGTH}
-                  </span>
-                </div>
+                <p className="text-[11px] leading-4 text-[#8f8f8f]" id="playground-filtering-description-help">
+                  This description is the primary fit criteria for LLM scoring and applies only to this run.
+                </p>
               </div>
 
               <label className="grid gap-2">

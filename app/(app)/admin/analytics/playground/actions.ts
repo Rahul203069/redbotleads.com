@@ -17,13 +17,12 @@ import { enqueueSemanticPlaygroundRun } from "@/worker/queues";
 
 const DEFAULT_THRESHOLD = 0.5;
 const MAX_QUERY_LENGTH = 700;
-const MAX_FILTERING_DESCRIPTION_LENGTH = 4000;
 const MAX_RUN_TITLE_LENGTH = 120;
 const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
 const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 const playgroundRunMetadataSchema = z.object({
-  filteringDescription: z.string().trim().min(3, "Add an LLM filtering description.").max(MAX_FILTERING_DESCRIPTION_LENGTH, `Filtering description must be ${MAX_FILTERING_DESCRIPTION_LENGTH} characters or less.`),
+  filteringDescription: z.string().trim().min(3, "Add an LLM filtering description."),
   title: z.string().trim().min(2, "Add a playground run title.").max(MAX_RUN_TITLE_LENGTH, `Title must be ${MAX_RUN_TITLE_LENGTH} characters or less.`),
 });
 

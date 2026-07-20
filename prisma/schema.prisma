@@ -66,6 +66,11 @@ enum SourceMode {
   OAUTH_USER
 }
 
+enum CampaignSemanticSearchScope {
+  CAMPAIGN
+  GLOBAL
+}
+
 enum CampaignSyncStatus {
   IDLE
   QUEUED
@@ -277,6 +282,7 @@ model Campaign {
   isActive        Boolean    @default(true)
   minScoreToAlert Int        @default(75)
   sourceMode      SourceMode @default(PUBLIC)
+  semanticSearchScope CampaignSemanticSearchScope @default(CAMPAIGN)
 
   // Optional: tie campaign to a connected Reddit account later
   redditAccountId String?

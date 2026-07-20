@@ -222,6 +222,7 @@ export const CampaignScalarFieldEnum = {
   isActive: 'isActive',
   minScoreToAlert: 'minScoreToAlert',
   sourceMode: 'sourceMode',
+  semanticSearchScope: 'semanticSearchScope',
   redditAccountId: 'redditAccountId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

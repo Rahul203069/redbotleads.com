@@ -233,6 +233,13 @@ export type EnumSourceModeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSourceModeFilter<$PrismaModel> | $Enums.SourceMode
 }
 
+export type EnumCampaignSemanticSearchScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignSemanticSearchScope | Prisma.EnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel> | $Enums.CampaignSemanticSearchScope
+}
+
 export type EnumLeadTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LeadType | Prisma.EnumLeadTypeFieldRefInput<$PrismaModel>
   in?: $Enums.LeadType[] | Prisma.ListEnumLeadTypeFieldRefInput<$PrismaModel>
@@ -251,6 +258,16 @@ export type EnumSourceModeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSourceModeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSourceModeFilter<$PrismaModel>
+}
+
+export type EnumCampaignSemanticSearchScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignSemanticSearchScope | Prisma.EnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignSemanticSearchScopeWithAggregatesFilter<$PrismaModel> | $Enums.CampaignSemanticSearchScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel>
 }
 
 export type JsonNullableFilter<$PrismaModel = never> =
@@ -862,6 +879,13 @@ export type NestedEnumSourceModeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumSourceModeFilter<$PrismaModel> | $Enums.SourceMode
 }
 
+export type NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignSemanticSearchScope | Prisma.EnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel> | $Enums.CampaignSemanticSearchScope
+}
+
 export type NestedEnumLeadTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LeadType | Prisma.EnumLeadTypeFieldRefInput<$PrismaModel>
   in?: $Enums.LeadType[] | Prisma.ListEnumLeadTypeFieldRefInput<$PrismaModel>
@@ -880,6 +904,16 @@ export type NestedEnumSourceModeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumSourceModeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumSourceModeFilter<$PrismaModel>
+}
+
+export type NestedEnumCampaignSemanticSearchScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignSemanticSearchScope | Prisma.EnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignSemanticSearchScope[] | Prisma.ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignSemanticSearchScopeWithAggregatesFilter<$PrismaModel> | $Enums.CampaignSemanticSearchScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel>
 }
 
 export type NestedJsonNullableFilter<$PrismaModel = never> =

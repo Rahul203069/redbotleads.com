@@ -2815,6 +2815,7 @@ export const CampaignScalarFieldEnum = {
   isActive: 'isActive',
   minScoreToAlert: 'minScoreToAlert',
   sourceMode: 'sourceMode',
+  semanticSearchScope: 'semanticSearchScope',
   redditAccountId: 'redditAccountId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -3372,6 +3373,20 @@ export type ListEnumSourceModeFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'CampaignSemanticSearchScope'
+ */
+export type EnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSemanticSearchScope'>
+
+
+
+/**
+ * Reference to a field of type 'CampaignSemanticSearchScope[]'
+ */
+export type ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSemanticSearchScope[]'>
+
+
+
+/**
  * Reference to a field of type 'Json'
  */
 export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
@@ -3753,4 +3768,3 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
-

@@ -301,8 +301,10 @@ export default async function CampaignDetailPage({
                         recentDays: campaign.recentDays,
                         minScoreToAlert: campaign.minScoreToAlert,
                         isActive: campaign.isActive,
+                        semanticSearchScope: campaign.semanticSearchScope,
                         semanticQueries: campaign.semanticQueries,
                       }}
+                      isAdminAccount={isAdminAccount}
                       showSemanticQueries
                     />
                     <DeleteCampaignDialog campaignId={campaign.id} campaignName={campaign.name} />

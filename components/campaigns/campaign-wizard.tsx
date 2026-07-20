@@ -5,6 +5,7 @@ import { ClipLoader } from "react-spinners";
 import { useRouter } from "next/navigation";
 import { submitCampaign } from "@/actions/campaigns";
 import { NewCampaignSemanticRunControl } from "@/components/campaigns/new-campaign-semantic-run-control";
+import { SemanticSearchScopeField } from "@/components/campaigns/semantic-search-scope-field";
 import { SemanticQueryDraftEditor } from "@/components/semantic-queries/semantic-query-draft-editor";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,10 @@ import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  DEFAULT_CAMPAIGN_SEMANTIC_SEARCH_SCOPE,
+  type CampaignSemanticSearchScope,
+} from "@/lib/campaign-semantic-search-scope";
 import { cleanSemanticQueryRows, type SemanticQueryDraftRow } from "@/lib/semantic-queries";
 import type { ManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
 
@@ -39,6 +44,7 @@ type Draft = {
   recentDays: string;
   minScoreToAlert: string;
   isActive: boolean;
+  semanticSearchScope: CampaignSemanticSearchScope;
   semanticQueries: SemanticQueryDraftRow[];
 };
 
@@ -52,6 +58,7 @@ const initialDraft: Draft = {
   recentDays: "7",
   minScoreToAlert: "75",
   isActive: true,
+  semanticSearchScope: DEFAULT_CAMPAIGN_SEMANTIC_SEARCH_SCOPE,
   semanticQueries: [],
 };
 
@@ -136,7 +143,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
   const [aiTarget, setAiTarget] = useState<"keywords" | "negativeKeywords" | "subreddits" | null>(null);
   const [serverState, setServerState] = useState<{
     message?: string;
-    fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>>;
+    fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries" | "semanticSearchScope", string>>;
   }>({});
   const [isPending, startTransition] = useTransition();
   const [saveStageIndex, setSaveStageIndex] = useState(0);
@@ -195,7 +202,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
     if (stepIndex === 0) return serverState.fieldErrors?.name;
     if (stepIndex === 1) return serverState.fieldErrors?.description;
     if (stepIndex === 2) return serverState.fieldErrors?.keywords;
-    if (stepIndex === 3) return serverState.fieldErrors?.subreddits;
+    if (stepIndex === 3) return serverState.fieldErrors?.subreddits ?? serverState.fieldErrors?.semanticSearchScope;
     if (isAdminAccount && stepIndex === 4) return serverState.fieldErrors?.semanticQueries;
     if (stepIndex === (isAdminAccount ? 5 : 4)) {
       return serverState.fieldErrors?.recentDays ?? serverState.fieldErrors?.minScoreToAlert;
@@ -258,6 +265,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
     formData.set("minScoreToAlert", draft.minScoreToAlert);
 
     if (isAdminAccount) {
+      formData.set("semanticSearchScope", draft.semanticSearchScope);
       const semanticQueries = cleanSemanticQueryRows(draft.semanticQueries);
 
       if (semanticQueries.status === "success") {
@@ -500,6 +508,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
                   aiTarget,
                   aiElapsedSeconds,
                   isAdminAccount,
+                  semanticSearchScopeError: serverState.fieldErrors?.semanticSearchScope,
                   onGenerateKeywords: () => generateAiSuggestions("keywords"),
                   onGenerateNegativeKeywords: () => generateAiSuggestions("negativeKeywords"),
                   onGenerateSubreddits: generateSubreddits,
@@ -586,6 +595,7 @@ function renderStep(
     aiTarget: "keywords" | "negativeKeywords" | "subreddits" | null;
     aiElapsedSeconds: number;
     isAdminAccount: boolean;
+    semanticSearchScopeError?: string;
     onGenerateKeywords: () => void;
     onGenerateNegativeKeywords: () => void;
     onGenerateSubreddits: () => void;
@@ -688,6 +698,14 @@ function renderStep(
             value={draft.subreddits}
           />
         </Field>
+
+        {options.isAdminAccount ? (
+          <SemanticSearchScopeField
+            error={options.semanticSearchScopeError}
+            onChange={(scope) => updateDraft("semanticSearchScope", scope)}
+            value={draft.semanticSearchScope}
+          />
+        ) : null}
       </div>
     );
   }
@@ -809,7 +827,7 @@ function validateDraftForSubmit(draft: Draft, isAdminAccount: boolean) {
 }
 
 function getErroredStep(
-  fieldErrors: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>> | undefined,
+  fieldErrors: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries" | "semanticSearchScope", string>> | undefined,
   isAdminAccount: boolean,
 ) {
   if (!fieldErrors) {
@@ -820,6 +838,7 @@ function getErroredStep(
   if (fieldErrors.description) return 1;
   if (fieldErrors.keywords) return 2;
   if (fieldErrors.subreddits) return 3;
+  if (fieldErrors.semanticSearchScope && isAdminAccount) return 3;
   if (fieldErrors.semanticQueries && isAdminAccount) return 4;
   if (fieldErrors.recentDays) return isAdminAccount ? 5 : 4;
   if (fieldErrors.minScoreToAlert) return isAdminAccount ? 5 : 4;

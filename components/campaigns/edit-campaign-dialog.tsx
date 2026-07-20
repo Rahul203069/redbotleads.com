@@ -4,12 +4,14 @@ import { useMemo, useState, useTransition } from "react";
 import { Check, Copy } from "lucide-react";
 
 import { updateCampaign } from "@/actions/campaigns";
+import { SemanticSearchScopeField } from "@/components/campaigns/semantic-search-scope-field";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { TagInput } from "@/components/ui/tag-input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import type { CampaignSemanticSearchScope } from "@/lib/campaign-semantic-search-scope";
 
 type Draft = {
   name: string;
@@ -21,6 +23,7 @@ type Draft = {
   recentDays: string;
   minScoreToAlert: string;
   isActive: boolean;
+  semanticSearchScope: CampaignSemanticSearchScope;
 };
 
 type EditCampaignDialogProps = {
@@ -35,22 +38,24 @@ type EditCampaignDialogProps = {
     recentDays: number;
     minScoreToAlert: number;
     isActive: boolean;
+    semanticSearchScope: CampaignSemanticSearchScope;
     semanticQueries?: Array<{
       id: string;
       queryText: string;
       category: string | null;
     }>;
   };
+  isAdminAccount?: boolean;
   showSemanticQueries?: boolean;
 };
 
-export function EditCampaignDialog({ campaign, showSemanticQueries = false }: EditCampaignDialogProps) {
+export function EditCampaignDialog({ campaign, isAdminAccount = false, showSemanticQueries = false }: EditCampaignDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [copiedSubreddits, setCopiedSubreddits] = useState(false);
   const [copiedSemanticQueries, setCopiedSemanticQueries] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [errors, setErrors] = useState<Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert", string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticSearchScope", string>>>({});
   const initialDraft = useMemo<Draft>(
     () => ({
       name: campaign.name,
@@ -62,6 +67,7 @@ export function EditCampaignDialog({ campaign, showSemanticQueries = false }: Ed
       recentDays: String(campaign.recentDays),
       minScoreToAlert: String(campaign.minScoreToAlert),
       isActive: campaign.isActive,
+      semanticSearchScope: campaign.semanticSearchScope,
     }),
     [campaign],
   );
@@ -101,6 +107,7 @@ export function EditCampaignDialog({ campaign, showSemanticQueries = false }: Ed
     formData.set("subreddits", draft.subreddits.join("\n"));
     formData.set("recentDays", draft.recentDays);
     formData.set("minScoreToAlert", draft.minScoreToAlert);
+    if (isAdminAccount) formData.set("semanticSearchScope", draft.semanticSearchScope);
     if (draft.isActive) formData.set("isActive", "on");
 
     startTransition(async () => {
@@ -320,6 +327,14 @@ export function EditCampaignDialog({ campaign, showSemanticQueries = false }: Ed
               >
                 <TagInput onChange={(values) => updateDraft("subreddits", values)} placeholder="Type a subreddit and press Enter" value={draft.subreddits} />
               </Field>
+
+              {isAdminAccount ? (
+                <SemanticSearchScopeField
+                  error={errors.semanticSearchScope}
+                  onChange={(scope) => updateDraft("semanticSearchScope", scope)}
+                  value={draft.semanticSearchScope}
+                />
+              ) : null}
             </section>
 
             <section className="grid gap-5 rounded-[24px] border border-[#27312E] bg-[#161D1B] p-5">
@@ -412,6 +427,7 @@ function hasCampaignChanged(initialDraft: Draft, draft: Draft) {
     initialDraft.recentDays !== draft.recentDays ||
     initialDraft.minScoreToAlert !== draft.minScoreToAlert ||
     initialDraft.isActive !== draft.isActive ||
+    initialDraft.semanticSearchScope !== draft.semanticSearchScope ||
     !areArraysEqual(initialDraft.keywords, draft.keywords) ||
     !areArraysEqual(initialDraft.negativeKeywords, draft.negativeKeywords) ||
     !areArraysEqual(initialDraft.subreddits, draft.subreddits)

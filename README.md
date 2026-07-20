@@ -254,8 +254,9 @@ What it does:
 
 - finds active campaigns with semantic queries
 - enqueues `DAILY_SEMANTIC_CAMPAIGN` jobs on the `daily-semantic` queue
-- builds a shared pool from subreddits linked to all active campaigns, excluding subreddits with daily RSS polling disabled
-- compares each campaign's semantic queries against recent embedded posts from that complete shared polling pool, not only the campaign's linked subreddits
+- respects each campaign's admin-controlled semantic search scope
+- `Campaign subreddits` compares against enabled subreddits linked only to that campaign; this is the default for new campaigns
+- `Global polling pool` compares against the shared enabled-subreddit pool linked to all active campaigns; migrated campaigns retain this existing behavior
 - records matched and unmatched scan results so each campaign does not rescan the same post
 - creates or reuses `Lead` records for semantic matches above the configured threshold
 - enqueues existing LLM classification jobs for matched leads that have not already been classified

@@ -178,6 +178,10 @@ is deliberately migrated to a Compose-managed service.
 | Prisma migration | Run main VM migration deployment and rebuild affected services | Rebuild only if generated client/schema use changed |
 | Next.js UI/API/server actions | Redeploy the web application | No change |
 
+Per-campaign semantic search scope is evaluated only by the main VM's combined
+daily-semantic worker. Changing a campaign between `Campaign subreddits` and
+`Global polling pool` does not require rebuilding or restarting RSS-only VMs.
+
 ## Safety and troubleshooting
 
 - Always run `git status --short` before pulling. Do not discard unknown VM-only

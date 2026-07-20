@@ -16,6 +16,11 @@ import {
   getCampaignAccessFromRecord,
 } from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
+import {
+  DEFAULT_CAMPAIGN_SEMANTIC_SEARCH_SCOPE,
+  resolveSubmittedCampaignSemanticSearchScope,
+  type CampaignSemanticSearchScope,
+} from "@/lib/campaign-semantic-search-scope";
 import { getDailyLeadDateSelection } from "@/lib/daily-leads-analytics";
 import {
   getManualCampaignSemanticState,
@@ -61,7 +66,7 @@ export type CampaignActionState = {
   campaignId?: string;
   deletedLeadId?: string;
   manualSemanticState?: ManualCampaignSemanticState;
-  fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries", string>>;
+  fieldErrors?: Partial<Record<"name" | "description" | "keywords" | "subreddits" | "recentDays" | "minScoreToAlert" | "semanticQueries" | "semanticSearchScope", string>>;
 };
 
 export type ManualCampaignSemanticActionResult = {
@@ -132,8 +137,27 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
   }
 
   let manualSemanticQueries: CleanSemanticQuery[] = [];
+  let semanticSearchScope: CampaignSemanticSearchScope = DEFAULT_CAMPAIGN_SEMANTIC_SEARCH_SCOPE;
 
   if (isAdminAccount) {
+    const submittedScope = resolveSubmittedCampaignSemanticSearchScope({
+      defaultScope: DEFAULT_CAMPAIGN_SEMANTIC_SEARCH_SCOPE,
+      isAdminAccount,
+      value: formData.get("semanticSearchScope"),
+    });
+
+    if (submittedScope.status === "error" || !submittedScope.scope) {
+      return {
+        status: "error",
+        message: "Choose a valid semantic search scope.",
+        fieldErrors: {
+          semanticSearchScope: "Choose Campaign subreddits or Global polling pool.",
+        },
+      };
+    }
+
+    semanticSearchScope = submittedScope.scope;
+
     const parsedSemanticQueries = parseSemanticQueriesJson(String(formData.get("semanticQueriesJson") ?? ""));
 
     if (parsedSemanticQueries.status === "error") {
@@ -163,6 +187,7 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
         recentDays: parsed.data.recentDays,
         minScoreToAlert: parsed.data.minScoreToAlert,
         isActive: parsed.data.isActive,
+        semanticSearchScope,
       },
       select: {
         id: true,
@@ -440,6 +465,28 @@ export async function updateCampaign(formData: FormData): Promise<CampaignAction
     };
   }
 
+  const isAdminAccount = canViewAnalytics(session.user.email);
+  let semanticSearchScope: CampaignSemanticSearchScope | undefined;
+
+  if (formData.has("semanticSearchScope")) {
+    const submittedScope = resolveSubmittedCampaignSemanticSearchScope({
+      isAdminAccount,
+      value: formData.get("semanticSearchScope"),
+    });
+
+    if (submittedScope.status === "error") {
+      return {
+        status: "error",
+        message: "Choose a valid semantic search scope.",
+        fieldErrors: {
+          semanticSearchScope: "Choose Campaign subreddits or Global polling pool.",
+        },
+      };
+    }
+
+    semanticSearchScope = submittedScope.scope;
+  }
+
   const campaignId = String(formData.get("campaignId") ?? "").trim();
 
   if (!campaignId) {
@@ -506,6 +553,7 @@ export async function updateCampaign(formData: FormData): Promise<CampaignAction
         recentDays: parsed.data.recentDays,
         minScoreToAlert: parsed.data.minScoreToAlert,
         isActive: parsed.data.isActive,
+        ...(semanticSearchScope ? { semanticSearchScope } : {}),
       },
     });
   } catch (error) {

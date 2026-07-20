@@ -90,6 +90,14 @@ export const SourceMode = {
 export type SourceMode = (typeof SourceMode)[keyof typeof SourceMode]
 
 
+export const CampaignSemanticSearchScope = {
+  CAMPAIGN: 'CAMPAIGN',
+  GLOBAL: 'GLOBAL'
+} as const
+
+export type CampaignSemanticSearchScope = (typeof CampaignSemanticSearchScope)[keyof typeof CampaignSemanticSearchScope]
+
+
 export const CampaignSyncStatus = {
   IDLE: 'IDLE',
   QUEUED: 'QUEUED',

@@ -1,10 +1,12 @@
 import "dotenv/config";
 
 import { Prisma } from "../generated/prisma/client";
+import { buildCampaignSemanticSubredditPool } from "@/lib/campaign-semantic-search-scope";
 import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
 import { getSemanticLookbackHours } from "@/lib/manual-campaign-semantic";
 import { prisma } from "@/lib/prisma";
 import { getRedditPostRecencyCutoff } from "@/lib/reddit-post-recency";
+import { getDisabledDailyRssSubredditSet } from "@/lib/subreddit-polling-settings";
 import { Worker } from "bullmq";
 
 import {
@@ -78,6 +80,8 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     select: {
       id: true,
       userId: true,
+      subreddits: true,
+      semanticSearchScope: true,
     },
   });
 
@@ -89,24 +93,39 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
 
   await markCampaignRunProcessing(data.campaignRunId, "Starting daily semantic search for this campaign.");
 
-  const subredditPool = await getDailyRssSubredditPool();
+  const candidateScope = campaign.semanticSearchScope;
+  const subredditPool = candidateScope === "GLOBAL"
+    ? await getDailyRssSubredditPool()
+    : buildCampaignSemanticSubredditPool({
+        campaignSubreddits: campaign.subreddits,
+        disabledSubreddits: await getDisabledDailyRssSubredditSet(campaign.subreddits),
+      });
   const subreddits = subredditPool.enabledSubreddits;
+  const scopeStats = {
+    candidateScope,
+    subredditCount: subreddits.length,
+    disabledSubredditCount: subredditPool.disabledSubreddits.length,
+    ...(candidateScope === "GLOBAL" ? { globalSubredditCount: subreddits.length } : {}),
+  };
 
   if (subreddits.length === 0) {
-    const stats = {
-      globalSubredditCount: 0,
-      disabledSubredditCount: subredditPool.disabledSubreddits.length,
-    };
+    const emptyScopeMessage = candidateScope === "GLOBAL"
+      ? "Skipping daily semantic search because no subreddits are enabled in the global polling pool."
+      : "Skipping daily semantic search because this campaign has no linked subreddits enabled for RSS polling.";
     await markCampaignRunCompleted(
       data.campaignRunId,
-      "Skipping daily semantic search because no subreddits are enabled for daily RSS polling.",
-      stats,
+      emptyScopeMessage,
+      scopeStats,
     );
     workerLogger.info(
-      { jobId, campaignId: campaign.id, ...stats },
-      "Skipping daily semantic search because the global daily RSS subreddit pool is empty",
+      { jobId, campaignId: campaign.id, ...scopeStats },
+      "Skipping daily semantic search because the selected subreddit pool is empty",
     );
-    return { skipped: true, reason: "no_enabled_daily_rss_subreddits", ...stats };
+    return {
+      skipped: true,
+      reason: candidateScope === "GLOBAL" ? "no_enabled_global_subreddits" : "no_enabled_campaign_subreddits",
+      ...scopeStats,
+    };
   }
 
   const semanticQueryCount = await prisma.campaignSemanticQuery.count({
@@ -229,8 +248,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
       createdLeads,
       reusedLeads,
       queuedClassifications,
-      globalSubredditCount: subreddits.length,
-      disabledSubredditCount: subredditPool.disabledSubreddits.length,
+      ...scopeStats,
       lookbackHours,
       runSource: data.source ?? "scheduled",
       durationMs,
@@ -245,8 +263,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     createdLeads,
     reusedLeads,
     queuedClassifications,
-    globalSubredditCount: subreddits.length,
-    disabledSubredditCount: subredditPool.disabledSubreddits.length,
+    ...scopeStats,
     lookbackHours,
     runSource: data.source ?? "scheduled",
     totalLeadsFound: matchedPosts,

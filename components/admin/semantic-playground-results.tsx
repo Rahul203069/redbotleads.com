@@ -66,13 +66,31 @@ export function SemanticPlaygroundResults({
   totalMatches: number;
 }) {
   const [sortBy, setSortBy] = useState<PlaygroundResultSort>("semantic");
-  const [copied, setCopied] = useState(false);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedQualified, setCopiedQualified] = useState(false);
   const sortedResults = useMemo(() => sortResults(results, sortBy), [results, sortBy]);
   const copyableResults = useMemo(
     () => sortedResults.filter((result) => (result.score ?? -1) >= MIN_COPY_LEAD_SCORE),
     [sortedResults],
   );
   const runStatusLabel = runStatus === "QUEUED" ? "Queued" : "Processing";
+
+  async function handleCopyAllLeads() {
+    await copyTextToClipboard(
+      JSON.stringify(
+        {
+          copiedAt: new Date().toISOString(),
+          minScore: null,
+          leads: sortedResults.map(formatPlaygroundLeadForJson),
+          totalLeads: sortedResults.length,
+        },
+        null,
+        2,
+      ),
+    );
+    setCopiedAll(true);
+    window.setTimeout(() => setCopiedAll(false), 2000);
+  }
 
   async function handleCopyQualifiedLeads() {
     await copyTextToClipboard(
@@ -87,8 +105,8 @@ export function SemanticPlaygroundResults({
         2,
       ),
     );
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
+    setCopiedQualified(true);
+    window.setTimeout(() => setCopiedQualified(false), 2000);
   }
 
   return (
@@ -102,7 +120,7 @@ export function SemanticPlaygroundResults({
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
           {isRunActive ? (
             <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#f2c94c]/25 bg-[#f2c94c]/10 px-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ffd66e]">
               <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
@@ -115,16 +133,26 @@ export function SemanticPlaygroundResults({
               </span>
 
               <button
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/[0.08] bg-[#1b1b1b] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] transition-colors hover:bg-[#252525] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/60 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-white/[0.08] bg-[#1b1b1b] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] transition-colors hover:bg-[#252525] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/60 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={sortedResults.length === 0}
+                onClick={handleCopyAllLeads}
+                type="button"
+              >
+                {copiedAll ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copiedAll ? "Copied all" : "Copy all JSON"}
+              </button>
+
+              <button
+                className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-white/[0.08] bg-[#1b1b1b] px-4 text-[10px] font-bold uppercase tracking-[0.14em] text-[#ffffff] transition-colors hover:bg-[#252525] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/60 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={copyableResults.length === 0}
                 onClick={handleCopyQualifiedLeads}
                 type="button"
               >
-                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                {copied ? "Copied" : "Copy 40+ JSON"}
+                {copiedQualified ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {copiedQualified ? "Copied 40+" : "Copy 40+ JSON"}
               </button>
 
-              <div className="inline-flex min-h-10 items-center rounded-full border border-white/[0.08] bg-[#1b1b1b] p-1">
+              <div className="inline-flex min-h-11 items-center rounded-full border border-white/[0.08] bg-[#1b1b1b] p-1">
                 <ArrowDownWideNarrow className="ml-2 h-4 w-4 text-[#b3b3b3]" />
                 <SortButton active={sortBy === "semantic"} onClick={() => setSortBy("semantic")}>
                   Semantic

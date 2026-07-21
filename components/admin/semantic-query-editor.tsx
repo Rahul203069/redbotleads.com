@@ -55,6 +55,45 @@ export function SemanticQueryEditor({
     router.push(`/admin/analytics/semantic-queries?campaignId=${encodeURIComponent(nextCampaignId)}`);
   }
 
+  function handleClearQueries() {
+    setRows([]);
+    toast({
+      title: "Semantic query draft cleared",
+      description: "Live queries are unchanged. Use Reset to restore them, or add a replacement set before saving.",
+    });
+  }
+
+  async function handleCopyQueries() {
+    const result = cleanSemanticQueryRows(rows);
+
+    if (result.status === "error") {
+      toast({
+        title: "No semantic queries to copy",
+        description: result.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const copied = await copyTextToClipboard(
+      JSON.stringify(
+        {
+          semanticQueries: result.queries,
+        },
+        null,
+        2,
+      ),
+    );
+
+    toast({
+      title: copied ? "Semantic queries copied" : "Could not copy semantic queries",
+      description: copied
+        ? `Copied ${result.queries.length} semantic ${result.queries.length === 1 ? "query" : "queries"} as JSON.`
+        : "Your browser blocked clipboard access. Try copying again.",
+      variant: copied ? undefined : "destructive",
+    });
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -196,6 +235,8 @@ export function SemanticQueryEditor({
           eyebrow="Live queries"
           listClassName="grid min-h-0 flex-1 gap-3 overflow-y-auto overscroll-contain pt-4 pr-1"
           onChange={setRows}
+          onClear={handleClearQueries}
+          onCopy={handleCopyQueries}
           onReset={() => setRows(buildQueryRows(selectedCampaign))}
           rows={rows}
           title="Semantic worker set"
@@ -219,4 +260,38 @@ function buildQueryRows(campaign: CampaignOption | null): SemanticQueryDraftRow[
     category: query.category ?? "",
     text: query.queryText,
   })) ?? [];
+}
+
+async function copyTextToClipboard(text: string) {
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall back to the legacy copy path below.
+    }
+  }
+
+  if (typeof document === "undefined" || !document.body) {
+    return false;
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "true");
+  textArea.style.position = "fixed";
+  textArea.style.left = "-9999px";
+  textArea.style.top = "0";
+  textArea.style.opacity = "0";
+
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  try {
+    return document.execCommand("copy");
+  } catch {
+    return false;
+  } finally {
+    document.body.removeChild(textArea);
+  }
 }

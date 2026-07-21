@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardPaste, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { ClipboardPaste, Copy, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,8 @@ type SemanticQueryDraftEditorProps = {
   eyebrow?: string;
   listClassName?: string;
   onChange: (rows: SemanticQueryDraftRow[]) => void;
+  onClear?: () => void;
+  onCopy?: () => void | Promise<void>;
   onReset?: () => void;
   rows: SemanticQueryDraftRow[];
   title?: string;
@@ -35,6 +37,8 @@ export function SemanticQueryDraftEditor({
   eyebrow = "Semantic queries",
   listClassName = "grid max-h-[300px] gap-3 overflow-y-auto overscroll-contain pr-1",
   onChange,
+  onClear,
+  onCopy,
   onReset,
   rows,
   title = "Manual semantic worker set",
@@ -42,6 +46,9 @@ export function SemanticQueryDraftEditor({
   const { toast } = useToast();
   const [bulkPasteOpen, setBulkPasteOpen] = useState(false);
   const [bulkPasteValue, setBulkPasteValue] = useState("");
+  const actionButtonClassName = onClear || onCopy
+    ? "min-h-11 cursor-pointer rounded-full"
+    : "cursor-pointer rounded-full";
 
   function handleBulkPasteOpenChange(open: boolean) {
     setBulkPasteOpen(open);
@@ -100,13 +107,39 @@ export function SemanticQueryDraftEditor({
         </div>
         <div className="flex flex-wrap gap-2">
           {onReset ? (
-            <Button className="cursor-pointer rounded-full" disabled={disabled} onClick={onReset} size="sm" type="button" variant="secondary">
+            <Button className={actionButtonClassName} disabled={disabled} onClick={onReset} size="sm" type="button" variant="secondary">
               <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
           ) : null}
+          {onClear ? (
+            <Button
+              className={`${actionButtonClassName} text-[#f3727f] hover:border-[#f3727f]/40 hover:bg-[#f3727f]/10 hover:text-[#ff9aa5]`}
+              disabled={disabled || rows.length === 0}
+              onClick={onClear}
+              size="sm"
+              type="button"
+              variant="secondary"
+            >
+              <Trash2 className="h-4 w-4" />
+              Clear all
+            </Button>
+          ) : null}
+          {onCopy ? (
+            <Button
+              className={actionButtonClassName}
+              disabled={disabled || rows.length === 0}
+              onClick={() => void onCopy()}
+              size="sm"
+              type="button"
+              variant="secondary"
+            >
+              <Copy className="h-4 w-4" />
+              Copy JSON
+            </Button>
+          ) : null}
           <Button
-            className="cursor-pointer rounded-full"
+            className={actionButtonClassName}
             disabled={disabled}
             onClick={() => setBulkPasteOpen(true)}
             size="sm"
@@ -117,7 +150,7 @@ export function SemanticQueryDraftEditor({
             Bulk paste
           </Button>
           <Button
-            className="cursor-pointer rounded-full"
+            className={actionButtonClassName}
             disabled={disabled}
             onClick={() => onChange([...rows, { id: createSemanticQueryLocalId(), category: "", text: "" }])}
             size="sm"

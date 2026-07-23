@@ -64,7 +64,7 @@ export type RedditAccount = Prisma.RedditAccountModel
 export type Campaign = Prisma.CampaignModel
 /**
  * Model CampaignPublicVisitor
- *
+ * 
  */
 export type CampaignPublicVisitor = Prisma.CampaignPublicVisitorModel
 /**
@@ -72,6 +72,11 @@ export type CampaignPublicVisitor = Prisma.CampaignPublicVisitorModel
  * 
  */
 export type CampaignClientAccess = Prisma.CampaignClientAccessModel
+/**
+ * Model CampaignClientActivityEvent
+ * 
+ */
+export type CampaignClientActivityEvent = Prisma.CampaignClientActivityEventModel
 /**
  * Model CampaignRun
  * 

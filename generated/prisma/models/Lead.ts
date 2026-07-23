@@ -261,6 +261,7 @@ export type LeadWhereInput = {
   redditItem?: Prisma.XOR<Prisma.RedditItemScalarRelationFilter, Prisma.RedditItemWhereInput>
   ai?: Prisma.XOR<Prisma.LeadAINullableScalarRelationFilter, Prisma.LeadAIWhereInput> | null
   notifications?: Prisma.NotificationListRelationFilter
+  clientActivityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
 }
 
 export type LeadOrderByWithRelationInput = {
@@ -279,6 +280,7 @@ export type LeadOrderByWithRelationInput = {
   redditItem?: Prisma.RedditItemOrderByWithRelationInput
   ai?: Prisma.LeadAIOrderByWithRelationInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventOrderByRelationAggregateInput
 }
 
 export type LeadWhereUniqueInput = Prisma.AtLeast<{
@@ -301,6 +303,7 @@ export type LeadWhereUniqueInput = Prisma.AtLeast<{
   redditItem?: Prisma.XOR<Prisma.RedditItemScalarRelationFilter, Prisma.RedditItemWhereInput>
   ai?: Prisma.XOR<Prisma.LeadAINullableScalarRelationFilter, Prisma.LeadAIWhereInput> | null
   notifications?: Prisma.NotificationListRelationFilter
+  clientActivityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
 }, "id" | "userId_redditItemId_campaignId">
 
 export type LeadOrderByWithAggregationInput = {
@@ -350,6 +353,7 @@ export type LeadCreateInput = {
   redditItem: Prisma.RedditItemCreateNestedOneWithoutLeadsInput
   ai?: Prisma.LeadAICreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateInput = {
@@ -365,6 +369,7 @@ export type LeadUncheckedCreateInput = {
   updatedAt?: Date | string
   ai?: Prisma.LeadAIUncheckedCreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUpdateInput = {
@@ -380,6 +385,7 @@ export type LeadUpdateInput = {
   redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutLeadsNestedInput
   ai?: Prisma.LeadAIUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateInput = {
@@ -395,6 +401,7 @@ export type LeadUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ai?: Prisma.LeadAIUncheckedUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateManyInput = {
@@ -441,6 +448,11 @@ export type LeadListRelationFilter = {
 
 export type LeadOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type LeadNullableScalarRelationFilter = {
+  is?: Prisma.LeadWhereInput | null
+  isNot?: Prisma.LeadWhereInput | null
 }
 
 export type LeadUserIdRedditItemIdCampaignIdCompoundUniqueInput = {
@@ -585,6 +597,22 @@ export type LeadUncheckedUpdateManyWithoutCampaignNestedInput = {
   deleteMany?: Prisma.LeadScalarWhereInput | Prisma.LeadScalarWhereInput[]
 }
 
+export type LeadCreateNestedOneWithoutClientActivityEventsInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutClientActivityEventsInput, Prisma.LeadUncheckedCreateWithoutClientActivityEventsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutClientActivityEventsInput
+  connect?: Prisma.LeadWhereUniqueInput
+}
+
+export type LeadUpdateOneWithoutClientActivityEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.LeadCreateWithoutClientActivityEventsInput, Prisma.LeadUncheckedCreateWithoutClientActivityEventsInput>
+  connectOrCreate?: Prisma.LeadCreateOrConnectWithoutClientActivityEventsInput
+  upsert?: Prisma.LeadUpsertWithoutClientActivityEventsInput
+  disconnect?: Prisma.LeadWhereInput | boolean
+  delete?: Prisma.LeadWhereInput | boolean
+  connect?: Prisma.LeadWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LeadUpdateToOneWithWhereWithoutClientActivityEventsInput, Prisma.LeadUpdateWithoutClientActivityEventsInput>, Prisma.LeadUncheckedUpdateWithoutClientActivityEventsInput>
+}
+
 export type LeadCreateNestedManyWithoutRedditItemInput = {
   create?: Prisma.XOR<Prisma.LeadCreateWithoutRedditItemInput, Prisma.LeadUncheckedCreateWithoutRedditItemInput> | Prisma.LeadCreateWithoutRedditItemInput[] | Prisma.LeadUncheckedCreateWithoutRedditItemInput[]
   connectOrCreate?: Prisma.LeadCreateOrConnectWithoutRedditItemInput | Prisma.LeadCreateOrConnectWithoutRedditItemInput[]
@@ -675,6 +703,7 @@ export type LeadCreateWithoutUserInput = {
   redditItem: Prisma.RedditItemCreateNestedOneWithoutLeadsInput
   ai?: Prisma.LeadAICreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutUserInput = {
@@ -689,6 +718,7 @@ export type LeadUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   ai?: Prisma.LeadAIUncheckedCreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutUserInput = {
@@ -745,6 +775,7 @@ export type LeadCreateWithoutCampaignInput = {
   redditItem: Prisma.RedditItemCreateNestedOneWithoutLeadsInput
   ai?: Prisma.LeadAICreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutCampaignInput = {
@@ -759,6 +790,7 @@ export type LeadUncheckedCreateWithoutCampaignInput = {
   updatedAt?: Date | string
   ai?: Prisma.LeadAIUncheckedCreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutCampaignInput = {
@@ -787,6 +819,82 @@ export type LeadUpdateManyWithWhereWithoutCampaignInput = {
   data: Prisma.XOR<Prisma.LeadUpdateManyMutationInput, Prisma.LeadUncheckedUpdateManyWithoutCampaignInput>
 }
 
+export type LeadCreateWithoutClientActivityEventsInput = {
+  id?: string
+  score?: number
+  label?: $Enums.LeadLabel
+  status?: $Enums.LeadStatus
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutLeadsInput
+  campaign: Prisma.CampaignCreateNestedOneWithoutLeadsInput
+  redditItem: Prisma.RedditItemCreateNestedOneWithoutLeadsInput
+  ai?: Prisma.LeadAICreateNestedOneWithoutLeadInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutLeadInput
+}
+
+export type LeadUncheckedCreateWithoutClientActivityEventsInput = {
+  id?: string
+  userId: string
+  campaignId: string
+  redditItemId: string
+  score?: number
+  label?: $Enums.LeadLabel
+  status?: $Enums.LeadStatus
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  ai?: Prisma.LeadAIUncheckedCreateNestedOneWithoutLeadInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutLeadInput
+}
+
+export type LeadCreateOrConnectWithoutClientActivityEventsInput = {
+  where: Prisma.LeadWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeadCreateWithoutClientActivityEventsInput, Prisma.LeadUncheckedCreateWithoutClientActivityEventsInput>
+}
+
+export type LeadUpsertWithoutClientActivityEventsInput = {
+  update: Prisma.XOR<Prisma.LeadUpdateWithoutClientActivityEventsInput, Prisma.LeadUncheckedUpdateWithoutClientActivityEventsInput>
+  create: Prisma.XOR<Prisma.LeadCreateWithoutClientActivityEventsInput, Prisma.LeadUncheckedCreateWithoutClientActivityEventsInput>
+  where?: Prisma.LeadWhereInput
+}
+
+export type LeadUpdateToOneWithWhereWithoutClientActivityEventsInput = {
+  where?: Prisma.LeadWhereInput
+  data: Prisma.XOR<Prisma.LeadUpdateWithoutClientActivityEventsInput, Prisma.LeadUncheckedUpdateWithoutClientActivityEventsInput>
+}
+
+export type LeadUpdateWithoutClientActivityEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  score?: Prisma.IntFieldUpdateOperationsInput | number
+  label?: Prisma.EnumLeadLabelFieldUpdateOperationsInput | $Enums.LeadLabel
+  status?: Prisma.EnumLeadStatusFieldUpdateOperationsInput | $Enums.LeadStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutLeadsNestedInput
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutLeadsNestedInput
+  redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutLeadsNestedInput
+  ai?: Prisma.LeadAIUpdateOneWithoutLeadNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutLeadNestedInput
+}
+
+export type LeadUncheckedUpdateWithoutClientActivityEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  redditItemId?: Prisma.StringFieldUpdateOperationsInput | string
+  score?: Prisma.IntFieldUpdateOperationsInput | number
+  label?: Prisma.EnumLeadLabelFieldUpdateOperationsInput | $Enums.LeadLabel
+  status?: Prisma.EnumLeadStatusFieldUpdateOperationsInput | $Enums.LeadStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ai?: Prisma.LeadAIUncheckedUpdateOneWithoutLeadNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutLeadNestedInput
+}
+
 export type LeadCreateWithoutRedditItemInput = {
   id?: string
   score?: number
@@ -799,6 +907,7 @@ export type LeadCreateWithoutRedditItemInput = {
   campaign: Prisma.CampaignCreateNestedOneWithoutLeadsInput
   ai?: Prisma.LeadAICreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutRedditItemInput = {
@@ -813,6 +922,7 @@ export type LeadUncheckedCreateWithoutRedditItemInput = {
   updatedAt?: Date | string
   ai?: Prisma.LeadAIUncheckedCreateNestedOneWithoutLeadInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutRedditItemInput = {
@@ -853,6 +963,7 @@ export type LeadCreateWithoutAiInput = {
   campaign: Prisma.CampaignCreateNestedOneWithoutLeadsInput
   redditItem: Prisma.RedditItemCreateNestedOneWithoutLeadsInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutAiInput = {
@@ -867,6 +978,7 @@ export type LeadUncheckedCreateWithoutAiInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutAiInput = {
@@ -897,6 +1009,7 @@ export type LeadUpdateWithoutAiInput = {
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutLeadsNestedInput
   redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutLeadsNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutAiInput = {
@@ -911,6 +1024,7 @@ export type LeadUncheckedUpdateWithoutAiInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateWithoutNotificationsInput = {
@@ -925,6 +1039,7 @@ export type LeadCreateWithoutNotificationsInput = {
   campaign: Prisma.CampaignCreateNestedOneWithoutLeadsInput
   redditItem: Prisma.RedditItemCreateNestedOneWithoutLeadsInput
   ai?: Prisma.LeadAICreateNestedOneWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutLeadInput
 }
 
 export type LeadUncheckedCreateWithoutNotificationsInput = {
@@ -939,6 +1054,7 @@ export type LeadUncheckedCreateWithoutNotificationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   ai?: Prisma.LeadAIUncheckedCreateNestedOneWithoutLeadInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutLeadInput
 }
 
 export type LeadCreateOrConnectWithoutNotificationsInput = {
@@ -969,6 +1085,7 @@ export type LeadUpdateWithoutNotificationsInput = {
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutLeadsNestedInput
   redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutLeadsNestedInput
   ai?: Prisma.LeadAIUpdateOneWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutNotificationsInput = {
@@ -983,6 +1100,7 @@ export type LeadUncheckedUpdateWithoutNotificationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ai?: Prisma.LeadAIUncheckedUpdateOneWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadCreateManyUserInput = {
@@ -1009,6 +1127,7 @@ export type LeadUpdateWithoutUserInput = {
   redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutLeadsNestedInput
   ai?: Prisma.LeadAIUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutUserInput = {
@@ -1023,6 +1142,7 @@ export type LeadUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ai?: Prisma.LeadAIUncheckedUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutUserInput = {
@@ -1061,6 +1181,7 @@ export type LeadUpdateWithoutCampaignInput = {
   redditItem?: Prisma.RedditItemUpdateOneRequiredWithoutLeadsNestedInput
   ai?: Prisma.LeadAIUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutCampaignInput = {
@@ -1075,6 +1196,7 @@ export type LeadUncheckedUpdateWithoutCampaignInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ai?: Prisma.LeadAIUncheckedUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutCampaignInput = {
@@ -1113,6 +1235,7 @@ export type LeadUpdateWithoutRedditItemInput = {
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutLeadsNestedInput
   ai?: Prisma.LeadAIUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateWithoutRedditItemInput = {
@@ -1127,6 +1250,7 @@ export type LeadUncheckedUpdateWithoutRedditItemInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ai?: Prisma.LeadAIUncheckedUpdateOneWithoutLeadNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutLeadNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutLeadNestedInput
 }
 
 export type LeadUncheckedUpdateManyWithoutRedditItemInput = {
@@ -1148,10 +1272,12 @@ export type LeadUncheckedUpdateManyWithoutRedditItemInput = {
 
 export type LeadCountOutputType = {
   notifications: number
+  clientActivityEvents: number
 }
 
 export type LeadCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   notifications?: boolean | LeadCountOutputTypeCountNotificationsArgs
+  clientActivityEvents?: boolean | LeadCountOutputTypeCountClientActivityEventsArgs
 }
 
 /**
@@ -1171,6 +1297,13 @@ export type LeadCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.NotificationWhereInput
 }
 
+/**
+ * LeadCountOutputType without action
+ */
+export type LeadCountOutputTypeCountClientActivityEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignClientActivityEventWhereInput
+}
+
 
 export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1188,6 +1321,7 @@ export type LeadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
   ai?: boolean | Prisma.Lead$aiArgs<ExtArgs>
   notifications?: boolean | Prisma.Lead$notificationsArgs<ExtArgs>
+  clientActivityEvents?: boolean | Prisma.Lead$clientActivityEventsArgs<ExtArgs>
   _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["lead"]>
 
@@ -1243,6 +1377,7 @@ export type LeadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   redditItem?: boolean | Prisma.RedditItemDefaultArgs<ExtArgs>
   ai?: boolean | Prisma.Lead$aiArgs<ExtArgs>
   notifications?: boolean | Prisma.Lead$notificationsArgs<ExtArgs>
+  clientActivityEvents?: boolean | Prisma.Lead$clientActivityEventsArgs<ExtArgs>
   _count?: boolean | Prisma.LeadCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LeadIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1264,6 +1399,7 @@ export type $LeadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     redditItem: Prisma.$RedditItemPayload<ExtArgs>
     ai: Prisma.$LeadAIPayload<ExtArgs> | null
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    clientActivityEvents: Prisma.$CampaignClientActivityEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1675,6 +1811,7 @@ export interface Prisma__LeadClient<T, Null = never, ExtArgs extends runtime.Typ
   redditItem<T extends Prisma.RedditItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItemDefaultArgs<ExtArgs>>): Prisma.Prisma__RedditItemClient<runtime.Types.Result.GetResult<Prisma.$RedditItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ai<T extends Prisma.Lead$aiArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$aiArgs<ExtArgs>>): Prisma.Prisma__LeadAIClient<runtime.Types.Result.GetResult<Prisma.$LeadAIPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   notifications<T extends Prisma.Lead$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  clientActivityEvents<T extends Prisma.Lead$clientActivityEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Lead$clientActivityEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientActivityEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2150,6 +2287,30 @@ export type Lead$notificationsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * Lead.clientActivityEvents
+ */
+export type Lead$clientActivityEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignClientActivityEvent
+   */
+  select?: Prisma.CampaignClientActivityEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignClientActivityEvent
+   */
+  omit?: Prisma.CampaignClientActivityEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignClientActivityEventInclude<ExtArgs> | null
+  where?: Prisma.CampaignClientActivityEventWhereInput
+  orderBy?: Prisma.CampaignClientActivityEventOrderByWithRelationInput | Prisma.CampaignClientActivityEventOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignClientActivityEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignClientActivityEventScalarFieldEnum | Prisma.CampaignClientActivityEventScalarFieldEnum[]
 }
 
 /**

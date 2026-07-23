@@ -105,6 +105,13 @@ enum CampaignDailySemanticScanStatus {
   NO_MATCH
 }
 
+enum CampaignClientActivityEventType {
+  CAMPAIGN_DASHBOARD_VIEW
+  DAILY_LEADS_VIEW
+  LEAD_EXPANDED
+  REDDIT_LINK_CLICKED
+}
+
 enum SubredditRssPollSource {
   SUBREDDIT_DAILY_INGEST
   RSS_POLL
@@ -167,6 +174,7 @@ model User {
   semanticPlaygroundRuns CampaignSemanticPlaygroundRun[]
   campaignClientAccesses CampaignClientAccess[] @relation("CampaignClientAccessUser")
   createdCampaignClientAccesses CampaignClientAccess[] @relation("CampaignClientAccessCreator")
+  campaignClientActivityEvents CampaignClientActivityEvent[]
 }
 
 model TelegramPairing {
@@ -302,6 +310,7 @@ model Campaign {
   initialRssPollEvents CampaignInitialRssPollEvent[]
   semanticPlaygroundRuns CampaignSemanticPlaygroundRun[]
   clientAccesses CampaignClientAccess[]
+  clientActivityEvents CampaignClientActivityEvent[]
   publicVisitors CampaignPublicVisitor[]
 
   @@index([userId, isActive])
@@ -339,11 +348,37 @@ model CampaignClientAccess {
   campaign  Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   user      User?    @relation("CampaignClientAccessUser", fields: [userId], references: [id], onDelete: SetNull)
   createdBy User     @relation("CampaignClientAccessCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  activityEvents CampaignClientActivityEvent[]
 
   @@unique([campaignId, normalizedEmail])
   @@index([normalizedEmail])
   @@index([userId])
   @@index([createdByUserId, createdAt(sort: Desc)])
+}
+
+model CampaignClientActivityEvent {
+  id             String                          @id @default(cuid())
+  eventKey       String                          @unique
+  userId         String
+  campaignId     String
+  clientAccessId String?
+  leadId         String?
+  eventType      CampaignClientActivityEventType
+
+  availableLeadCount          Int?
+  newLeadCountSinceLastVisit  Int?
+  createdAt                   DateTime @default(now())
+
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign     Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  clientAccess CampaignClientAccess? @relation(fields: [clientAccessId], references: [id], onDelete: SetNull)
+  lead         Lead?                 @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([campaignId, userId, createdAt(sort: Desc)])
+  @@index([clientAccessId, createdAt(sort: Desc)])
+  @@index([eventType, createdAt(sort: Desc)])
+  @@index([leadId])
 }
 
 model CampaignRun {
@@ -753,6 +788,7 @@ model Lead {
 
   ai            LeadAI?
   notifications Notification[]
+  clientActivityEvents CampaignClientActivityEvent[]
 
   @@unique([userId, redditItemId, campaignId]) // dedupe per campaign
   @@index([userId, createdAt(sort: Desc)])

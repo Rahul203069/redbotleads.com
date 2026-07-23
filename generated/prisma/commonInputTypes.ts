@@ -270,6 +270,23 @@ export type EnumCampaignSemanticSearchScopeWithAggregatesFilter<$PrismaModel = n
   _max?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel>
 }
 
+export type EnumCampaignClientActivityEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignClientActivityEventType | Prisma.EnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignClientActivityEventTypeFilter<$PrismaModel> | $Enums.CampaignClientActivityEventType
+}
+
+export type EnumCampaignClientActivityEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignClientActivityEventType | Prisma.EnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignClientActivityEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.CampaignClientActivityEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCampaignClientActivityEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCampaignClientActivityEventTypeFilter<$PrismaModel>
+}
+
 export type JsonNullableFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -914,6 +931,23 @@ export type NestedEnumCampaignSemanticSearchScopeWithAggregatesFilter<$PrismaMod
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCampaignSemanticSearchScopeFilter<$PrismaModel>
+}
+
+export type NestedEnumCampaignClientActivityEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignClientActivityEventType | Prisma.EnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignClientActivityEventTypeFilter<$PrismaModel> | $Enums.CampaignClientActivityEventType
+}
+
+export type NestedEnumCampaignClientActivityEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CampaignClientActivityEventType | Prisma.EnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CampaignClientActivityEventType[] | Prisma.ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCampaignClientActivityEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.CampaignClientActivityEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCampaignClientActivityEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCampaignClientActivityEventTypeFilter<$PrismaModel>
 }
 
 export type NestedJsonNullableFilter<$PrismaModel = never> =

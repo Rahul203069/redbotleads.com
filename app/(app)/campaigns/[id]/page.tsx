@@ -9,6 +9,7 @@ import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-deta
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignPublicViewStats } from "@/components/campaigns/campaign-public-view-stats";
 import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
+import { CampaignClientActivityPageView } from "@/components/campaigns/client-activity-tracker";
 import { AdminClassifiedLeadsDialog } from "@/components/campaigns/admin-classified-leads-dialog";
 import { CopyPublicCampaignLinkButton } from "@/components/campaigns/copy-public-campaign-link-button";
 import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dialog";
@@ -237,6 +238,9 @@ export default async function CampaignDetailPage({
   return (
     <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
       <div className="space-y-5">
+        {access.role === "CLIENT" && !isAdminAccount ? (
+          <CampaignClientActivityPageView campaignId={campaign.id} eventType="CAMPAIGN_DASHBOARD_VIEW" />
+        ) : null}
         <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
         <div className="flex flex-col gap-6">
           {isAdminAccount ? (
@@ -398,6 +402,7 @@ export default async function CampaignDetailPage({
         showJsonExport={isAdminAccount}
         showSemanticSort={isAdminAccount}
         shouldWaitForTodaySync={shouldWaitForTodaySync}
+        trackClientActivity={access.role === "CLIENT" && !isAdminAccount}
       />
       </div>
     </CampaignLeadFilterLoadingProvider>

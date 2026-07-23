@@ -57,6 +57,7 @@ export function CampaignDetailLiveSections({
   showJsonExport = true,
   showSemanticSort = true,
   shouldWaitForTodaySync,
+  trackClientActivity = false,
 }: {
   campaignId: string;
   canDeleteLeads?: boolean;
@@ -76,6 +77,7 @@ export function CampaignDetailLiveSections({
   showJsonExport?: boolean;
   showSemanticSort?: boolean;
   shouldWaitForTodaySync?: boolean;
+  trackClientActivity?: boolean;
 }) {
   const [, startTransition] = useTransition();
   const { isLeadFilterLoading } = useCampaignLeadFilterLoading();
@@ -167,6 +169,7 @@ export function CampaignDetailLiveSections({
         showStatusFilter={false}
         shouldWaitForNextSync={shouldWaitForTodaySync}
         syncStatus={sync?.status ?? "IDLE"}
+        trackClientActivity={trackClientActivity}
         onLeadDeleted={(leadId) => {
           setLeads((current) => current.filter((lead) => lead.id !== leadId));
         }}

@@ -144,6 +144,16 @@ export const CampaignDailySemanticScanStatus = {
 export type CampaignDailySemanticScanStatus = (typeof CampaignDailySemanticScanStatus)[keyof typeof CampaignDailySemanticScanStatus]
 
 
+export const CampaignClientActivityEventType = {
+  CAMPAIGN_DASHBOARD_VIEW: 'CAMPAIGN_DASHBOARD_VIEW',
+  DAILY_LEADS_VIEW: 'DAILY_LEADS_VIEW',
+  LEAD_EXPANDED: 'LEAD_EXPANDED',
+  REDDIT_LINK_CLICKED: 'REDDIT_LINK_CLICKED'
+} as const
+
+export type CampaignClientActivityEventType = (typeof CampaignClientActivityEventType)[keyof typeof CampaignClientActivityEventType]
+
+
 export const SubredditRssPollSource = {
   SUBREDDIT_DAILY_INGEST: 'SUBREDDIT_DAILY_INGEST',
   RSS_POLL: 'RSS_POLL'

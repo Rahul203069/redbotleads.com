@@ -395,6 +395,7 @@ export const ModelName = {
   Campaign: 'Campaign',
   CampaignPublicVisitor: 'CampaignPublicVisitor',
   CampaignClientAccess: 'CampaignClientAccess',
+  CampaignClientActivityEvent: 'CampaignClientActivityEvent',
   CampaignRun: 'CampaignRun',
   CronRun: 'CronRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignPublicVisitor" | "campaignClientAccess" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignPublicVisitor" | "campaignClientAccess" | "campaignClientActivityEvent" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1244,6 +1245,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CampaignClientAccessCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CampaignClientAccessCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignClientActivityEvent: {
+      payload: Prisma.$CampaignClientActivityEventPayload<ExtArgs>
+      fields: Prisma.CampaignClientActivityEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignClientActivityEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignClientActivityEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignClientActivityEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignClientActivityEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignClientActivityEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignClientActivityEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignClientActivityEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignClientActivityEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignClientActivityEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>
+        }
+        update: {
+          args: Prisma.CampaignClientActivityEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignClientActivityEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignClientActivityEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignClientActivityEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignClientActivityEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignClientActivityEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignClientActivityEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignClientActivityEvent>
+        }
+        groupBy: {
+          args: Prisma.CampaignClientActivityEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignClientActivityEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignClientActivityEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignClientActivityEventCountAggregateOutputType> | number
         }
       }
     }
@@ -2852,6 +2927,22 @@ export const CampaignClientAccessScalarFieldEnum = {
 export type CampaignClientAccessScalarFieldEnum = (typeof CampaignClientAccessScalarFieldEnum)[keyof typeof CampaignClientAccessScalarFieldEnum]
 
 
+export const CampaignClientActivityEventScalarFieldEnum = {
+  id: 'id',
+  eventKey: 'eventKey',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  clientAccessId: 'clientAccessId',
+  leadId: 'leadId',
+  eventType: 'eventType',
+  availableLeadCount: 'availableLeadCount',
+  newLeadCountSinceLastVisit: 'newLeadCountSinceLastVisit',
+  createdAt: 'createdAt'
+} as const
+
+export type CampaignClientActivityEventScalarFieldEnum = (typeof CampaignClientActivityEventScalarFieldEnum)[keyof typeof CampaignClientActivityEventScalarFieldEnum]
+
+
 export const CampaignRunScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -3376,14 +3467,28 @@ export type ListEnumSourceModeFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'CampaignSemanticSearchScope'
  */
 export type EnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSemanticSearchScope'>
-
+    
 
 
 /**
  * Reference to a field of type 'CampaignSemanticSearchScope[]'
  */
 export type ListEnumCampaignSemanticSearchScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignSemanticSearchScope[]'>
+    
 
+
+/**
+ * Reference to a field of type 'CampaignClientActivityEventType'
+ */
+export type EnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignClientActivityEventType'>
+    
+
+
+/**
+ * Reference to a field of type 'CampaignClientActivityEventType[]'
+ */
+export type ListEnumCampaignClientActivityEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CampaignClientActivityEventType[]'>
+    
 
 
 /**
@@ -3687,6 +3792,7 @@ export type GlobalOmitConfig = {
   campaign?: Prisma.CampaignOmit
   campaignPublicVisitor?: Prisma.CampaignPublicVisitorOmit
   campaignClientAccess?: Prisma.CampaignClientAccessOmit
+  campaignClientActivityEvent?: Prisma.CampaignClientActivityEventOmit
   campaignRun?: Prisma.CampaignRunOmit
   cronRun?: Prisma.CronRunOmit
   campaignInitialRssPollEvent?: Prisma.CampaignInitialRssPollEventOmit
@@ -3768,3 +3874,4 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
+

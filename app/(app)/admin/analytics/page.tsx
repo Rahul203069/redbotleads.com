@@ -235,6 +235,7 @@ export default async function AdminAnalyticsPage({
             <AdminReportLink description="Test semantic queries against embedded posts." href="/admin/analytics/playground" icon={<FlaskConical className="h-5 w-5" />} label="Semantic playground" />
             <AdminReportLink description="Review and maintain campaign query sets." href="/admin/analytics/semantic-queries" icon={<Search className="h-5 w-5" />} label="Semantic queries" />
             <AdminReportLink description="Create and configure managed client campaigns." href="/admin/analytics/onboarding" icon={<UserPlus className="h-5 w-5" />} label="Client onboarding" />
+            <AdminReportLink description="See when assigned beta users open dashboards and review leads." href="/admin/analytics/user-activity" icon={<Users className="h-5 w-5" />} label="Beta user activity" />
           </div>
         </Panel>
 

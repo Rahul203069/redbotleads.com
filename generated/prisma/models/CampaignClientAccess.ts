@@ -217,6 +217,7 @@ export type CampaignClientAccessWhereInput = {
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  activityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
 }
 
 export type CampaignClientAccessOrderByWithRelationInput = {
@@ -232,6 +233,7 @@ export type CampaignClientAccessOrderByWithRelationInput = {
   campaign?: Prisma.CampaignOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
+  activityEvents?: Prisma.CampaignClientActivityEventOrderByRelationAggregateInput
 }
 
 export type CampaignClientAccessWhereUniqueInput = Prisma.AtLeast<{
@@ -251,6 +253,7 @@ export type CampaignClientAccessWhereUniqueInput = Prisma.AtLeast<{
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  activityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
 }, "id" | "campaignId_normalizedEmail">
 
 export type CampaignClientAccessOrderByWithAggregationInput = {
@@ -293,6 +296,7 @@ export type CampaignClientAccessCreateInput = {
   campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
   user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
+  activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateInput = {
@@ -305,6 +309,7 @@ export type CampaignClientAccessUncheckedCreateInput = {
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessUpdateInput = {
@@ -317,6 +322,7 @@ export type CampaignClientAccessUpdateInput = {
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
   user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
+  activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateInput = {
@@ -329,6 +335,7 @@ export type CampaignClientAccessUncheckedUpdateInput = {
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessCreateManyInput = {
@@ -413,6 +420,11 @@ export type CampaignClientAccessMinOrderByAggregateInput = {
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CampaignClientAccessNullableScalarRelationFilter = {
+  is?: Prisma.CampaignClientAccessWhereInput | null
+  isNot?: Prisma.CampaignClientAccessWhereInput | null
 }
 
 export type CampaignClientAccessCreateNestedManyWithoutUserInput = {
@@ -541,6 +553,22 @@ export type CampaignClientAccessUncheckedUpdateManyWithoutCampaignNestedInput = 
   deleteMany?: Prisma.CampaignClientAccessScalarWhereInput | Prisma.CampaignClientAccessScalarWhereInput[]
 }
 
+export type CampaignClientAccessCreateNestedOneWithoutActivityEventsInput = {
+  create?: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutActivityEventsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutActivityEventsInput>
+  connectOrCreate?: Prisma.CampaignClientAccessCreateOrConnectWithoutActivityEventsInput
+  connect?: Prisma.CampaignClientAccessWhereUniqueInput
+}
+
+export type CampaignClientAccessUpdateOneWithoutActivityEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutActivityEventsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutActivityEventsInput>
+  connectOrCreate?: Prisma.CampaignClientAccessCreateOrConnectWithoutActivityEventsInput
+  upsert?: Prisma.CampaignClientAccessUpsertWithoutActivityEventsInput
+  disconnect?: Prisma.CampaignClientAccessWhereInput | boolean
+  delete?: Prisma.CampaignClientAccessWhereInput | boolean
+  connect?: Prisma.CampaignClientAccessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignClientAccessUpdateToOneWithWhereWithoutActivityEventsInput, Prisma.CampaignClientAccessUpdateWithoutActivityEventsInput>, Prisma.CampaignClientAccessUncheckedUpdateWithoutActivityEventsInput>
+}
+
 export type CampaignClientAccessCreateWithoutUserInput = {
   id?: string
   email: string
@@ -550,6 +578,7 @@ export type CampaignClientAccessCreateWithoutUserInput = {
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
+  activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateWithoutUserInput = {
@@ -561,6 +590,7 @@ export type CampaignClientAccessUncheckedCreateWithoutUserInput = {
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessCreateOrConnectWithoutUserInput = {
@@ -582,6 +612,7 @@ export type CampaignClientAccessCreateWithoutCreatedByInput = {
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
   user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
+  activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateWithoutCreatedByInput = {
@@ -593,6 +624,7 @@ export type CampaignClientAccessUncheckedCreateWithoutCreatedByInput = {
   userId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessCreateOrConnectWithoutCreatedByInput = {
@@ -661,6 +693,7 @@ export type CampaignClientAccessCreateWithoutCampaignInput = {
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
+  activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateWithoutCampaignInput = {
@@ -672,6 +705,7 @@ export type CampaignClientAccessUncheckedCreateWithoutCampaignInput = {
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
 }
 
 export type CampaignClientAccessCreateOrConnectWithoutCampaignInput = {
@@ -698,6 +732,70 @@ export type CampaignClientAccessUpdateWithWhereUniqueWithoutCampaignInput = {
 export type CampaignClientAccessUpdateManyWithWhereWithoutCampaignInput = {
   where: Prisma.CampaignClientAccessScalarWhereInput
   data: Prisma.XOR<Prisma.CampaignClientAccessUpdateManyMutationInput, Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCampaignInput>
+}
+
+export type CampaignClientAccessCreateWithoutActivityEventsInput = {
+  id?: string
+  email: string
+  normalizedEmail: string
+  displayName: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
+  user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
+  createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
+}
+
+export type CampaignClientAccessUncheckedCreateWithoutActivityEventsInput = {
+  id?: string
+  campaignId: string
+  email: string
+  normalizedEmail: string
+  displayName: string
+  userId?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CampaignClientAccessCreateOrConnectWithoutActivityEventsInput = {
+  where: Prisma.CampaignClientAccessWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutActivityEventsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutActivityEventsInput>
+}
+
+export type CampaignClientAccessUpsertWithoutActivityEventsInput = {
+  update: Prisma.XOR<Prisma.CampaignClientAccessUpdateWithoutActivityEventsInput, Prisma.CampaignClientAccessUncheckedUpdateWithoutActivityEventsInput>
+  create: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutActivityEventsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutActivityEventsInput>
+  where?: Prisma.CampaignClientAccessWhereInput
+}
+
+export type CampaignClientAccessUpdateToOneWithWhereWithoutActivityEventsInput = {
+  where?: Prisma.CampaignClientAccessWhereInput
+  data: Prisma.XOR<Prisma.CampaignClientAccessUpdateWithoutActivityEventsInput, Prisma.CampaignClientAccessUncheckedUpdateWithoutActivityEventsInput>
+}
+
+export type CampaignClientAccessUpdateWithoutActivityEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
+  user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
+}
+
+export type CampaignClientAccessUncheckedUpdateWithoutActivityEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CampaignClientAccessCreateManyUserInput = {
@@ -731,6 +829,7 @@ export type CampaignClientAccessUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
+  activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateWithoutUserInput = {
@@ -742,6 +841,7 @@ export type CampaignClientAccessUncheckedUpdateWithoutUserInput = {
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateManyWithoutUserInput = {
@@ -764,6 +864,7 @@ export type CampaignClientAccessUpdateWithoutCreatedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
   user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
+  activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateWithoutCreatedByInput = {
@@ -775,6 +876,7 @@ export type CampaignClientAccessUncheckedUpdateWithoutCreatedByInput = {
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateManyWithoutCreatedByInput = {
@@ -808,6 +910,7 @@ export type CampaignClientAccessUpdateWithoutCampaignInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
+  activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateWithoutCampaignInput = {
@@ -819,6 +922,7 @@ export type CampaignClientAccessUncheckedUpdateWithoutCampaignInput = {
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateManyWithoutCampaignInput = {
@@ -832,6 +936,35 @@ export type CampaignClientAccessUncheckedUpdateManyWithoutCampaignInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type CampaignClientAccessCountOutputType
+ */
+
+export type CampaignClientAccessCountOutputType = {
+  activityEvents: number
+}
+
+export type CampaignClientAccessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  activityEvents?: boolean | CampaignClientAccessCountOutputTypeCountActivityEventsArgs
+}
+
+/**
+ * CampaignClientAccessCountOutputType without action
+ */
+export type CampaignClientAccessCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignClientAccessCountOutputType
+   */
+  select?: Prisma.CampaignClientAccessCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CampaignClientAccessCountOutputType without action
+ */
+export type CampaignClientAccessCountOutputTypeCountActivityEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CampaignClientActivityEventWhereInput
+}
 
 
 export type CampaignClientAccessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -847,6 +980,8 @@ export type CampaignClientAccessSelect<ExtArgs extends runtime.Types.Extensions.
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CampaignClientAccess$userArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  activityEvents?: boolean | Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs>
+  _count?: boolean | Prisma.CampaignClientAccessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["campaignClientAccess"]>
 
 export type CampaignClientAccessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -896,6 +1031,8 @@ export type CampaignClientAccessInclude<ExtArgs extends runtime.Types.Extensions
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CampaignClientAccess$userArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  activityEvents?: boolean | Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs>
+  _count?: boolean | Prisma.CampaignClientAccessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CampaignClientAccessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
@@ -914,6 +1051,7 @@ export type $CampaignClientAccessPayload<ExtArgs extends runtime.Types.Extension
     campaign: Prisma.$CampaignPayload<ExtArgs>
     user: Prisma.$UserPayload<ExtArgs> | null
     createdBy: Prisma.$UserPayload<ExtArgs>
+    activityEvents: Prisma.$CampaignClientActivityEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1322,6 +1460,7 @@ export interface Prisma__CampaignClientAccessClient<T, Null = never, ExtArgs ext
   campaign<T extends Prisma.CampaignDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignDefaultArgs<ExtArgs>>): Prisma.Prisma__CampaignClient<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.CampaignClientAccess$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignClientAccess$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  activityEvents<T extends Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientActivityEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1772,6 +1911,30 @@ export type CampaignClientAccess$userArgs<ExtArgs extends runtime.Types.Extensio
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * CampaignClientAccess.activityEvents
+ */
+export type CampaignClientAccess$activityEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignClientActivityEvent
+   */
+  select?: Prisma.CampaignClientActivityEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignClientActivityEvent
+   */
+  omit?: Prisma.CampaignClientActivityEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignClientActivityEventInclude<ExtArgs> | null
+  where?: Prisma.CampaignClientActivityEventWhereInput
+  orderBy?: Prisma.CampaignClientActivityEventOrderByWithRelationInput | Prisma.CampaignClientActivityEventOrderByWithRelationInput[]
+  cursor?: Prisma.CampaignClientActivityEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CampaignClientActivityEventScalarFieldEnum | Prisma.CampaignClientActivityEventScalarFieldEnum[]
 }
 
 /**

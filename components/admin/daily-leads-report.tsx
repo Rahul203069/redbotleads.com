@@ -2,6 +2,7 @@ import Link from "next/link";
 import type React from "react";
 
 import { DailyLeadsTrendChart } from "@/components/admin/daily-leads-trend-chart";
+import { TrackedRedditLeadLink } from "@/components/campaigns/tracked-reddit-lead-link";
 import type { DailyLeadAnalytics } from "@/lib/daily-leads-analytics";
 import { formatDateTimeInTimeZone, normalizeTimeZone } from "@/lib/time-zone";
 
@@ -10,12 +11,14 @@ export function DailyLeadsReport({
   pageHref,
   showTrendChart = false,
   showOwner = false,
+  trackClientActivity = false,
   timeZone = "UTC",
 }: {
   analytics: DailyLeadAnalytics;
   pageHref: (page: number) => string;
   showTrendChart?: boolean;
   showOwner?: boolean;
+  trackClientActivity?: boolean;
   timeZone?: string;
 }) {
   const metrics = analytics.metrics;
@@ -155,9 +158,13 @@ export function DailyLeadsReport({
                         {row.lead?.summary ? <div><span className="text-[#8f8f8f]">AI:</span> {row.lead.summary}</div> : null}
                         {row.notification?.error ? <div className="text-[#f3727f]">{row.notification.error}</div> : null}
                         {row.redditItem.url ? (
-                          <a className="font-semibold text-[#1ed760] hover:text-[#3be477]" href={row.redditItem.url} rel="noreferrer" target="_blank">
-                            View on Reddit
-                          </a>
+                          <TrackedRedditLeadLink
+                            campaignId={row.campaignId}
+                            className="inline-flex min-h-11 items-center font-semibold text-[#1ed760] transition-colors hover:text-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
+                            leadId={row.lead?.id ?? null}
+                            trackActivity={trackClientActivity}
+                            url={row.redditItem.url}
+                          />
                         ) : null}
                       </div>
                     </Td>

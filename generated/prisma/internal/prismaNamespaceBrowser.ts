@@ -62,6 +62,7 @@ export const ModelName = {
   Campaign: 'Campaign',
   CampaignPublicVisitor: 'CampaignPublicVisitor',
   CampaignClientAccess: 'CampaignClientAccess',
+  CampaignClientActivityEvent: 'CampaignClientActivityEvent',
   CampaignRun: 'CampaignRun',
   CronRun: 'CronRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
@@ -257,6 +258,22 @@ export const CampaignClientAccessScalarFieldEnum = {
 } as const
 
 export type CampaignClientAccessScalarFieldEnum = (typeof CampaignClientAccessScalarFieldEnum)[keyof typeof CampaignClientAccessScalarFieldEnum]
+
+
+export const CampaignClientActivityEventScalarFieldEnum = {
+  id: 'id',
+  eventKey: 'eventKey',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  clientAccessId: 'clientAccessId',
+  leadId: 'leadId',
+  eventType: 'eventType',
+  availableLeadCount: 'availableLeadCount',
+  newLeadCountSinceLastVisit: 'newLeadCountSinceLastVisit',
+  createdAt: 'createdAt'
+} as const
+
+export type CampaignClientActivityEventScalarFieldEnum = (typeof CampaignClientActivityEventScalarFieldEnum)[keyof typeof CampaignClientActivityEventScalarFieldEnum]
 
 
 export const CampaignRunScalarFieldEnum = {

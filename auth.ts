@@ -94,6 +94,34 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  events: {
+    signIn: async ({ user }) => {
+      const normalizedEmail = normalizeEmail(user.email);
+
+      if (!normalizedEmail || !user.id) {
+        return;
+      }
+
+      await prisma.campaignClientAccess.updateMany({
+        where: {
+          normalizedEmail,
+          OR: [
+            {
+              userId: null,
+            },
+            {
+              userId: {
+                not: user.id,
+              },
+            },
+          ],
+        },
+        data: {
+          userId: user.id,
+        },
+      });
+    },
+  },
 };
 
 export default NextAuth(authOptions);

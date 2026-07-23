@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { DailyLeadsReport } from "@/components/admin/daily-leads-report";
 import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semantic-filter";
+import { CampaignClientActivityPageView } from "@/components/campaigns/client-activity-tracker";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
@@ -127,6 +128,9 @@ export default async function CampaignDailyLeadsPage({
 
   return (
     <div className="space-y-5 text-[#ffffff]">
+      {access.role === "CLIENT" && !isAdminAccount ? (
+        <CampaignClientActivityPageView campaignId={campaign.id} eventType="DAILY_LEADS_VIEW" />
+      ) : null}
       <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -176,6 +180,7 @@ export default async function CampaignDailyLeadsPage({
           })
         }
         showTrendChart={!isAdminAccount}
+        trackClientActivity={access.role === "CLIENT" && !isAdminAccount}
         timeZone={browserTimeZone}
       />
     </div>

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Check, Clock3, Copy } from "lucide-react";
 
 import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign-lead-dialog";
+import { sendCampaignClientActivity } from "@/components/campaigns/client-activity-tracker";
 
 export type ClassifiedLead = {
   id: string;
@@ -48,6 +49,7 @@ export function ClassifiedLeadsPanel({
   showStatusFilter = true,
   shouldWaitForNextSync = false,
   syncStatus = "IDLE",
+  trackClientActivity = false,
   onLeadDeleted,
 }: {
   campaignId: string;
@@ -60,6 +62,7 @@ export function ClassifiedLeadsPanel({
   showStatusFilter?: boolean;
   shouldWaitForNextSync?: boolean;
   syncStatus?: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  trackClientActivity?: boolean;
   onLeadDeleted?: (leadId: string) => void;
 }) {
   const [labelFilter, setLabelFilter] = useState<(typeof labelFilters)[number]>("ALL");
@@ -253,13 +256,23 @@ export function ClassifiedLeadsPanel({
                       {hasLongContent(lead.redditItem.body, lead.redditItem.description) ? (
                         <button
                           className="mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#fdfdfd] transition-colors hover:text-[#cbcbcb]"
-                          onClick={() =>
+                          onClick={() => {
+                            const isExpanding = !expandedLeadIds.includes(lead.id);
+
                             setExpandedLeadIds((current) =>
                               current.includes(lead.id)
                                 ? current.filter((id) => id !== lead.id)
                                 : [...current, lead.id],
-                            )
-                          }
+                            );
+
+                            if (isExpanding && trackClientActivity) {
+                              sendCampaignClientActivity({
+                                campaignId,
+                                eventType: "LEAD_EXPANDED",
+                                leadId: lead.id,
+                              });
+                            }
+                          }}
                           type="button"
                         >
                           {expandedLeadIds.includes(lead.id) ? "Show less" : "Show more"}
@@ -285,6 +298,15 @@ export function ClassifiedLeadsPanel({
                       <a
                         className="inline-flex w-full items-center justify-center rounded-full bg-[#1ed760] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#121212] transition-colors hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] sm:w-auto"
                         href={lead.redditItem.url}
+                        onClick={() => {
+                          if (trackClientActivity) {
+                            sendCampaignClientActivity({
+                              campaignId,
+                              eventType: "REDDIT_LINK_CLICKED",
+                              leadId: lead.id,
+                            });
+                          }
+                        }}
                         rel="noreferrer"
                         target="_blank"
                       >

@@ -47,8 +47,8 @@ export default async function NotificationSettingsPage({
   }
 
   const isAdminAccount = canViewAnalytics(session.user.email);
-  const notificationCampaign = !isAdminAccount
-    ? await prisma.campaign.findFirst({
+  const notificationCampaigns = !isAdminAccount
+    ? await prisma.campaign.findMany({
         where: buildAccessibleCampaignWhere({
           email: session.user.email,
           userId: session.user.id,
@@ -66,20 +66,40 @@ export default async function NotificationSettingsPage({
               normalizedEmail: normalizeAccessEmail(session.user.email),
             },
             select: {
+              id: true,
               displayName: true,
+              minScoreToAlert: true,
               normalizedEmail: true,
             },
           },
         },
       })
-    : null;
-  const campaignAccess = notificationCampaign
-    ? getCampaignAccessFromRecord({
-        campaign: notificationCampaign,
-        email: session.user.email,
-        userId: session.user.id,
-      })
-    : null;
+    : [];
+  const notificationThresholdCampaigns = notificationCampaigns.flatMap((campaign) => {
+    const campaignAccess = getCampaignAccessFromRecord({
+      campaign,
+      email: session.user.email,
+      userId: session.user.id,
+    });
+
+    if (!campaignAccess) {
+      return [];
+    }
+
+    const clientAccess = campaign.clientAccesses.find(
+      (access) => access.normalizedEmail === normalizeAccessEmail(session.user.email),
+    );
+
+    return [{
+      id: campaign.id,
+      minScoreToAlert:
+        campaignAccess.role === "CLIENT" && clientAccess
+          ? clientAccess.minScoreToAlert
+          : campaign.minScoreToAlert,
+      name: getCampaignDisplayName(campaign, campaignAccess),
+      role: campaignAccess.role,
+    }];
+  });
 
   return (
     <div className="space-y-5">
@@ -126,15 +146,7 @@ export default async function NotificationSettingsPage({
         <NotificationSettingsForm
           defaultEmailAlertsEnabled={user.emailAlertsEnabled}
           defaultPreferredAlertChannel={user.preferredAlertChannel}
-          notificationThresholdCampaign={
-            notificationCampaign && campaignAccess
-              ? {
-                  id: notificationCampaign.id,
-                  name: getCampaignDisplayName(notificationCampaign, campaignAccess),
-                  minScoreToAlert: notificationCampaign.minScoreToAlert,
-                }
-              : null
-          }
+          notificationThresholdCampaigns={notificationThresholdCampaigns}
           slackChannelName={user.slackChannelName}
           slackConfigurationUrl={user.slackConfigurationUrl}
           slackTeamName={user.slackTeamName}

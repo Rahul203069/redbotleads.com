@@ -27,15 +27,16 @@ export function NotificationSettingsForm({
   telegramConnectedAt,
   telegramUsername,
   defaultPreferredAlertChannel,
-  notificationThresholdCampaign,
+  notificationThresholdCampaigns,
 }: {
   defaultEmailAlertsEnabled: boolean;
   defaultPreferredAlertChannel: "EMAIL" | "SLACK" | "TELEGRAM";
-  notificationThresholdCampaign?: {
+  notificationThresholdCampaigns?: Array<{
     id: string;
     minScoreToAlert: number;
     name: string;
-  } | null;
+    role: "OWNER" | "CLIENT";
+  }>;
   slackChannelName?: string | null;
   slackConfigurationUrl?: string | null;
   slackTeamName?: string | null;
@@ -203,44 +204,69 @@ export function NotificationSettingsForm({
         </div>
       </form>
 
-      {notificationThresholdCampaign ? (
-        <form
-          action={thresholdAction}
+      {notificationThresholdCampaigns?.length ? (
+        <section
+          aria-labelledby="campaign-alert-thresholds"
           className="grid gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
         >
-          <input name="notificationCampaignId" type="hidden" value={notificationThresholdCampaign.id} />
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="min-w-0">
-              <div className="text-sm font-medium text-[#fdfdfd]">Minimum score for alerts</div>
-              <div className="mt-1 text-sm leading-6 text-[#b3b3b3]">
-                Only leads at or above this score will send Slack or Telegram alerts.
-              </div>
-              <div className="mt-2 truncate text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7c7c7c]">
-                Applies to {notificationThresholdCampaign.name}
-              </div>
+          <div>
+            <div className="text-sm font-medium text-[#fdfdfd]" id="campaign-alert-thresholds">
+              Campaign alert scores
             </div>
+            <div className="mt-1 text-sm leading-6 text-[#b3b3b3]">
+              Set the minimum lead score separately for every campaign assigned to you.
+            </div>
+          </div>
 
-            <div className="grid gap-3 sm:w-48">
-              <label className="sr-only" htmlFor="minScoreToAlert">
-                Minimum score for alerts
-              </label>
-              <Input
-                className="h-12 rounded-2xl border-0 bg-[#1f1f1f] px-4 text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] placeholder:text-[#7c7c7c] focus-visible:ring-[#1ed760]"
-                defaultValue={notificationThresholdCampaign.minScoreToAlert}
-                id="minScoreToAlert"
-                max={100}
-                min={1}
-                name="minScoreToAlert"
-                type="number"
-              />
-              <Button
-                className="h-10 rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-none hover:bg-[#3be477]"
-                disabled={isSavingThreshold}
-                type="submit"
-              >
-                {isSavingThreshold ? "Saving..." : "Save score"}
-              </Button>
-            </div>
+          <div className="grid gap-3">
+            {notificationThresholdCampaigns.map((campaign) => {
+              const inputId = `minScoreToAlert-${campaign.id}`;
+
+              return (
+                <form
+                  action={thresholdAction}
+                  className="grid gap-4 rounded-[16px] bg-[#1f1f1f] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:grid-cols-[minmax(0,1fr)_12rem] sm:items-end"
+                  key={campaign.id}
+                >
+                  <input name="notificationCampaignId" type="hidden" value={campaign.id} />
+                  <div className="min-w-0">
+                    <label className="text-sm font-medium text-[#fdfdfd]" htmlFor={inputId}>
+                      {campaign.name}
+                    </label>
+                    <div className="mt-1 text-sm leading-6 text-[#b3b3b3]">
+                      Only leads at or above this score will alert you through your selected channel.
+                    </div>
+                    <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#7c7c7c]">
+                      {campaign.role === "CLIENT" ? "Your client threshold" : "Campaign owner threshold"}
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3">
+                    <Input
+                      aria-describedby={`${inputId}-help`}
+                      className="h-12 rounded-2xl border-0 bg-[#121212] px-4 text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] placeholder:text-[#7c7c7c] focus-visible:ring-[#1ed760]"
+                      defaultValue={campaign.minScoreToAlert}
+                      disabled={isSavingThreshold}
+                      id={inputId}
+                      max={100}
+                      min={1}
+                      name="minScoreToAlert"
+                      type="number"
+                    />
+                    <span className="sr-only" id={`${inputId}-help`}>
+                      Enter a whole number from 1 to 100.
+                    </span>
+                    <Button
+                      className="h-11 rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-none hover:bg-[#3be477]"
+                      disabled={isSavingThreshold}
+                      type="submit"
+                    >
+                      {isSavingThreshold ? "Saving..." : "Save score"}
+                    </Button>
+                  </div>
+                </form>
+              );
+            })}
           </div>
 
           {thresholdState.status === "error" && thresholdState.message ? (
@@ -248,7 +274,7 @@ export function NotificationSettingsForm({
               {thresholdState.message}
             </div>
           ) : null}
-        </form>
+        </section>
       ) : null}
 
       <div className="grid gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">

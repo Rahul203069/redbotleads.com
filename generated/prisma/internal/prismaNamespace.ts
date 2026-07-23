@@ -2920,6 +2920,8 @@ export const CampaignClientAccessScalarFieldEnum = {
   displayName: 'displayName',
   userId: 'userId',
   createdByUserId: 'createdByUserId',
+  minScoreToAlert: 'minScoreToAlert',
+  notificationsEnabledAt: 'notificationsEnabledAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -3259,6 +3261,10 @@ export const NotificationScalarFieldEnum = {
   id: 'id',
   leadId: 'leadId',
   campaignRunId: 'campaignRunId',
+  recipientUserId: 'recipientUserId',
+  recipientRole: 'recipientRole',
+  campaignClientAccessId: 'campaignClientAccessId',
+  campaignDisplayName: 'campaignDisplayName',
   channel: 'channel',
   status: 'status',
   error: 'error',
@@ -3670,6 +3676,20 @@ export type EnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'LeadStatus[]'
  */
 export type ListEnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LeadStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationRecipientRole'
+ */
+export type EnumNotificationRecipientRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationRecipientRole'>
+    
+
+
+/**
+ * Reference to a field of type 'NotificationRecipientRole[]'
+ */
+export type ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationRecipientRole[]'>
     
 
 

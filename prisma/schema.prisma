@@ -61,6 +61,11 @@ enum NotifyStatus {
   FAILED
 }
 
+enum NotificationRecipientRole {
+  OWNER
+  CLIENT
+}
+
 enum SourceMode {
   PUBLIC
   OAUTH_USER
@@ -175,6 +180,7 @@ model User {
   campaignClientAccesses CampaignClientAccess[] @relation("CampaignClientAccessUser")
   createdCampaignClientAccesses CampaignClientAccess[] @relation("CampaignClientAccessCreator")
   campaignClientActivityEvents CampaignClientActivityEvent[]
+  receivedNotifications Notification[] @relation("NotificationRecipient")
 }
 
 model TelegramPairing {
@@ -341,6 +347,8 @@ model CampaignClientAccess {
   displayName     String
   userId          String?
   createdByUserId String
+  minScoreToAlert Int      @default(75)
+  notificationsEnabledAt DateTime @default(now())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -349,6 +357,7 @@ model CampaignClientAccess {
   user      User?    @relation("CampaignClientAccessUser", fields: [userId], references: [id], onDelete: SetNull)
   createdBy User     @relation("CampaignClientAccessCreator", fields: [createdByUserId], references: [id], onDelete: Cascade)
   activityEvents CampaignClientActivityEvent[]
+  notifications Notification[]
 
   @@unique([campaignId, normalizedEmail])
   @@index([normalizedEmail])
@@ -819,6 +828,10 @@ model Notification {
   id      String       @id @default(cuid())
   leadId  String
   campaignRunId String?
+  recipientUserId String
+  recipientRole NotificationRecipientRole @default(OWNER)
+  campaignClientAccessId String?
+  campaignDisplayName String
   channel NotifyChannel
   status  NotifyStatus @default(PENDING)
   error   String?
@@ -828,9 +841,14 @@ model Notification {
 
   lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
   campaignRun CampaignRun? @relation(fields: [campaignRunId], references: [id], onDelete: SetNull)
+  recipient User @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Restrict)
+  campaignClientAccess CampaignClientAccess? @relation(fields: [campaignClientAccessId], references: [id], onDelete: SetNull)
 
+  @@unique([leadId, recipientUserId, channel])
   @@index([leadId, createdAt(sort: Desc)])
   @@index([campaignRunId, createdAt(sort: Desc)])
+  @@index([recipientUserId, createdAt(sort: Desc)])
+  @@index([campaignClientAccessId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
 }
 

@@ -647,11 +647,28 @@ export type EnumLeadStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel>
 }
 
+export type EnumNotificationRecipientRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationRecipientRole | Prisma.EnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationRecipientRoleFilter<$PrismaModel> | $Enums.NotificationRecipientRole
+}
+
 export type EnumNotifyStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.NotifyStatus | Prisma.EnumNotifyStatusFieldRefInput<$PrismaModel>
   in?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumNotifyStatusFilter<$PrismaModel> | $Enums.NotifyStatus
+}
+
+export type EnumNotificationRecipientRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationRecipientRole | Prisma.EnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationRecipientRoleWithAggregatesFilter<$PrismaModel> | $Enums.NotificationRecipientRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumNotificationRecipientRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumNotificationRecipientRoleFilter<$PrismaModel>
 }
 
 export type EnumNotifyStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -1234,11 +1251,28 @@ export type NestedEnumLeadStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumLeadStatusFilter<$PrismaModel>
 }
 
+export type NestedEnumNotificationRecipientRoleFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationRecipientRole | Prisma.EnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationRecipientRoleFilter<$PrismaModel> | $Enums.NotificationRecipientRole
+}
+
 export type NestedEnumNotifyStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.NotifyStatus | Prisma.EnumNotifyStatusFieldRefInput<$PrismaModel>
   in?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   notIn?: $Enums.NotifyStatus[] | Prisma.ListEnumNotifyStatusFieldRefInput<$PrismaModel>
   not?: Prisma.NestedEnumNotifyStatusFilter<$PrismaModel> | $Enums.NotifyStatus
+}
+
+export type NestedEnumNotificationRecipientRoleWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.NotificationRecipientRole | Prisma.EnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  in?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  notIn?: $Enums.NotificationRecipientRole[] | Prisma.ListEnumNotificationRecipientRoleFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumNotificationRecipientRoleWithAggregatesFilter<$PrismaModel> | $Enums.NotificationRecipientRole
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumNotificationRecipientRoleFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumNotificationRecipientRoleFilter<$PrismaModel>
 }
 
 export type NestedEnumNotifyStatusWithAggregatesFilter<$PrismaModel = never> = {

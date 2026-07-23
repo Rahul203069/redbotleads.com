@@ -82,6 +82,14 @@ export const NotifyStatus = {
 export type NotifyStatus = (typeof NotifyStatus)[keyof typeof NotifyStatus]
 
 
+export const NotificationRecipientRole = {
+  OWNER: 'OWNER',
+  CLIENT: 'CLIENT'
+} as const
+
+export type NotificationRecipientRole = (typeof NotificationRecipientRole)[keyof typeof NotificationRecipientRole]
+
+
 export const SourceMode = {
   PUBLIC: 'PUBLIC',
   OAUTH_USER: 'OAUTH_USER'

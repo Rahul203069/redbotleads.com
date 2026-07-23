@@ -253,6 +253,8 @@ export const CampaignClientAccessScalarFieldEnum = {
   displayName: 'displayName',
   userId: 'userId',
   createdByUserId: 'createdByUserId',
+  minScoreToAlert: 'minScoreToAlert',
+  notificationsEnabledAt: 'notificationsEnabledAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -592,6 +594,10 @@ export const NotificationScalarFieldEnum = {
   id: 'id',
   leadId: 'leadId',
   campaignRunId: 'campaignRunId',
+  recipientUserId: 'recipientUserId',
+  recipientRole: 'recipientRole',
+  campaignClientAccessId: 'campaignClientAccessId',
+  campaignDisplayName: 'campaignDisplayName',
   channel: 'channel',
   status: 'status',
   error: 'error',

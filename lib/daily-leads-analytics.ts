@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { summarizeNotificationDeliveries } from "@/lib/notification-delivery-summary";
 import { addDaysToDateKey, getDateKeyInTimeZone, normalizeTimeZone } from "@/lib/time-zone";
 
 export const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
@@ -351,6 +352,7 @@ export async function getDailyLeadAnalytics({
               campaignRunId: true,
               channel: true,
               status: true,
+              recipientRole: true,
               error: true,
               sentAt: true,
               createdAt: true,
@@ -373,9 +375,10 @@ export async function getDailyLeadAnalytics({
             },
             notifications: {
               select: {
-                campaignRunId: true,
-                status: true,
-              },
+              campaignRunId: true,
+              status: true,
+              recipientRole: true,
+            },
             },
           },
         }),
@@ -384,10 +387,9 @@ export async function getDailyLeadAnalytics({
 
   const rows = scans.map((scan) => {
     const lead = leadByPair.get(buildPairKey(scan.campaignId, scan.redditItemId)) ?? null;
-    const notification =
-      lead?.notifications.find((item) => item.campaignRunId && item.campaignRunId === scan.campaignRunId)
-      ?? lead?.notifications[0]
-      ?? null;
+    const notification = summarizeNotificationDeliveries(
+      selectNotificationsForRun(lead?.notifications ?? [], scan.campaignRunId),
+    );
     const classificationFailed = lead?.ai?.model === CLASSIFICATION_ERROR_MODEL;
     const classified = Boolean(lead?.ai && !classificationFailed);
     const strong = classified && (lead?.score ?? 0) > DAILY_STRONG_LEAD_SCORE;
@@ -437,15 +439,15 @@ export async function getDailyLeadAnalytics({
   });
   const matchedMetricRows = matchedScansForMetrics.map((scan) => {
     const lead = metricLeadByPair.get(buildPairKey(scan.campaignId, scan.redditItemId)) ?? null;
-    const notification =
-      lead?.notifications.find((item) => item.campaignRunId && item.campaignRunId === scan.campaignRunId)
-      ?? lead?.notifications[0]
-      ?? null;
+    const notificationStatuses = selectNotificationsForRun(
+      lead?.notifications ?? [],
+      scan.campaignRunId,
+    ).map((notification) => notification.status);
 
     return {
       classificationFailed: lead?.ai?.model === CLASSIFICATION_ERROR_MODEL,
       classified: Boolean(lead?.ai && lead.ai.model !== CLASSIFICATION_ERROR_MODEL),
-      notificationStatus: notification?.status ?? null,
+      notificationStatuses,
       score: lead?.score ?? 0,
     };
   });
@@ -479,10 +481,32 @@ export async function getDailyLeadAnalytics({
       strongLeads: classifiedMetricRows.filter((row) => row.score > DAILY_STRONG_LEAD_SCORE).length,
       notStrongLeads: classifiedMetricRows.filter((row) => row.score <= DAILY_STRONG_LEAD_SCORE).length,
       pendingClassifications: matchedMetricRows.filter((row) => !row.classified && !row.classificationFailed).length,
-      notificationsSent: matchedMetricRows.filter((row) => row.notificationStatus === "SENT").length,
-      notificationsFailed: matchedMetricRows.filter((row) => row.notificationStatus === "FAILED").length,
+      notificationsSent: matchedMetricRows.reduce(
+        (count, row) => count + row.notificationStatuses.filter((status) => status === "SENT").length,
+        0,
+      ),
+      notificationsFailed: matchedMetricRows.reduce(
+        (count, row) => count + row.notificationStatuses.filter((status) => status === "FAILED").length,
+        0,
+      ),
     },
   };
+}
+
+function selectNotificationsForRun<
+  T extends {
+    campaignRunId: string | null;
+  },
+>(notifications: T[], campaignRunId: string | null) {
+  if (!campaignRunId) {
+    return notifications;
+  }
+
+  const matchingRun = notifications.filter(
+    (notification) => notification.campaignRunId === campaignRunId,
+  );
+
+  return matchingRun.length > 0 ? matchingRun : notifications;
 }
 
 function buildPairKey(campaignId: string, redditItemId: string) {

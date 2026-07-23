@@ -315,6 +315,7 @@ export type UserWhereInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
+  receivedNotifications?: Prisma.NotificationListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -351,6 +352,7 @@ export type UserOrderByWithRelationInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessOrderByRelationAggregateInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessOrderByRelationAggregateInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventOrderByRelationAggregateInput
+  receivedNotifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -390,6 +392,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   campaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessListRelationFilter
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
+  receivedNotifications?: Prisma.NotificationListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -478,6 +481,7 @@ export type UserCreateInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -514,6 +518,7 @@ export type UserUncheckedCreateInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUpdateInput = {
@@ -550,6 +555,7 @@ export type UserUpdateInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -586,6 +592,7 @@ export type UserUncheckedUpdateInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -946,6 +953,20 @@ export type UserUpdateOneRequiredWithoutLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutLeadsInput, Prisma.UserUpdateWithoutLeadsInput>, Prisma.UserUncheckedUpdateWithoutLeadsInput>
 }
 
+export type UserCreateNestedOneWithoutReceivedNotificationsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutReceivedNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedNotificationsInput
+  upsert?: Prisma.UserUpsertWithoutReceivedNotificationsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedNotificationsInput, Prisma.UserUpdateWithoutReceivedNotificationsInput>, Prisma.UserUncheckedUpdateWithoutReceivedNotificationsInput>
+}
+
 export type UserCreateWithoutTelegramPairingsInput = {
   id?: string
   name?: string | null
@@ -979,6 +1000,7 @@ export type UserCreateWithoutTelegramPairingsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutTelegramPairingsInput = {
@@ -1014,6 +1036,7 @@ export type UserUncheckedCreateWithoutTelegramPairingsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutTelegramPairingsInput = {
@@ -1065,6 +1088,7 @@ export type UserUpdateWithoutTelegramPairingsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTelegramPairingsInput = {
@@ -1100,6 +1124,7 @@ export type UserUncheckedUpdateWithoutTelegramPairingsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutPasswordInput = {
@@ -1135,6 +1160,7 @@ export type UserCreateWithoutPasswordInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutPasswordInput = {
@@ -1170,6 +1196,7 @@ export type UserUncheckedCreateWithoutPasswordInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutPasswordInput = {
@@ -1221,6 +1248,7 @@ export type UserUpdateWithoutPasswordInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPasswordInput = {
@@ -1256,6 +1284,7 @@ export type UserUncheckedUpdateWithoutPasswordInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -1291,6 +1320,7 @@ export type UserCreateWithoutAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -1326,6 +1356,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -1377,6 +1408,7 @@ export type UserUpdateWithoutAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -1412,6 +1444,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -1447,6 +1480,7 @@ export type UserCreateWithoutSessionsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -1482,6 +1516,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -1533,6 +1568,7 @@ export type UserUpdateWithoutSessionsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -1568,6 +1604,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutRedditAccountsInput = {
@@ -1603,6 +1640,7 @@ export type UserCreateWithoutRedditAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutRedditAccountsInput = {
@@ -1638,6 +1676,7 @@ export type UserUncheckedCreateWithoutRedditAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutRedditAccountsInput = {
@@ -1689,6 +1728,7 @@ export type UserUpdateWithoutRedditAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRedditAccountsInput = {
@@ -1724,6 +1764,7 @@ export type UserUncheckedUpdateWithoutRedditAccountsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutCampaignsInput = {
@@ -1759,6 +1800,7 @@ export type UserCreateWithoutCampaignsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutCampaignsInput = {
@@ -1794,6 +1836,7 @@ export type UserUncheckedCreateWithoutCampaignsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutCampaignsInput = {
@@ -1845,6 +1888,7 @@ export type UserUpdateWithoutCampaignsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignsInput = {
@@ -1880,6 +1924,7 @@ export type UserUncheckedUpdateWithoutCampaignsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutCampaignClientAccessesInput = {
@@ -1915,6 +1960,7 @@ export type UserCreateWithoutCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutCampaignClientAccessesInput = {
@@ -1950,6 +1996,7 @@ export type UserUncheckedCreateWithoutCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutCampaignClientAccessesInput = {
@@ -1990,6 +2037,7 @@ export type UserCreateWithoutCreatedCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutCreatedCampaignClientAccessesInput = {
@@ -2025,6 +2073,7 @@ export type UserUncheckedCreateWithoutCreatedCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutCreatedCampaignClientAccessesInput = {
@@ -2076,6 +2125,7 @@ export type UserUpdateWithoutCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignClientAccessesInput = {
@@ -2111,6 +2161,7 @@ export type UserUncheckedUpdateWithoutCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUpsertWithoutCreatedCampaignClientAccessesInput = {
@@ -2157,6 +2208,7 @@ export type UserUpdateWithoutCreatedCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedCampaignClientAccessesInput = {
@@ -2192,6 +2244,7 @@ export type UserUncheckedUpdateWithoutCreatedCampaignClientAccessesInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutCampaignClientActivityEventsInput = {
@@ -2227,6 +2280,7 @@ export type UserCreateWithoutCampaignClientActivityEventsInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutCampaignClientActivityEventsInput = {
@@ -2262,6 +2316,7 @@ export type UserUncheckedCreateWithoutCampaignClientActivityEventsInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutCampaignClientActivityEventsInput = {
@@ -2313,6 +2368,7 @@ export type UserUpdateWithoutCampaignClientActivityEventsInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignClientActivityEventsInput = {
@@ -2348,6 +2404,7 @@ export type UserUncheckedUpdateWithoutCampaignClientActivityEventsInput = {
   semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutCampaignRunsInput = {
@@ -2383,6 +2440,7 @@ export type UserCreateWithoutCampaignRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutCampaignRunsInput = {
@@ -2418,6 +2476,7 @@ export type UserUncheckedCreateWithoutCampaignRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutCampaignRunsInput = {
@@ -2469,6 +2528,7 @@ export type UserUpdateWithoutCampaignRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCampaignRunsInput = {
@@ -2504,6 +2564,7 @@ export type UserUncheckedUpdateWithoutCampaignRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutAiUsageEventsInput = {
@@ -2539,6 +2600,7 @@ export type UserCreateWithoutAiUsageEventsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutAiUsageEventsInput = {
@@ -2574,6 +2636,7 @@ export type UserUncheckedCreateWithoutAiUsageEventsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutAiUsageEventsInput = {
@@ -2625,6 +2688,7 @@ export type UserUpdateWithoutAiUsageEventsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
@@ -2660,6 +2724,7 @@ export type UserUncheckedUpdateWithoutAiUsageEventsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutSemanticPlaygroundRunsInput = {
@@ -2695,6 +2760,7 @@ export type UserCreateWithoutSemanticPlaygroundRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
@@ -2730,6 +2796,7 @@ export type UserUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutSemanticPlaygroundRunsInput = {
@@ -2781,6 +2848,7 @@ export type UserUpdateWithoutSemanticPlaygroundRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
@@ -2816,6 +2884,7 @@ export type UserUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserCreateWithoutLeadsInput = {
@@ -2851,6 +2920,7 @@ export type UserCreateWithoutLeadsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
 }
 
 export type UserUncheckedCreateWithoutLeadsInput = {
@@ -2886,6 +2956,7 @@ export type UserUncheckedCreateWithoutLeadsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+  receivedNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
 }
 
 export type UserCreateOrConnectWithoutLeadsInput = {
@@ -2937,6 +3008,7 @@ export type UserUpdateWithoutLeadsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLeadsInput = {
@@ -2972,6 +3044,167 @@ export type UserUncheckedUpdateWithoutLeadsInput = {
   campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
   createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
   campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
+  receivedNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+}
+
+export type UserCreateWithoutReceivedNotificationsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingCreateNestedManyWithoutUserInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCreatedByInput
+  campaignClientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutReceivedNotificationsInput = {
+  id?: string
+  name?: string | null
+  email?: string | null
+  emailVerified?: Date | string | null
+  image?: string | null
+  plan?: string
+  emailAlertsEnabled?: boolean
+  preferredAlertChannel?: $Enums.NotifyChannel
+  slackWebhookUrl?: string | null
+  slackTeamId?: string | null
+  slackTeamName?: string | null
+  slackChannelId?: string | null
+  slackChannelName?: string | null
+  slackConfigurationUrl?: string | null
+  slackAuthedUserId?: string | null
+  telegramChatId?: string | null
+  telegramUsername?: string | null
+  telegramConnectedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  password?: Prisma.UserPasswordUncheckedCreateNestedOneWithoutUserInput
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutUserInput
+  redditAccounts?: Prisma.RedditAccountUncheckedCreateNestedManyWithoutUserInput
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutUserInput
+  campaignRuns?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutUserInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutUserInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedCreateNestedManyWithoutUserInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutUserInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutUserInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCreatedByInput
+  campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutReceivedNotificationsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+}
+
+export type UserUpsertWithoutReceivedNotificationsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReceivedNotificationsInput, Prisma.UserUncheckedUpdateWithoutReceivedNotificationsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedNotificationsInput, Prisma.UserUncheckedCreateWithoutReceivedNotificationsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReceivedNotificationsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReceivedNotificationsInput, Prisma.UserUncheckedUpdateWithoutReceivedNotificationsInput>
+}
+
+export type UserUpdateWithoutReceivedNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUpdateManyWithoutUserNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCreatedByNestedInput
+  campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReceivedNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emailVerified?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  emailAlertsEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preferredAlertChannel?: Prisma.EnumNotifyChannelFieldUpdateOperationsInput | $Enums.NotifyChannel
+  slackWebhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackTeamName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackChannelName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackConfigurationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slackAuthedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramChatId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramConnectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  password?: Prisma.UserPasswordUncheckedUpdateOneWithoutUserNestedInput
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutUserNestedInput
+  redditAccounts?: Prisma.RedditAccountUncheckedUpdateManyWithoutUserNestedInput
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutUserNestedInput
+  campaignRuns?: Prisma.CampaignRunUncheckedUpdateManyWithoutUserNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutUserNestedInput
+  telegramPairings?: Prisma.TelegramPairingUncheckedUpdateManyWithoutUserNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutUserNestedInput
+  campaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutUserNestedInput
+  createdCampaignClientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCreatedByNestedInput
+  campaignClientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2992,6 +3225,7 @@ export type UserCountOutputType = {
   campaignClientAccesses: number
   createdCampaignClientAccesses: number
   campaignClientActivityEvents: number
+  receivedNotifications: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3007,6 +3241,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   campaignClientAccesses?: boolean | UserCountOutputTypeCountCampaignClientAccessesArgs
   createdCampaignClientAccesses?: boolean | UserCountOutputTypeCountCreatedCampaignClientAccessesArgs
   campaignClientActivityEvents?: boolean | UserCountOutputTypeCountCampaignClientActivityEventsArgs
+  receivedNotifications?: boolean | UserCountOutputTypeCountReceivedNotificationsArgs
 }
 
 /**
@@ -3103,6 +3338,13 @@ export type UserCountOutputTypeCountCampaignClientActivityEventsArgs<ExtArgs ext
   where?: Prisma.CampaignClientActivityEventWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReceivedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3138,6 +3380,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   campaignClientAccesses?: boolean | Prisma.User$campaignClientAccessesArgs<ExtArgs>
   createdCampaignClientAccesses?: boolean | Prisma.User$createdCampaignClientAccessesArgs<ExtArgs>
   campaignClientActivityEvents?: boolean | Prisma.User$campaignClientActivityEventsArgs<ExtArgs>
+  receivedNotifications?: boolean | Prisma.User$receivedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -3225,6 +3468,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   campaignClientAccesses?: boolean | Prisma.User$campaignClientAccessesArgs<ExtArgs>
   createdCampaignClientAccesses?: boolean | Prisma.User$createdCampaignClientAccessesArgs<ExtArgs>
   campaignClientActivityEvents?: boolean | Prisma.User$campaignClientActivityEventsArgs<ExtArgs>
+  receivedNotifications?: boolean | Prisma.User$receivedNotificationsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -3246,6 +3490,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     campaignClientAccesses: Prisma.$CampaignClientAccessPayload<ExtArgs>[]
     createdCampaignClientAccesses: Prisma.$CampaignClientAccessPayload<ExtArgs>[]
     campaignClientActivityEvents: Prisma.$CampaignClientActivityEventPayload<ExtArgs>[]
+    receivedNotifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3675,6 +3920,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   campaignClientAccesses<T extends Prisma.User$campaignClientAccessesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$campaignClientAccessesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdCampaignClientAccesses<T extends Prisma.User$createdCampaignClientAccessesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdCampaignClientAccessesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientAccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   campaignClientActivityEvents<T extends Prisma.User$campaignClientActivityEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$campaignClientActivityEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientActivityEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedNotifications<T extends Prisma.User$receivedNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4416,6 +4662,30 @@ export type User$campaignClientActivityEventsArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   distinct?: Prisma.CampaignClientActivityEventScalarFieldEnum | Prisma.CampaignClientActivityEventScalarFieldEnum[]
+}
+
+/**
+ * User.receivedNotifications
+ */
+export type User$receivedNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

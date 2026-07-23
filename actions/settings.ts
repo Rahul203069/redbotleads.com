@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
-import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
+import { normalizeAccessEmail } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
 import { getTelegramBotStartUrl, sendTelegramMessage } from "@/lib/telegram";
 
@@ -101,32 +101,55 @@ export async function updateNotificationAlertThreshold(
   }
 
   try {
-    const campaign = await prisma.campaign.findFirst({
-      where: buildAccessibleCampaignWhere({
-        campaignId,
-        email: session.user.email,
-        userId: session.user.id,
-      }),
+    const normalizedEmail = normalizeAccessEmail(session.user.email);
+    const campaign = await prisma.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
       select: {
         id: true,
+        userId: true,
+        clientAccesses: {
+          where: {
+            normalizedEmail,
+          },
+          select: {
+            id: true,
+          },
+          take: 1,
+        },
       },
     });
 
-    if (!campaign) {
+    const ownsCampaign = campaign?.userId === session.user.id;
+    const clientAccess = campaign?.clientAccesses[0] ?? null;
+
+    if (!campaign || (!ownsCampaign && !clientAccess)) {
       return {
         status: "error",
         message: "Campaign was not found for this account.",
       };
     }
 
-    await prisma.campaign.update({
-      where: {
-        id: campaign.id,
-      },
-      data: {
-        minScoreToAlert,
-      },
-    });
+    if (ownsCampaign) {
+      await prisma.campaign.update({
+        where: {
+          id: campaign.id,
+        },
+        data: {
+          minScoreToAlert,
+        },
+      });
+    } else if (clientAccess) {
+      await prisma.campaignClientAccess.update({
+        where: {
+          id: clientAccess.id,
+        },
+        data: {
+          minScoreToAlert,
+        },
+      });
+    }
   } catch (error) {
     console.error("Notification alert threshold update failed", error);
 

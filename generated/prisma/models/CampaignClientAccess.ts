@@ -20,8 +20,18 @@ export type CampaignClientAccessModel = runtime.Types.Result.DefaultSelection<Pr
 
 export type AggregateCampaignClientAccess = {
   _count: CampaignClientAccessCountAggregateOutputType | null
+  _avg: CampaignClientAccessAvgAggregateOutputType | null
+  _sum: CampaignClientAccessSumAggregateOutputType | null
   _min: CampaignClientAccessMinAggregateOutputType | null
   _max: CampaignClientAccessMaxAggregateOutputType | null
+}
+
+export type CampaignClientAccessAvgAggregateOutputType = {
+  minScoreToAlert: number | null
+}
+
+export type CampaignClientAccessSumAggregateOutputType = {
+  minScoreToAlert: number | null
 }
 
 export type CampaignClientAccessMinAggregateOutputType = {
@@ -32,6 +42,8 @@ export type CampaignClientAccessMinAggregateOutputType = {
   displayName: string | null
   userId: string | null
   createdByUserId: string | null
+  minScoreToAlert: number | null
+  notificationsEnabledAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +56,8 @@ export type CampaignClientAccessMaxAggregateOutputType = {
   displayName: string | null
   userId: string | null
   createdByUserId: string | null
+  minScoreToAlert: number | null
+  notificationsEnabledAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,11 +70,21 @@ export type CampaignClientAccessCountAggregateOutputType = {
   displayName: number
   userId: number
   createdByUserId: number
+  minScoreToAlert: number
+  notificationsEnabledAt: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type CampaignClientAccessAvgAggregateInputType = {
+  minScoreToAlert?: true
+}
+
+export type CampaignClientAccessSumAggregateInputType = {
+  minScoreToAlert?: true
+}
 
 export type CampaignClientAccessMinAggregateInputType = {
   id?: true
@@ -70,6 +94,8 @@ export type CampaignClientAccessMinAggregateInputType = {
   displayName?: true
   userId?: true
   createdByUserId?: true
+  minScoreToAlert?: true
+  notificationsEnabledAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +108,8 @@ export type CampaignClientAccessMaxAggregateInputType = {
   displayName?: true
   userId?: true
   createdByUserId?: true
+  minScoreToAlert?: true
+  notificationsEnabledAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +122,8 @@ export type CampaignClientAccessCountAggregateInputType = {
   displayName?: true
   userId?: true
   createdByUserId?: true
+  minScoreToAlert?: true
+  notificationsEnabledAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -137,6 +167,18 @@ export type CampaignClientAccessAggregateArgs<ExtArgs extends runtime.Types.Exte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CampaignClientAccessAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CampaignClientAccessSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CampaignClientAccessMinAggregateInputType
@@ -167,6 +209,8 @@ export type CampaignClientAccessGroupByArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   _count?: CampaignClientAccessCountAggregateInputType | true
+  _avg?: CampaignClientAccessAvgAggregateInputType
+  _sum?: CampaignClientAccessSumAggregateInputType
   _min?: CampaignClientAccessMinAggregateInputType
   _max?: CampaignClientAccessMaxAggregateInputType
 }
@@ -179,9 +223,13 @@ export type CampaignClientAccessGroupByOutputType = {
   displayName: string
   userId: string | null
   createdByUserId: string
+  minScoreToAlert: number
+  notificationsEnabledAt: Date
   createdAt: Date
   updatedAt: Date
   _count: CampaignClientAccessCountAggregateOutputType | null
+  _avg: CampaignClientAccessAvgAggregateOutputType | null
+  _sum: CampaignClientAccessSumAggregateOutputType | null
   _min: CampaignClientAccessMinAggregateOutputType | null
   _max: CampaignClientAccessMaxAggregateOutputType | null
 }
@@ -212,12 +260,15 @@ export type CampaignClientAccessWhereInput = {
   displayName?: Prisma.StringFilter<"CampaignClientAccess"> | string
   userId?: Prisma.StringNullableFilter<"CampaignClientAccess"> | string | null
   createdByUserId?: Prisma.StringFilter<"CampaignClientAccess"> | string
+  minScoreToAlert?: Prisma.IntFilter<"CampaignClientAccess"> | number
+  notificationsEnabledAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   activityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }
 
 export type CampaignClientAccessOrderByWithRelationInput = {
@@ -228,12 +279,15 @@ export type CampaignClientAccessOrderByWithRelationInput = {
   displayName?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  minScoreToAlert?: Prisma.SortOrder
+  notificationsEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   campaign?: Prisma.CampaignOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   createdBy?: Prisma.UserOrderByWithRelationInput
   activityEvents?: Prisma.CampaignClientActivityEventOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationOrderByRelationAggregateInput
 }
 
 export type CampaignClientAccessWhereUniqueInput = Prisma.AtLeast<{
@@ -248,12 +302,15 @@ export type CampaignClientAccessWhereUniqueInput = Prisma.AtLeast<{
   displayName?: Prisma.StringFilter<"CampaignClientAccess"> | string
   userId?: Prisma.StringNullableFilter<"CampaignClientAccess"> | string | null
   createdByUserId?: Prisma.StringFilter<"CampaignClientAccess"> | string
+  minScoreToAlert?: Prisma.IntFilter<"CampaignClientAccess"> | number
+  notificationsEnabledAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   campaign?: Prisma.XOR<Prisma.CampaignScalarRelationFilter, Prisma.CampaignWhereInput>
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   activityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
+  notifications?: Prisma.NotificationListRelationFilter
 }, "id" | "campaignId_normalizedEmail">
 
 export type CampaignClientAccessOrderByWithAggregationInput = {
@@ -264,11 +321,15 @@ export type CampaignClientAccessOrderByWithAggregationInput = {
   displayName?: Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  minScoreToAlert?: Prisma.SortOrder
+  notificationsEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CampaignClientAccessCountOrderByAggregateInput
+  _avg?: Prisma.CampaignClientAccessAvgOrderByAggregateInput
   _max?: Prisma.CampaignClientAccessMaxOrderByAggregateInput
   _min?: Prisma.CampaignClientAccessMinOrderByAggregateInput
+  _sum?: Prisma.CampaignClientAccessSumOrderByAggregateInput
 }
 
 export type CampaignClientAccessScalarWhereWithAggregatesInput = {
@@ -282,6 +343,8 @@ export type CampaignClientAccessScalarWhereWithAggregatesInput = {
   displayName?: Prisma.StringWithAggregatesFilter<"CampaignClientAccess"> | string
   userId?: Prisma.StringNullableWithAggregatesFilter<"CampaignClientAccess"> | string | null
   createdByUserId?: Prisma.StringWithAggregatesFilter<"CampaignClientAccess"> | string
+  minScoreToAlert?: Prisma.IntWithAggregatesFilter<"CampaignClientAccess"> | number
+  notificationsEnabledAt?: Prisma.DateTimeWithAggregatesFilter<"CampaignClientAccess"> | Date | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CampaignClientAccess"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CampaignClientAccess"> | Date | string
 }
@@ -291,12 +354,15 @@ export type CampaignClientAccessCreateInput = {
   email: string
   normalizedEmail: string
   displayName: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
   user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
   activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateInput = {
@@ -307,9 +373,12 @@ export type CampaignClientAccessUncheckedCreateInput = {
   displayName: string
   userId?: string | null
   createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessUpdateInput = {
@@ -317,12 +386,15 @@ export type CampaignClientAccessUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
   user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
   activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateInput = {
@@ -333,9 +405,12 @@ export type CampaignClientAccessUncheckedUpdateInput = {
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessCreateManyInput = {
@@ -346,6 +421,8 @@ export type CampaignClientAccessCreateManyInput = {
   displayName: string
   userId?: string | null
   createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -355,6 +432,8 @@ export type CampaignClientAccessUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -367,6 +446,8 @@ export type CampaignClientAccessUncheckedUpdateManyInput = {
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -394,8 +475,14 @@ export type CampaignClientAccessCountOrderByAggregateInput = {
   displayName?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  minScoreToAlert?: Prisma.SortOrder
+  notificationsEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CampaignClientAccessAvgOrderByAggregateInput = {
+  minScoreToAlert?: Prisma.SortOrder
 }
 
 export type CampaignClientAccessMaxOrderByAggregateInput = {
@@ -406,6 +493,8 @@ export type CampaignClientAccessMaxOrderByAggregateInput = {
   displayName?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  minScoreToAlert?: Prisma.SortOrder
+  notificationsEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -418,8 +507,14 @@ export type CampaignClientAccessMinOrderByAggregateInput = {
   displayName?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  minScoreToAlert?: Prisma.SortOrder
+  notificationsEnabledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CampaignClientAccessSumOrderByAggregateInput = {
+  minScoreToAlert?: Prisma.SortOrder
 }
 
 export type CampaignClientAccessNullableScalarRelationFilter = {
@@ -569,16 +664,35 @@ export type CampaignClientAccessUpdateOneWithoutActivityEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignClientAccessUpdateToOneWithWhereWithoutActivityEventsInput, Prisma.CampaignClientAccessUpdateWithoutActivityEventsInput>, Prisma.CampaignClientAccessUncheckedUpdateWithoutActivityEventsInput>
 }
 
+export type CampaignClientAccessCreateNestedOneWithoutNotificationsInput = {
+  create?: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutNotificationsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.CampaignClientAccessCreateOrConnectWithoutNotificationsInput
+  connect?: Prisma.CampaignClientAccessWhereUniqueInput
+}
+
+export type CampaignClientAccessUpdateOneWithoutNotificationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutNotificationsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutNotificationsInput>
+  connectOrCreate?: Prisma.CampaignClientAccessCreateOrConnectWithoutNotificationsInput
+  upsert?: Prisma.CampaignClientAccessUpsertWithoutNotificationsInput
+  disconnect?: Prisma.CampaignClientAccessWhereInput | boolean
+  delete?: Prisma.CampaignClientAccessWhereInput | boolean
+  connect?: Prisma.CampaignClientAccessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignClientAccessUpdateToOneWithWhereWithoutNotificationsInput, Prisma.CampaignClientAccessUpdateWithoutNotificationsInput>, Prisma.CampaignClientAccessUncheckedUpdateWithoutNotificationsInput>
+}
+
 export type CampaignClientAccessCreateWithoutUserInput = {
   id?: string
   email: string
   normalizedEmail: string
   displayName: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
   activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateWithoutUserInput = {
@@ -588,9 +702,12 @@ export type CampaignClientAccessUncheckedCreateWithoutUserInput = {
   normalizedEmail: string
   displayName: string
   createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessCreateOrConnectWithoutUserInput = {
@@ -608,11 +725,14 @@ export type CampaignClientAccessCreateWithoutCreatedByInput = {
   email: string
   normalizedEmail: string
   displayName: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
   user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
   activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateWithoutCreatedByInput = {
@@ -622,9 +742,12 @@ export type CampaignClientAccessUncheckedCreateWithoutCreatedByInput = {
   normalizedEmail: string
   displayName: string
   userId?: string | null
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessCreateOrConnectWithoutCreatedByInput = {
@@ -664,6 +787,8 @@ export type CampaignClientAccessScalarWhereInput = {
   displayName?: Prisma.StringFilter<"CampaignClientAccess"> | string
   userId?: Prisma.StringNullableFilter<"CampaignClientAccess"> | string | null
   createdByUserId?: Prisma.StringFilter<"CampaignClientAccess"> | string
+  minScoreToAlert?: Prisma.IntFilter<"CampaignClientAccess"> | number
+  notificationsEnabledAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CampaignClientAccess"> | Date | string
 }
@@ -689,11 +814,14 @@ export type CampaignClientAccessCreateWithoutCampaignInput = {
   email: string
   normalizedEmail: string
   displayName: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
   activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateWithoutCampaignInput = {
@@ -703,9 +831,12 @@ export type CampaignClientAccessUncheckedCreateWithoutCampaignInput = {
   displayName: string
   userId?: string | null
   createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessCreateOrConnectWithoutCampaignInput = {
@@ -739,11 +870,14 @@ export type CampaignClientAccessCreateWithoutActivityEventsInput = {
   email: string
   normalizedEmail: string
   displayName: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
   user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
   createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessUncheckedCreateWithoutActivityEventsInput = {
@@ -754,8 +888,11 @@ export type CampaignClientAccessUncheckedCreateWithoutActivityEventsInput = {
   displayName: string
   userId?: string | null
   createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutCampaignClientAccessInput
 }
 
 export type CampaignClientAccessCreateOrConnectWithoutActivityEventsInput = {
@@ -779,11 +916,14 @@ export type CampaignClientAccessUpdateWithoutActivityEventsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
   user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateWithoutActivityEventsInput = {
@@ -794,8 +934,87 @@ export type CampaignClientAccessUncheckedUpdateWithoutActivityEventsInput = {
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignClientAccessNestedInput
+}
+
+export type CampaignClientAccessCreateWithoutNotificationsInput = {
+  id?: string
+  email: string
+  normalizedEmail: string
+  displayName: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  campaign: Prisma.CampaignCreateNestedOneWithoutClientAccessesInput
+  user?: Prisma.UserCreateNestedOneWithoutCampaignClientAccessesInput
+  createdBy: Prisma.UserCreateNestedOneWithoutCreatedCampaignClientAccessesInput
+  activityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutClientAccessInput
+}
+
+export type CampaignClientAccessUncheckedCreateWithoutNotificationsInput = {
+  id?: string
+  campaignId: string
+  email: string
+  normalizedEmail: string
+  displayName: string
+  userId?: string | null
+  createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutClientAccessInput
+}
+
+export type CampaignClientAccessCreateOrConnectWithoutNotificationsInput = {
+  where: Prisma.CampaignClientAccessWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutNotificationsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutNotificationsInput>
+}
+
+export type CampaignClientAccessUpsertWithoutNotificationsInput = {
+  update: Prisma.XOR<Prisma.CampaignClientAccessUpdateWithoutNotificationsInput, Prisma.CampaignClientAccessUncheckedUpdateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.CampaignClientAccessCreateWithoutNotificationsInput, Prisma.CampaignClientAccessUncheckedCreateWithoutNotificationsInput>
+  where?: Prisma.CampaignClientAccessWhereInput
+}
+
+export type CampaignClientAccessUpdateToOneWithWhereWithoutNotificationsInput = {
+  where?: Prisma.CampaignClientAccessWhereInput
+  data: Prisma.XOR<Prisma.CampaignClientAccessUpdateWithoutNotificationsInput, Prisma.CampaignClientAccessUncheckedUpdateWithoutNotificationsInput>
+}
+
+export type CampaignClientAccessUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
+  user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
+  createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
+  activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
+}
+
+export type CampaignClientAccessUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
 }
 
 export type CampaignClientAccessCreateManyUserInput = {
@@ -805,6 +1024,8 @@ export type CampaignClientAccessCreateManyUserInput = {
   normalizedEmail: string
   displayName: string
   createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -816,6 +1037,8 @@ export type CampaignClientAccessCreateManyCreatedByInput = {
   normalizedEmail: string
   displayName: string
   userId?: string | null
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -825,11 +1048,14 @@ export type CampaignClientAccessUpdateWithoutUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
   activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateWithoutUserInput = {
@@ -839,9 +1065,12 @@ export type CampaignClientAccessUncheckedUpdateWithoutUserInput = {
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateManyWithoutUserInput = {
@@ -851,6 +1080,8 @@ export type CampaignClientAccessUncheckedUpdateManyWithoutUserInput = {
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -860,11 +1091,14 @@ export type CampaignClientAccessUpdateWithoutCreatedByInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaign?: Prisma.CampaignUpdateOneRequiredWithoutClientAccessesNestedInput
   user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
   activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateWithoutCreatedByInput = {
@@ -874,9 +1108,12 @@ export type CampaignClientAccessUncheckedUpdateWithoutCreatedByInput = {
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateManyWithoutCreatedByInput = {
@@ -886,6 +1123,8 @@ export type CampaignClientAccessUncheckedUpdateManyWithoutCreatedByInput = {
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -897,6 +1136,8 @@ export type CampaignClientAccessCreateManyCampaignInput = {
   displayName: string
   userId?: string | null
   createdByUserId: string
+  minScoreToAlert?: number
+  notificationsEnabledAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -906,11 +1147,14 @@ export type CampaignClientAccessUpdateWithoutCampaignInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   normalizedEmail?: Prisma.StringFieldUpdateOperationsInput | string
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutCampaignClientAccessesNestedInput
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCreatedCampaignClientAccessesNestedInput
   activityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateWithoutCampaignInput = {
@@ -920,9 +1164,12 @@ export type CampaignClientAccessUncheckedUpdateWithoutCampaignInput = {
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutClientAccessNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutCampaignClientAccessNestedInput
 }
 
 export type CampaignClientAccessUncheckedUpdateManyWithoutCampaignInput = {
@@ -932,6 +1179,8 @@ export type CampaignClientAccessUncheckedUpdateManyWithoutCampaignInput = {
   displayName?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  notificationsEnabledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -943,10 +1192,12 @@ export type CampaignClientAccessUncheckedUpdateManyWithoutCampaignInput = {
 
 export type CampaignClientAccessCountOutputType = {
   activityEvents: number
+  notifications: number
 }
 
 export type CampaignClientAccessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   activityEvents?: boolean | CampaignClientAccessCountOutputTypeCountActivityEventsArgs
+  notifications?: boolean | CampaignClientAccessCountOutputTypeCountNotificationsArgs
 }
 
 /**
@@ -966,6 +1217,13 @@ export type CampaignClientAccessCountOutputTypeCountActivityEventsArgs<ExtArgs e
   where?: Prisma.CampaignClientActivityEventWhereInput
 }
 
+/**
+ * CampaignClientAccessCountOutputType without action
+ */
+export type CampaignClientAccessCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationWhereInput
+}
+
 
 export type CampaignClientAccessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -975,12 +1233,15 @@ export type CampaignClientAccessSelect<ExtArgs extends runtime.Types.Extensions.
   displayName?: boolean
   userId?: boolean
   createdByUserId?: boolean
+  minScoreToAlert?: boolean
+  notificationsEnabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CampaignClientAccess$userArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   activityEvents?: boolean | Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs>
+  notifications?: boolean | Prisma.CampaignClientAccess$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignClientAccessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["campaignClientAccess"]>
 
@@ -992,6 +1253,8 @@ export type CampaignClientAccessSelectCreateManyAndReturn<ExtArgs extends runtim
   displayName?: boolean
   userId?: boolean
   createdByUserId?: boolean
+  minScoreToAlert?: boolean
+  notificationsEnabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
@@ -1007,6 +1270,8 @@ export type CampaignClientAccessSelectUpdateManyAndReturn<ExtArgs extends runtim
   displayName?: boolean
   userId?: boolean
   createdByUserId?: boolean
+  minScoreToAlert?: boolean
+  notificationsEnabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
@@ -1022,16 +1287,19 @@ export type CampaignClientAccessSelectScalar = {
   displayName?: boolean
   userId?: boolean
   createdByUserId?: boolean
+  minScoreToAlert?: boolean
+  notificationsEnabledAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CampaignClientAccessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignId" | "email" | "normalizedEmail" | "displayName" | "userId" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignClientAccess"]>
+export type CampaignClientAccessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "campaignId" | "email" | "normalizedEmail" | "displayName" | "userId" | "createdByUserId" | "minScoreToAlert" | "notificationsEnabledAt" | "createdAt" | "updatedAt", ExtArgs["result"]["campaignClientAccess"]>
 export type CampaignClientAccessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaign?: boolean | Prisma.CampaignDefaultArgs<ExtArgs>
   user?: boolean | Prisma.CampaignClientAccess$userArgs<ExtArgs>
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   activityEvents?: boolean | Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs>
+  notifications?: boolean | Prisma.CampaignClientAccess$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignClientAccessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CampaignClientAccessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1052,6 +1320,7 @@ export type $CampaignClientAccessPayload<ExtArgs extends runtime.Types.Extension
     user: Prisma.$UserPayload<ExtArgs> | null
     createdBy: Prisma.$UserPayload<ExtArgs>
     activityEvents: Prisma.$CampaignClientActivityEventPayload<ExtArgs>[]
+    notifications: Prisma.$NotificationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1061,6 +1330,8 @@ export type $CampaignClientAccessPayload<ExtArgs extends runtime.Types.Extension
     displayName: string
     userId: string | null
     createdByUserId: string
+    minScoreToAlert: number
+    notificationsEnabledAt: Date
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["campaignClientAccess"]>
@@ -1461,6 +1732,7 @@ export interface Prisma__CampaignClientAccessClient<T, Null = never, ExtArgs ext
   user<T extends Prisma.CampaignClientAccess$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignClientAccess$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   createdBy<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   activityEvents<T extends Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignClientAccess$activityEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientActivityEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.CampaignClientAccess$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CampaignClientAccess$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1497,6 +1769,8 @@ export interface CampaignClientAccessFieldRefs {
   readonly displayName: Prisma.FieldRef<"CampaignClientAccess", 'String'>
   readonly userId: Prisma.FieldRef<"CampaignClientAccess", 'String'>
   readonly createdByUserId: Prisma.FieldRef<"CampaignClientAccess", 'String'>
+  readonly minScoreToAlert: Prisma.FieldRef<"CampaignClientAccess", 'Int'>
+  readonly notificationsEnabledAt: Prisma.FieldRef<"CampaignClientAccess", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"CampaignClientAccess", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CampaignClientAccess", 'DateTime'>
 }
@@ -1935,6 +2209,30 @@ export type CampaignClientAccess$activityEventsArgs<ExtArgs extends runtime.Type
   take?: number
   skip?: number
   distinct?: Prisma.CampaignClientActivityEventScalarFieldEnum | Prisma.CampaignClientActivityEventScalarFieldEnum[]
+}
+
+/**
+ * CampaignClientAccess.notifications
+ */
+export type CampaignClientAccess$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Notification
+   */
+  select?: Prisma.NotificationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Notification
+   */
+  omit?: Prisma.NotificationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationInclude<ExtArgs> | null
+  where?: Prisma.NotificationWhereInput
+  orderBy?: Prisma.NotificationOrderByWithRelationInput | Prisma.NotificationOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
 }
 
 /**

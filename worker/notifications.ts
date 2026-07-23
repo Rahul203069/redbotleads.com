@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import { canViewAnalytics } from "@/lib/beta-access";
 import { prisma } from "@/lib/prisma";
 import { isTelegramRateLimitError, sendTelegramMessage } from "@/lib/telegram";
 import { Worker } from "bullmq";
@@ -74,16 +75,31 @@ async function runSlackNotification(
     },
     select: {
       id: true,
+      campaignDisplayName: true,
+      recipientRole: true,
+      status: true,
+      campaignClientAccess: {
+        select: {
+          campaignId: true,
+          id: true,
+          userId: true,
+        },
+      },
+      recipient: {
+        select: {
+          email: true,
+          id: true,
+          preferredAlertChannel: true,
+          slackWebhookUrl: true,
+          telegramChatId: true,
+        },
+      },
       lead: {
         select: {
+          campaignId: true,
           id: true,
           score: true,
           label: true,
-          campaign: {
-            select: {
-              name: true,
-            },
-          },
           ai: {
             select: {
               summary: true,
@@ -97,11 +113,6 @@ async function runSlackNotification(
               url: true,
             },
           },
-          user: {
-            select: {
-              slackWebhookUrl: true,
-            },
-          },
         },
       },
     },
@@ -112,7 +123,18 @@ async function runSlackNotification(
     return { skipped: true, reason: "notification_not_found" };
   }
 
-  const webhookUrl = notification.lead.user.slackWebhookUrl?.trim();
+  if (notification.status !== "PENDING") {
+    return { skipped: true, reason: "notification_not_pending" };
+  }
+
+  const recipientError = getRecipientDeliveryError(notification, "SLACK");
+
+  if (recipientError) {
+    await failNotification(notification.id, recipientError);
+    return { skipped: true, reason: "recipient_not_eligible" };
+  }
+
+  const webhookUrl = notification.recipient.slackWebhookUrl?.trim();
 
   if (!webhookUrl) {
     await prisma.notification.update({
@@ -140,13 +162,13 @@ async function runSlackNotification(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        text: `New lead for ${notification.lead.campaign.name}`,
+        text: `New lead for ${notification.campaignDisplayName}`,
         blocks: [
           {
             type: "header",
             text: {
               type: "plain_text",
-              text: `New lead: ${notification.lead.campaign.name}`,
+              text: `New lead: ${notification.campaignDisplayName}`,
             },
           },
           {
@@ -214,7 +236,9 @@ async function runSlackNotification(
         jobId,
         notificationId: notification.id,
         leadId: notification.lead.id,
-        campaignName: notification.lead.campaign.name,
+        campaignName: notification.campaignDisplayName,
+        recipientRole: notification.recipientRole,
+        recipientUserId: notification.recipient.id,
       },
       "Slack notification sent",
     );
@@ -266,16 +290,31 @@ async function runTelegramNotification(
     },
     select: {
       id: true,
+      campaignDisplayName: true,
+      recipientRole: true,
+      status: true,
+      campaignClientAccess: {
+        select: {
+          campaignId: true,
+          id: true,
+          userId: true,
+        },
+      },
+      recipient: {
+        select: {
+          email: true,
+          id: true,
+          preferredAlertChannel: true,
+          slackWebhookUrl: true,
+          telegramChatId: true,
+        },
+      },
       lead: {
         select: {
+          campaignId: true,
           id: true,
           score: true,
           label: true,
-          campaign: {
-            select: {
-              name: true,
-            },
-          },
           ai: {
             select: {
               summary: true,
@@ -289,11 +328,6 @@ async function runTelegramNotification(
               url: true,
             },
           },
-          user: {
-            select: {
-              telegramChatId: true,
-            },
-          },
         },
       },
     },
@@ -304,7 +338,18 @@ async function runTelegramNotification(
     return { skipped: true, reason: "notification_not_found" };
   }
 
-  const chatId = notification.lead.user.telegramChatId?.trim();
+  if (notification.status !== "PENDING") {
+    return { skipped: true, reason: "notification_not_pending" };
+  }
+
+  const recipientError = getRecipientDeliveryError(notification, "TELEGRAM");
+
+  if (recipientError) {
+    await failNotification(notification.id, recipientError);
+    return { skipped: true, reason: "recipient_not_eligible" };
+  }
+
+  const chatId = notification.recipient.telegramChatId?.trim();
 
   if (!chatId) {
     await failNotification(notification.id, "Telegram chat is not configured.");
@@ -323,7 +368,7 @@ async function runTelegramNotification(
       chatId,
       disableWebPagePreview: false,
       text: buildLeadAlertText({
-        campaignName: notification.lead.campaign.name,
+        campaignName: notification.campaignDisplayName,
         category,
         label: notification.lead.label,
         redditUrl,
@@ -350,7 +395,9 @@ async function runTelegramNotification(
         jobId,
         notificationId: notification.id,
         leadId: notification.lead.id,
-        campaignName: notification.lead.campaign.name,
+        campaignName: notification.campaignDisplayName,
+        recipientRole: notification.recipientRole,
+        recipientUserId: notification.recipient.id,
       },
       "Telegram notification sent",
     );
@@ -459,16 +506,31 @@ async function runEmailNotification(
     },
     select: {
       id: true,
+      campaignDisplayName: true,
+      recipientRole: true,
+      status: true,
+      campaignClientAccess: {
+        select: {
+          campaignId: true,
+          id: true,
+          userId: true,
+        },
+      },
+      recipient: {
+        select: {
+          email: true,
+          id: true,
+          preferredAlertChannel: true,
+          slackWebhookUrl: true,
+          telegramChatId: true,
+        },
+      },
       lead: {
         select: {
+          campaignId: true,
           id: true,
           score: true,
           label: true,
-          campaign: {
-            select: {
-              name: true,
-            },
-          },
           ai: {
             select: {
               summary: true,
@@ -482,11 +544,6 @@ async function runEmailNotification(
               url: true,
             },
           },
-          user: {
-            select: {
-              email: true,
-            },
-          },
         },
       },
     },
@@ -497,7 +554,18 @@ async function runEmailNotification(
     return { skipped: true, reason: "notification_not_found" };
   }
 
-  const recipient = notification.lead.user.email?.trim();
+  if (notification.status !== "PENDING") {
+    return { skipped: true, reason: "notification_not_pending" };
+  }
+
+  const recipientError = getRecipientDeliveryError(notification, "EMAIL");
+
+  if (recipientError) {
+    await failNotification(notification.id, recipientError);
+    return { skipped: true, reason: "recipient_not_eligible" };
+  }
+
+  const recipient = notification.recipient.email?.trim();
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from = process.env.EMAIL_FROM?.trim();
 
@@ -515,7 +583,7 @@ async function runEmailNotification(
   const redditUrl = notification.lead.redditItem.url?.trim() || "https://www.reddit.com";
   const summary = notification.lead.ai?.summary?.trim() || "A lead crossed the alert threshold and is ready for review.";
   const category = notification.lead.ai?.category?.trim() || "General";
-  const subject = `New Reddit lead for ${notification.lead.campaign.name}`;
+  const subject = `New Reddit lead for ${notification.campaignDisplayName}`;
 
   try {
     const resend = new Resend(apiKey);
@@ -524,7 +592,7 @@ async function runEmailNotification(
       to: recipient,
       subject,
       html: buildLeadAlertHtml({
-        campaignName: notification.lead.campaign.name,
+        campaignName: notification.campaignDisplayName,
         category,
         label: notification.lead.label,
         redditUrl,
@@ -534,7 +602,7 @@ async function runEmailNotification(
         title,
       }),
       text: buildLeadAlertText({
-        campaignName: notification.lead.campaign.name,
+        campaignName: notification.campaignDisplayName,
         category,
         label: notification.lead.label,
         redditUrl,
@@ -565,7 +633,9 @@ async function runEmailNotification(
         jobId,
         notificationId: notification.id,
         leadId: notification.lead.id,
-        campaignName: notification.lead.campaign.name,
+        campaignName: notification.campaignDisplayName,
+        recipientRole: notification.recipientRole,
+        recipientUserId: notification.recipient.id,
       },
       "Email notification sent",
     );
@@ -599,6 +669,60 @@ async function failNotification(notificationId: string, error: string) {
       error,
     },
   });
+}
+
+function getRecipientDeliveryError(
+  notification: {
+    campaignClientAccess: {
+      campaignId: string;
+      id: string;
+      userId: string | null;
+    } | null;
+    lead: {
+      campaignId: string;
+    };
+    recipient: {
+      email: string | null;
+      id: string;
+      preferredAlertChannel: "EMAIL" | "SLACK" | "TELEGRAM";
+      slackWebhookUrl: string | null;
+      telegramChatId: string | null;
+    };
+    recipientRole: "OWNER" | "CLIENT";
+  },
+  channel: "EMAIL" | "SLACK" | "TELEGRAM",
+) {
+  if (notification.recipientRole === "OWNER") {
+    return null;
+  }
+
+  const access = notification.campaignClientAccess;
+
+  if (
+    !access
+    || access.campaignId !== notification.lead.campaignId
+    || access.userId !== notification.recipient.id
+  ) {
+    return "Client campaign access is no longer active for this recipient.";
+  }
+
+  if (canViewAnalytics(notification.recipient.email)) {
+    return "Admin accounts do not receive assigned-client notifications.";
+  }
+
+  if (channel === "EMAIL" || notification.recipient.preferredAlertChannel !== channel) {
+    return "The client selected a different notification channel.";
+  }
+
+  if (channel === "SLACK" && !notification.recipient.slackWebhookUrl?.trim()) {
+    return "The client's selected Slack channel is disconnected.";
+  }
+
+  if (channel === "TELEGRAM" && !notification.recipient.telegramChatId?.trim()) {
+    return "The client's selected Telegram channel is disconnected.";
+  }
+
+  return null;
 }
 
 async function keepNotificationPending(notificationId: string, error: string) {

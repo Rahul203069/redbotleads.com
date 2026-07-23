@@ -1,5 +1,12 @@
 import "dotenv/config";
 
+import { canViewAnalytics } from "@/lib/beta-access";
+import {
+  chooseClientNotificationRecipients,
+  chooseOwnerNotificationRecipient,
+  shouldEnqueueNotification,
+  type NotificationRecipient,
+} from "@/lib/notification-recipients";
 import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 
@@ -58,6 +65,12 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       campaignId: true,
       score: true,
       label: true,
+      ai: {
+        select: {
+          createdAt: true,
+          model: true,
+        },
+      },
       campaign: {
         select: {
           name: true,
@@ -67,6 +80,23 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
           negativeKeywords: true,
           subreddits: true,
           minScoreToAlert: true,
+          clientAccesses: {
+            select: {
+              id: true,
+              displayName: true,
+              minScoreToAlert: true,
+              notificationsEnabledAt: true,
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                  preferredAlertChannel: true,
+                  slackWebhookUrl: true,
+                  telegramChatId: true,
+                },
+              },
+            },
+          },
         },
       },
       user: {
@@ -83,6 +113,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         select: {
           id: true,
           channel: true,
+          recipientUserId: true,
           status: true,
         },
       },
@@ -106,6 +137,9 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
   }
 
   try {
+    const hadValidClassification = Boolean(
+      lead.ai && lead.ai.model !== CLASSIFICATION_ERROR_MODEL,
+    );
     const remainingBefore = await countPendingLeadClassification(lead.campaignId);
     const classifiedBefore = await countClassifiedLeads(lead.campaignId);
 
@@ -180,6 +214,8 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       };
     }
 
+    const successfulClassificationAt = new Date();
+
     await prisma.$transaction([
       prisma.lead.update({
         where: {
@@ -218,38 +254,47 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       }),
     ]);
 
-    const crossedAlertThreshold = result.score >= lead.campaign.minScoreToAlert;
+    const ownerRecipient = chooseOwnerNotificationRecipient({
+      campaignDisplayName: lead.campaign.name,
+      email: lead.user.email,
+      emailAlertsEnabled: lead.user.emailAlertsEnabled,
+      existingChannels: lead.notifications
+        .filter((notification) => notification.recipientUserId === lead.user.id)
+        .map((notification) => notification.channel),
+      minScoreToAlert: lead.campaign.minScoreToAlert,
+      preferredAlertChannel: lead.user.preferredAlertChannel,
+      recipientUserId: lead.user.id,
+      score: result.score,
+      slackWebhookUrl: lead.user.slackWebhookUrl,
+      telegramChatId: lead.user.telegramChatId,
+    });
+    const clientRecipients = chooseClientNotificationRecipients({
+      accesses: lead.campaign.clientAccesses.map((access) => ({
+        campaignDisplayName: access.displayName,
+        id: access.id,
+        isAdmin: canViewAnalytics(access.user?.email),
+        minScoreToAlert: access.minScoreToAlert,
+        notificationsEnabledAt: access.notificationsEnabledAt,
+        user: access.user,
+      })),
+      hadValidClassification,
+      score: result.score,
+      successfulClassificationAt,
+    });
+    const notificationRecipients = [
+      ...(ownerRecipient ? [ownerRecipient] : []),
+      ...clientRecipients,
+    ];
 
-    const notificationChannel = crossedAlertThreshold
-      ? chooseNotificationChannel({
-          existingChannels: lead.notifications.map((notification) => notification.channel),
-          email: lead.user.email,
-          emailAlertsEnabled: lead.user.emailAlertsEnabled,
-          preferredAlertChannel: lead.user.preferredAlertChannel,
-          slackWebhookUrl: lead.user.slackWebhookUrl,
-          telegramChatId: lead.user.telegramChatId,
-        })
-      : null;
-
-    if (notificationChannel) {
-      const notification = await prisma.notification.create({
-        data: {
+    await Promise.all(
+      notificationRecipients.map((recipient) =>
+        persistAndEnqueueNotification({
+          campaignRunId: data.campaignRunId,
           leadId: lead.id,
-          campaignRunId: data.campaignRunId ?? null,
-          channel: notificationChannel,
-          status: "PENDING",
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      await enqueueNotification({
-        notificationId: notification.id,
-        leadId: lead.id,
-        channel: notificationChannel,
-      });
-    }
+          recipient,
+        }),
+      ),
+    );
 
     if (!isDetachedClassification) {
       await finalizeCampaignClassificationProgress(lead.campaignId, data.campaignRunId);
@@ -265,8 +310,14 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         score: result.score,
         label: result.label,
         category: result.category,
-        crossedAlertThreshold,
-        selectedNotificationChannel: notificationChannel,
+        crossedAlertThreshold: result.score >= lead.campaign.minScoreToAlert,
+        clientNotificationCount: clientRecipients.length,
+        hadValidClassification,
+        selectedNotificationRecipients: notificationRecipients.map((recipient) => ({
+          channel: recipient.channel,
+          recipientRole: recipient.recipientRole,
+          recipientUserId: recipient.recipientUserId,
+        })),
         emailAlertsEnabled: Boolean(lead.user.emailAlertsEnabled && lead.user.email?.trim()),
         slackNotificationsEnabled: Boolean(lead.user.slackWebhookUrl?.trim()),
         telegramNotificationsEnabled: Boolean(lead.user.telegramChatId?.trim()),
@@ -452,40 +503,49 @@ function clampText(value: string, maxLength: number) {
   return value.replace(/\s+/g, " ").trim().slice(0, maxLength);
 }
 
-type AlertChannel = "EMAIL" | "SLACK" | "TELEGRAM";
-
-function chooseNotificationChannel(input: {
-  existingChannels: AlertChannel[];
-  email: string | null;
-  emailAlertsEnabled: boolean;
-  preferredAlertChannel: AlertChannel;
-  slackWebhookUrl: string | null;
-  telegramChatId: string | null;
+async function persistAndEnqueueNotification({
+  campaignRunId,
+  leadId,
+  recipient,
+}: {
+  campaignRunId?: string;
+  leadId: string;
+  recipient: NotificationRecipient;
 }) {
-  const orderedChannels = [
-    input.preferredAlertChannel,
-    "SLACK",
-    "TELEGRAM",
-    "EMAIL",
-  ].filter((channel, index, channels): channel is AlertChannel => {
-    return channels.indexOf(channel) === index;
+  const notification = await prisma.notification.upsert({
+    where: {
+      leadId_recipientUserId_channel: {
+        channel: recipient.channel,
+        leadId,
+        recipientUserId: recipient.recipientUserId,
+      },
+    },
+    update: {},
+    create: {
+      campaignClientAccessId: recipient.campaignClientAccessId,
+      campaignDisplayName: recipient.campaignDisplayName,
+      campaignRunId: campaignRunId ?? null,
+      channel: recipient.channel,
+      leadId,
+      recipientRole: recipient.recipientRole,
+      recipientUserId: recipient.recipientUserId,
+      status: "PENDING",
+    },
+    select: {
+      id: true,
+      status: true,
+    },
   });
 
-  return orderedChannels.find((channel) => {
-    if (input.existingChannels.includes(channel)) {
-      return false;
-    }
+  if (!shouldEnqueueNotification(notification.status)) {
+    return;
+  }
 
-    if (channel === "SLACK") {
-      return Boolean(input.slackWebhookUrl?.trim());
-    }
-
-    if (channel === "TELEGRAM") {
-      return Boolean(input.telegramChatId?.trim());
-    }
-
-    return input.emailAlertsEnabled && Boolean(input.email?.trim());
-  }) ?? null;
+  await enqueueNotification({
+    notificationId: notification.id,
+    leadId,
+    channel: recipient.channel,
+  });
 }
 
 function mapIntentType(value: "none" | "implicit" | "explicit" | "switching") {

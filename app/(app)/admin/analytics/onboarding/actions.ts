@@ -54,6 +54,7 @@ export async function upsertCampaignClientAccess(
     },
     select: {
       id: true,
+      minScoreToAlert: true,
       user: {
         select: {
           email: true,
@@ -105,6 +106,7 @@ export async function upsertCampaignClientAccess(
       createdByUserId: session.user.id,
       displayName: parsed.data.displayName,
       email: parsed.data.email,
+      minScoreToAlert: campaign.minScoreToAlert,
       normalizedEmail,
       userId: linkedUser?.id ?? null,
     },

@@ -146,7 +146,9 @@ export function DailyLeadsReport({
                       {row.notification ? (
                         <>
                           <StatusPill status={row.notification.status} />
-                          <div className="mt-1 text-[11px] text-[#8f8f8f]">{row.notification.channel}</div>
+                          <div className="mt-1 text-[11px] text-[#8f8f8f]">
+                            {row.notification.sentCount}/{row.notification.recipientCount} sent · {row.notification.channel}
+                          </div>
                         </>
                       ) : (
                         <span className="text-[#8f8f8f]">None</span>

@@ -34,6 +34,7 @@ import {
   type DailyLeadDateRangeValue,
   type DailyLeadDateSelection,
 } from "@/lib/daily-leads-analytics";
+import { getNextDailySemanticCronAt } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import { getPublicShareViewStats } from "@/lib/public-share-analytics";
 import {
@@ -47,8 +48,6 @@ import {
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
-const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
-const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 type SearchParams = {
   date?: string | string[];
@@ -204,13 +203,7 @@ export default async function CampaignDetailPage({
     selection: leadDateSelection,
   });
 
-  const lastSyncSource =
-    sync?.completedAt ??
-    sync?.failedAt ??
-    sync?.lastHeartbeat ??
-    campaign.updatedAt;
-  const nextSyncSource = new Date(lastSyncSource.getTime() + 24 * 60 * 60 * 1000);
-  const nextSync = formatDateTimeInTimeZone(nextSyncSource, browserTimeZone);
+  const nextSync = formatDateTimeInTimeZone(semanticNextSyncAt, browserTimeZone);
   const [initialLeads, initialDiagnostics, publicViewStats] = await Promise.all([
     getCampaignLeadViewsForUser({
       campaignId: campaign.id,
@@ -447,24 +440,6 @@ function getLeadDateSelectionLabel(selection: DailyLeadDateSelection, timeZone: 
   const toLabel = formatDateInTimeZone(inclusiveTo, timeZone);
 
   return fromLabel === toLabel ? fromLabel : `${fromLabel} – ${toLabel}`;
-}
-
-function getNextDailySemanticCronAt(now = new Date()) {
-  const next = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    DAILY_SEMANTIC_CRON_UTC_HOUR,
-    DAILY_SEMANTIC_CRON_UTC_MINUTE,
-    0,
-    0,
-  ));
-
-  if (next.getTime() <= now.getTime()) {
-    next.setUTCDate(next.getUTCDate() + 1);
-  }
-
-  return next;
 }
 
 function getLatestSemanticRunTimestamp(run: {

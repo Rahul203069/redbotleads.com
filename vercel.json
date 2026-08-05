@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/daily-semantic",
-      "schedule": "0 15 * * *"
+      "schedule": "30 6 * * *"
     }
   ]
 }

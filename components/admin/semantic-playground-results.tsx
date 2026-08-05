@@ -11,12 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  DAILY_SEMANTIC_HOBBY_WINDOW_LABEL,
+  DAILY_SEMANTIC_SCHEDULE_LABEL,
+  getNextDailySemanticCronAt,
+} from "@/lib/daily-semantic-schedule";
 
 type PlaygroundResultSort = "semantic" | "llm";
 const MIN_COPY_LEAD_SCORE = 40;
 const IST_OFFSET_MINUTES = 330;
-const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
-const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 type SemanticPlaygroundProgress = {
   candidatePosts: number;
@@ -466,7 +469,7 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
                 value={syncAt}
               />
               <span className="text-[12px] leading-5 text-[#b3b3b3]">
-                Auto-selected from fetched time using the next 15:00 UTC daily semantic sync boundary (08:00 PDT / 07:00 PST).
+                Auto-selected using the {DAILY_SEMANTIC_SCHEDULE_LABEL} target (06:30 UTC). Vercel Hobby may invoke it from {DAILY_SEMANTIC_HOBBY_WINDOW_LABEL}.
               </span>
             </label>
 
@@ -618,21 +621,7 @@ function getInferredDailySemanticSyncIso(fetchedAt: string) {
     return null;
   }
 
-  const boundary = new Date(Date.UTC(
-    source.getUTCFullYear(),
-    source.getUTCMonth(),
-    source.getUTCDate(),
-    DAILY_SEMANTIC_CRON_UTC_HOUR,
-    DAILY_SEMANTIC_CRON_UTC_MINUTE,
-    0,
-    0,
-  ));
-
-  if (boundary.getTime() <= source.getTime()) {
-    boundary.setUTCDate(boundary.getUTCDate() + 1);
-  }
-
-  return boundary.toISOString();
+  return getNextDailySemanticCronAt(source).toISOString();
 }
 
 function formatPlaygroundLeadForJson(result: SemanticPlaygroundResultItem) {

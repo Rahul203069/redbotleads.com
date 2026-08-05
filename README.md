@@ -248,7 +248,7 @@ curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=$NEXTAUTH_U
 The repo includes a Vercel Cron job at `/api/cron/daily-semantic`.
 
 - Route: [app/api/cron/daily-semantic/route.ts](C:\Users\rs329\goal\my-app\app\api\cron\daily-semantic\route.ts)
-- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) runs at `0 15 * * *` (15:00 UTC daily; 08:00 PDT / 07:00 PST)
+- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) targets `30 6 * * *` (06:30 UTC daily; 08:30 CEST). Vercel Hobby may invoke it at any point from 06:00–06:59 UTC (08:00–08:59 CEST).
 
 What it does:
 

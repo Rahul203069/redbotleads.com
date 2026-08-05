@@ -10,6 +10,11 @@ import {
   getCampaignAccessFromRecord,
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
+import {
+  DAILY_SEMANTIC_HOBBY_WINDOW_LABEL,
+  DAILY_SEMANTIC_SCHEDULE_LABEL,
+  getNextDailySemanticCronAt,
+} from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import {
   addDaysToDateKey,
@@ -32,9 +37,13 @@ export default async function AppHomePage() {
     redirect("/login");
   }
 
+  const cookieStore = await cookies();
+  const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
+
   if (canViewAnalytics(session.user.email)) {
     return (
       <AdminWorkspaceDashboard
+        browserTimeZone={browserTimeZone}
         displayName={session.user.name ?? session.user.email ?? "operator"}
         email={session.user.email}
         userId={session.user.id}
@@ -44,8 +53,6 @@ export default async function AppHomePage() {
 
   const now = new Date();
   const dayAgo = new Date(now.valueOf() - DAY_IN_MS);
-  const cookieStore = await cookies();
-  const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const todayKey = getDateKeyInTimeZone(now, browserTimeZone);
   const trendStartKey = addDaysToDateKey(todayKey, -(DASHBOARD_TREND_DAYS - 1));
   const trendFrom = getDayRangeInTimeZone(trendStartKey, browserTimeZone).from;
@@ -162,7 +169,7 @@ export default async function AppHomePage() {
   const newStrongLeads = campaign?.leads.filter(
     (lead) => lead.ai && lead.score > STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
   ).length ?? 0;
-  const nextSyncAt = campaign ? getNextSyncAt(campaign) : null;
+  const nextSyncAt = campaign ? getNextDailySemanticCronAt(now) : null;
   const campaignStatus = campaign?.sync?.status ?? (campaign ? "IDLE" : "NONE");
 
   const matchedTrendPairs = trendScans
@@ -224,7 +231,7 @@ export default async function AppHomePage() {
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Campaign status" value={campaign ? formatStatus(campaign.isActive ? campaignStatus : "PAUSED") : "None"} />
-        <StatCard label="Next sync" value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
+        <StatCard label={`Next sync · ${DAILY_SEMANTIC_SCHEDULE_LABEL} target`} value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
         <StatCard label="Total leads" value={String(visibleLeads).padStart(2, "0")} />
         <StatCard label="New strong leads" value={String(newStrongLeads).padStart(2, "0")} />
       </section>
@@ -286,15 +293,19 @@ export default async function AppHomePage() {
 }
 
 async function AdminWorkspaceDashboard({
+  browserTimeZone,
   displayName,
   email,
   userId,
 }: {
+  browserTimeZone: string;
   displayName: string;
   email: string | null | undefined;
   userId: string;
 }) {
-  const dayAgo = new Date(new Date().valueOf() - DAY_IN_MS);
+  const now = new Date();
+  const dayAgo = new Date(now.valueOf() - DAY_IN_MS);
+  const nextDailySemanticSyncAt = getNextDailySemanticCronAt(now);
   const accessibleCampaignWhere = buildAccessibleCampaignWhere({ email, userId });
   const normalizedEmail = String(email ?? "").trim().toLowerCase();
 
@@ -392,7 +403,7 @@ async function AdminWorkspaceDashboard({
       return {
         id: campaign.id,
         name: getCampaignDisplayName(campaign, access),
-        nextSyncAt: getNextSyncAt(campaign),
+        nextSyncAt: nextDailySemanticSyncAt,
         status: campaign.sync?.status ?? "IDLE",
       };
     })
@@ -447,7 +458,7 @@ async function AdminWorkspaceDashboard({
 
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-5">
-          <SectionCard description="The next campaigns expected to run on the daily sync cadence." title="Upcoming syncs">
+          <SectionCard description={`Daily lead processing targets ${DAILY_SEMANTIC_SCHEDULE_LABEL}. Vercel Hobby may invoke it from ${DAILY_SEMANTIC_HOBBY_WINDOW_LABEL}; times below use your dashboard timezone.`} title="Upcoming syncs">
             {upcomingSyncs.length === 0 ? (
               <EmptyCopy text="No active campaigns are scheduled yet." />
             ) : (
@@ -460,7 +471,7 @@ async function AdminWorkspaceDashboard({
                   >
                     <div>
                       <p className="text-[13px] font-bold text-[#fdfdfd]">{campaign.name}</p>
-                      <p className="mt-1 text-[12px] text-[#b3b3b3]">{formatDate(campaign.nextSyncAt)}</p>
+                      <p className="mt-1 text-[12px] text-[#b3b3b3]">{formatDate(campaign.nextSyncAt, browserTimeZone)}</p>
                     </div>
                     <StatusPill status={campaign.status} />
                   </Link>
@@ -640,25 +651,6 @@ function formatDate(value: Date, timeZone?: string) {
 
 function formatStatus(value: string) {
   return value.toLowerCase().replace(/_/g, " ");
-}
-
-function getNextSyncAt(campaign: {
-  sync: {
-    completedAt: Date | null;
-    failedAt: Date | null;
-    lastHeartbeat: Date | null;
-    updatedAt: Date;
-  } | null;
-  updatedAt: Date;
-}) {
-  const lastSyncSource =
-    campaign.sync?.completedAt ??
-    campaign.sync?.failedAt ??
-    campaign.sync?.lastHeartbeat ??
-    campaign.sync?.updatedAt ??
-    campaign.updatedAt;
-
-  return new Date(lastSyncSource.getTime() + DAY_IN_MS);
 }
 
 function buildWorkspaceLeadsTrendRows({

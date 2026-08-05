@@ -1,5 +1,7 @@
 "use client";
 
+import { DAILY_SEMANTIC_SCHEDULE_LABEL } from "@/lib/daily-semantic-schedule";
+
 const SHOW_WORKER_PROGRESS_CARD = false;
 
 export type CampaignSync = {
@@ -48,7 +50,7 @@ export function CampaignSyncPanel({
     <section className="space-y-5">
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Last sync" value={summaryMetrics.lastSync} />
-        <MetricCard label="Next sync" value={summaryMetrics.nextSync} />
+        <MetricCard label={`Next sync · ${DAILY_SEMANTIC_SCHEDULE_LABEL} target`} value={summaryMetrics.nextSync} />
         <MetricCard label="Leads found" value={String(summaryMetrics.leadCount)} />
         <MetricCard label="Strong matches" value={String(summaryMetrics.highIntentCount)} />
       </div>

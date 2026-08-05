@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
+import { getNextDailySemanticCronAt } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import {
   getPlaygroundCandidateScopeFromSnapshot,
@@ -18,8 +19,6 @@ import { enqueueSemanticPlaygroundRun } from "@/worker/queues";
 const DEFAULT_THRESHOLD = 0.5;
 const MAX_QUERY_LENGTH = 700;
 const MAX_RUN_TITLE_LENGTH = 120;
-const DAILY_SEMANTIC_CRON_UTC_HOUR = 15;
-const DAILY_SEMANTIC_CRON_UTC_MINUTE = 0;
 
 const playgroundRunMetadataSchema = z.object({
   filteringDescription: z.string().trim().min(3, "Add an LLM filtering description."),
@@ -625,19 +624,5 @@ function labelFromScore(score: number): LeadLabel {
 }
 
 function getNextDailySemanticSyncBoundary(source: Date) {
-  const boundary = new Date(Date.UTC(
-    source.getUTCFullYear(),
-    source.getUTCMonth(),
-    source.getUTCDate(),
-    DAILY_SEMANTIC_CRON_UTC_HOUR,
-    DAILY_SEMANTIC_CRON_UTC_MINUTE,
-    0,
-    0,
-  ));
-
-  if (boundary.getTime() <= source.getTime()) {
-    boundary.setUTCDate(boundary.getUTCDate() + 1);
-  }
-
-  return boundary;
+  return getNextDailySemanticCronAt(source);
 }

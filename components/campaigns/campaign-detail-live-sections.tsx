@@ -12,6 +12,7 @@ import { ClassifiedLeadsPanel, type ClassifiedLead } from "@/components/campaign
 import { useCampaignLeadFilterLoading } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignSyncPanel, type CampaignSync } from "@/components/campaigns/campaign-sync-panel";
 import { InitialRssDiagnosticsPanel } from "@/components/campaigns/initial-rss-diagnostics-panel";
+import type { CampaignLeadEmptyStateMode } from "@/lib/campaign-lead-empty-state";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
 
@@ -49,6 +50,7 @@ export function CampaignDetailLiveSections({
   initialDiagnostics,
   initialLeads,
   initialSync,
+  leadEmptyStateMode,
   leadDateFilter,
   nextSyncLabel,
   semanticLastSyncAt,
@@ -56,7 +58,7 @@ export function CampaignDetailLiveSections({
   showInitialRssDiagnostics = true,
   showJsonExport = true,
   showSemanticSort = true,
-  shouldWaitForTodaySync,
+  selectedPeriodLabel,
   trackClientActivity = false,
 }: {
   campaignId: string;
@@ -64,6 +66,7 @@ export function CampaignDetailLiveSections({
   initialDiagnostics: CampaignInitialRssDiagnostics;
   initialLeads: ClassifiedLead[];
   initialSync: CampaignSync;
+  leadEmptyStateMode: CampaignLeadEmptyStateMode;
   leadDateFilter: {
     date?: string[];
     from?: string;
@@ -76,7 +79,7 @@ export function CampaignDetailLiveSections({
   showInitialRssDiagnostics?: boolean;
   showJsonExport?: boolean;
   showSemanticSort?: boolean;
-  shouldWaitForTodaySync?: boolean;
+  selectedPeriodLabel: string;
   trackClientActivity?: boolean;
 }) {
   const [, startTransition] = useTransition();
@@ -161,13 +164,14 @@ export function CampaignDetailLiveSections({
       <ClassifiedLeadsPanel
         campaignId={campaignId}
         canDeleteLeads={canDeleteLeads}
+        emptyStateMode={leadEmptyStateMode}
         isFilterLoading={isLeadFilterLoading}
         leads={classifiedLeads}
         nextSyncLabel={nextSync}
         showJsonExport={showJsonExport}
         showSemanticSort={showSemanticSort}
         showStatusFilter={false}
-        shouldWaitForNextSync={shouldWaitForTodaySync}
+        selectedPeriodLabel={selectedPeriodLabel}
         syncStatus={sync?.status ?? "IDLE"}
         trackClientActivity={trackClientActivity}
         onLeadDeleted={(leadId) => {

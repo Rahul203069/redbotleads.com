@@ -202,6 +202,7 @@ export default async function CampaignDetailPage({
     latestSemanticRunAt,
     selection: leadDateSelection,
   });
+  const leadEmptyStateMode = shouldWaitForTodaySync ? "WAITING" : "NO_RESULTS";
 
   const nextSync = formatDateTimeInTimeZone(semanticNextSyncAt, browserTimeZone);
   const [initialLeads, initialDiagnostics, publicViewStats] = await Promise.all([
@@ -385,6 +386,7 @@ export default async function CampaignDetailPage({
               }
             : null
         }
+        leadEmptyStateMode={leadEmptyStateMode}
         leadDateFilter={leadDateFilter}
         nextSyncLabel={nextSync}
         semanticLastSyncAt={
@@ -394,7 +396,7 @@ export default async function CampaignDetailPage({
         showInitialRssDiagnostics={isAdminAccount}
         showJsonExport={isAdminAccount}
         showSemanticSort={isAdminAccount}
-        shouldWaitForTodaySync={shouldWaitForTodaySync}
+        selectedPeriodLabel={leadDateLabel}
         trackClientActivity={access.role === "CLIENT" && !isAdminAccount}
       />
       </div>

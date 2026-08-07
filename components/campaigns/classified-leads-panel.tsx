@@ -5,6 +5,11 @@ import { Check, Clock3, Copy } from "lucide-react";
 
 import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign-lead-dialog";
 import { sendCampaignClientActivity } from "@/components/campaigns/client-activity-tracker";
+import {
+  resolveCampaignLeadEmptyState,
+  type CampaignLeadEmptyStateMode,
+  type CampaignLeadSyncStatus,
+} from "@/lib/campaign-lead-empty-state";
 
 export type ClassifiedLead = {
   id: string;
@@ -41,27 +46,29 @@ const MIN_COPY_LEAD_SCORE = 40;
 export function ClassifiedLeadsPanel({
   campaignId,
   canDeleteLeads = false,
+  emptyStateMode = "AUTO",
   isFilterLoading = false,
   leads,
   nextSyncLabel = "the next scheduled run",
   showJsonExport = true,
   showSemanticSort = true,
   showStatusFilter = true,
-  shouldWaitForNextSync = false,
+  selectedPeriodLabel,
   syncStatus = "IDLE",
   trackClientActivity = false,
   onLeadDeleted,
 }: {
   campaignId: string;
   canDeleteLeads?: boolean;
+  emptyStateMode?: CampaignLeadEmptyStateMode;
   isFilterLoading?: boolean;
   leads: ClassifiedLead[];
   nextSyncLabel?: string;
   showJsonExport?: boolean;
   showSemanticSort?: boolean;
   showStatusFilter?: boolean;
-  shouldWaitForNextSync?: boolean;
-  syncStatus?: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
+  selectedPeriodLabel?: string;
+  syncStatus?: CampaignLeadSyncStatus;
   trackClientActivity?: boolean;
   onLeadDeleted?: (leadId: string) => void;
 }) {
@@ -108,8 +115,12 @@ export function ClassifiedLeadsPanel({
     [filteredLeads],
   );
   const isProcessing = syncStatus === "QUEUED" || syncStatus === "PROCESSING";
-  const shouldShowWaitingState = isProcessing || shouldWaitForNextSync;
-  const isCompleted = syncStatus === "COMPLETED";
+  const resolvedEmptyState = resolveCampaignLeadEmptyState({
+    mode: emptyStateMode,
+    syncStatus,
+  });
+  const shouldShowWaitingState = emptyStateMode === "WAITING"
+    || (emptyStateMode === "AUTO" && (isProcessing || (classifiedLeads.length === 0 && resolvedEmptyState === "WAITING")));
 
   async function handleCopyVisibleLeads() {
     await copyTextToClipboard(
@@ -197,10 +208,10 @@ export function ClassifiedLeadsPanel({
           <ClassifiedLeadsLoadingSkeleton />
         ) : shouldShowWaitingState ? (
           <WaitingForNextSyncState nextSyncLabel={nextSyncLabel} />
-        ) : isCompleted && classifiedLeads.length === 0 ? (
-          <NoLeadsFoundState />
-        ) : classifiedLeads.length === 0 ? (
-          <NoLeadsYetState nextSyncLabel={nextSyncLabel} syncStatus={syncStatus} />
+        ) : classifiedLeads.length === 0 && resolvedEmptyState === "NO_RESULTS" ? (
+          <NoLeadsFoundState selectedPeriodLabel={selectedPeriodLabel} />
+        ) : classifiedLeads.length === 0 && resolvedEmptyState === "FAILED" ? (
+          <FailedLeadsState />
         ) : filteredLeads.length === 0 ? (
           <div className="rounded-[20px] bg-[#1f1f1f] px-4 py-8 text-[14px] leading-6 text-[#cbcbcb]">
             No classified leads match the active filters.
@@ -371,29 +382,23 @@ function SkeletonBlock({ className }: { className: string }) {
   return <div className={`animate-pulse rounded-[12px] bg-[#2a2a2a] ${className}`} />;
 }
 
-function NoLeadsFoundState() {
+function NoLeadsFoundState({ selectedPeriodLabel }: { selectedPeriodLabel?: string }) {
+  const hasSpecificPeriod = selectedPeriodLabel && selectedPeriodLabel !== "All time";
+
   return (
     <div className="rounded-[22px] bg-[#1f1f1f] p-6 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
       <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">No qualified leads</p>
-      <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">No leads cleared the full pipeline.</h3>
+      <h3 className="mt-2 text-[22px] font-bold tracking-[-0.04em] text-[#ffffff]">
+        {hasSpecificPeriod ? `No qualified leads found for ${selectedPeriodLabel}.` : "No qualified leads found."}
+      </h3>
       <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#cbcbcb]">
-        The sync finished, but no Reddit items both passed semantic matching and received an LLM classification worth showing here.
+        There are no leads meeting the current qualification threshold for this selected period. Try another date or choose All time.
       </p>
     </div>
   );
 }
 
-function NoLeadsYetState({
-  nextSyncLabel,
-  syncStatus,
-}: {
-  nextSyncLabel: string;
-  syncStatus: "IDLE" | "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
-}) {
-  if (syncStatus !== "FAILED") {
-    return <WaitingForNextSyncState nextSyncLabel={nextSyncLabel} />;
-  }
-
+function FailedLeadsState() {
   return (
     <div className="rounded-[20px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] sm:p-6">
       <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">Lead inbox</p>

@@ -166,6 +166,7 @@ export function CampaignDetailLiveSections({
         canDeleteLeads={canDeleteLeads}
         emptyStateMode={leadEmptyStateMode}
         isFilterLoading={isLeadFilterLoading}
+        leadDateFilter={leadDateFilter}
         leads={classifiedLeads}
         nextSyncLabel={nextSync}
         showJsonExport={showJsonExport}

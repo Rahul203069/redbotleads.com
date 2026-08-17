@@ -1,10 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Clock3, Copy } from "lucide-react";
+import { Check, Clock3, Copy, LoaderCircle } from "lucide-react";
 
+import { getAdminCampaignSemanticPassedPosts } from "@/actions/campaigns";
 import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign-lead-dialog";
 import { sendCampaignClientActivity } from "@/components/campaigns/client-activity-tracker";
+import { useToast } from "@/components/ui/use-toast";
+import type { CampaignLeadDateFilter } from "@/lib/admin-classified-leads";
+import { buildCampaignLeadsJsonExport } from "@/lib/admin-semantic-passed-posts";
 import {
   resolveCampaignLeadEmptyState,
   type CampaignLeadEmptyStateMode,
@@ -48,6 +52,7 @@ export function ClassifiedLeadsPanel({
   canDeleteLeads = false,
   emptyStateMode = "AUTO",
   isFilterLoading = false,
+  leadDateFilter = { range: "all" },
   leads,
   nextSyncLabel = "the next scheduled run",
   showJsonExport = true,
@@ -62,6 +67,7 @@ export function ClassifiedLeadsPanel({
   canDeleteLeads?: boolean;
   emptyStateMode?: CampaignLeadEmptyStateMode;
   isFilterLoading?: boolean;
+  leadDateFilter?: CampaignLeadDateFilter;
   leads: ClassifiedLead[];
   nextSyncLabel?: string;
   showJsonExport?: boolean;
@@ -72,11 +78,13 @@ export function ClassifiedLeadsPanel({
   trackClientActivity?: boolean;
   onLeadDeleted?: (leadId: string) => void;
 }) {
+  const { toast } = useToast();
   const [labelFilter, setLabelFilter] = useState<(typeof labelFilters)[number]>("ALL");
   const [statusFilter, setStatusFilter] = useState<(typeof statusFilters)[number]>("ALL");
   const [scoreSort, setScoreSort] = useState<(typeof scoreSortOptions)[number]>("SCORE_DESC");
   const [expandedLeadIds, setExpandedLeadIds] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
   const activeScoreSort = showSemanticSort || scoreSort !== "SEMANTIC_DESC" ? scoreSort : "SCORE_DESC";
   const availableScoreSortOptions = showSemanticSort ? scoreSortOptions : nonAdminScoreSortOptions;
 
@@ -123,25 +131,48 @@ export function ClassifiedLeadsPanel({
     || (emptyStateMode === "AUTO" && (isProcessing || (classifiedLeads.length === 0 && resolvedEmptyState === "WAITING")));
 
   async function handleCopyVisibleLeads() {
-    await copyTextToClipboard(
-      JSON.stringify(
-        {
-          copiedAt: new Date().toISOString(),
-          filters: {
-            label: labelFilter,
-            minScore: MIN_COPY_LEAD_SCORE,
-            sort: activeScoreSort,
-            status: showStatusFilter ? statusFilter : null,
-          },
-          leads: copyableLeads.map(formatLeadForJson),
-          totalLeads: copyableLeads.length,
+    setIsCopying(true);
+    setCopied(false);
+
+    try {
+      const result = await getAdminCampaignSemanticPassedPosts(campaignId, leadDateFilter);
+
+      if (result.status === "error") {
+        throw new Error(result.message);
+      }
+
+      const formattedLeads = copyableLeads.map(formatLeadForJson);
+      const payload = buildCampaignLeadsJsonExport({
+        campaign: result.campaign,
+        copiedAt: new Date().toISOString(),
+        dateFilter: leadDateFilter,
+        dateLabel: selectedPeriodLabel ?? "All time",
+        filters: {
+          label: labelFilter,
+          minScore: MIN_COPY_LEAD_SCORE,
+          sort: activeScoreSort,
+          status: showStatusFilter ? statusFilter : null,
         },
-        null,
-        2,
-      ),
-    );
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
+        leads: formattedLeads,
+        semanticPassedPosts: result.posts,
+      });
+
+      await copyTextToClipboard(JSON.stringify(payload, null, 2));
+      setCopied(true);
+      toast({
+        title: "Campaign JSON copied",
+        description: `${formattedLeads.length} visible lead${formattedLeads.length === 1 ? "" : "s"} and ${result.posts.length} semantic-passed post${result.posts.length === 1 ? "" : "s"} copied.`,
+      });
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast({
+        title: "Could not copy JSON",
+        description: error instanceof Error ? error.message : "Try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCopying(false);
+    }
   }
 
   return (
@@ -155,22 +186,28 @@ export function ClassifiedLeadsPanel({
             </p>
           </div>
           <div className={`grid w-full gap-3 sm:w-auto ${showStatusFilter ? "sm:grid-cols-4" : "sm:grid-cols-3"} lg:flex lg:flex-row`}>
+            {showJsonExport ? (
+              <div className="grid gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Export</span>
+                <button
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full border-none bg-[#121212] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors hover:bg-[#252525] focus-visible:ring-2 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[160px]"
+                  disabled={isCopying || isFilterLoading}
+                  onClick={handleCopyVisibleLeads}
+                  type="button"
+                >
+                  {isCopying ? (
+                    <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />
+                  ) : copied ? (
+                    <Check aria-hidden="true" className="h-4 w-4" />
+                  ) : (
+                    <Copy aria-hidden="true" className="h-4 w-4" />
+                  )}
+                  {isCopying ? "Copying..." : copied ? "Copied" : "Copy JSON"}
+                </button>
+              </div>
+            ) : null}
             {!shouldShowWaitingState && !isFilterLoading ? (
               <>
-                {showJsonExport ? (
-                  <div className="grid gap-2">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Export</span>
-                    <button
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-full border-none bg-[#121212] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#fdfdfd] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors hover:bg-[#252525] focus-visible:ring-2 focus-visible:ring-white/10 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[160px]"
-                      disabled={copyableLeads.length === 0}
-                      onClick={handleCopyVisibleLeads}
-                      type="button"
-                    >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                      {copied ? "Copied" : "Copy JSON"}
-                    </button>
-                  </div>
-                ) : null}
                 <FilterGroup
                   label="Label"
                   options={labelFilters}
@@ -557,7 +594,7 @@ async function copyTextToClipboard(text: string) {
   }
 
   if (typeof document === "undefined" || !document.body) {
-    return;
+    throw new Error("Clipboard access is unavailable in this browser.");
   }
 
   const textArea = document.createElement("textarea");
@@ -572,7 +609,9 @@ async function copyTextToClipboard(text: string) {
   textArea.select();
 
   try {
-    document.execCommand("copy");
+    if (!document.execCommand("copy")) {
+      throw new Error("Your browser blocked clipboard access. Try again.");
+    }
   } finally {
     document.body.removeChild(textArea);
   }

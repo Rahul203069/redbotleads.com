@@ -9,6 +9,11 @@ import {
   type AdminClassifiedLead,
   type CampaignLeadDateFilter,
 } from "@/lib/admin-classified-leads";
+import {
+  buildAdminSemanticPassedPosts,
+  buildAdminSemanticPassedScanWhere,
+  type AdminSemanticPassedPost,
+} from "@/lib/admin-semantic-passed-posts";
 import { BETA_OWNER_ONLY_MESSAGE, canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
 import {
   buildDailySemanticRunStatsAfterLeadDeletion,
@@ -990,6 +995,144 @@ export async function getAdminCampaignClassifiedLeads(
     return {
       status: "error",
       message: "The classified leads could not be loaded. Try again.",
+    };
+  }
+}
+
+export type AdminSemanticPassedPostsResult =
+  | {
+      status: "success";
+      campaign: {
+        id: string;
+        name: string;
+      };
+      posts: AdminSemanticPassedPost[];
+    }
+  | {
+      status: "error";
+      message: string;
+    };
+
+export async function getAdminCampaignSemanticPassedPosts(
+  campaignId: string,
+  dateFilter: CampaignLeadDateFilter,
+): Promise<AdminSemanticPassedPostsResult> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to export semantic-passed posts.",
+    };
+  }
+
+  if (!canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to export semantic-passed posts.",
+    };
+  }
+
+  if (!campaignId) {
+    return {
+      status: "error",
+      message: "A campaign is required.",
+    };
+  }
+
+  try {
+    const selection = getDailyLeadDateSelection(dateFilter);
+    const campaign = await prisma.campaign.findFirst({
+      where: buildAccessibleCampaignWhere({
+        campaignId,
+        email: session.user.email,
+        userId: session.user.id,
+      }),
+      select: {
+        id: true,
+        name: true,
+        dailySemanticScans: {
+          where: buildAdminSemanticPassedScanWhere(selection),
+          orderBy: [
+            { createdAt: "desc" },
+            { id: "desc" },
+          ],
+          select: {
+            id: true,
+            campaignRunId: true,
+            bestScore: true,
+            bestQueryId: true,
+            bestQueryText: true,
+            createdAt: true,
+            redditItem: {
+              select: {
+                id: true,
+                fullname: true,
+                type: true,
+                subreddit: true,
+                title: true,
+                description: true,
+                body: true,
+                author: true,
+                url: true,
+                createdUtc: true,
+                fetchedAt: true,
+                leads: {
+                  where: {
+                    campaignId,
+                  },
+                  orderBy: {
+                    createdAt: "desc",
+                  },
+                  take: 1,
+                  select: {
+                    id: true,
+                    score: true,
+                    label: true,
+                    status: true,
+                    createdAt: true,
+                    ai: {
+                      select: {
+                        model: true,
+                        promptVersion: true,
+                        intentType: true,
+                        buyerStage: true,
+                        category: true,
+                        summary: true,
+                        painPoints: true,
+                        disqualifier: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!campaign) {
+      return {
+        status: "error",
+        message: "Campaign not found.",
+      };
+    }
+
+    return {
+      status: "success",
+      campaign: {
+        id: campaign.id,
+        name: campaign.name,
+      },
+      posts: buildAdminSemanticPassedPosts(campaign.dailySemanticScans),
+    };
+  } catch (error) {
+    console.error("Failed to load admin semantic-passed posts", error);
+
+    return {
+      status: "error",
+      message: "Semantic-passed posts could not be loaded. Try again.",
     };
   }
 }

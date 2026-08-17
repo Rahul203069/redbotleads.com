@@ -1,5 +1,6 @@
 export const CAMPAIGN_SEMANTIC_RUN_TRIGGERS = ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"] as const;
-export const INITIAL_SEMANTIC_LOOKBACK_HOURS = 36;
+export const INITIAL_SEMANTIC_LOOKBACK_HOURS = 24;
+export const INITIAL_SEMANTIC_POST_MAX_AGE_HOURS = 24;
 
 export type ManualCampaignSemanticState = {
   canRun: boolean;
@@ -32,6 +33,27 @@ export function getSemanticLookbackHours({
   recurringLookbackHours: number;
 }) {
   return hasCompletedSemanticRun ? recurringLookbackHours : initialLookbackHours;
+}
+
+export function getSemanticPostRecencyWindow({
+  hasCompletedSemanticRun,
+  initialMaxPostAgeHours = INITIAL_SEMANTIC_POST_MAX_AGE_HOURS,
+  recurringMaxPostAgeHours,
+  referenceTime,
+}: {
+  hasCompletedSemanticRun: boolean;
+  initialMaxPostAgeHours?: number;
+  recurringMaxPostAgeHours: number;
+  referenceTime: Date;
+}) {
+  const maxPostAgeHours = hasCompletedSemanticRun
+    ? recurringMaxPostAgeHours
+    : initialMaxPostAgeHours;
+
+  return {
+    cutoff: new Date(referenceTime.getTime() - maxPostAgeHours * 60 * 60 * 1000),
+    maxPostAgeHours,
+  };
 }
 
 export function resolveManualCampaignSemanticState({
@@ -87,7 +109,7 @@ export function resolveManualCampaignSemanticState({
 
   return {
     canRun: true,
-    message: "Search the last 36 hours of already-polled Reddit posts now.",
+    message: "Search the last 24 hours of already-polled Reddit posts now.",
     runId: null,
     status: "READY",
     stats: null,

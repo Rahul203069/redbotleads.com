@@ -3,9 +3,12 @@ import "dotenv/config";
 import { Prisma } from "../generated/prisma/client";
 import { buildCampaignSemanticSubredditPool } from "@/lib/campaign-semantic-search-scope";
 import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
-import { getSemanticLookbackHours } from "@/lib/manual-campaign-semantic";
+import {
+  getSemanticLookbackHours,
+  getSemanticPostRecencyWindow,
+} from "@/lib/manual-campaign-semantic";
 import { prisma } from "@/lib/prisma";
-import { getRedditPostRecencyCutoff } from "@/lib/reddit-post-recency";
+import { REDDIT_POST_MAX_AGE_HOURS } from "@/lib/reddit-post-recency";
 import { getDisabledDailyRssSubredditSet } from "@/lib/subreddit-polling-settings";
 import { Worker } from "bullmq";
 
@@ -160,7 +163,14 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     recurringLookbackHours: dailySemanticLookbackHours,
   });
   const lookbackSince = new Date(startedAt - lookbackHours * 60 * 60 * 1000);
-  const redditPostRecencyCutoff = getRedditPostRecencyCutoff(new Date(startedAt));
+  const {
+    cutoff: redditPostRecencyCutoff,
+    maxPostAgeHours,
+  } = getSemanticPostRecencyWindow({
+    hasCompletedSemanticRun,
+    recurringMaxPostAgeHours: REDDIT_POST_MAX_AGE_HOURS,
+    referenceTime: new Date(startedAt),
+  });
   let scannedPosts = 0;
   let matchedPosts = 0;
   let noMatchPosts = 0;
@@ -250,6 +260,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
       queuedClassifications,
       ...scopeStats,
       lookbackHours,
+      maxPostAgeHours,
       runSource: data.source ?? "scheduled",
       durationMs,
     },
@@ -265,6 +276,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
     queuedClassifications,
     ...scopeStats,
     lookbackHours,
+    maxPostAgeHours,
     runSource: data.source ?? "scheduled",
     totalLeadsFound: matchedPosts,
     pendingClassifications: queuedClassifications,

@@ -1,4 +1,4 @@
-export const REDDIT_POST_MAX_AGE_HOURS = 3 * 24;
+export const REDDIT_POST_MAX_AGE_HOURS = 30;
 export const REDDIT_POST_MAX_AGE_MS = REDDIT_POST_MAX_AGE_HOURS * 60 * 60 * 1000;
 
 export function getRedditPostRecencyCutoff(referenceTime: Date = new Date()) {

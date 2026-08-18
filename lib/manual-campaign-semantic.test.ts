@@ -16,12 +16,12 @@ test("uses a rolling 24-hour post-age limit for first runs and the recurring lim
   const referenceTime = new Date("2026-07-19T12:00:00.000Z");
   const initialWindow = getSemanticPostRecencyWindow({
     hasCompletedSemanticRun: false,
-    recurringMaxPostAgeHours: 72,
+    recurringMaxPostAgeHours: 30,
     referenceTime,
   });
   const recurringWindow = getSemanticPostRecencyWindow({
     hasCompletedSemanticRun: true,
-    recurringMaxPostAgeHours: 72,
+    recurringMaxPostAgeHours: 30,
     referenceTime,
   });
 
@@ -29,8 +29,8 @@ test("uses a rolling 24-hour post-age limit for first runs and the recurring lim
   assert.equal(initialWindow.cutoff.toISOString(), "2026-07-18T12:00:00.000Z");
   assert.equal(new Date("2026-07-18T12:00:00.000Z").getTime() >= initialWindow.cutoff.getTime(), true);
   assert.equal(new Date("2026-07-18T11:59:59.999Z").getTime() >= initialWindow.cutoff.getTime(), false);
-  assert.equal(recurringWindow.maxPostAgeHours, 72);
-  assert.equal(recurringWindow.cutoff.toISOString(), "2026-07-16T12:00:00.000Z");
+  assert.equal(recurringWindow.maxPostAgeHours, 30);
+  assert.equal(recurringWindow.cutoff.toISOString(), "2026-07-18T06:00:00.000Z");
 });
 
 test("allows an active campaign with queries to run before its first success", () => {

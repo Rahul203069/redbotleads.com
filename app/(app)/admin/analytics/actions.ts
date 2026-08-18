@@ -30,6 +30,12 @@ export type CampaignActiveToggleResult = {
   isActive?: boolean;
 };
 
+export type CampaignRssPollingToggleResult = {
+  status: "success" | "error";
+  message: string;
+  rssPollingEnabled?: boolean;
+};
+
 export type ManualDailySemanticResult = {
   status: "success" | "error";
   message: string;
@@ -335,14 +341,76 @@ export async function setAdminCampaignActiveState(formData: FormData): Promise<C
     return {
       status: "success",
       message: campaign.isActive
-        ? "Campaign activated. Daily RSS and daily semantic search can include it again."
-        : "Campaign paused. Daily RSS and daily semantic search will skip it.",
+        ? "Campaign activated. Scheduled semantic search can include it again; RSS fetching remains controlled separately."
+        : "Campaign paused. Semantic search and manual sync will skip it; RSS fetching keeps its separate setting.",
       isActive: campaign.isActive,
     };
   } catch (error) {
     return {
       status: "error",
       message: error instanceof Error ? `Campaign status update failed: ${error.message}` : "Campaign status update failed.",
+    };
+  }
+}
+
+export async function setAdminCampaignRssPollingState(
+  formData: FormData,
+): Promise<CampaignRssPollingToggleResult> {
+  const session = await auth();
+
+  if (!session?.user?.id || !canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to update campaign RSS fetching.",
+    };
+  }
+
+  const campaignId = String(formData.get("campaignId") ?? "").trim();
+  const rssPollingEnabled = String(formData.get("rssPollingEnabled") ?? "") === "true";
+
+  if (!campaignId) {
+    return {
+      status: "error",
+      message: "Campaign ID is missing.",
+    };
+  }
+
+  try {
+    const campaign = await prisma.campaign.update({
+      where: {
+        id: campaignId,
+      },
+      data: {
+        rssPollingEnabled,
+      },
+      select: {
+        id: true,
+        rssPollingEnabled: true,
+        subreddits: true,
+      },
+    });
+    const subredditCount = campaign.subreddits.length;
+    const subredditLabel = `subreddit${subredditCount === 1 ? "" : "s"}`;
+
+    revalidatePath("/admin/analytics");
+    revalidatePath("/admin/analytics/daily-subreddit");
+    revalidatePath("/admin/analytics/subreddit-performance");
+    revalidatePath(`/campaigns/${campaign.id}`);
+    revalidatePath(`/campaigns/${campaign.id}/analytics`);
+
+    return {
+      status: "success",
+      message: campaign.rssPollingEnabled
+        ? `RSS fetching resumed for ${subredditCount} linked ${subredditLabel}, including while this campaign is inactive.`
+        : `RSS fetching paused for ${subredditCount} linked ${subredditLabel}. Queued requests may finish, and shared subreddits may still be fetched for other campaigns.`,
+      rssPollingEnabled: campaign.rssPollingEnabled,
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message: error instanceof Error
+        ? `Campaign RSS fetching update failed: ${error.message}`
+        : "Campaign RSS fetching update failed.",
     };
   }
 }

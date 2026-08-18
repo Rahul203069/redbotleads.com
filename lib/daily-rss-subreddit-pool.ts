@@ -3,8 +3,8 @@ import {
   getDisabledDailyRssSubredditSet,
 } from "@/lib/subreddit-polling-settings";
 import {
+  buildCampaignRssPollingSubreddits,
   buildDailyRssSubredditPool,
-  normalizeSubredditNames,
 } from "@/lib/subreddit-name";
 
 export type DailyRssSubredditPool = {
@@ -16,18 +16,17 @@ export type DailyRssSubredditPool = {
 export async function getDailyRssSubredditPool(): Promise<DailyRssSubredditPool> {
   const campaigns = await prisma.campaign.findMany({
     where: {
-      isActive: true,
+      rssPollingEnabled: true,
       subreddits: {
         isEmpty: false,
       },
     },
     select: {
+      rssPollingEnabled: true,
       subreddits: true,
     },
   });
-  const allSubreddits = normalizeSubredditNames(
-    campaigns.flatMap((campaign) => campaign.subreddits),
-  );
+  const allSubreddits = buildCampaignRssPollingSubreddits(campaigns);
   const disabledSet = await getDisabledDailyRssSubredditSet(allSubreddits);
 
   return buildDailyRssSubredditPool(allSubreddits, disabledSet);

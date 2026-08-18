@@ -256,7 +256,7 @@ What it does:
 - enqueues `DAILY_SEMANTIC_CAMPAIGN` jobs on the `daily-semantic` queue
 - respects each campaign's admin-controlled semantic search scope
 - `Campaign subreddits` compares against enabled subreddits linked only to that campaign; this is the default for new campaigns
-- `Global polling pool` compares against the shared enabled-subreddit pool linked to all active campaigns; migrated campaigns retain this existing behavior
+- `Global polling pool` compares against the shared enabled-subreddit pool linked to campaigns with admin-controlled RSS fetching enabled, even when those campaigns are inactive
 - records matched and unmatched scan results so each campaign does not rescan the same post
 - creates or reuses `Lead` records for semantic matches above the configured threshold
 - enqueues existing LLM classification jobs for matched leads that have not already been classified
@@ -265,7 +265,7 @@ Frequent subreddit ingestion is handled by a locked 24/7 worker poller loop, not
 
 Daily subreddit RSS polling defaults:
 
-- poll one unique active-campaign subreddit every `70s + 0-30s` jitter
+- poll unique subreddits contributed by campaigns with RSS fetching enabled
 - pause for `5 minutes` after every `30` subreddit poll attempts
 - bypass the shared in-process Reddit RSS request slot because the poller loop owns pacing
 - retry a Reddit `429`, `408`, or `5xx` response once

@@ -197,6 +197,7 @@ export async function submitCampaign(formData: FormData): Promise<CampaignAction
         recentDays: parsed.data.recentDays,
         minScoreToAlert: parsed.data.minScoreToAlert,
         isActive: parsed.data.isActive,
+        rssPollingEnabled: parsed.data.isActive,
         semanticSearchScope,
       },
       select: {

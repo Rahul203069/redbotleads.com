@@ -293,9 +293,10 @@ model Campaign {
   subreddits       String[]
   recentDays       Int      @default(7)
 
-  isActive        Boolean    @default(true)
-  minScoreToAlert Int        @default(75)
-  sourceMode      SourceMode @default(PUBLIC)
+  isActive          Boolean    @default(true)
+  rssPollingEnabled Boolean    @default(true)
+  minScoreToAlert   Int        @default(75)
+  sourceMode        SourceMode @default(PUBLIC)
   semanticSearchScope CampaignSemanticSearchScope @default(CAMPAIGN)
 
   // Optional: tie campaign to a connected Reddit account later

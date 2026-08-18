@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
+import { CampaignRssPollingToggle } from "@/components/admin/campaign-rss-polling-toggle";
 import { DailySemanticOverrideButton } from "@/components/admin/daily-semantic-override-button";
 import { DailyRssIngestionControl } from "@/components/admin/daily-rss-ingestion-control";
 import { SaasSettingsDialog } from "@/components/admin/saas-settings-dialog";
@@ -104,6 +105,7 @@ export default async function AdminAnalyticsPage({
         name: true,
         leadType: true,
         isActive: true,
+        rssPollingEnabled: true,
         subreddits: true,
         createdAt: true,
         updatedAt: true,
@@ -374,6 +376,7 @@ export default async function AdminAnalyticsPage({
                         >
                           <div className="flex flex-wrap items-center gap-2">
                             <StatusPill label={campaign.isActive ? "Active" : "Inactive"} />
+                            <StatusPill label={campaign.rssPollingEnabled ? "RSS fetching" : "RSS paused"} />
                             <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8f8f8f]">{campaign.leadType}</span>
                           </div>
                           <h3 className="mt-3 truncate text-[15px] font-bold text-[#ffffff]">{campaign.name}</h3>
@@ -381,10 +384,19 @@ export default async function AdminAnalyticsPage({
                             Tracking {campaign.subreddits.length} subreddit{campaign.subreddits.length === 1 ? "" : "s"}
                           </p>
                         </Link>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/[0.06] pt-3">
                         <CampaignActiveToggle
                           campaignId={campaign.id}
                           campaignName={campaign.name}
                           initialIsActive={campaign.isActive}
+                        />
+                        <CampaignRssPollingToggle
+                          campaignId={campaign.id}
+                          campaignName={campaign.name}
+                          initialRssPollingEnabled={campaign.rssPollingEnabled}
+                          subredditCount={campaign.subreddits.length}
                         />
                       </div>
 
@@ -439,6 +451,7 @@ export default async function AdminAnalyticsPage({
                   <div>
                     <div className="flex flex-wrap gap-2">
                       <StatusPill label={selectedCampaign.isActive ? "Active" : "Inactive"} />
+                      <StatusPill label={selectedCampaign.rssPollingEnabled ? "RSS fetching" : "RSS paused"} />
                       <StatusPill label={selectedCampaign.leadType} />
                     </div>
                     <h3 className="mt-3 text-[20px] font-bold tracking-[-0.02em] text-[#ffffff]">{selectedCampaign.name}</h3>

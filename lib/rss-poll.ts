@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getDisabledDailyRssSubredditSet } from "@/lib/subreddit-polling-settings";
+import { buildCampaignRssPollingSubreddits, normalizeSubredditName } from "@/lib/subreddit-name";
 import { enqueueCampaignRssPollRunMatch, enqueueSubredditRssPoll } from "@/worker/queues";
 
 export const RSS_POLL_INTERVAL_MS = 30 * 60 * 1000;
@@ -15,20 +16,20 @@ export async function enqueueDueSubredditRssPolls(options?: {
 
   const campaigns = await prisma.campaign.findMany({
     where: {
-      isActive: true,
+      rssPollingEnabled: true,
       subreddits: {
         isEmpty: false,
       },
     },
     select: {
       id: true,
+      isActive: true,
+      rssPollingEnabled: true,
       subreddits: true,
     },
   });
 
-  const allSubreddits = Array.from(
-    new Set(campaigns.flatMap((campaign) => campaign.subreddits.map(normalizeSubredditName)).filter(Boolean)),
-  ).sort();
+  const allSubreddits = buildCampaignRssPollingSubreddits(campaigns);
   const disabledSubreddits = await getDisabledDailyRssSubredditSet(allSubreddits);
   const subreddits = allSubreddits.filter((subreddit) => !disabledSubreddits.has(subreddit));
   const disabledSkipped = allSubreddits.length - subreddits.length;
@@ -111,6 +112,7 @@ export async function enqueueDueSubredditRssPolls(options?: {
   const queuedSubredditSet = new Set(queuedSubreddits);
   const matcherResults = await Promise.allSettled(
     campaigns
+      .filter((campaign) => campaign.isActive)
       .map((campaign) => ({
         id: campaign.id,
         subreddits: Array.from(new Set(campaign.subreddits.map(normalizeSubredditName).filter(Boolean)))
@@ -151,13 +153,4 @@ function getStaggerDelayMs(index: number, total: number) {
   }
 
   return Math.floor((RSS_POLL_INTERVAL_MS / total) * index);
-}
-
-function normalizeSubredditName(value: string) {
-  return String(value ?? "")
-    .trim()
-    .replace(/^r\//i, "")
-    .replace(/^\/?r\//i, "")
-    .replace(/^\/+|\/+$/g, "")
-    .toLowerCase();
 }

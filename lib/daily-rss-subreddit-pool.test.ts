@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  buildCampaignRssPollingSubreddits,
   buildDailyRssSubredditPool,
   normalizeSubredditNames,
 } from "./subreddit-name";
@@ -30,5 +31,37 @@ test("excludes globally disabled subreddits from the enabled polling pool", () =
       disabledSubreddits: ["startups"],
       enabledSubreddits: ["saas", "smallbusiness"],
     },
+  );
+});
+
+test("builds the shared pool from RSS-enabled campaigns independently of campaign activity", () => {
+  assert.deepEqual(
+    buildCampaignRssPollingSubreddits([
+      {
+        rssPollingEnabled: true,
+        subreddits: ["r/SaaS", "startups"],
+      },
+      {
+        rssPollingEnabled: false,
+        subreddits: ["smallbusiness", "sales"],
+      },
+    ]),
+    ["saas", "startups"],
+  );
+});
+
+test("keeps a shared subreddit when at least one campaign has RSS fetching enabled", () => {
+  assert.deepEqual(
+    buildCampaignRssPollingSubreddits([
+      {
+        rssPollingEnabled: false,
+        subreddits: ["SaaS"],
+      },
+      {
+        rssPollingEnabled: true,
+        subreddits: ["r/saas", "Entrepreneur"],
+      },
+    ]),
+    ["entrepreneur", "saas"],
   );
 });

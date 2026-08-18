@@ -69,13 +69,13 @@ export function CampaignActiveToggle({
         className={`${
           presentation === "page"
             ? "h-11 px-5 text-[11px] tracking-[0.16em]"
-            : "h-8 px-3 text-[10px] tracking-[0.12em]"
+            : "h-11 px-3 text-[10px] tracking-[0.12em]"
         } rounded-full border-none bg-[#1ed760] font-bold uppercase text-[#121212] shadow-[rgba(30,215,96,0.2)_0px_8px_24px] transition-colors hover:bg-[#3be477]`}
         disabled={isPending}
         onClick={() => submit(true)}
         type="button"
       >
-        <Play className={presentation === "page" ? "h-4 w-4" : "h-3.5 w-3.5"} />
+        <Play aria-hidden="true" className={presentation === "page" ? "h-4 w-4" : "h-3.5 w-3.5"} />
         {isPending ? "Activating" : "Activate"}
       </Button>
     );
@@ -88,13 +88,13 @@ export function CampaignActiveToggle({
           className={`${
             presentation === "page"
               ? "h-11 px-5 text-[11px] tracking-[0.16em]"
-              : "h-8 px-3 text-[10px] tracking-[0.12em]"
+              : "h-11 px-3 text-[10px] tracking-[0.12em]"
           } rounded-full border-none bg-[#2a1014] font-bold uppercase text-[#f3727f] shadow-[rgb(42,16,20)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors hover:bg-[#3a151b]`}
           disabled={isPending}
           type="button"
           variant="secondary"
         >
-          <Pause className={presentation === "page" ? "h-4 w-4" : "h-3.5 w-3.5"} />
+          <Pause aria-hidden="true" className={presentation === "page" ? "h-4 w-4" : "h-3.5 w-3.5"} />
           Pause
         </Button>
       </DialogTrigger>
@@ -103,12 +103,12 @@ export function CampaignActiveToggle({
           <DialogHeader>
             <DialogTitle>Pause {campaignName}?</DialogTitle>
             <DialogDescription>
-              Daily subreddit ingestion and daily semantic search will skip this campaign while it is inactive.
+              Scheduled semantic search and manual campaign sync will skip this campaign while it is inactive.
             </DialogDescription>
           </DialogHeader>
 
           <div className="rounded-[16px] border border-[#522129] bg-[#2a1014] px-4 py-3 text-[13px] leading-5 text-[#f7b4bc]">
-            Manual campaign sync also skips inactive campaigns. Activate the campaign again before running a test sync for it.
+            RSS fetching is controlled separately. If fetching remains enabled, this campaign&apos;s subreddits can stay in the shared polling pool.
           </div>
         </div>
 

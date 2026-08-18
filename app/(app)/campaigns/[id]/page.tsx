@@ -5,6 +5,7 @@ import { BarChart3, CalendarCheck2, CalendarDays, Clock3 } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
+import { CampaignRssPollingToggle } from "@/components/admin/campaign-rss-polling-toggle";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignPublicViewStats } from "@/components/campaigns/campaign-public-view-stats";
@@ -261,6 +262,13 @@ export default async function CampaignDetailPage({
                   campaignName={displayName}
                   initialIsActive={campaign.isActive}
                   presentation="page"
+                />
+                <CampaignRssPollingToggle
+                  campaignId={campaign.id}
+                  campaignName={displayName}
+                  initialRssPollingEnabled={campaign.rssPollingEnabled}
+                  presentation="page"
+                  subredditCount={campaign.subreddits.length}
                 />
                 {sync?.status === "COMPLETED" || latestSemanticRun?.completedAt ? (
                   <Link className="w-full sm:w-auto" href={`/campaigns/${campaign.id}/analytics`}>

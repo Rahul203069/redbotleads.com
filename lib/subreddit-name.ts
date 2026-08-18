@@ -13,6 +13,19 @@ export function normalizeSubredditNames(subreddits: string[]) {
   ).sort();
 }
 
+export function buildCampaignRssPollingSubreddits(
+  campaigns: Array<{
+    rssPollingEnabled: boolean;
+    subreddits: string[];
+  }>,
+) {
+  return normalizeSubredditNames(
+    campaigns
+      .filter((campaign) => campaign.rssPollingEnabled)
+      .flatMap((campaign) => campaign.subreddits),
+  );
+}
+
 export function buildDailyRssSubredditPool(
   subreddits: string[],
   disabledSubreddits: Iterable<string>,

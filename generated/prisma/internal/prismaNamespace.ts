@@ -2888,6 +2888,7 @@ export const CampaignScalarFieldEnum = {
   subreddits: 'subreddits',
   recentDays: 'recentDays',
   isActive: 'isActive',
+  rssPollingEnabled: 'rssPollingEnabled',
   minScoreToAlert: 'minScoreToAlert',
   sourceMode: 'sourceMode',
   semanticSearchScope: 'semanticSearchScope',

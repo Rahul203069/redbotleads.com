@@ -44,6 +44,7 @@ export type CampaignMinAggregateOutputType = {
   description: string | null
   recentDays: number | null
   isActive: boolean | null
+  rssPollingEnabled: boolean | null
   minScoreToAlert: number | null
   sourceMode: $Enums.SourceMode | null
   semanticSearchScope: $Enums.CampaignSemanticSearchScope | null
@@ -60,6 +61,7 @@ export type CampaignMaxAggregateOutputType = {
   description: string | null
   recentDays: number | null
   isActive: boolean | null
+  rssPollingEnabled: boolean | null
   minScoreToAlert: number | null
   sourceMode: $Enums.SourceMode | null
   semanticSearchScope: $Enums.CampaignSemanticSearchScope | null
@@ -79,6 +81,7 @@ export type CampaignCountAggregateOutputType = {
   subreddits: number
   recentDays: number
   isActive: number
+  rssPollingEnabled: number
   minScoreToAlert: number
   sourceMode: number
   semanticSearchScope: number
@@ -107,6 +110,7 @@ export type CampaignMinAggregateInputType = {
   description?: true
   recentDays?: true
   isActive?: true
+  rssPollingEnabled?: true
   minScoreToAlert?: true
   sourceMode?: true
   semanticSearchScope?: true
@@ -123,6 +127,7 @@ export type CampaignMaxAggregateInputType = {
   description?: true
   recentDays?: true
   isActive?: true
+  rssPollingEnabled?: true
   minScoreToAlert?: true
   sourceMode?: true
   semanticSearchScope?: true
@@ -142,6 +147,7 @@ export type CampaignCountAggregateInputType = {
   subreddits?: true
   recentDays?: true
   isActive?: true
+  rssPollingEnabled?: true
   minScoreToAlert?: true
   sourceMode?: true
   semanticSearchScope?: true
@@ -248,6 +254,7 @@ export type CampaignGroupByOutputType = {
   subreddits: string[]
   recentDays: number
   isActive: boolean
+  rssPollingEnabled: boolean
   minScoreToAlert: number
   sourceMode: $Enums.SourceMode
   semanticSearchScope: $Enums.CampaignSemanticSearchScope
@@ -290,6 +297,7 @@ export type CampaignWhereInput = {
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
+  rssPollingEnabled?: Prisma.BoolFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeFilter<"Campaign"> | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFilter<"Campaign"> | $Enums.CampaignSemanticSearchScope
@@ -322,6 +330,7 @@ export type CampaignOrderByWithRelationInput = {
   subreddits?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  rssPollingEnabled?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
   semanticSearchScope?: Prisma.SortOrder
@@ -357,6 +366,7 @@ export type CampaignWhereUniqueInput = Prisma.AtLeast<{
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
+  rssPollingEnabled?: Prisma.BoolFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeFilter<"Campaign"> | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFilter<"Campaign"> | $Enums.CampaignSemanticSearchScope
@@ -389,6 +399,7 @@ export type CampaignOrderByWithAggregationInput = {
   subreddits?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  rssPollingEnabled?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
   semanticSearchScope?: Prisma.SortOrder
@@ -416,6 +427,7 @@ export type CampaignScalarWhereWithAggregatesInput = {
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntWithAggregatesFilter<"Campaign"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Campaign"> | boolean
+  rssPollingEnabled?: Prisma.BoolWithAggregatesFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntWithAggregatesFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeWithAggregatesFilter<"Campaign"> | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeWithAggregatesFilter<"Campaign"> | $Enums.CampaignSemanticSearchScope
@@ -434,6 +446,7 @@ export type CampaignCreateInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -465,6 +478,7 @@ export type CampaignUncheckedCreateInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -494,6 +508,7 @@ export type CampaignUpdateInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -525,6 +540,7 @@ export type CampaignUncheckedUpdateInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -555,6 +571,7 @@ export type CampaignCreateManyInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -573,6 +590,7 @@ export type CampaignUpdateManyMutationInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -591,6 +609,7 @@ export type CampaignUncheckedUpdateManyInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -628,6 +647,7 @@ export type CampaignCountOrderByAggregateInput = {
   subreddits?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  rssPollingEnabled?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
   semanticSearchScope?: Prisma.SortOrder
@@ -649,6 +669,7 @@ export type CampaignMaxOrderByAggregateInput = {
   description?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  rssPollingEnabled?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
   semanticSearchScope?: Prisma.SortOrder
@@ -665,6 +686,7 @@ export type CampaignMinOrderByAggregateInput = {
   description?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  rssPollingEnabled?: Prisma.SortOrder
   minScoreToAlert?: Prisma.SortOrder
   sourceMode?: Prisma.SortOrder
   semanticSearchScope?: Prisma.SortOrder
@@ -977,6 +999,7 @@ export type CampaignCreateWithoutUserInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1006,6 +1029,7 @@ export type CampaignUncheckedCreateWithoutUserInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1065,6 +1089,7 @@ export type CampaignScalarWhereInput = {
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
+  rssPollingEnabled?: Prisma.BoolFilter<"Campaign"> | boolean
   minScoreToAlert?: Prisma.IntFilter<"Campaign"> | number
   sourceMode?: Prisma.EnumSourceModeFilter<"Campaign"> | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFilter<"Campaign"> | $Enums.CampaignSemanticSearchScope
@@ -1083,6 +1108,7 @@ export type CampaignCreateWithoutRedditAccountInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1113,6 +1139,7 @@ export type CampaignUncheckedCreateWithoutRedditAccountInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1167,6 +1194,7 @@ export type CampaignCreateWithoutPublicVisitorsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1197,6 +1225,7 @@ export type CampaignUncheckedCreateWithoutPublicVisitorsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1241,6 +1270,7 @@ export type CampaignUpdateWithoutPublicVisitorsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1271,6 +1301,7 @@ export type CampaignUncheckedUpdateWithoutPublicVisitorsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1299,6 +1330,7 @@ export type CampaignCreateWithoutClientAccessesInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1329,6 +1361,7 @@ export type CampaignUncheckedCreateWithoutClientAccessesInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1373,6 +1406,7 @@ export type CampaignUpdateWithoutClientAccessesInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1403,6 +1437,7 @@ export type CampaignUncheckedUpdateWithoutClientAccessesInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1431,6 +1466,7 @@ export type CampaignCreateWithoutClientActivityEventsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1461,6 +1497,7 @@ export type CampaignUncheckedCreateWithoutClientActivityEventsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1505,6 +1542,7 @@ export type CampaignUpdateWithoutClientActivityEventsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1535,6 +1573,7 @@ export type CampaignUncheckedUpdateWithoutClientActivityEventsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1563,6 +1602,7 @@ export type CampaignCreateWithoutRunsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1593,6 +1633,7 @@ export type CampaignUncheckedCreateWithoutRunsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1637,6 +1678,7 @@ export type CampaignUpdateWithoutRunsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1667,6 +1709,7 @@ export type CampaignUncheckedUpdateWithoutRunsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1695,6 +1738,7 @@ export type CampaignCreateWithoutInitialRssPollEventsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1725,6 +1769,7 @@ export type CampaignUncheckedCreateWithoutInitialRssPollEventsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1769,6 +1814,7 @@ export type CampaignUpdateWithoutInitialRssPollEventsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1799,6 +1845,7 @@ export type CampaignUncheckedUpdateWithoutInitialRssPollEventsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1827,6 +1874,7 @@ export type CampaignCreateWithoutAiUsageEventsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1857,6 +1905,7 @@ export type CampaignUncheckedCreateWithoutAiUsageEventsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1901,6 +1950,7 @@ export type CampaignUpdateWithoutAiUsageEventsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1931,6 +1981,7 @@ export type CampaignUncheckedUpdateWithoutAiUsageEventsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -1959,6 +2010,7 @@ export type CampaignCreateWithoutSemanticQueriesInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -1989,6 +2041,7 @@ export type CampaignUncheckedCreateWithoutSemanticQueriesInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2033,6 +2086,7 @@ export type CampaignUpdateWithoutSemanticQueriesInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2063,6 +2117,7 @@ export type CampaignUncheckedUpdateWithoutSemanticQueriesInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2091,6 +2146,7 @@ export type CampaignCreateWithoutSemanticPlaygroundRunsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2121,6 +2177,7 @@ export type CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2165,6 +2222,7 @@ export type CampaignUpdateWithoutSemanticPlaygroundRunsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2195,6 +2253,7 @@ export type CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2223,6 +2282,7 @@ export type CampaignCreateWithoutDailySemanticScansInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2253,6 +2313,7 @@ export type CampaignUncheckedCreateWithoutDailySemanticScansInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2297,6 +2358,7 @@ export type CampaignUpdateWithoutDailySemanticScansInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2327,6 +2389,7 @@ export type CampaignUncheckedUpdateWithoutDailySemanticScansInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2355,6 +2418,7 @@ export type CampaignCreateWithoutSyncInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2385,6 +2449,7 @@ export type CampaignUncheckedCreateWithoutSyncInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2429,6 +2494,7 @@ export type CampaignUpdateWithoutSyncInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2459,6 +2525,7 @@ export type CampaignUncheckedUpdateWithoutSyncInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2487,6 +2554,7 @@ export type CampaignCreateWithoutLeadsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2517,6 +2585,7 @@ export type CampaignUncheckedCreateWithoutLeadsInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2561,6 +2630,7 @@ export type CampaignUpdateWithoutLeadsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2591,6 +2661,7 @@ export type CampaignUncheckedUpdateWithoutLeadsInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2619,6 +2690,7 @@ export type CampaignCreateManyUserInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2637,6 +2709,7 @@ export type CampaignUpdateWithoutUserInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2666,6 +2739,7 @@ export type CampaignUncheckedUpdateWithoutUserInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2695,6 +2769,7 @@ export type CampaignUncheckedUpdateManyWithoutUserInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2714,6 +2789,7 @@ export type CampaignCreateManyRedditAccountInput = {
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
   recentDays?: number
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: number
   sourceMode?: $Enums.SourceMode
   semanticSearchScope?: $Enums.CampaignSemanticSearchScope
@@ -2731,6 +2807,7 @@ export type CampaignUpdateWithoutRedditAccountInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2761,6 +2838,7 @@ export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2790,6 +2868,7 @@ export type CampaignUncheckedUpdateManyWithoutRedditAccountInput = {
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
   sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
   semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
@@ -2920,6 +2999,7 @@ export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   subreddits?: boolean
   recentDays?: boolean
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
   semanticSearchScope?: boolean
@@ -2953,6 +3033,7 @@ export type CampaignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   subreddits?: boolean
   recentDays?: boolean
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
   semanticSearchScope?: boolean
@@ -2974,6 +3055,7 @@ export type CampaignSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   subreddits?: boolean
   recentDays?: boolean
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
   semanticSearchScope?: boolean
@@ -2995,6 +3077,7 @@ export type CampaignSelectScalar = {
   subreddits?: boolean
   recentDays?: boolean
   isActive?: boolean
+  rssPollingEnabled?: boolean
   minScoreToAlert?: boolean
   sourceMode?: boolean
   semanticSearchScope?: boolean
@@ -3003,7 +3086,7 @@ export type CampaignSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "leadType" | "description" | "keywords" | "negativeKeywords" | "subreddits" | "recentDays" | "isActive" | "minScoreToAlert" | "sourceMode" | "semanticSearchScope" | "redditAccountId" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
+export type CampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "leadType" | "description" | "keywords" | "negativeKeywords" | "subreddits" | "recentDays" | "isActive" | "rssPollingEnabled" | "minScoreToAlert" | "sourceMode" | "semanticSearchScope" | "redditAccountId" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
 export type CampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   redditAccount?: boolean | Prisma.Campaign$redditAccountArgs<ExtArgs>
@@ -3057,6 +3140,7 @@ export type $CampaignPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     subreddits: string[]
     recentDays: number
     isActive: boolean
+    rssPollingEnabled: boolean
     minScoreToAlert: number
     sourceMode: $Enums.SourceMode
     semanticSearchScope: $Enums.CampaignSemanticSearchScope
@@ -3509,6 +3593,7 @@ export interface CampaignFieldRefs {
   readonly subreddits: Prisma.FieldRef<"Campaign", 'String[]'>
   readonly recentDays: Prisma.FieldRef<"Campaign", 'Int'>
   readonly isActive: Prisma.FieldRef<"Campaign", 'Boolean'>
+  readonly rssPollingEnabled: Prisma.FieldRef<"Campaign", 'Boolean'>
   readonly minScoreToAlert: Prisma.FieldRef<"Campaign", 'Int'>
   readonly sourceMode: Prisma.FieldRef<"Campaign", 'SourceMode'>
   readonly semanticSearchScope: Prisma.FieldRef<"Campaign", 'CampaignSemanticSearchScope'>

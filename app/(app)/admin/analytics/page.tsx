@@ -268,19 +268,19 @@ export default async function AdminAnalyticsPage({
             </ControlCard>
           </div>
 
-          <div className="mt-4 rounded-[18px] border border-white/[0.06] bg-[#101010] p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+          <div className="mt-4 min-w-0 rounded-[18px] border border-white/[0.06] bg-[#101010] p-4">
+            <div className="grid min-w-0 gap-3">
+              <div className="min-w-0">
                 <p className="text-[11px] font-bold text-[#ffffff]">Lead-scoring cost model</p>
                 <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">Recalculate displayed classification cost without changing the worker model.</p>
               </div>
-              <div className="flex shrink-0 rounded-full border border-white/[0.08] bg-[#181818] p-1">
+              <div className="grid w-full min-w-0 grid-cols-1 gap-1 rounded-[16px] border border-white/[0.08] bg-[#181818] p-1 min-[420px]:grid-cols-2 sm:grid-cols-4 2xl:grid-cols-2">
                 {LEAD_SCORING_MODEL_OPTIONS.map((model) => (
                   <Link
-                    className={`min-h-9 rounded-full px-4 py-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] transition-colors ${
+                    className={`flex min-h-9 min-w-0 cursor-pointer items-center justify-center rounded-[12px] px-2.5 py-2 text-center text-[10px] font-bold uppercase leading-4 tracking-[0.1em] transition-colors ${
                       selectedPriceModel === model.id
                         ? "bg-[#1ed760] text-[#0d160f]"
-                        : "text-[#a1a1aa] hover:bg-[#252525] hover:text-[#ffffff]"
+                        : "text-[#a1a1aa] hover:bg-[#252525] hover:text-[#ffffff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/60"
                     }`}
                     href={buildAnalyticsHref({
                       campaignId: selectedCampaign?.id,
@@ -782,7 +782,7 @@ function Panel({
   title: string;
 }) {
   return (
-    <section className="rounded-[24px] border border-white/[0.06] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.22)_0px_10px_28px] lg:p-5">
+    <section className="min-w-0 rounded-[24px] border border-white/[0.06] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.22)_0px_10px_28px] lg:p-5">
       <div className="flex items-start gap-3 border-b border-white/[0.06] pb-4">
         {icon ? (
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#242424] text-[#d4d4d8]">
@@ -794,14 +794,14 @@ function Panel({
           <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">{description}</p>
         </div>
       </div>
-      <div className="pt-4">{children}</div>
+      <div className="min-w-0 pt-4">{children}</div>
     </section>
   );
 }
 
 function ControlCard({ children, description, title }: { children: React.ReactNode; description: string; title: string }) {
   return (
-    <div className="flex min-h-[132px] flex-col rounded-[18px] border border-white/[0.06] bg-[#111111] p-4">
+    <div className="flex min-h-[132px] min-w-0 flex-col rounded-[18px] border border-white/[0.06] bg-[#111111] p-4">
       <p className="text-[12px] font-bold text-[#f4f4f5]">{title}</p>
       <p className="mt-1 text-[11px] leading-4 text-[#737373]">{description}</p>
       <div className="mt-auto pt-4 [&_button]:!w-full">{children}</div>

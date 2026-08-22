@@ -65,6 +65,7 @@ export function buildAdminClassifiedLeadsJson({
         description: lead.redditItem.description,
         body: lead.redditItem.body,
         url: lead.redditItem.url,
+        createdUtc: lead.redditItem.createdUtc,
       },
     })),
   };

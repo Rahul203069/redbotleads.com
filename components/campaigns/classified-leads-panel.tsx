@@ -9,39 +9,17 @@ import { sendCampaignClientActivity } from "@/components/campaigns/client-activi
 import { useToast } from "@/components/ui/use-toast";
 import type { CampaignLeadDateFilter } from "@/lib/admin-classified-leads";
 import { buildCampaignLeadsJsonExport } from "@/lib/admin-semantic-passed-posts";
+import type { CampaignLeadView } from "@/lib/campaign-leads";
 import {
   resolveCampaignLeadEmptyState,
   type CampaignLeadEmptyStateMode,
   type CampaignLeadSyncStatus,
 } from "@/lib/campaign-lead-empty-state";
 
-export type ClassifiedLead = {
-  id: string;
-  score: number;
-  semanticScore: number | null;
-  label: "HIGH" | "MED" | "LOW";
-  status: "NEW" | "SAVED" | "IGNORED" | "REPLIED";
-  createdAt: string;
-  ai: {
-    intentType: "none" | "implicit" | "explicit" | "switching" | null;
-    buyerStage: "solved" | "problem_aware" | "solution_aware" | "evaluating" | null;
-    category: string | null;
-    summary: string | null;
-    painPoints: string[];
-    disqualifier: string | null;
-  } | null;
-  redditItem: {
-    type: "POST" | "COMMENT";
-    subreddit: string;
-    title: string | null;
-    description: string | null;
-    body: string | null;
-    url: string | null;
-  };
-};
+export type ClassifiedLead = CampaignLeadView;
 
 const labelFilters = ["ALL", "HIGH", "MED", "LOW"] as const;
-const statusFilters = ["ALL", "NEW", "SAVED", "IGNORED", "REPLIED"] as const;
+const statusFilters = ["ALL", "NEW", "REVIEWED", "SAVED", "CONTACTED", "DISMISSED"] as const;
 const scoreSortOptions = ["SCORE_DESC", "SCORE_ASC", "SEMANTIC_DESC"] as const;
 const nonAdminScoreSortOptions = ["SCORE_DESC", "SCORE_ASC"] as const;
 const MIN_VISIBLE_LEAD_SCORE = 40;
@@ -579,6 +557,7 @@ function formatLeadForJson(lead: ClassifiedLead) {
       description: lead.redditItem.description,
       body: lead.redditItem.body,
       url: lead.redditItem.url,
+      createdUtc: lead.redditItem.createdUtc,
     },
   };
 }

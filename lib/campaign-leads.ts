@@ -1,7 +1,6 @@
-import { Prisma } from "../generated/prisma/client";
-
 import { prisma } from "@/lib/prisma";
 import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
+import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
 import type { DailyLeadDateRangeValue } from "@/lib/daily-leads-analytics";
 
 export const PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE = 40;
@@ -10,7 +9,7 @@ export type CampaignLeadView = {
   id: string;
   score: number;
   label: "HIGH" | "MED" | "LOW";
-  status: "NEW" | "SAVED" | "IGNORED" | "REPLIED";
+  status: CampaignLeadStatus;
   createdAt: string;
   semanticScore: number | null;
   ai: {
@@ -28,6 +27,7 @@ export type CampaignLeadView = {
     description: string | null;
     body: string | null;
     url: string | null;
+    createdUtc: string;
   };
 };
 
@@ -83,6 +83,16 @@ export async function getCampaignLeadViewsForUser({
               description: true,
               body: true,
               url: true,
+              createdUtc: true,
+              dailySemanticScans: {
+                where: {
+                  campaignId,
+                },
+                take: 1,
+                select: {
+                  bestScore: true,
+                },
+              },
             },
           },
         },
@@ -94,7 +104,7 @@ export async function getCampaignLeadViewsForUser({
     return [];
   }
 
-  return buildCampaignLeadViews(campaignId, campaign.leads);
+  return buildCampaignLeadViews(campaign.leads);
 }
 
 export async function getPublicCampaignLeadViews({
@@ -143,6 +153,16 @@ export async function getPublicCampaignLeadViews({
               description: true,
               body: true,
               url: true,
+              createdUtc: true,
+              dailySemanticScans: {
+                where: {
+                  campaignId,
+                },
+                take: 1,
+                select: {
+                  bestScore: true,
+                },
+              },
             },
           },
         },
@@ -154,7 +174,7 @@ export async function getPublicCampaignLeadViews({
     return [];
   }
 
-  return buildCampaignLeadViews(campaignId, campaign.leads);
+  return buildCampaignLeadViews(campaign.leads);
 }
 
 function buildLeadDateWhere({
@@ -191,13 +211,12 @@ function buildLeadDateWhere({
   return {};
 }
 
-async function buildCampaignLeadViews(
-  campaignId: string,
+function buildCampaignLeadViews(
   leads: Array<{
     id: string;
     score: number;
     label: "HIGH" | "MED" | "LOW";
-    status: "NEW" | "SAVED" | "IGNORED" | "REPLIED";
+    status: CampaignLeadStatus;
     createdAt: Date;
     ai: {
       intentType: "NONE" | "IMPLICIT" | "EXPLICIT" | "SWITCHING" | null;
@@ -214,21 +233,20 @@ async function buildCampaignLeadViews(
       description: string | null;
       body: string | null;
       url: string | null;
+      createdUtc: Date;
+      dailySemanticScans: Array<{
+        bestScore: number | null;
+      }>;
     };
   }>,
-): Promise<CampaignLeadView[]> {
-  const semanticScores = await getSemanticScoresForLeads(
-    campaignId,
-    leads.map((lead) => lead.id),
-  );
-
+): CampaignLeadView[] {
   return leads.map((lead) => ({
     id: lead.id,
     score: lead.score,
     label: lead.label,
     status: lead.status,
     createdAt: lead.createdAt.toISOString(),
-    semanticScore: semanticScores.get(lead.id) ?? null,
+    semanticScore: lead.redditItem.dailySemanticScans[0]?.bestScore ?? null,
     ai: lead.ai
       ? {
           intentType: normalizeIntentType(lead.ai.intentType),
@@ -246,34 +264,9 @@ async function buildCampaignLeadViews(
       description: lead.redditItem.description,
       body: lead.redditItem.body,
       url: lead.redditItem.url,
+      createdUtc: lead.redditItem.createdUtc.toISOString(),
     },
   }));
-}
-
-async function getSemanticScoresForLeads(campaignId: string, leadIds: string[]) {
-  if (leadIds.length === 0) {
-    return new Map<string, number>();
-  }
-
-  const rows = await prisma.$queryRaw<Array<{ leadId: string; semanticScore: number }>>(
-    Prisma.sql`
-      SELECT
-        "l"."id" AS "leadId",
-        MAX(1 - ("rie"."embedding" <=> "csq"."embedding")) AS "semanticScore"
-      FROM "Lead" "l"
-      JOIN "RedditItemEmbedding" "rie"
-        ON "rie"."redditItemId" = "l"."redditItemId"
-      JOIN "CampaignSemanticQuery" "csq"
-        ON "csq"."campaignId" = "l"."campaignId"
-      WHERE "l"."campaignId" = ${campaignId}
-        AND "l"."id" IN (${Prisma.join(leadIds)})
-        AND "rie"."embedding" IS NOT NULL
-        AND "csq"."embedding" IS NOT NULL
-      GROUP BY "l"."id"
-    `,
-  );
-
-  return new Map(rows.map((row) => [row.leadId, row.semanticScore]));
 }
 
 function normalizeIntentType(

@@ -2809,6 +2809,7 @@ export const SaasConfigScalarFieldEnum = {
   id: 'id',
   subredditSuggestionCount: 'subredditSuggestionCount',
   leadScoringModel: 'leadScoringModel',
+  campaignLeadLayout: 'campaignLeadLayout',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

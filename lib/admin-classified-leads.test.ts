@@ -29,6 +29,7 @@ const classifiedLead: CampaignLeadView = {
     description: "A short description",
     body: "The full source text",
     url: "https://reddit.com/r/saas/example",
+    createdUtc: "2026-07-20T09:45:00.000Z",
   },
 };
 
@@ -66,4 +67,5 @@ test("builds JSON with campaign and date-selection context", () => {
   assert.equal(payload.leads[0].score, 12);
   assert.equal(payload.leads[0].ai.summary, "The author is looking for a better workflow.");
   assert.equal(payload.leads[0].redditItem.body, "The full source text");
+  assert.equal(payload.leads[0].redditItem.createdUtc, "2026-07-20T09:45:00.000Z");
 });

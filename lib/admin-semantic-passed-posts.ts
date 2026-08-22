@@ -29,7 +29,7 @@ export type AdminSemanticPassedScanRecord = {
       id: string;
       score: number;
       label: "HIGH" | "MED" | "LOW";
-      status: "NEW" | "SAVED" | "IGNORED" | "REPLIED";
+      status: "NEW" | "REVIEWED" | "SAVED" | "CONTACTED" | "DISMISSED";
       createdAt: Date;
       ai: {
         model: string | null;

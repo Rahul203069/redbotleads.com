@@ -38,6 +38,7 @@ import {
 import { getNextDailySemanticCronAt } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import { getPublicShareViewStats } from "@/lib/public-share-analytics";
+import { getSaasConfig } from "@/lib/saas-config";
 import {
   BROWSER_TIME_ZONE_COOKIE,
   formatDateInTimeZone,
@@ -171,7 +172,7 @@ export default async function CampaignDetailPage({
   const displayName = getCampaignDisplayName(campaign, access);
   const canManage = canManageCampaign(access);
 
-  const [sync, latestSemanticRun, manualSemanticState] = await Promise.all([
+  const [sync, latestSemanticRun, manualSemanticState, saasConfig] = await Promise.all([
     reconcileCampaignSyncState(campaign.id),
     prisma.campaignRun.findFirst({
       where: {
@@ -196,6 +197,7 @@ export default async function CampaignDetailPage({
           userId: session.user.id,
         })
       : Promise.resolve(null),
+    getSaasConfig(),
   ]);
   const latestSemanticRunAt = getLatestSemanticRunTimestamp(latestSemanticRun);
   const semanticNextSyncAt = getNextDailySemanticCronAt();
@@ -396,6 +398,7 @@ export default async function CampaignDetailPage({
         }
         leadEmptyStateMode={leadEmptyStateMode}
         leadDateFilter={leadDateFilter}
+        leadLayout={saasConfig.campaignLeadLayout}
         nextSyncLabel={nextSync}
         semanticLastSyncAt={
           latestSemanticRunAt?.toISOString() ?? null
@@ -406,6 +409,8 @@ export default async function CampaignDetailPage({
         showSemanticSort={isAdminAccount}
         selectedPeriodLabel={leadDateLabel}
         trackClientActivity={access.role === "CLIENT" && !isAdminAccount}
+        timeZone={browserTimeZone}
+        todayDateKey={getDateKeyInTimeZone(new Date(), browserTimeZone)}
       />
       </div>
     </CampaignLeadFilterLoadingProvider>

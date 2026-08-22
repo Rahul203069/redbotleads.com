@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import {
+  DEFAULT_CAMPAIGN_LEAD_LAYOUT,
+  normalizeCampaignLeadLayout,
+  type CampaignLeadLayout,
+} from "@/lib/campaign-lead-layout";
 import { DEFAULT_LEAD_SCORING_MODEL, normalizeLeadScoringModel, type LeadScoringModelId } from "@/lib/openai-models";
 import {
   DEFAULT_SUBREDDIT_SUGGESTION_COUNT,
@@ -11,6 +16,7 @@ export const SAAS_CONFIG_ID = "global";
 export type SaasRuntimeConfig = {
   subredditSuggestionCount: number;
   leadScoringModel: LeadScoringModelId;
+  campaignLeadLayout: CampaignLeadLayout;
 };
 
 export async function getSaasConfig(): Promise<SaasRuntimeConfig> {
@@ -21,17 +27,24 @@ export async function getSaasConfig(): Promise<SaasRuntimeConfig> {
     select: {
       subredditSuggestionCount: true,
       leadScoringModel: true,
+      campaignLeadLayout: true,
     },
   });
 
   return normalizeSaasConfig({
     subredditSuggestionCount: config?.subredditSuggestionCount,
     leadScoringModel: config?.leadScoringModel ?? process.env.OPENAI_MODEL,
+    campaignLeadLayout: config?.campaignLeadLayout,
   });
 }
 
-export async function upsertSaasConfig(input: SaasRuntimeConfig) {
-  const normalized = normalizeSaasConfig(input);
+export async function upsertSaasConfig(
+  input: Pick<SaasRuntimeConfig, "subredditSuggestionCount" | "leadScoringModel">,
+) {
+  const normalized = {
+    subredditSuggestionCount: clampSubredditSuggestionCount(input.subredditSuggestionCount),
+    leadScoringModel: normalizeLeadScoringModel(input.leadScoringModel),
+  };
 
   return prisma.saasConfig.upsert({
     where: {
@@ -45,13 +58,32 @@ export async function upsertSaasConfig(input: SaasRuntimeConfig) {
   });
 }
 
+export async function upsertCampaignLeadLayout(input: CampaignLeadLayout) {
+  const campaignLeadLayout = normalizeCampaignLeadLayout(input);
+
+  return prisma.saasConfig.upsert({
+    where: {
+      id: SAAS_CONFIG_ID,
+    },
+    update: {
+      campaignLeadLayout,
+    },
+    create: {
+      id: SAAS_CONFIG_ID,
+      campaignLeadLayout,
+    },
+  });
+}
+
 export function normalizeSaasConfig(input: {
   subredditSuggestionCount?: number | null;
   leadScoringModel?: string | null;
+  campaignLeadLayout?: string | null;
 }): SaasRuntimeConfig {
   return {
     subredditSuggestionCount: clampSubredditSuggestionCount(input.subredditSuggestionCount),
     leadScoringModel: normalizeLeadScoringModel(input.leadScoringModel ?? DEFAULT_LEAD_SCORING_MODEL),
+    campaignLeadLayout: normalizeCampaignLeadLayout(input.campaignLeadLayout ?? DEFAULT_CAMPAIGN_LEAD_LAYOUT),
   };
 }
 

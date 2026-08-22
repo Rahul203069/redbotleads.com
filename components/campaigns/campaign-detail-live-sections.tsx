@@ -9,10 +9,13 @@ import {
   type CampaignInitialRssDiagnostics,
 } from "@/actions/campaigns";
 import { ClassifiedLeadsPanel, type ClassifiedLead } from "@/components/campaigns/classified-leads-panel";
+import { CampaignLeadInbox } from "@/components/campaigns/campaign-lead-inbox";
 import { useCampaignLeadFilterLoading } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignSyncPanel, type CampaignSync } from "@/components/campaigns/campaign-sync-panel";
 import { InitialRssDiagnosticsPanel } from "@/components/campaigns/initial-rss-diagnostics-panel";
 import type { CampaignLeadEmptyStateMode } from "@/lib/campaign-lead-empty-state";
+import type { CampaignLeadLayout } from "@/lib/campaign-lead-layout";
+import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
 
@@ -52,6 +55,7 @@ export function CampaignDetailLiveSections({
   initialSync,
   leadEmptyStateMode,
   leadDateFilter,
+  leadLayout,
   nextSyncLabel,
   semanticLastSyncAt,
   semanticNextSyncAt,
@@ -60,6 +64,8 @@ export function CampaignDetailLiveSections({
   showSemanticSort = true,
   selectedPeriodLabel,
   trackClientActivity = false,
+  timeZone,
+  todayDateKey,
 }: {
   campaignId: string;
   canDeleteLeads?: boolean;
@@ -73,6 +79,7 @@ export function CampaignDetailLiveSections({
     range?: string;
     to?: string;
   };
+  leadLayout: CampaignLeadLayout;
   nextSyncLabel: string;
   semanticLastSyncAt: string | null;
   semanticNextSyncAt: string;
@@ -81,6 +88,8 @@ export function CampaignDetailLiveSections({
   showSemanticSort?: boolean;
   selectedPeriodLabel: string;
   trackClientActivity?: boolean;
+  timeZone: string;
+  todayDateKey: string;
 }) {
   const [, startTransition] = useTransition();
   const { isLeadFilterLoading } = useCampaignLeadFilterLoading();
@@ -161,24 +170,46 @@ export function CampaignDetailLiveSections({
         sync={sync}
       />
       {showInitialRssDiagnostics ? <InitialRssDiagnosticsPanel diagnostics={diagnostics} /> : null}
-      <ClassifiedLeadsPanel
-        campaignId={campaignId}
-        canDeleteLeads={canDeleteLeads}
-        emptyStateMode={leadEmptyStateMode}
-        isFilterLoading={isLeadFilterLoading}
-        leadDateFilter={leadDateFilter}
-        leads={classifiedLeads}
-        nextSyncLabel={nextSync}
-        showJsonExport={showJsonExport}
-        showSemanticSort={showSemanticSort}
-        showStatusFilter={false}
-        selectedPeriodLabel={selectedPeriodLabel}
-        syncStatus={sync?.status ?? "IDLE"}
-        trackClientActivity={trackClientActivity}
-        onLeadDeleted={(leadId) => {
-          setLeads((current) => current.filter((lead) => lead.id !== leadId));
-        }}
-      />
+      {leadLayout === "INBOX" ? (
+        <CampaignLeadInbox
+          campaignId={campaignId}
+          canDeleteLeads={canDeleteLeads}
+          emptyStateMode={leadEmptyStateMode}
+          isFilterLoading={isLeadFilterLoading}
+          leads={classifiedLeads}
+          nextSyncLabel={nextSync}
+          selectedPeriodLabel={selectedPeriodLabel}
+          syncStatus={sync?.status ?? "IDLE"}
+          timeZone={timeZone}
+          todayDateKey={todayDateKey}
+          trackClientActivity={trackClientActivity}
+          onLeadDeleted={(leadId) => {
+            setLeads((current) => current.filter((lead) => lead.id !== leadId));
+          }}
+          onLeadStatusChanged={(leadId, status: CampaignLeadStatus) => {
+            setLeads((current) => current.map((lead) => lead.id === leadId ? { ...lead, status } : lead));
+          }}
+        />
+      ) : (
+        <ClassifiedLeadsPanel
+          campaignId={campaignId}
+          canDeleteLeads={canDeleteLeads}
+          emptyStateMode={leadEmptyStateMode}
+          isFilterLoading={isLeadFilterLoading}
+          leadDateFilter={leadDateFilter}
+          leads={classifiedLeads}
+          nextSyncLabel={nextSync}
+          showJsonExport={showJsonExport}
+          showSemanticSort={showSemanticSort}
+          showStatusFilter={false}
+          selectedPeriodLabel={selectedPeriodLabel}
+          syncStatus={sync?.status ?? "IDLE"}
+          trackClientActivity={trackClientActivity}
+          onLeadDeleted={(leadId) => {
+            setLeads((current) => current.filter((lead) => lead.id !== leadId));
+          }}
+        />
+      )}
     </>
   );
 }

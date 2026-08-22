@@ -38,6 +38,7 @@ export type SaasConfigMinAggregateOutputType = {
   id: string | null
   subredditSuggestionCount: number | null
   leadScoringModel: string | null
+  campaignLeadLayout: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +47,7 @@ export type SaasConfigMaxAggregateOutputType = {
   id: string | null
   subredditSuggestionCount: number | null
   leadScoringModel: string | null
+  campaignLeadLayout: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -54,6 +56,7 @@ export type SaasConfigCountAggregateOutputType = {
   id: number
   subredditSuggestionCount: number
   leadScoringModel: number
+  campaignLeadLayout: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -72,6 +75,7 @@ export type SaasConfigMinAggregateInputType = {
   id?: true
   subredditSuggestionCount?: true
   leadScoringModel?: true
+  campaignLeadLayout?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -80,6 +84,7 @@ export type SaasConfigMaxAggregateInputType = {
   id?: true
   subredditSuggestionCount?: true
   leadScoringModel?: true
+  campaignLeadLayout?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -88,6 +93,7 @@ export type SaasConfigCountAggregateInputType = {
   id?: true
   subredditSuggestionCount?: true
   leadScoringModel?: true
+  campaignLeadLayout?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -183,6 +189,7 @@ export type SaasConfigGroupByOutputType = {
   id: string
   subredditSuggestionCount: number
   leadScoringModel: string
+  campaignLeadLayout: string
   createdAt: Date
   updatedAt: Date
   _count: SaasConfigCountAggregateOutputType | null
@@ -214,6 +221,7 @@ export type SaasConfigWhereInput = {
   id?: Prisma.StringFilter<"SaasConfig"> | string
   subredditSuggestionCount?: Prisma.IntFilter<"SaasConfig"> | number
   leadScoringModel?: Prisma.StringFilter<"SaasConfig"> | string
+  campaignLeadLayout?: Prisma.StringFilter<"SaasConfig"> | string
   createdAt?: Prisma.DateTimeFilter<"SaasConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SaasConfig"> | Date | string
 }
@@ -222,6 +230,7 @@ export type SaasConfigOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   subredditSuggestionCount?: Prisma.SortOrder
   leadScoringModel?: Prisma.SortOrder
+  campaignLeadLayout?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -233,6 +242,7 @@ export type SaasConfigWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SaasConfigWhereInput | Prisma.SaasConfigWhereInput[]
   subredditSuggestionCount?: Prisma.IntFilter<"SaasConfig"> | number
   leadScoringModel?: Prisma.StringFilter<"SaasConfig"> | string
+  campaignLeadLayout?: Prisma.StringFilter<"SaasConfig"> | string
   createdAt?: Prisma.DateTimeFilter<"SaasConfig"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SaasConfig"> | Date | string
 }, "id">
@@ -241,6 +251,7 @@ export type SaasConfigOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   subredditSuggestionCount?: Prisma.SortOrder
   leadScoringModel?: Prisma.SortOrder
+  campaignLeadLayout?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SaasConfigCountOrderByAggregateInput
@@ -257,6 +268,7 @@ export type SaasConfigScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SaasConfig"> | string
   subredditSuggestionCount?: Prisma.IntWithAggregatesFilter<"SaasConfig"> | number
   leadScoringModel?: Prisma.StringWithAggregatesFilter<"SaasConfig"> | string
+  campaignLeadLayout?: Prisma.StringWithAggregatesFilter<"SaasConfig"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SaasConfig"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SaasConfig"> | Date | string
 }
@@ -265,6 +277,7 @@ export type SaasConfigCreateInput = {
   id?: string
   subredditSuggestionCount?: number
   leadScoringModel?: string
+  campaignLeadLayout?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -273,6 +286,7 @@ export type SaasConfigUncheckedCreateInput = {
   id?: string
   subredditSuggestionCount?: number
   leadScoringModel?: string
+  campaignLeadLayout?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -281,6 +295,7 @@ export type SaasConfigUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   subredditSuggestionCount?: Prisma.IntFieldUpdateOperationsInput | number
   leadScoringModel?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignLeadLayout?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -289,6 +304,7 @@ export type SaasConfigUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   subredditSuggestionCount?: Prisma.IntFieldUpdateOperationsInput | number
   leadScoringModel?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignLeadLayout?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -297,6 +313,7 @@ export type SaasConfigCreateManyInput = {
   id?: string
   subredditSuggestionCount?: number
   leadScoringModel?: string
+  campaignLeadLayout?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -305,6 +322,7 @@ export type SaasConfigUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   subredditSuggestionCount?: Prisma.IntFieldUpdateOperationsInput | number
   leadScoringModel?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignLeadLayout?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -313,6 +331,7 @@ export type SaasConfigUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   subredditSuggestionCount?: Prisma.IntFieldUpdateOperationsInput | number
   leadScoringModel?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignLeadLayout?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -321,6 +340,7 @@ export type SaasConfigCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   subredditSuggestionCount?: Prisma.SortOrder
   leadScoringModel?: Prisma.SortOrder
+  campaignLeadLayout?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -333,6 +353,7 @@ export type SaasConfigMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   subredditSuggestionCount?: Prisma.SortOrder
   leadScoringModel?: Prisma.SortOrder
+  campaignLeadLayout?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -341,6 +362,7 @@ export type SaasConfigMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   subredditSuggestionCount?: Prisma.SortOrder
   leadScoringModel?: Prisma.SortOrder
+  campaignLeadLayout?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -363,6 +385,7 @@ export type SaasConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   id?: boolean
   subredditSuggestionCount?: boolean
   leadScoringModel?: boolean
+  campaignLeadLayout?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["saasConfig"]>
@@ -371,6 +394,7 @@ export type SaasConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   subredditSuggestionCount?: boolean
   leadScoringModel?: boolean
+  campaignLeadLayout?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["saasConfig"]>
@@ -379,6 +403,7 @@ export type SaasConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   subredditSuggestionCount?: boolean
   leadScoringModel?: boolean
+  campaignLeadLayout?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["saasConfig"]>
@@ -387,11 +412,12 @@ export type SaasConfigSelectScalar = {
   id?: boolean
   subredditSuggestionCount?: boolean
   leadScoringModel?: boolean
+  campaignLeadLayout?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SaasConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "subredditSuggestionCount" | "leadScoringModel" | "createdAt" | "updatedAt", ExtArgs["result"]["saasConfig"]>
+export type SaasConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "subredditSuggestionCount" | "leadScoringModel" | "campaignLeadLayout" | "createdAt" | "updatedAt", ExtArgs["result"]["saasConfig"]>
 
 export type $SaasConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SaasConfig"
@@ -400,6 +426,7 @@ export type $SaasConfigPayload<ExtArgs extends runtime.Types.Extensions.Internal
     id: string
     subredditSuggestionCount: number
     leadScoringModel: string
+    campaignLeadLayout: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["saasConfig"]>
@@ -828,6 +855,7 @@ export interface SaasConfigFieldRefs {
   readonly id: Prisma.FieldRef<"SaasConfig", 'String'>
   readonly subredditSuggestionCount: Prisma.FieldRef<"SaasConfig", 'Int'>
   readonly leadScoringModel: Prisma.FieldRef<"SaasConfig", 'String'>
+  readonly campaignLeadLayout: Prisma.FieldRef<"SaasConfig", 'String'>
   readonly createdAt: Prisma.FieldRef<"SaasConfig", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SaasConfig", 'DateTime'>
 }

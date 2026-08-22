@@ -30,9 +30,10 @@ enum LeadLabel {
 
 enum LeadStatus {
   NEW
+  REVIEWED
   SAVED
-  IGNORED
-  REPLIED
+  DISMISSED @map("IGNORED")
+  CONTACTED @map("REPLIED")
 }
 
 enum LeadIntentType {
@@ -201,6 +202,7 @@ model SaasConfig {
   id                       String   @id @default("global")
   subredditSuggestionCount Int      @default(40)
   leadScoringModel         String   @default("gpt-5-mini")
+  campaignLeadLayout       String   @default("CLASSIC")
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 }

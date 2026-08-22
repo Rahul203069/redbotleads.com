@@ -25,6 +25,10 @@ import {
   canEditCampaignDescription,
   getCampaignAccessFromRecord,
 } from "@/lib/campaign-access";
+import {
+  CAMPAIGN_LEAD_STATUSES,
+  type CampaignLeadStatus,
+} from "@/lib/campaign-lead-status";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import {
   DEFAULT_CAMPAIGN_SEMANTIC_SEARCH_SCOPE,
@@ -70,6 +74,15 @@ const deleteCampaignLeadSchema = z.object({
   leadId: z.string().trim().min(1, "Lead ID is missing."),
 });
 
+const campaignLeadReferenceSchema = z.object({
+  campaignId: z.string().trim().min(1, "Campaign ID is missing."),
+  leadId: z.string().trim().min(1, "Lead ID is missing."),
+});
+
+const campaignLeadStatusSchema = campaignLeadReferenceSchema.extend({
+  status: z.enum(CAMPAIGN_LEAD_STATUSES),
+});
+
 export type CampaignActionState = {
   status: "idle" | "success" | "error";
   message?: string;
@@ -83,6 +96,12 @@ export type ManualCampaignSemanticActionResult = {
   status: "success" | "error";
   message: string;
   state: ManualCampaignSemanticState;
+};
+
+export type CampaignLeadStatusActionResult = {
+  status: "success" | "error";
+  message: string;
+  leadStatus?: CampaignLeadStatus;
 };
 
 const semanticQuerySchema = z.object({
@@ -931,6 +950,206 @@ export async function getCampaignLeads(
     userId: session.user.id,
     email: session.user.email,
   });
+}
+
+export async function markCampaignLeadReviewed(input: {
+  campaignId: string;
+  leadId: string;
+}): Promise<CampaignLeadStatusActionResult> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to review a lead.",
+    };
+  }
+
+  const parsed = campaignLeadReferenceSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Campaign and lead IDs are required.",
+    };
+  }
+
+  let accessibleLead: Awaited<ReturnType<typeof findAccessibleCampaignLead>>;
+
+  try {
+    accessibleLead = await findAccessibleCampaignLead({
+      ...parsed.data,
+      email: session.user.email,
+      userId: session.user.id,
+    });
+  } catch (error) {
+    console.error("Campaign lead access check failed", error);
+    return {
+      status: "error",
+      message: "Could not verify access to this lead. Try again.",
+    };
+  }
+
+  if (!accessibleLead) {
+    return {
+      status: "error",
+      message: "Lead not found in an accessible campaign.",
+    };
+  }
+
+  try {
+    await prisma.lead.updateMany({
+      where: {
+        id: accessibleLead.id,
+        campaignId: parsed.data.campaignId,
+        status: "NEW",
+      },
+      data: {
+        status: "REVIEWED",
+      },
+    });
+
+    const canonicalLead = await prisma.lead.findUnique({
+      where: {
+        id: accessibleLead.id,
+      },
+      select: {
+        status: true,
+      },
+    });
+
+    if (!canonicalLead) {
+      return {
+        status: "error",
+        message: "The lead is no longer available.",
+      };
+    }
+
+    revalidatePath(`/campaigns/${parsed.data.campaignId}`);
+
+    return {
+      status: "success",
+      message: "Lead marked as reviewed.",
+      leadStatus: canonicalLead.status,
+    };
+  } catch (error) {
+    console.error("Campaign lead review update failed", error);
+
+    return {
+      status: "error",
+      message: "Could not mark this lead as reviewed. Try again.",
+    };
+  }
+}
+
+export async function setCampaignLeadStatus(input: {
+  campaignId: string;
+  leadId: string;
+  status: CampaignLeadStatus;
+}): Promise<CampaignLeadStatusActionResult> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to update a lead.",
+    };
+  }
+
+  const parsed = campaignLeadStatusSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Choose a valid lead status.",
+    };
+  }
+
+  let accessibleLead: Awaited<ReturnType<typeof findAccessibleCampaignLead>>;
+
+  try {
+    accessibleLead = await findAccessibleCampaignLead({
+      campaignId: parsed.data.campaignId,
+      leadId: parsed.data.leadId,
+      email: session.user.email,
+      userId: session.user.id,
+    });
+  } catch (error) {
+    console.error("Campaign lead access check failed", error);
+    return {
+      status: "error",
+      message: "Could not verify access to this lead. Try again.",
+    };
+  }
+
+  if (!accessibleLead) {
+    return {
+      status: "error",
+      message: "Lead not found in an accessible campaign.",
+    };
+  }
+
+  try {
+    const lead = await prisma.lead.update({
+      where: {
+        id: accessibleLead.id,
+      },
+      data: {
+        status: parsed.data.status,
+      },
+      select: {
+        status: true,
+      },
+    });
+
+    revalidatePath(`/campaigns/${parsed.data.campaignId}`);
+
+    return {
+      status: "success",
+      message: "Lead status updated.",
+      leadStatus: lead.status,
+    };
+  } catch (error) {
+    console.error("Campaign lead status update failed", error);
+
+    return {
+      status: "error",
+      message: "Could not update this lead. Try again.",
+    };
+  }
+}
+
+async function findAccessibleCampaignLead({
+  campaignId,
+  email,
+  leadId,
+  userId,
+}: {
+  campaignId: string;
+  email: string | null | undefined;
+  leadId: string;
+  userId: string;
+}) {
+  const campaign = await prisma.campaign.findFirst({
+    where: buildAccessibleCampaignWhere({
+      campaignId,
+      email,
+      userId,
+    }),
+    select: {
+      leads: {
+        where: {
+          id: leadId,
+        },
+        take: 1,
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  return campaign?.leads[0] ?? null;
 }
 
 export type AdminClassifiedLeadsResult =

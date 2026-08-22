@@ -36,9 +36,10 @@ export type LeadLabel = (typeof LeadLabel)[keyof typeof LeadLabel]
 
 export const LeadStatus = {
   NEW: 'NEW',
+  REVIEWED: 'REVIEWED',
   SAVED: 'SAVED',
-  IGNORED: 'IGNORED',
-  REPLIED: 'REPLIED'
+  DISMISSED: 'DISMISSED',
+  CONTACTED: 'CONTACTED'
 } as const
 
 export type LeadStatus = (typeof LeadStatus)[keyof typeof LeadStatus]

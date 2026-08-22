@@ -107,6 +107,14 @@ export const CampaignSemanticSearchScope = {
 export type CampaignSemanticSearchScope = (typeof CampaignSemanticSearchScope)[keyof typeof CampaignSemanticSearchScope]
 
 
+export const SaasAppMode = {
+  DAILY: 'DAILY',
+  LIVE: 'LIVE'
+} as const
+
+export type SaasAppMode = (typeof SaasAppMode)[keyof typeof SaasAppMode]
+
+
 export const CampaignSyncStatus = {
   IDLE: 'IDLE',
   QUEUED: 'QUEUED',

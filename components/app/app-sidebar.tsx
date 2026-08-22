@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 
 import { BrandLogo } from "@/components/app/brand-logo";
 import { LogoutButton } from "@/components/auth/logout-button";
+import type { SaasAppMode } from "@/lib/app-mode";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const dailyNavItems = [
   {
     href: "/app",
     label: "Overview",
@@ -28,6 +29,13 @@ const navItems = [
   },
 ];
 
+const liveNavItems = [
+  { href: "/inbox", label: "Inbox", description: "Review new leads", icon: InboxIcon },
+  { href: "/campaigns", label: "Campaigns", description: "Manage monitoring", icon: CampaignsIcon },
+  { href: "/notifications", label: "Notifications", description: "Delivery center", icon: BellIcon },
+  { href: "/settings", label: "Settings", description: "Account and alerts", icon: SettingsIcon },
+];
+
 const ownerNavItems = [
   {
     href: "/admin/analytics",
@@ -38,6 +46,7 @@ const ownerNavItems = [
 ];
 
 type AppSidebarProps = {
+  appMode?: SaasAppMode;
   campaignHref?: string;
   isOwner?: boolean;
   shouldShowSlackConnect?: boolean;
@@ -45,14 +54,16 @@ type AppSidebarProps = {
 };
 
 export function AppSidebar({
+  appMode = "DAILY",
   campaignHref = "/campaigns",
   isOwner = false,
   shouldShowSlackConnect = false,
   userLabel,
 }: AppSidebarProps) {
   const pathname = usePathname();
-  const visibleNavItems = (isOwner ? [...navItems, ...ownerNavItems] : navItems).map((item) =>
-    !isOwner && item.href === "/campaigns"
+  const baseNavItems = appMode === "LIVE" ? liveNavItems : dailyNavItems;
+  const visibleNavItems = (isOwner ? [...baseNavItems, ...ownerNavItems] : baseNavItems).map((item) =>
+    appMode === "DAILY" && !isOwner && item.href === "/campaigns"
       ? { ...item, href: campaignHref, label: "Campaign" }
       : item,
   );
@@ -70,7 +81,7 @@ export function AppSidebar({
         </div>
       </div>
 
-      <nav className="mt-3 grid grid-cols-3 gap-2">
+      <nav className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {visibleNavItems.map((item) => {
           const active = pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
           const Icon = item.icon;
@@ -314,6 +325,22 @@ function SettingsIcon() {
         strokeLinejoin="round"
         strokeWidth="1.5"
       />
+    </svg>
+  );
+}
+
+function InboxIcon() {
+  return (
+    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
+      <path d="M4 5.5h16v13H4v-13Zm0 8h4l1.5 2h5l1.5-2h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+function BellIcon() {
+  return (
+    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
+      <path d="M6.5 9a5.5 5.5 0 0 1 11 0c0 6 2.5 6 2.5 7.5H4C4 15 6.5 15 6.5 9Zm3.5 10h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
     </svg>
   );
 }

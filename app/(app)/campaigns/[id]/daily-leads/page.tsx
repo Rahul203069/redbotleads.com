@@ -23,6 +23,7 @@ import {
   parseDailyLeadsPage,
 } from "@/lib/daily-leads-analytics";
 import { prisma } from "@/lib/prisma";
+import { getSaasConfig } from "@/lib/saas-config";
 import {
   addDaysToDateKey,
   BROWSER_TIME_ZONE_COOKIE,
@@ -53,6 +54,10 @@ export default async function CampaignDailyLeadsPage({
   }
 
   const { id } = await params;
+  const config = await getSaasConfig();
+  if (config.appMode === "LIVE") {
+    redirect(`/campaigns/${id}/history`);
+  }
   const campaign = await prisma.campaign.findFirst({
     where: buildAccessibleCampaignWhere({
       campaignId: id,

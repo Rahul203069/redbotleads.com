@@ -77,6 +77,11 @@ enum CampaignSemanticSearchScope {
   GLOBAL
 }
 
+enum SaasAppMode {
+  DAILY
+  LIVE
+}
+
 enum CampaignSyncStatus {
   IDLE
   QUEUED
@@ -203,6 +208,7 @@ model SaasConfig {
   subredditSuggestionCount Int      @default(40)
   leadScoringModel         String   @default("gpt-5-mini")
   campaignLeadLayout       String   @default("CLASSIC")
+  appMode                   SaasAppMode @default(DAILY)
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 }
@@ -293,6 +299,7 @@ model Campaign {
   keywords         String[]
   negativeKeywords String[]
   subreddits       String[]
+  regions          String[] @default([])
   recentDays       Int      @default(7)
 
   isActive          Boolean    @default(true)
@@ -805,6 +812,7 @@ model Lead {
   @@unique([userId, redditItemId, campaignId]) // dedupe per campaign
   @@index([userId, createdAt(sort: Desc)])
   @@index([campaignId, createdAt(sort: Desc)])
+  @@index([campaignId, status, createdAt(sort: Desc)])
   @@index([userId, status, score(sort: Desc)])
 }
 
@@ -840,6 +848,7 @@ model Notification {
   error   String?
 
   sentAt    DateTime?
+  handledAt DateTime?
   createdAt DateTime @default(now())
 
   lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
@@ -851,6 +860,7 @@ model Notification {
   @@index([leadId, createdAt(sort: Desc)])
   @@index([campaignRunId, createdAt(sort: Desc)])
   @@index([recipientUserId, createdAt(sort: Desc)])
+  @@index([recipientUserId, handledAt, createdAt(sort: Desc)])
   @@index([campaignClientAccessId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
 }

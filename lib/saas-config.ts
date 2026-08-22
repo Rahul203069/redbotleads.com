@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { normalizeSaasAppMode, type SaasAppMode } from "@/lib/app-mode";
 import {
   DEFAULT_CAMPAIGN_LEAD_LAYOUT,
   normalizeCampaignLeadLayout,
@@ -17,6 +18,7 @@ export type SaasRuntimeConfig = {
   subredditSuggestionCount: number;
   leadScoringModel: LeadScoringModelId;
   campaignLeadLayout: CampaignLeadLayout;
+  appMode: SaasAppMode;
 };
 
 export async function getSaasConfig(): Promise<SaasRuntimeConfig> {
@@ -28,6 +30,7 @@ export async function getSaasConfig(): Promise<SaasRuntimeConfig> {
       subredditSuggestionCount: true,
       leadScoringModel: true,
       campaignLeadLayout: true,
+      appMode: true,
     },
   });
 
@@ -35,6 +38,7 @@ export async function getSaasConfig(): Promise<SaasRuntimeConfig> {
     subredditSuggestionCount: config?.subredditSuggestionCount,
     leadScoringModel: config?.leadScoringModel ?? process.env.OPENAI_MODEL,
     campaignLeadLayout: config?.campaignLeadLayout,
+    appMode: config?.appMode,
   });
 }
 
@@ -75,15 +79,27 @@ export async function upsertCampaignLeadLayout(input: CampaignLeadLayout) {
   });
 }
 
+export async function upsertSaasAppMode(input: SaasAppMode) {
+  const appMode = normalizeSaasAppMode(input);
+
+  return prisma.saasConfig.upsert({
+    where: { id: SAAS_CONFIG_ID },
+    update: { appMode },
+    create: { id: SAAS_CONFIG_ID, appMode },
+  });
+}
+
 export function normalizeSaasConfig(input: {
   subredditSuggestionCount?: number | null;
   leadScoringModel?: string | null;
   campaignLeadLayout?: string | null;
+  appMode?: string | null;
 }): SaasRuntimeConfig {
   return {
     subredditSuggestionCount: clampSubredditSuggestionCount(input.subredditSuggestionCount),
     leadScoringModel: normalizeLeadScoringModel(input.leadScoringModel ?? DEFAULT_LEAD_SCORING_MODEL),
     campaignLeadLayout: normalizeCampaignLeadLayout(input.campaignLeadLayout ?? DEFAULT_CAMPAIGN_LEAD_LAYOUT),
+    appMode: normalizeSaasAppMode(input.appMode, input.campaignLeadLayout),
   };
 }
 

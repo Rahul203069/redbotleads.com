@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
-import { CampaignLeadLayoutControl } from "@/components/admin/campaign-lead-layout-control";
+import { ApplicationModeControl } from "@/components/admin/application-mode-control";
 import { CampaignRssPollingToggle } from "@/components/admin/campaign-rss-polling-toggle";
 import { DailySemanticOverrideButton } from "@/components/admin/daily-semantic-override-button";
 import { DailyRssIngestionControl } from "@/components/admin/daily-rss-ingestion-control";
@@ -263,8 +263,8 @@ export default async function AdminAnalyticsPage({
             <ControlCard description="Queue semantic filtering outside the schedule." title="Semantic override">
               <DailySemanticOverrideButton />
             </ControlCard>
-            <ControlCard description="Choose the lead page shown to every authenticated campaign viewer." title="Lead page design">
-              <CampaignLeadLayoutControl initialLayout={saasConfig.campaignLeadLayout} />
+            <ControlCard description="Choose the product workflow shown to every authenticated user." title="Application mode">
+              <ApplicationModeControl initialMode={saasConfig.appMode} />
             </ControlCard>
           </div>
 

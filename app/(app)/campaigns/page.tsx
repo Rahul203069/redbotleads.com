@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { BetaCampaignAccessButton } from "@/components/campaigns/beta-campaign-access-button";
 import { CampaignList } from "@/components/campaigns/campaign-list";
 import { CampaignWizard } from "@/components/campaigns/campaign-wizard";
+import { LiveCampaignsPage } from "@/components/live/live-campaigns-page";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
 import {
@@ -11,12 +12,18 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
+import { getSaasConfig } from "@/lib/saas-config";
 
 export default async function CampaignsPage() {
   const session = await auth();
 
   if (!session?.user?.id) {
     redirect("/login");
+  }
+
+  const saasConfig = await getSaasConfig();
+  if (saasConfig.appMode === "LIVE") {
+    return <LiveCampaignsPage canCreate={isOwnerEmail(session.user.email)} email={session.user.email} isAdmin={canViewAnalytics(session.user.email)} userId={session.user.id} />;
   }
 
   const accessibleCampaignWhere = buildAccessibleCampaignWhere({

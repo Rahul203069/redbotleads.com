@@ -7,6 +7,7 @@ import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { CampaignRssPollingToggle } from "@/components/admin/campaign-rss-polling-toggle";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
+import { LiveCampaignOverview } from "@/components/live/live-campaign-overview";
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignPublicViewStats } from "@/components/campaigns/campaign-public-view-stats";
 import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
@@ -77,6 +78,10 @@ export default async function CampaignDetailPage({
     ? "UTC"
     : normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const { id } = await params;
+  const applicationConfig = await getSaasConfig();
+  if (applicationConfig.appMode === "LIVE") {
+    return <LiveCampaignOverview campaignId={id} email={session.user.email} timeZone={browserTimeZone} userId={session.user.id} />;
+  }
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
   const todayRange = getDayRangeInTimeZone(getDateKeyInTimeZone(new Date(), browserTimeZone), browserTimeZone);
   const leadDateSelection = getDailyLeadDateSelection(
@@ -172,7 +177,7 @@ export default async function CampaignDetailPage({
   const displayName = getCampaignDisplayName(campaign, access);
   const canManage = canManageCampaign(access);
 
-  const [sync, latestSemanticRun, manualSemanticState, saasConfig] = await Promise.all([
+  const [sync, latestSemanticRun, manualSemanticState] = await Promise.all([
     reconcileCampaignSyncState(campaign.id),
     prisma.campaignRun.findFirst({
       where: {
@@ -197,7 +202,6 @@ export default async function CampaignDetailPage({
           userId: session.user.id,
         })
       : Promise.resolve(null),
-    getSaasConfig(),
   ]);
   const latestSemanticRunAt = getLatestSemanticRunTimestamp(latestSemanticRun);
   const semanticNextSyncAt = getNextDailySemanticCronAt();
@@ -398,7 +402,7 @@ export default async function CampaignDetailPage({
         }
         leadEmptyStateMode={leadEmptyStateMode}
         leadDateFilter={leadDateFilter}
-        leadLayout={saasConfig.campaignLeadLayout}
+        leadLayout="CLASSIC"
         nextSyncLabel={nextSync}
         semanticLastSyncAt={
           latestSemanticRunAt?.toISOString() ?? null

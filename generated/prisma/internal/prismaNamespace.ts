@@ -2810,6 +2810,7 @@ export const SaasConfigScalarFieldEnum = {
   subredditSuggestionCount: 'subredditSuggestionCount',
   leadScoringModel: 'leadScoringModel',
   campaignLeadLayout: 'campaignLeadLayout',
+  appMode: 'appMode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2887,6 +2888,7 @@ export const CampaignScalarFieldEnum = {
   keywords: 'keywords',
   negativeKeywords: 'negativeKeywords',
   subreddits: 'subreddits',
+  regions: 'regions',
   recentDays: 'recentDays',
   isActive: 'isActive',
   rssPollingEnabled: 'rssPollingEnabled',
@@ -3271,6 +3273,7 @@ export const NotificationScalarFieldEnum = {
   status: 'status',
   error: 'error',
   sentAt: 'sentAt',
+  handledAt: 'handledAt',
   createdAt: 'createdAt'
 } as const
 
@@ -3441,6 +3444,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
+
+
+/**
+ * Reference to a field of type 'SaasAppMode'
+ */
+export type EnumSaasAppModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SaasAppMode'>
+
+
+
+/**
+ * Reference to a field of type 'SaasAppMode[]'
+ */
+export type ListEnumSaasAppModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SaasAppMode[]'>
+
 
 
 /**
@@ -3896,4 +3913,3 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
-

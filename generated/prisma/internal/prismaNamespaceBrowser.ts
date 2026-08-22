@@ -143,6 +143,7 @@ export const SaasConfigScalarFieldEnum = {
   subredditSuggestionCount: 'subredditSuggestionCount',
   leadScoringModel: 'leadScoringModel',
   campaignLeadLayout: 'campaignLeadLayout',
+  appMode: 'appMode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -220,6 +221,7 @@ export const CampaignScalarFieldEnum = {
   keywords: 'keywords',
   negativeKeywords: 'negativeKeywords',
   subreddits: 'subreddits',
+  regions: 'regions',
   recentDays: 'recentDays',
   isActive: 'isActive',
   rssPollingEnabled: 'rssPollingEnabled',
@@ -604,6 +606,7 @@ export const NotificationScalarFieldEnum = {
   status: 'status',
   error: 'error',
   sentAt: 'sentAt',
+  handledAt: 'handledAt',
   createdAt: 'createdAt'
 } as const
 

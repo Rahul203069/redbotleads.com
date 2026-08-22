@@ -14,6 +14,7 @@ import {
   summarizeSubredditRows,
 } from "@/lib/subreddit-analytics";
 import { prisma } from "@/lib/prisma";
+import { getSaasConfig } from "@/lib/saas-config";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 export default async function CampaignAnalyticsPage({
@@ -27,11 +28,15 @@ export default async function CampaignAnalyticsPage({
     redirect("/login");
   }
 
+  const { id } = await params;
+  const config = await getSaasConfig();
+  if (config.appMode === "LIVE") {
+    redirect(`/campaigns/${id}`);
+  }
+
   if (!canViewAnalytics(session.user.email)) {
     notFound();
   }
-
-  const { id } = await params;
   const campaign = await prisma.campaign.findFirst({
     where: buildAccessibleCampaignWhere({
       campaignId: id,

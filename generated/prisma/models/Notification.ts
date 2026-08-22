@@ -36,6 +36,7 @@ export type NotificationMinAggregateOutputType = {
   status: $Enums.NotifyStatus | null
   error: string | null
   sentAt: Date | null
+  handledAt: Date | null
   createdAt: Date | null
 }
 
@@ -51,6 +52,7 @@ export type NotificationMaxAggregateOutputType = {
   status: $Enums.NotifyStatus | null
   error: string | null
   sentAt: Date | null
+  handledAt: Date | null
   createdAt: Date | null
 }
 
@@ -66,6 +68,7 @@ export type NotificationCountAggregateOutputType = {
   status: number
   error: number
   sentAt: number
+  handledAt: number
   createdAt: number
   _all: number
 }
@@ -83,6 +86,7 @@ export type NotificationMinAggregateInputType = {
   status?: true
   error?: true
   sentAt?: true
+  handledAt?: true
   createdAt?: true
 }
 
@@ -98,6 +102,7 @@ export type NotificationMaxAggregateInputType = {
   status?: true
   error?: true
   sentAt?: true
+  handledAt?: true
   createdAt?: true
 }
 
@@ -113,6 +118,7 @@ export type NotificationCountAggregateInputType = {
   status?: true
   error?: true
   sentAt?: true
+  handledAt?: true
   createdAt?: true
   _all?: true
 }
@@ -201,6 +207,7 @@ export type NotificationGroupByOutputType = {
   status: $Enums.NotifyStatus
   error: string | null
   sentAt: Date | null
+  handledAt: Date | null
   createdAt: Date
   _count: NotificationCountAggregateOutputType | null
   _min: NotificationMinAggregateOutputType | null
@@ -237,6 +244,7 @@ export type NotificationWhereInput = {
   status?: Prisma.EnumNotifyStatusFilter<"Notification"> | $Enums.NotifyStatus
   error?: Prisma.StringNullableFilter<"Notification"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
   campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
@@ -256,6 +264,7 @@ export type NotificationOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   lead?: Prisma.LeadOrderByWithRelationInput
   campaignRun?: Prisma.CampaignRunOrderByWithRelationInput
@@ -279,6 +288,7 @@ export type NotificationWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumNotifyStatusFilter<"Notification"> | $Enums.NotifyStatus
   error?: Prisma.StringNullableFilter<"Notification"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
   lead?: Prisma.XOR<Prisma.LeadScalarRelationFilter, Prisma.LeadWhereInput>
   campaignRun?: Prisma.XOR<Prisma.CampaignRunNullableScalarRelationFilter, Prisma.CampaignRunWhereInput> | null
@@ -298,6 +308,7 @@ export type NotificationOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   error?: Prisma.SortOrderInput | Prisma.SortOrder
   sentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  handledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.NotificationCountOrderByAggregateInput
   _max?: Prisma.NotificationMaxOrderByAggregateInput
@@ -319,6 +330,7 @@ export type NotificationScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumNotifyStatusWithAggregatesFilter<"Notification"> | $Enums.NotifyStatus
   error?: Prisma.StringNullableWithAggregatesFilter<"Notification"> | string | null
   sentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
+  handledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Notification"> | Date | string
 }
 
@@ -330,6 +342,7 @@ export type NotificationCreateInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutNotificationsInput
   campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutNotificationsInput
@@ -349,6 +362,7 @@ export type NotificationUncheckedCreateInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -360,6 +374,7 @@ export type NotificationUpdateInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutNotificationsNestedInput
   campaignRun?: Prisma.CampaignRunUpdateOneWithoutNotificationsNestedInput
@@ -379,6 +394,7 @@ export type NotificationUncheckedUpdateInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -394,6 +410,7 @@ export type NotificationCreateManyInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -405,6 +422,7 @@ export type NotificationUpdateManyMutationInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -420,6 +438,7 @@ export type NotificationUncheckedUpdateManyInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -451,6 +470,7 @@ export type NotificationCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   error?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -466,6 +486,7 @@ export type NotificationMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   error?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -481,6 +502,7 @@ export type NotificationMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   error?: Prisma.SortOrder
   sentAt?: Prisma.SortOrder
+  handledAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -668,6 +690,7 @@ export type NotificationCreateWithoutRecipientInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutNotificationsInput
   campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutNotificationsInput
@@ -685,6 +708,7 @@ export type NotificationUncheckedCreateWithoutRecipientInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -729,6 +753,7 @@ export type NotificationScalarWhereInput = {
   status?: Prisma.EnumNotifyStatusFilter<"Notification"> | $Enums.NotifyStatus
   error?: Prisma.StringNullableFilter<"Notification"> | string | null
   sentAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
+  handledAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Notification"> | Date | string
 }
 
@@ -740,6 +765,7 @@ export type NotificationCreateWithoutCampaignClientAccessInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutNotificationsInput
   campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutNotificationsInput
@@ -757,6 +783,7 @@ export type NotificationUncheckedCreateWithoutCampaignClientAccessInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -794,6 +821,7 @@ export type NotificationCreateWithoutCampaignRunInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
   lead: Prisma.LeadCreateNestedOneWithoutNotificationsInput
   recipient: Prisma.UserCreateNestedOneWithoutReceivedNotificationsInput
@@ -811,6 +839,7 @@ export type NotificationUncheckedCreateWithoutCampaignRunInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -848,6 +877,7 @@ export type NotificationCreateWithoutLeadInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
   campaignRun?: Prisma.CampaignRunCreateNestedOneWithoutNotificationsInput
   recipient: Prisma.UserCreateNestedOneWithoutReceivedNotificationsInput
@@ -865,6 +895,7 @@ export type NotificationUncheckedCreateWithoutLeadInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -905,6 +936,7 @@ export type NotificationCreateManyRecipientInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -916,6 +948,7 @@ export type NotificationUpdateWithoutRecipientInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutNotificationsNestedInput
   campaignRun?: Prisma.CampaignRunUpdateOneWithoutNotificationsNestedInput
@@ -933,6 +966,7 @@ export type NotificationUncheckedUpdateWithoutRecipientInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -947,6 +981,7 @@ export type NotificationUncheckedUpdateManyWithoutRecipientInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -961,6 +996,7 @@ export type NotificationCreateManyCampaignClientAccessInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -972,6 +1008,7 @@ export type NotificationUpdateWithoutCampaignClientAccessInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutNotificationsNestedInput
   campaignRun?: Prisma.CampaignRunUpdateOneWithoutNotificationsNestedInput
@@ -989,6 +1026,7 @@ export type NotificationUncheckedUpdateWithoutCampaignClientAccessInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1003,6 +1041,7 @@ export type NotificationUncheckedUpdateManyWithoutCampaignClientAccessInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1017,6 +1056,7 @@ export type NotificationCreateManyCampaignRunInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -1028,6 +1068,7 @@ export type NotificationUpdateWithoutCampaignRunInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lead?: Prisma.LeadUpdateOneRequiredWithoutNotificationsNestedInput
   recipient?: Prisma.UserUpdateOneRequiredWithoutReceivedNotificationsNestedInput
@@ -1045,6 +1086,7 @@ export type NotificationUncheckedUpdateWithoutCampaignRunInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1059,6 +1101,7 @@ export type NotificationUncheckedUpdateManyWithoutCampaignRunInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1073,6 +1116,7 @@ export type NotificationCreateManyLeadInput = {
   status?: $Enums.NotifyStatus
   error?: string | null
   sentAt?: Date | string | null
+  handledAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -1084,6 +1128,7 @@ export type NotificationUpdateWithoutLeadInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaignRun?: Prisma.CampaignRunUpdateOneWithoutNotificationsNestedInput
   recipient?: Prisma.UserUpdateOneRequiredWithoutReceivedNotificationsNestedInput
@@ -1101,6 +1146,7 @@ export type NotificationUncheckedUpdateWithoutLeadInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1115,6 +1161,7 @@ export type NotificationUncheckedUpdateManyWithoutLeadInput = {
   status?: Prisma.EnumNotifyStatusFieldUpdateOperationsInput | $Enums.NotifyStatus
   error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  handledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -1132,6 +1179,7 @@ export type NotificationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   status?: boolean
   error?: boolean
   sentAt?: boolean
+  handledAt?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
@@ -1151,6 +1199,7 @@ export type NotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   status?: boolean
   error?: boolean
   sentAt?: boolean
+  handledAt?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
@@ -1170,6 +1219,7 @@ export type NotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   status?: boolean
   error?: boolean
   sentAt?: boolean
+  handledAt?: boolean
   createdAt?: boolean
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
@@ -1189,10 +1239,11 @@ export type NotificationSelectScalar = {
   status?: boolean
   error?: boolean
   sentAt?: boolean
+  handledAt?: boolean
   createdAt?: boolean
 }
 
-export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadId" | "campaignRunId" | "recipientUserId" | "recipientRole" | "campaignClientAccessId" | "campaignDisplayName" | "channel" | "status" | "error" | "sentAt" | "createdAt", ExtArgs["result"]["notification"]>
+export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "leadId" | "campaignRunId" | "recipientUserId" | "recipientRole" | "campaignClientAccessId" | "campaignDisplayName" | "channel" | "status" | "error" | "sentAt" | "handledAt" | "createdAt", ExtArgs["result"]["notification"]>
 export type NotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   lead?: boolean | Prisma.LeadDefaultArgs<ExtArgs>
   campaignRun?: boolean | Prisma.Notification$campaignRunArgs<ExtArgs>
@@ -1232,6 +1283,7 @@ export type $NotificationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     status: $Enums.NotifyStatus
     error: string | null
     sentAt: Date | null
+    handledAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["notification"]>
   composites: {}
@@ -1671,6 +1723,7 @@ export interface NotificationFieldRefs {
   readonly status: Prisma.FieldRef<"Notification", 'NotifyStatus'>
   readonly error: Prisma.FieldRef<"Notification", 'String'>
   readonly sentAt: Prisma.FieldRef<"Notification", 'DateTime'>
+  readonly handledAt: Prisma.FieldRef<"Notification", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Notification", 'DateTime'>
 }
     

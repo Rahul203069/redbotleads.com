@@ -16,6 +16,7 @@ import {
   getNextDailySemanticCronAt,
 } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
+import { getSaasConfig } from "@/lib/saas-config";
 import {
   addDaysToDateKey,
   BROWSER_TIME_ZONE_COOKIE,
@@ -35,6 +36,11 @@ export default async function AppHomePage() {
 
   if (!session?.user?.id) {
     redirect("/login");
+  }
+
+  const saasConfig = await getSaasConfig();
+  if (saasConfig.appMode === "LIVE") {
+    redirect("/inbox");
   }
 
   const cookieStore = await cookies();

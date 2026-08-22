@@ -1,0 +1,1 @@
+export default function CampaignSettingsLoading() { return <div className="space-y-5" aria-label="Loading campaign settings"><div className="h-64 animate-pulse rounded-[28px] bg-[#181818]" /><div className="h-[520px] animate-pulse rounded-[24px] bg-[#181818]" /></div>; }

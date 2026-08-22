@@ -79,6 +79,7 @@ export type CampaignCountAggregateOutputType = {
   keywords: number
   negativeKeywords: number
   subreddits: number
+  regions: number
   recentDays: number
   isActive: number
   rssPollingEnabled: number
@@ -145,6 +146,7 @@ export type CampaignCountAggregateInputType = {
   keywords?: true
   negativeKeywords?: true
   subreddits?: true
+  regions?: true
   recentDays?: true
   isActive?: true
   rssPollingEnabled?: true
@@ -252,6 +254,7 @@ export type CampaignGroupByOutputType = {
   keywords: string[]
   negativeKeywords: string[]
   subreddits: string[]
+  regions: string[]
   recentDays: number
   isActive: boolean
   rssPollingEnabled: boolean
@@ -295,6 +298,7 @@ export type CampaignWhereInput = {
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  regions?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
   rssPollingEnabled?: Prisma.BoolFilter<"Campaign"> | boolean
@@ -328,6 +332,7 @@ export type CampaignOrderByWithRelationInput = {
   keywords?: Prisma.SortOrder
   negativeKeywords?: Prisma.SortOrder
   subreddits?: Prisma.SortOrder
+  regions?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   rssPollingEnabled?: Prisma.SortOrder
@@ -364,6 +369,7 @@ export type CampaignWhereUniqueInput = Prisma.AtLeast<{
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  regions?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
   rssPollingEnabled?: Prisma.BoolFilter<"Campaign"> | boolean
@@ -397,6 +403,7 @@ export type CampaignOrderByWithAggregationInput = {
   keywords?: Prisma.SortOrder
   negativeKeywords?: Prisma.SortOrder
   subreddits?: Prisma.SortOrder
+  regions?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   rssPollingEnabled?: Prisma.SortOrder
@@ -425,6 +432,7 @@ export type CampaignScalarWhereWithAggregatesInput = {
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  regions?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntWithAggregatesFilter<"Campaign"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Campaign"> | boolean
   rssPollingEnabled?: Prisma.BoolWithAggregatesFilter<"Campaign"> | boolean
@@ -444,6 +452,7 @@ export type CampaignCreateInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -476,6 +485,7 @@ export type CampaignUncheckedCreateInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -506,6 +516,7 @@ export type CampaignUpdateInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -538,6 +549,7 @@ export type CampaignUncheckedUpdateInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -569,6 +581,7 @@ export type CampaignCreateManyInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -588,6 +601,7 @@ export type CampaignUpdateManyMutationInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -607,6 +621,7 @@ export type CampaignUncheckedUpdateManyInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -645,6 +660,7 @@ export type CampaignCountOrderByAggregateInput = {
   keywords?: Prisma.SortOrder
   negativeKeywords?: Prisma.SortOrder
   subreddits?: Prisma.SortOrder
+  regions?: Prisma.SortOrder
   recentDays?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   rssPollingEnabled?: Prisma.SortOrder
@@ -806,6 +822,10 @@ export type CampaignCreatesubredditsInput = {
   set: string[]
 }
 
+export type CampaignCreateregionsInput = {
+  set: string[]
+}
+
 export type EnumLeadTypeFieldUpdateOperationsInput = {
   set?: $Enums.LeadType
 }
@@ -821,6 +841,11 @@ export type CampaignUpdatenegativeKeywordsInput = {
 }
 
 export type CampaignUpdatesubredditsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type CampaignUpdateregionsInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -997,6 +1022,7 @@ export type CampaignCreateWithoutUserInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1027,6 +1053,7 @@ export type CampaignUncheckedCreateWithoutUserInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1087,6 +1114,7 @@ export type CampaignScalarWhereInput = {
   keywords?: Prisma.StringNullableListFilter<"Campaign">
   negativeKeywords?: Prisma.StringNullableListFilter<"Campaign">
   subreddits?: Prisma.StringNullableListFilter<"Campaign">
+  regions?: Prisma.StringNullableListFilter<"Campaign">
   recentDays?: Prisma.IntFilter<"Campaign"> | number
   isActive?: Prisma.BoolFilter<"Campaign"> | boolean
   rssPollingEnabled?: Prisma.BoolFilter<"Campaign"> | boolean
@@ -1106,6 +1134,7 @@ export type CampaignCreateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1137,6 +1166,7 @@ export type CampaignUncheckedCreateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1192,6 +1222,7 @@ export type CampaignCreateWithoutPublicVisitorsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1223,6 +1254,7 @@ export type CampaignUncheckedCreateWithoutPublicVisitorsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1268,6 +1300,7 @@ export type CampaignUpdateWithoutPublicVisitorsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1299,6 +1332,7 @@ export type CampaignUncheckedUpdateWithoutPublicVisitorsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1328,6 +1362,7 @@ export type CampaignCreateWithoutClientAccessesInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1359,6 +1394,7 @@ export type CampaignUncheckedCreateWithoutClientAccessesInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1404,6 +1440,7 @@ export type CampaignUpdateWithoutClientAccessesInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1435,6 +1472,7 @@ export type CampaignUncheckedUpdateWithoutClientAccessesInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1464,6 +1502,7 @@ export type CampaignCreateWithoutClientActivityEventsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1495,6 +1534,7 @@ export type CampaignUncheckedCreateWithoutClientActivityEventsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1540,6 +1580,7 @@ export type CampaignUpdateWithoutClientActivityEventsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1571,6 +1612,7 @@ export type CampaignUncheckedUpdateWithoutClientActivityEventsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1600,6 +1642,7 @@ export type CampaignCreateWithoutRunsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1631,6 +1674,7 @@ export type CampaignUncheckedCreateWithoutRunsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1676,6 +1720,7 @@ export type CampaignUpdateWithoutRunsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1707,6 +1752,7 @@ export type CampaignUncheckedUpdateWithoutRunsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1736,6 +1782,7 @@ export type CampaignCreateWithoutInitialRssPollEventsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1767,6 +1814,7 @@ export type CampaignUncheckedCreateWithoutInitialRssPollEventsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1812,6 +1860,7 @@ export type CampaignUpdateWithoutInitialRssPollEventsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1843,6 +1892,7 @@ export type CampaignUncheckedUpdateWithoutInitialRssPollEventsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1872,6 +1922,7 @@ export type CampaignCreateWithoutAiUsageEventsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1903,6 +1954,7 @@ export type CampaignUncheckedCreateWithoutAiUsageEventsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -1948,6 +2000,7 @@ export type CampaignUpdateWithoutAiUsageEventsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1979,6 +2032,7 @@ export type CampaignUncheckedUpdateWithoutAiUsageEventsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2008,6 +2062,7 @@ export type CampaignCreateWithoutSemanticQueriesInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2039,6 +2094,7 @@ export type CampaignUncheckedCreateWithoutSemanticQueriesInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2084,6 +2140,7 @@ export type CampaignUpdateWithoutSemanticQueriesInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2115,6 +2172,7 @@ export type CampaignUncheckedUpdateWithoutSemanticQueriesInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2144,6 +2202,7 @@ export type CampaignCreateWithoutSemanticPlaygroundRunsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2175,6 +2234,7 @@ export type CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2220,6 +2280,7 @@ export type CampaignUpdateWithoutSemanticPlaygroundRunsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2251,6 +2312,7 @@ export type CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2280,6 +2342,7 @@ export type CampaignCreateWithoutDailySemanticScansInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2311,6 +2374,7 @@ export type CampaignUncheckedCreateWithoutDailySemanticScansInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2356,6 +2420,7 @@ export type CampaignUpdateWithoutDailySemanticScansInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2387,6 +2452,7 @@ export type CampaignUncheckedUpdateWithoutDailySemanticScansInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2416,6 +2482,7 @@ export type CampaignCreateWithoutSyncInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2447,6 +2514,7 @@ export type CampaignUncheckedCreateWithoutSyncInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2492,6 +2560,7 @@ export type CampaignUpdateWithoutSyncInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2523,6 +2592,7 @@ export type CampaignUncheckedUpdateWithoutSyncInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2552,6 +2622,7 @@ export type CampaignCreateWithoutLeadsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2583,6 +2654,7 @@ export type CampaignUncheckedCreateWithoutLeadsInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2628,6 +2700,7 @@ export type CampaignUpdateWithoutLeadsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2659,6 +2732,7 @@ export type CampaignUncheckedUpdateWithoutLeadsInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2688,6 +2762,7 @@ export type CampaignCreateManyUserInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2707,6 +2782,7 @@ export type CampaignUpdateWithoutUserInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2737,6 +2813,7 @@ export type CampaignUncheckedUpdateWithoutUserInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2767,6 +2844,7 @@ export type CampaignUncheckedUpdateManyWithoutUserInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2787,6 +2865,7 @@ export type CampaignCreateManyRedditAccountInput = {
   keywords?: Prisma.CampaignCreatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
   recentDays?: number
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -2805,6 +2884,7 @@ export type CampaignUpdateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2836,6 +2916,7 @@ export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2866,6 +2947,7 @@ export type CampaignUncheckedUpdateManyWithoutRedditAccountInput = {
   keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
   negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
   subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
   recentDays?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2997,6 +3079,7 @@ export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  regions?: boolean
   recentDays?: boolean
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -3031,6 +3114,7 @@ export type CampaignSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  regions?: boolean
   recentDays?: boolean
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -3053,6 +3137,7 @@ export type CampaignSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  regions?: boolean
   recentDays?: boolean
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -3075,6 +3160,7 @@ export type CampaignSelectScalar = {
   keywords?: boolean
   negativeKeywords?: boolean
   subreddits?: boolean
+  regions?: boolean
   recentDays?: boolean
   isActive?: boolean
   rssPollingEnabled?: boolean
@@ -3086,7 +3172,7 @@ export type CampaignSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "leadType" | "description" | "keywords" | "negativeKeywords" | "subreddits" | "recentDays" | "isActive" | "rssPollingEnabled" | "minScoreToAlert" | "sourceMode" | "semanticSearchScope" | "redditAccountId" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
+export type CampaignOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "leadType" | "description" | "keywords" | "negativeKeywords" | "subreddits" | "regions" | "recentDays" | "isActive" | "rssPollingEnabled" | "minScoreToAlert" | "sourceMode" | "semanticSearchScope" | "redditAccountId" | "createdAt" | "updatedAt", ExtArgs["result"]["campaign"]>
 export type CampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   redditAccount?: boolean | Prisma.Campaign$redditAccountArgs<ExtArgs>
@@ -3138,6 +3224,7 @@ export type $CampaignPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     keywords: string[]
     negativeKeywords: string[]
     subreddits: string[]
+    regions: string[]
     recentDays: number
     isActive: boolean
     rssPollingEnabled: boolean
@@ -3591,6 +3678,7 @@ export interface CampaignFieldRefs {
   readonly keywords: Prisma.FieldRef<"Campaign", 'String[]'>
   readonly negativeKeywords: Prisma.FieldRef<"Campaign", 'String[]'>
   readonly subreddits: Prisma.FieldRef<"Campaign", 'String[]'>
+  readonly regions: Prisma.FieldRef<"Campaign", 'String[]'>
   readonly recentDays: Prisma.FieldRef<"Campaign", 'Int'>
   readonly isActive: Prisma.FieldRef<"Campaign", 'Boolean'>
   readonly rssPollingEnabled: Prisma.FieldRef<"Campaign", 'Boolean'>

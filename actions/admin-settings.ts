@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { SAAS_APP_MODES, type SaasAppMode } from "@/lib/app-mode";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { CAMPAIGN_LEAD_LAYOUTS, type CampaignLeadLayout } from "@/lib/campaign-lead-layout";
 import { normalizeLeadScoringModel } from "@/lib/openai-models";
 import {
   clampSubredditSuggestionCount,
   upsertCampaignLeadLayout,
+  upsertSaasAppMode,
   upsertSaasConfig,
 } from "@/lib/saas-config";
 
@@ -22,7 +24,42 @@ export type CampaignLeadLayoutActionResult = AdminSettingsActionState & {
   layout?: CampaignLeadLayout;
 };
 
+export type ApplicationModeActionResult = AdminSettingsActionState & {
+  appMode?: SaasAppMode;
+};
+
 const campaignLeadLayoutSchema = z.enum(CAMPAIGN_LEAD_LAYOUTS);
+const applicationModeSchema = z.enum(SAAS_APP_MODES);
+
+export async function updateApplicationMode(input: string): Promise<ApplicationModeActionResult> {
+  const session = await auth();
+
+  if (!session?.user?.id || !canViewAnalytics(session.user.email)) {
+    return { status: "error", message: "You do not have access to change the application mode." };
+  }
+
+  const parsed = applicationModeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { status: "error", message: "Choose either Daily Mode or Live Mode." };
+  }
+
+  try {
+    await upsertSaasAppMode(parsed.data);
+  } catch (error) {
+    console.error("Application mode update failed", error);
+    return {
+      status: "error",
+      message: error instanceof Error ? `Save failed: ${error.message}` : "Could not change the application mode.",
+    };
+  }
+
+  revalidatePath("/", "layout");
+  return {
+    status: "success",
+    message: parsed.data === "LIVE" ? "Live Mode is now active for everyone." : "Daily Mode is now active for everyone.",
+    appMode: parsed.data,
+  };
+}
 
 export async function updateSaasSettings(
   _prevState: AdminSettingsActionState,

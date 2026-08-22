@@ -8,6 +8,7 @@ import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
+import { getSaasConfig } from "@/lib/saas-config";
 import { BROWSER_TIME_ZONE_COOKIE, normalizeTimeZone } from "@/lib/time-zone";
 
 export default async function AuthenticatedAppLayout({
@@ -25,7 +26,7 @@ export default async function AuthenticatedAppLayout({
   const isAdminAccount = canViewAnalytics(session.user.email);
   const cookieStore = await cookies();
   const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
-  const [user, nonAdminCampaign] = await Promise.all([
+  const [user, nonAdminCampaign, saasConfig] = await Promise.all([
     prisma.user.findUnique({
       where: {
         id: session.user.id,
@@ -49,6 +50,7 @@ export default async function AuthenticatedAppLayout({
             id: true,
           },
         }),
+    getSaasConfig(),
   ]);
   const shouldShowSlackPrompt =
     isAdminAccount && !user?.slackWebhookUrl?.trim() && !user?.telegramChatId?.trim();
@@ -59,6 +61,7 @@ export default async function AuthenticatedAppLayout({
       <div className="grid min-h-screen w-full grid-cols-1 gap-4 lg:grid-cols-[304px_minmax(0,1fr)] lg:gap-0">
         <div className="lg:sticky lg:top-0 lg:h-screen lg:pl-4 lg:pr-0 lg:py-4 xl:pl-6">
           <AppSidebar
+            appMode={saasConfig.appMode}
             campaignHref={nonAdminCampaign ? `/campaigns/${nonAdminCampaign.id}` : "/campaigns"}
             isOwner={isAdminAccount}
             shouldShowSlackConnect={shouldShowSlackPrompt}

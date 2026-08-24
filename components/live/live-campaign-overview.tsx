@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, Bell, Clock3, MapPin } from "lucide-react";
 
-import { ViewCampaignDescriptionDialog } from "@/components/campaigns/view-campaign-description-dialog";
 import { CampaignMonitoringToggle } from "@/components/live/campaign-monitoring-toggle";
 import { EditCampaignDescriptionDialog } from "@/components/live/edit-campaign-description-dialog";
 import { LiveCampaignTabs } from "@/components/live/live-campaign-tabs";
@@ -42,10 +41,7 @@ export async function LiveCampaignOverview({
         </div>
         <div className="grid shrink-0 gap-3 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
           {!isAdminAccount ? (
-            <>
-              <ViewCampaignDescriptionDialog description={overview.campaign.description} />
-              <EditCampaignDescriptionDialog campaignId={campaignId} description={overview.campaign.description} />
-            </>
+            <EditCampaignDescriptionDialog campaignId={campaignId} description={overview.campaign.description} />
           ) : null}
           {overview.campaign.role === "OWNER" ? <CampaignMonitoringToggle campaignId={campaignId} initialActive={overview.campaign.isActive} /> : null}
         </div>

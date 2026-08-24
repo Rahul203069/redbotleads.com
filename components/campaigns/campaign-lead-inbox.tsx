@@ -494,20 +494,6 @@ function InboxLeadCard({
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-white/[0.07] pt-3">
           <ActionButton
-            active={lead.status === "SAVED"}
-            disabled={pending}
-            icon={Star}
-            label={lead.status === "SAVED" ? "Unsave" : "Save"}
-            onClick={() => onStatusChange(lead.status === "SAVED" ? "REVIEWED" : "SAVED")}
-          />
-          <ActionButton
-            active={lead.status === "CONTACTED"}
-            disabled={pending}
-            icon={CheckCircle2}
-            label={lead.status === "CONTACTED" ? "Undo contacted" : "Contacted"}
-            onClick={() => onStatusChange(lead.status === "CONTACTED" ? "REVIEWED" : "CONTACTED")}
-          />
-          <ActionButton
             active={lead.status === "DISMISSED"}
             disabled={pending}
             icon={XCircle}

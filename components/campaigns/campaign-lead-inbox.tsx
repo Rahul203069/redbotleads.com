@@ -302,7 +302,7 @@ export function CampaignLeadInbox({
                   <div className="h-px flex-1 bg-white/[0.07]" />
                   <span className="text-[10px] font-semibold text-[#6f6f6f]">{groupLeads.length}</span>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {groupLeads.map((lead) => (
                     <InboxLeadCard
                       campaignId={campaignId}
@@ -361,38 +361,37 @@ function InboxLeadCard({
   timeZone: string;
 }) {
   const sourceText = getSourceText(lead);
-  const statusLabel = CAMPAIGN_LEAD_STATUS_LABELS[lead.status];
 
   return (
     <article
-      className={`scroll-mt-5 rounded-[20px] border bg-[#111111] transition-colors duration-200 ${selected ? "border-[#73f5a0]/70 ring-2 ring-[#1ed760]/20" : lead.status === "NEW" ? "border-[#1ed760]/35" : "border-white/[0.07]"}`}
+      className={`scroll-mt-5 rounded-[18px] border bg-[#111111] transition-colors duration-200 ${selected ? "border-[#73f5a0]/70 ring-2 ring-[#1ed760]/20" : lead.status === "NEW" ? "border-[#1ed760]/35" : "border-white/[0.07]"}`}
       id={`lead-${lead.id}`}
     >
-      <div className="p-4 sm:p-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="p-3.5 sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               <StatusBadge status={lead.status} />
               {lead.isDemo ? (
-                <span className="rounded-full bg-[#1ed760]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#73f5a0]">
+                <span className="rounded-full bg-[#1ed760]/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.13em] text-[#73f5a0]">
                   Demo
                 </span>
               ) : null}
-              <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#d4d4d4]">
+              <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#d4d4d4]">
                 r/{lead.redditItem.subreddit}
               </span>
               {lead.ai?.category ? (
-                <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold text-[#9f9f9f]">
+                <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-semibold text-[#9f9f9f]">
                   {lead.ai.category}
                 </span>
               ) : null}
             </div>
 
-            <h4 className="mt-3 text-[16px] font-bold leading-6 text-[#ffffff] [overflow-wrap:anywhere] sm:text-[17px]">
+            <h4 className="mt-2 text-[15px] font-bold leading-5 text-[#ffffff] [overflow-wrap:anywhere] sm:text-[16px]">
               {lead.redditItem.title || lead.redditItem.body || "Untitled Reddit item"}
             </h4>
 
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px]">
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
               <time className="font-bold text-[#55e982]" dateTime={lead.redditItem.createdUtc} title={formatExactTime(lead.redditItem.createdUtc, timeZone)}>
                 Posted {formatRelativeTime(lead.redditItem.createdUtc, now, timeZone)}
               </time>
@@ -402,7 +401,8 @@ function InboxLeadCard({
               <span className="font-semibold text-[#d4d4d4]">Match {lead.score}%</span>
             </div>
 
-            <p className="mt-3 max-w-3xl text-[13px] leading-5 text-[#b8b8b8]">
+            <p className="mt-2 max-w-4xl text-[12px] leading-5 text-[#aeb0af]">
+              <span className="font-bold text-[#d4d4d4]">Why it matched: </span>
               {lead.ai?.summary?.trim() || sourceText || "No summary is available for this lead."}
             </p>
           </div>
@@ -411,7 +411,7 @@ function InboxLeadCard({
             {pending ? <LoaderCircle aria-label="Saving lead status" className="h-4 w-4 animate-spin text-[#55e982]" /> : null}
             <label className="sr-only" htmlFor={`lead-status-${lead.id}`}>Status for {lead.redditItem.title || "lead"}</label>
             <select
-              className="h-10 cursor-pointer rounded-full border-none bg-[#1f1f1f] px-3 text-[10px] font-bold uppercase tracking-[0.1em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-9 cursor-pointer rounded-full border-none bg-[#1f1f1f] px-3 text-[9px] font-bold uppercase tracking-[0.09em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending}
               id={`lead-status-${lead.id}`}
               onChange={(event) => onStatusChange(event.target.value as CampaignLeadStatus)}
@@ -424,25 +424,24 @@ function InboxLeadCard({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 border-t border-white/[0.07] pt-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="mt-3 border-t border-white/[0.07] pt-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8f8f8f]">Reddit source</p>
-              <p className="mt-2 whitespace-pre-wrap text-[13px] leading-6 text-[#c6c6c6]">
+              <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#777]">Reddit source</p>
+              <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-5 text-[#c6c6c6]">
                 {sourceText || "No source text was stored for this Reddit item."}
               </p>
             </div>
-            <div className="rounded-[16px] bg-[#181818] p-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8f8f8f]">Classification</p>
-              <dl className="mt-3 grid gap-2 text-[12px]">
-                <DetailRow label="Status" value={statusLabel} />
+            <div className="mt-3 border-t border-white/[0.05] pt-3">
+              <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#777]">Classification</p>
+              <dl className="mt-1.5 flex flex-wrap gap-1.5">
                 <DetailRow label="Intent" value={formatEnumLabel(lead.ai?.intentType) || "Not available"} />
                 <DetailRow label="Buyer stage" value={formatEnumLabel(lead.ai?.buyerStage) || "Not available"} />
                 {lead.semanticScore !== null ? <DetailRow label="Semantic" value={`${Math.round(lead.semanticScore * 100)}%`} /> : null}
               </dl>
               {lead.ai?.painPoints.length ? (
-                <div className="mt-4 border-t border-white/[0.07] pt-3">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#8f8f8f]">Pain points</p>
-                  <ul className="mt-2 space-y-1 text-[12px] leading-5 text-[#b8b8b8]">
+                <div className="mt-2.5 border-t border-white/[0.05] pt-2.5">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#777]">Pain points</p>
+                  <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[10px] leading-4 text-[#b8b8b8]">
                     {lead.ai.painPoints.map((painPoint) => <li key={painPoint}>• {painPoint}</li>)}
                   </ul>
                 </div>
@@ -450,7 +449,7 @@ function InboxLeadCard({
             </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.07] pt-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-white/[0.07] pt-3">
           <ActionButton
             active={lead.status === "SAVED"}
             disabled={pending}
@@ -488,7 +487,7 @@ function InboxLeadCard({
 
           {lead.redditItem.url ? (
             <a
-              className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[#1ed760] px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-[#0d160f] transition-colors duration-200 hover:bg-[#3be477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffffff]"
+              className="inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#1ed760] px-3 text-[9px] font-bold uppercase tracking-[0.1em] text-[#0d160f] transition-colors duration-200 hover:bg-[#3be477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffffff] sm:ml-auto"
               href={lead.redditItem.url}
               onClick={onOpenReddit}
               rel="noreferrer"
@@ -520,14 +519,14 @@ function ActionButton({
   return (
     <button
       aria-pressed={active}
-      className={`inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-[10px] font-bold uppercase tracking-[0.12em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 disabled:cursor-not-allowed disabled:opacity-60 ${
+      className={`inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full px-3 text-[9px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 disabled:cursor-not-allowed disabled:opacity-60 ${
         active ? "bg-[#1ed760]/15 text-[#55e982]" : "text-[#a7a7a7] hover:bg-[#252525] hover:text-[#ffffff]"
       }`}
       disabled={disabled}
       onClick={onClick}
       type="button"
     >
-      <Icon aria-hidden="true" className="h-4 w-4" />
+      <Icon aria-hidden="true" className="h-3.5 w-3.5" />
       {label}
     </button>
   );
@@ -552,8 +551,8 @@ function StatusBadge({ status }: { status: CampaignLeadStatus }) {
         : "bg-[#1f1f1f] text-[#b8b8b8]";
 
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${className}`}>
-      <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${className}`}>
+      <Icon aria-hidden="true" className="h-3 w-3" />
       {CAMPAIGN_LEAD_STATUS_LABELS[status]}
     </span>
   );
@@ -561,9 +560,9 @@ function StatusBadge({ status }: { status: CampaignLeadStatus }) {
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-start justify-between gap-3">
-      <dt className="text-[#8f8f8f]">{label}</dt>
-      <dd className="text-right font-semibold text-[#d4d4d4]">{value}</dd>
+    <div className="inline-flex items-center gap-1 rounded-full bg-[#181818] px-2 py-1 text-[10px] leading-4">
+      <dt className="font-semibold text-[#777]">{label}</dt>
+      <dd className="text-[#c7c7c7]">{value}</dd>
     </div>
   );
 }

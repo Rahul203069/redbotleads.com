@@ -12,7 +12,7 @@ import {
   Star,
   XCircle,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   markCampaignLeadReviewed,
@@ -85,13 +85,6 @@ export function CampaignLeadInbox({
   const { toast } = useToast();
   const [activeFilter, setActiveFilter] = useState<InboxFilter>("ALL");
   const [pendingLeadIds, setPendingLeadIds] = useState<string[]>([]);
-  const [now, setNow] = useState<number | null>(null);
-
-  useEffect(() => {
-    setNow(Date.now());
-    const intervalId = window.setInterval(() => setNow(Date.now()), 60_000);
-    return () => window.clearInterval(intervalId);
-  }, []);
 
   const orderedLeads = useMemo(
     () => [...leads].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()),
@@ -309,7 +302,6 @@ export function CampaignLeadInbox({
                       canDelete={canDeleteLeads}
                       key={lead.id}
                       lead={lead}
-                      now={now}
                       onDelete={onLeadDeleted}
                       onOpenReddit={() => {
                         if (trackClientActivity && !lead.isDemo) {
@@ -341,7 +333,6 @@ function InboxLeadCard({
   campaignId,
   canDelete,
   lead,
-  now,
   onDelete,
   onOpenReddit,
   onStatusChange,
@@ -352,7 +343,6 @@ function InboxLeadCard({
   campaignId: string;
   canDelete: boolean;
   lead: CampaignLeadView;
-  now: number | null;
   onDelete?: (leadId: string) => void;
   onOpenReddit: () => void;
   onStatusChange: (status: CampaignLeadStatus) => void;
@@ -371,15 +361,16 @@ function InboxLeadCard({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
+              <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#d4d4d4]">
+                {lead.redditItem.type}
+              </span>
+              <LeadLabelBadge label={lead.label} />
               <StatusBadge status={lead.status} />
               {lead.isDemo ? (
                 <span className="rounded-full bg-[#1ed760]/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.13em] text-[#73f5a0]">
                   Demo
                 </span>
               ) : null}
-              <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#d4d4d4]">
-                r/{lead.redditItem.subreddit}
-              </span>
               {lead.ai?.category ? (
                 <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-semibold text-[#9f9f9f]">
                   {lead.ai.category}
@@ -391,24 +382,28 @@ function InboxLeadCard({
               {lead.redditItem.title || lead.redditItem.body || "Untitled Reddit item"}
             </h4>
 
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
-              <time className="font-bold text-[#55e982]" dateTime={lead.redditItem.createdUtc} title={formatExactTime(lead.redditItem.createdUtc, timeZone)}>
-                Posted {formatRelativeTime(lead.redditItem.createdUtc, now, timeZone)}
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#8f8f8f]">
+              <span>r/{lead.redditItem.subreddit}</span>
+              <time dateTime={lead.createdAt}>
+                Scored {formatScoredDate(lead.createdAt, timeZone)}
               </time>
-              <time className="text-[#8f8f8f]" dateTime={lead.createdAt} title={formatExactTime(lead.createdAt, timeZone)}>
-                Detected {formatRelativeTime(lead.createdAt, now, timeZone)}
-              </time>
-              <span className="font-semibold text-[#d4d4d4]">Match {lead.score}%</span>
+              {lead.ai?.intentType ? <span>{formatEnumLabel(lead.ai.intentType)}</span> : null}
+              {lead.ai?.buyerStage ? <span>{formatEnumLabel(lead.ai.buyerStage)}</span> : null}
             </div>
 
-            <p className="mt-2 max-w-4xl text-[12px] leading-5 text-[#aeb0af]">
-              <span className="font-bold text-[#d4d4d4]">Why it matched: </span>
-              {lead.ai?.summary?.trim() || sourceText || "No summary is available for this lead."}
-            </p>
+            <div className="mt-2 rounded-[12px] bg-[#181818] px-3 py-2.5">
+              <p className="max-w-4xl text-[12px] leading-5 text-[#c6c6c6]">
+                {lead.ai?.summary?.trim() || "No summary available yet for this lead."}
+              </p>
+            </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
             {pending ? <LoaderCircle aria-label="Saving lead status" className="h-4 w-4 animate-spin text-[#55e982]" /> : null}
+            <div className="rounded-[12px] bg-[#181818] px-3 py-2 text-right shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
+              <div className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#777]">Score</div>
+              <div className="mt-0.5 text-[20px] font-bold leading-none text-[#ffffff]">{lead.score}</div>
+            </div>
             <label className="sr-only" htmlFor={`lead-status-${lead.id}`}>Status for {lead.redditItem.title || "lead"}</label>
             <select
               className="h-9 cursor-pointer rounded-full border-none bg-[#1f1f1f] px-3 text-[9px] font-bold uppercase tracking-[0.09em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 disabled:cursor-not-allowed disabled:opacity-60"
@@ -424,30 +419,14 @@ function InboxLeadCard({
           </div>
         </div>
 
-        <div className="mt-3 border-t border-white/[0.07] pt-3">
-            <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#777]">Reddit source</p>
-              <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-5 text-[#c6c6c6]">
-                {sourceText || "No source text was stored for this Reddit item."}
-              </p>
-            </div>
-            <div className="mt-3 border-t border-white/[0.05] pt-3">
-              <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#777]">Classification</p>
-              <dl className="mt-1.5 flex flex-wrap gap-1.5">
-                <DetailRow label="Intent" value={formatEnumLabel(lead.ai?.intentType) || "Not available"} />
-                <DetailRow label="Buyer stage" value={formatEnumLabel(lead.ai?.buyerStage) || "Not available"} />
-                {lead.semanticScore !== null ? <DetailRow label="Semantic" value={`${Math.round(lead.semanticScore * 100)}%`} /> : null}
-              </dl>
-              {lead.ai?.painPoints.length ? (
-                <div className="mt-2.5 border-t border-white/[0.05] pt-2.5">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#777]">Pain points</p>
-                  <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[10px] leading-4 text-[#b8b8b8]">
-                    {lead.ai.painPoints.map((painPoint) => <li key={painPoint}>• {painPoint}</li>)}
-                  </ul>
-                </div>
-              ) : null}
-            </div>
-        </div>
+        {sourceText ? (
+          <div className="mt-3 border-t border-white/[0.07] pt-3">
+            <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#777]">Source text</p>
+            <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-5 text-[#c6c6c6]">
+              {sourceText}
+            </p>
+          </div>
+        ) : null}
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-white/[0.07] pt-3">
           <ActionButton
@@ -558,12 +537,17 @@ function StatusBadge({ status }: { status: CampaignLeadStatus }) {
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
+function LeadLabelBadge({ label }: { label: CampaignLeadView["label"] }) {
+  const className = label === "HIGH"
+    ? "bg-[#1ed760]/12 text-[#55e982]"
+    : label === "MED"
+      ? "bg-[#1f1f1f] text-[#d4d4d4]"
+      : "bg-[#1a1a1a] text-[#8f8f8f]";
+
   return (
-    <div className="inline-flex items-center gap-1 rounded-full bg-[#181818] px-2 py-1 text-[10px] leading-4">
-      <dt className="font-semibold text-[#777]">{label}</dt>
-      <dd className="text-[#c7c7c7]">{value}</dd>
-    </div>
+    <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${className}`}>
+      {label}
+    </span>
   );
 }
 
@@ -616,39 +600,12 @@ function formatEnumLabel(value: string | null | undefined) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-function formatRelativeTime(value: string, now: number | null, timeZone: string) {
-  if (now === null) {
-    return formatCompactTime(value, timeZone);
-  }
-
-  const differenceMs = Math.max(0, now - new Date(value).getTime());
-  const minutes = Math.floor(differenceMs / 60_000);
-
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return formatCompactTime(value, timeZone);
-}
-
-function formatCompactTime(value: string, timeZone: string) {
+function formatScoredDate(value: string, timeZone: string) {
   return new Intl.DateTimeFormat("en-US", {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
     month: "short",
-    timeZone,
-  }).format(new Date(value));
-}
-
-function formatExactTime(value: string, timeZone: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
     timeZone,
   }).format(new Date(value));
 }

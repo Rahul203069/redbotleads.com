@@ -3,12 +3,10 @@
 import {
   AlertCircle,
   CheckCircle2,
-  ChevronDown,
-  ChevronUp,
   Clock3,
   ExternalLink,
-  Inbox,
   LoaderCircle,
+  Radio,
   SearchX,
   Star,
   XCircle,
@@ -59,6 +57,7 @@ export function CampaignLeadInbox({
   nextSyncLabel,
   onLeadDeleted,
   onLeadStatusChanged,
+  selectedLeadId,
   selectedPeriodLabel,
   syncStatus,
   timeZone,
@@ -73,6 +72,7 @@ export function CampaignLeadInbox({
   nextSyncLabel: string;
   onLeadDeleted?: (leadId: string) => void;
   onLeadStatusChanged: (leadId: string, status: CampaignLeadStatus) => void;
+  selectedLeadId?: string | null;
   selectedPeriodLabel: string;
   syncStatus: CampaignLeadSyncStatus;
   timeZone: string;
@@ -81,9 +81,7 @@ export function CampaignLeadInbox({
 }) {
   const { toast } = useToast();
   const [activeFilter, setActiveFilter] = useState<InboxFilter>("ALL");
-  const [expandedLeadIds, setExpandedLeadIds] = useState<string[]>([]);
   const [pendingLeadIds, setPendingLeadIds] = useState<string[]>([]);
-  const [retainedNewLeadIds, setRetainedNewLeadIds] = useState<string[]>([]);
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -101,9 +99,8 @@ export function CampaignLeadInbox({
     () => orderedLeads.filter((lead) => (
       activeFilter === "ALL"
       || lead.status === activeFilter
-      || (activeFilter === "NEW" && retainedNewLeadIds.includes(lead.id))
     )),
-    [activeFilter, orderedLeads, retainedNewLeadIds],
+    [activeFilter, orderedLeads],
   );
   const groupedLeads = useMemo(() => {
     const groups = new Map<string, CampaignLeadView[]>();
@@ -127,32 +124,6 @@ export function CampaignLeadInbox({
 
   function selectFilter(filter: InboxFilter) {
     setActiveFilter(filter);
-    setRetainedNewLeadIds([]);
-  }
-
-  function toggleDetails(lead: CampaignLeadView) {
-    const isExpanding = !expandedLeadIds.includes(lead.id);
-    setExpandedLeadIds((current) => (
-      isExpanding ? [...current, lead.id] : current.filter((id) => id !== lead.id)
-    ));
-
-    if (isExpanding) {
-      if (lead.status === "NEW" && activeFilter === "NEW") {
-        setRetainedNewLeadIds((current) => current.includes(lead.id) ? current : [...current, lead.id]);
-      }
-
-      if (trackClientActivity) {
-        sendCampaignClientActivity({
-          campaignId,
-          eventType: "LEAD_EXPANDED",
-          leadId: lead.id,
-        });
-      }
-
-      void markReviewed(lead);
-    } else {
-      setRetainedNewLeadIds((current) => current.filter((id) => id !== lead.id));
-    }
   }
 
   async function markReviewed(lead: CampaignLeadView) {
@@ -208,9 +179,6 @@ export function CampaignLeadInbox({
       }
 
       onLeadStatusChanged(lead.id, result.leadStatus ?? status);
-      if (activeFilter === "NEW" && status !== "NEW") {
-        setRetainedNewLeadIds((current) => current.filter((id) => id !== lead.id));
-      }
     } catch (error) {
       onLeadStatusChanged(lead.id, previousStatus);
       toast({
@@ -229,8 +197,8 @@ export function CampaignLeadInbox({
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="flex items-center gap-2 text-[#55e982]">
-              <Inbox aria-hidden="true" className="h-4 w-4" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Lead inbox</span>
+              <Radio aria-hidden="true" className="h-4 w-4" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Live today</span>
             </div>
             <h2 className="mt-2 text-[24px] font-bold tracking-[-0.03em] text-[#ffffff]">
               {counts.ALL} qualified lead{counts.ALL === 1 ? "" : "s"}
@@ -308,7 +276,6 @@ export function CampaignLeadInbox({
                     <InboxLeadCard
                       campaignId={campaignId}
                       canDelete={canDeleteLeads}
-                      expanded={expandedLeadIds.includes(lead.id)}
                       key={lead.id}
                       lead={lead}
                       now={now}
@@ -324,8 +291,8 @@ export function CampaignLeadInbox({
                         void markReviewed(lead);
                       }}
                       onStatusChange={(status) => void changeStatus(lead, status)}
-                      onToggle={() => toggleDetails(lead)}
                       pending={pendingLeadIds.includes(lead.id)}
+                      selected={selectedLeadId === lead.id}
                       timeZone={timeZone}
                     />
                   ))}
@@ -342,33 +309,34 @@ export function CampaignLeadInbox({
 function InboxLeadCard({
   campaignId,
   canDelete,
-  expanded,
   lead,
   now,
   onDelete,
   onOpenReddit,
   onStatusChange,
-  onToggle,
   pending,
+  selected,
   timeZone,
 }: {
   campaignId: string;
   canDelete: boolean;
-  expanded: boolean;
   lead: CampaignLeadView;
   now: number | null;
   onDelete?: (leadId: string) => void;
   onOpenReddit: () => void;
   onStatusChange: (status: CampaignLeadStatus) => void;
-  onToggle: () => void;
   pending: boolean;
+  selected: boolean;
   timeZone: string;
 }) {
   const sourceText = getSourceText(lead);
   const statusLabel = CAMPAIGN_LEAD_STATUS_LABELS[lead.status];
 
   return (
-    <article className={`rounded-[20px] border bg-[#111111] transition-colors duration-200 ${lead.status === "NEW" ? "border-[#1ed760]/35" : "border-white/[0.07]"}`}>
+    <article
+      className={`scroll-mt-5 rounded-[20px] border bg-[#111111] transition-colors duration-200 ${selected ? "border-[#73f5a0]/70 ring-2 ring-[#1ed760]/20" : lead.status === "NEW" ? "border-[#1ed760]/35" : "border-white/[0.07]"}`}
+      id={`lead-${lead.id}`}
+    >
       <div className="p-4 sm:p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
@@ -398,7 +366,7 @@ function InboxLeadCard({
               <span className="font-semibold text-[#d4d4d4]">Match {lead.score}%</span>
             </div>
 
-            <p className="mt-3 line-clamp-2 max-w-3xl text-[13px] leading-5 text-[#b8b8b8]">
+            <p className="mt-3 max-w-3xl text-[13px] leading-5 text-[#b8b8b8]">
               {lead.ai?.summary?.trim() || sourceText || "No summary is available for this lead."}
             </p>
           </div>
@@ -420,8 +388,7 @@ function InboxLeadCard({
           </div>
         </div>
 
-        {expanded ? (
-          <div className="mt-4 grid gap-4 border-t border-white/[0.07] pt-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="mt-4 grid gap-4 border-t border-white/[0.07] pt-4 lg:grid-cols-[minmax(0,1fr)_260px]">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-[#8f8f8f]">Reddit source</p>
               <p className="mt-2 whitespace-pre-wrap text-[13px] leading-6 text-[#c6c6c6]">
@@ -445,8 +412,7 @@ function InboxLeadCard({
                 </div>
               ) : null}
             </div>
-          </div>
-        ) : null}
+        </div>
 
         <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.07] pt-3 sm:flex-row sm:flex-wrap sm:items-center">
           <ActionButton
@@ -460,7 +426,7 @@ function InboxLeadCard({
             active={lead.status === "CONTACTED"}
             disabled={pending}
             icon={CheckCircle2}
-            label={lead.status === "CONTACTED" ? "Mark reviewed" : "Contacted"}
+            label={lead.status === "CONTACTED" ? "Undo contacted" : "Contacted"}
             onClick={() => onStatusChange(lead.status === "CONTACTED" ? "REVIEWED" : "CONTACTED")}
           />
           <ActionButton
@@ -470,16 +436,6 @@ function InboxLeadCard({
             label={lead.status === "DISMISSED" ? "Restore" : "Dismiss"}
             onClick={() => onStatusChange(lead.status === "DISMISSED" ? "REVIEWED" : "DISMISSED")}
           />
-
-          <button
-            aria-expanded={expanded}
-            className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-[10px] font-bold uppercase tracking-[0.12em] text-[#b3b3b3] transition-colors duration-200 hover:bg-[#252525] hover:text-[#ffffff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 sm:ml-auto"
-            onClick={onToggle}
-            type="button"
-          >
-            {expanded ? <ChevronUp aria-hidden="true" className="h-4 w-4" /> : <ChevronDown aria-hidden="true" className="h-4 w-4" />}
-            {expanded ? "Hide details" : "View details"}
-          </button>
 
           {canDelete && onDelete ? (
             <DeleteCampaignLeadDialog

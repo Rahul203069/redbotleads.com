@@ -36,6 +36,7 @@ export function ClassifiedLeadsPanel({
   showJsonExport = true,
   showSemanticSort = true,
   showStatusFilter = true,
+  selectedLeadId,
   selectedPeriodLabel,
   syncStatus = "IDLE",
   trackClientActivity = false,
@@ -51,6 +52,7 @@ export function ClassifiedLeadsPanel({
   showJsonExport?: boolean;
   showSemanticSort?: boolean;
   showStatusFilter?: boolean;
+  selectedLeadId?: string | null;
   selectedPeriodLabel?: string;
   syncStatus?: CampaignLeadSyncStatus;
   trackClientActivity?: boolean;
@@ -234,8 +236,9 @@ export function ClassifiedLeadsPanel({
         ) : (
           filteredLeads.map((lead) => (
             <article
+              id={`lead-${lead.id}`}
               key={lead.id}
-              className="rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] transition hover:bg-[linear-gradient(180deg,#252525_0%,#1f1f1f_100%)]"
+              className={`scroll-mt-5 rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] transition hover:bg-[linear-gradient(180deg,#252525_0%,#1f1f1f_100%)] ${selectedLeadId === lead.id ? "ring-2 ring-[#1ed760]/50" : ""}`}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 flex-1 space-y-4">

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import { CAMPAIGN_LEAD_STATUSES, type CampaignLeadStatus } from "@/lib/campaign-lead-status";
+import { getLiveNotificationHealth, type LiveNotificationHealth } from "@/lib/live-leads";
 import { prisma } from "@/lib/prisma";
 
 export type LiveActionResult = {
@@ -37,6 +38,23 @@ function revalidateLeadSurfaces(campaignId: string) {
   revalidatePath("/campaigns");
   revalidatePath(`/campaigns/${campaignId}`);
   revalidatePath(`/campaigns/${campaignId}/history`);
+}
+
+export async function getCampaignNotificationHealth(
+  campaignId: string,
+): Promise<LiveNotificationHealth | null> {
+  const session = await auth();
+  const id = String(campaignId ?? "").trim();
+
+  if (!session?.user?.id || !id) {
+    return null;
+  }
+
+  return getLiveNotificationHealth({
+    campaignId: id,
+    email: session.user.email,
+    userId: session.user.id,
+  });
 }
 
 export async function updateLiveLeadStatus(input: {

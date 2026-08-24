@@ -30,6 +30,7 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
+import { getLiveNotificationHealth } from "@/lib/live-leads";
 import { getManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
 import {
   getDailyLeadDateSelection,
@@ -56,6 +57,7 @@ const MIN_VISIBLE_LEAD_SCORE = 40;
 type SearchParams = {
   date?: string | string[];
   from?: string;
+  lead?: string;
   page?: string;
   range?: string;
   to?: string;
@@ -99,6 +101,9 @@ export default async function CampaignDetailPage({
   };
   const leadDateFilterKey = getLeadDateFilterKey(leadDateFilter);
   const applicationConfig = await getSaasConfig();
+  const isLiveTodayView = applicationConfig.appMode === "LIVE"
+    && !isAdminAccount
+    && isExactDateSelection(leadDateSelection, todayRange);
   if (applicationConfig.appMode === "LIVE" && isAdminAccount) {
     return (
       <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
@@ -223,10 +228,10 @@ export default async function CampaignDetailPage({
     latestSemanticRunAt,
     selection: leadDateSelection,
   });
-  const leadEmptyStateMode = shouldWaitForTodaySync ? "WAITING" : "NO_RESULTS";
+  const leadEmptyStateMode = !isLiveTodayView && shouldWaitForTodaySync ? "WAITING" : "NO_RESULTS";
 
   const nextSync = formatDateTimeInTimeZone(semanticNextSyncAt, browserTimeZone);
-  const [initialLeads, initialDiagnostics, publicViewStats] = await Promise.all([
+  const [initialLeads, initialDiagnostics, publicViewStats, initialNotificationHealth, notificationUser] = await Promise.all([
     getCampaignLeadViewsForUser({
       campaignId: campaign.id,
       ...(leadDateSelection.source === "dates"
@@ -242,6 +247,22 @@ export default async function CampaignDetailPage({
     }),
     getCampaignInitialRssDiagnostics(campaign.id),
     canManage ? getPublicShareViewStats(campaign.id) : Promise.resolve(null),
+    isLiveTodayView
+      ? getLiveNotificationHealth({
+          campaignId: campaign.id,
+          email: session.user.email,
+          userId: session.user.id,
+        })
+      : Promise.resolve(null),
+    isLiveTodayView
+      ? prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: {
+            telegramConnectedAt: true,
+            telegramUsername: true,
+          },
+        })
+      : Promise.resolve(null),
   ]);
   const firstSyncAt = initialDiagnostics?.run.startedAt
     ?? initialDiagnostics?.run.queuedAt
@@ -382,9 +403,11 @@ export default async function CampaignDetailPage({
 
       <CampaignDetailLiveSections
         campaignId={campaign.id}
+        campaignIsActive={campaign.isActive}
         canDeleteLeads={isAdminAccount}
         initialDiagnostics={initialDiagnostics}
         initialLeads={classifiedLeads}
+        initialNotificationHealth={initialNotificationHealth}
         initialSync={
           sync
             ? {
@@ -416,8 +439,8 @@ export default async function CampaignDetailPage({
         }
         leadEmptyStateMode={leadEmptyStateMode}
         leadDateFilter={leadDateFilter}
-        leadLayout="CLASSIC"
         nextSyncLabel={nextSync}
+        selectedLeadId={String(resolvedSearchParams.lead ?? "").trim() || null}
         semanticLastSyncAt={
           latestSemanticRunAt?.toISOString() ?? null
         }
@@ -425,10 +448,13 @@ export default async function CampaignDetailPage({
         showInitialRssDiagnostics={isAdminAccount}
         showJsonExport={isAdminAccount}
         showSemanticSort={isAdminAccount}
-        selectedPeriodLabel={leadDateLabel}
+        selectedPeriodLabel={isLiveTodayView ? "Today" : leadDateLabel}
         trackClientActivity={access.role === "CLIENT" && !isAdminAccount}
+        telegramConnectedAt={notificationUser?.telegramConnectedAt?.toISOString() ?? null}
+        telegramUsername={notificationUser?.telegramUsername ?? null}
         timeZone={browserTimeZone}
         todayDateKey={getDateKeyInTimeZone(new Date(), browserTimeZone)}
+        viewMode={isLiveTodayView ? "LIVE_TODAY" : "DAILY_HISTORY"}
       />
       </div>
     </CampaignLeadFilterLoadingProvider>
@@ -447,6 +473,16 @@ function getLeadDateFilterKey(filter: {
     filter.to ?? "",
     ...(filter.date ?? []),
   ].join("|");
+}
+
+function isExactDateSelection(
+  selection: DailyLeadDateSelection,
+  target: { from: Date; to: Date },
+) {
+  return selection.source !== "all"
+    && selection.ranges.length === 1
+    && selection.ranges[0].from.getTime() === target.from.getTime()
+    && selection.ranges[0].to.getTime() === target.to.getTime();
 }
 
 function getLeadDateSelectionLabel(selection: DailyLeadDateSelection, timeZone: string) {

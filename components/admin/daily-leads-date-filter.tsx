@@ -256,6 +256,7 @@ function buildHref(pathname: string, currentParams: { toString(): string }, rang
   const next = new URLSearchParams(currentParams.toString());
   next.delete("range");
   next.delete("date");
+  next.delete("lead");
   next.set("from", range.from);
   next.set("to", range.to);
   next.delete("page");
@@ -267,6 +268,7 @@ function buildAllTimeHref(pathname: string, currentParams: { toString(): string 
   const next = new URLSearchParams(currentParams.toString());
   next.set("range", "all");
   next.delete("date");
+  next.delete("lead");
   next.delete("from");
   next.delete("to");
   next.delete("page");

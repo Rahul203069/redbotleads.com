@@ -31,8 +31,7 @@ const dailyNavItems = [
 
 const liveNavItems = [
   { href: "/app", label: "Overview", description: "Workspace state", icon: OverviewIcon },
-  { href: "/inbox", label: "Inbox", description: "Review new leads", icon: InboxIcon },
-  { href: "/campaigns", label: "Campaigns", description: "Manage monitoring", icon: CampaignsIcon },
+  { href: "/campaigns", label: "Campaigns", description: "Live feed and history", icon: CampaignsIcon },
   { href: "/settings", label: "Settings", description: "Account and alerts", icon: SettingsIcon },
 ];
 
@@ -63,7 +62,7 @@ export function AppSidebar({
   const pathname = usePathname();
   const baseNavItems = appMode === "LIVE" ? liveNavItems : dailyNavItems;
   const visibleNavItems = (isOwner ? [...baseNavItems, ...ownerNavItems] : baseNavItems).map((item) =>
-    appMode === "DAILY" && !isOwner && item.href === "/campaigns"
+    !isOwner && item.href === "/campaigns" && campaignHref !== "/campaigns"
       ? { ...item, href: campaignHref, label: "Campaign" }
       : item,
   );
@@ -81,7 +80,7 @@ export function AppSidebar({
         </div>
       </div>
 
-      <nav className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <nav className={cn("mt-3 grid grid-cols-2 gap-2", isOwner ? "sm:grid-cols-4" : "sm:grid-cols-3")}>
         {visibleNavItems.map((item) => {
           const active = pathname === item.href || (item.href !== "/app" && pathname.startsWith(item.href));
           const Icon = item.icon;
@@ -325,14 +324,6 @@ function SettingsIcon() {
         strokeLinejoin="round"
         strokeWidth="1.5"
       />
-    </svg>
-  );
-}
-
-function InboxIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
-      <path d="M4 5.5h16v13H4v-13Zm0 8h4l1.5 2h5l1.5-2h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
     </svg>
   );
 }

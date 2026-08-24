@@ -26,7 +26,7 @@ export default async function AuthenticatedAppLayout({
   const isAdminAccount = canViewAnalytics(session.user.email);
   const cookieStore = await cookies();
   const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
-  const [user, nonAdminCampaign, saasConfig] = await Promise.all([
+  const [user, nonAdminCampaigns, saasConfig] = await Promise.all([
     prisma.user.findUnique({
       where: {
         id: session.user.id,
@@ -38,7 +38,7 @@ export default async function AuthenticatedAppLayout({
     }),
     isAdminAccount
       ? Promise.resolve(null)
-      : prisma.campaign.findFirst({
+      : prisma.campaign.findMany({
           where: buildAccessibleCampaignWhere({
             email: session.user.email,
             userId: session.user.id,
@@ -49,11 +49,17 @@ export default async function AuthenticatedAppLayout({
           select: {
             id: true,
           },
+          take: 2,
         }),
     getSaasConfig(),
   ]);
   const shouldShowSlackPrompt =
     isAdminAccount && !user?.slackWebhookUrl?.trim() && !user?.telegramChatId?.trim();
+  const campaignHref = nonAdminCampaigns?.length === 1
+    ? `/campaigns/${nonAdminCampaigns[0].id}`
+    : saasConfig.appMode === "DAILY" && nonAdminCampaigns?.[0]
+      ? `/campaigns/${nonAdminCampaigns[0].id}`
+      : "/campaigns";
 
   return (
     <div className="min-h-screen bg-transparent px-4 py-4 text-[#F3F5F4] lg:px-0 lg:py-0">
@@ -62,7 +68,7 @@ export default async function AuthenticatedAppLayout({
         <div className="lg:sticky lg:top-0 lg:h-screen lg:pl-4 lg:pr-0 lg:py-4 xl:pl-6">
           <AppSidebar
             appMode={saasConfig.appMode}
-            campaignHref={nonAdminCampaign ? `/campaigns/${nonAdminCampaign.id}` : "/campaigns"}
+            campaignHref={campaignHref}
             isOwner={isAdminAccount}
             shouldShowSlackConnect={shouldShowSlackPrompt}
             userLabel={userLabel}

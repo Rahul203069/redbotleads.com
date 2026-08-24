@@ -446,11 +446,33 @@ export type LiveNotificationHealth = {
   pendingCount: number;
 };
 
-export async function getLiveNotificationHealth(viewer: Viewer): Promise<LiveNotificationHealth> {
+export async function getLiveNotificationHealth(
+  viewer: Viewer & { campaignId?: string },
+): Promise<LiveNotificationHealth> {
+  if (viewer.campaignId) {
+    const accessibleCampaign = await prisma.campaign.findFirst({
+      where: accessibleCampaignWhere(viewer, viewer.campaignId),
+      select: { id: true },
+    });
+
+    if (!accessibleCampaign) {
+      return {
+        failedCount: 0,
+        issues: [],
+        lastSentAt: null,
+        pendingCount: 0,
+      };
+    }
+  }
+
+  const campaignWhere = viewer.campaignId
+    ? { lead: { campaignId: viewer.campaignId } }
+    : {};
   const issueWhere: Prisma.NotificationWhereInput = {
     handledAt: null,
     recipientUserId: viewer.userId,
     status: { in: ["PENDING", "FAILED"] },
+    ...campaignWhere,
   };
   const [grouped, issues, lastSent] = await Promise.all([
     prisma.notification.groupBy({
@@ -480,7 +502,12 @@ export async function getLiveNotificationHealth(viewer: Viewer): Promise<LiveNot
       },
     }),
     prisma.notification.findFirst({
-      where: { recipientUserId: viewer.userId, status: "SENT", sentAt: { not: null } },
+      where: {
+        recipientUserId: viewer.userId,
+        status: "SENT",
+        sentAt: { not: null },
+        ...campaignWhere,
+      },
       orderBy: { sentAt: "desc" },
       select: { sentAt: true },
     }),

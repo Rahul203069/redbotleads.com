@@ -998,24 +998,34 @@ export async function markCampaignLeadReviewed(input: {
   }
 
   try {
-    await prisma.lead.updateMany({
-      where: {
-        id: accessibleLead.id,
-        campaignId: parsed.data.campaignId,
-        status: "NEW",
-      },
-      data: {
-        status: "REVIEWED",
-      },
-    });
+    const canonicalLead = await prisma.$transaction(async (tx) => {
+      await tx.lead.updateMany({
+        where: {
+          id: accessibleLead.id,
+          campaignId: parsed.data.campaignId,
+          status: "NEW",
+        },
+        data: {
+          status: "REVIEWED",
+        },
+      });
+      await tx.notification.updateMany({
+        where: {
+          leadId: accessibleLead.id,
+          recipientUserId: session.user.id,
+          handledAt: null,
+        },
+        data: { handledAt: new Date() },
+      });
 
-    const canonicalLead = await prisma.lead.findUnique({
-      where: {
-        id: accessibleLead.id,
-      },
-      select: {
-        status: true,
-      },
+      return tx.lead.findUnique({
+        where: {
+          id: accessibleLead.id,
+        },
+        select: {
+          status: true,
+        },
+      });
     });
 
     if (!canonicalLead) {
@@ -1090,16 +1100,28 @@ export async function setCampaignLeadStatus(input: {
   }
 
   try {
-    const lead = await prisma.lead.update({
-      where: {
-        id: accessibleLead.id,
-      },
-      data: {
-        status: parsed.data.status,
-      },
-      select: {
-        status: true,
-      },
+    const lead = await prisma.$transaction(async (tx) => {
+      const updatedLead = await tx.lead.update({
+        where: {
+          id: accessibleLead.id,
+        },
+        data: {
+          status: parsed.data.status,
+        },
+        select: {
+          status: true,
+        },
+      });
+      await tx.notification.updateMany({
+        where: {
+          leadId: accessibleLead.id,
+          recipientUserId: session.user.id,
+          handledAt: null,
+        },
+        data: { handledAt: new Date() },
+      });
+
+      return updatedLead;
     });
 
     revalidatePath(`/campaigns/${parsed.data.campaignId}`);

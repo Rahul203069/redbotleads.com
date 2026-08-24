@@ -2,6 +2,7 @@
 
 import {
   AlertCircle,
+  Beaker,
   CheckCircle2,
   Clock3,
   ExternalLink,
@@ -52,6 +53,7 @@ export function CampaignLeadInbox({
   campaignId,
   canDeleteLeads = false,
   emptyStateMode,
+  includesDemo = false,
   isFilterLoading,
   leads,
   nextSyncLabel,
@@ -67,6 +69,7 @@ export function CampaignLeadInbox({
   campaignId: string;
   canDeleteLeads?: boolean;
   emptyStateMode: CampaignLeadEmptyStateMode;
+  includesDemo?: boolean;
   isFilterLoading: boolean;
   leads: CampaignLeadView[];
   nextSyncLabel: string;
@@ -131,6 +134,15 @@ export function CampaignLeadInbox({
       return;
     }
 
+    if (lead.isDemo) {
+      onLeadStatusChanged(lead.id, "REVIEWED");
+      toast({
+        title: "Demo lead reviewed",
+        description: "This preview was updated only in your browser. Your database was not changed.",
+      });
+      return;
+    }
+
     const previousStatus = lead.status;
     setPendingLeadIds((current) => [...current, lead.id]);
     onLeadStatusChanged(lead.id, "REVIEWED");
@@ -160,6 +172,15 @@ export function CampaignLeadInbox({
 
   async function changeStatus(lead: CampaignLeadView, status: CampaignLeadStatus) {
     if (lead.status === status || pendingLeadIds.includes(lead.id)) {
+      return;
+    }
+
+    if (lead.isDemo) {
+      onLeadStatusChanged(lead.id, status);
+      toast({
+        title: CAMPAIGN_LEAD_STATUS_LABELS[status],
+        description: "This demo lead was updated only in your browser. Your database was not changed.",
+      });
       return;
     }
 
@@ -233,6 +254,16 @@ export function CampaignLeadInbox({
         </div>
       </div>
 
+      {includesDemo ? (
+        <div className="flex items-start gap-3 border-b border-[#1ed760]/15 bg-[#111811] px-5 py-4 text-[#b8e9c7] lg:px-6">
+          <Beaker aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#55e982]" />
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#73f5a0]">Demo leads for testing</p>
+            <p className="mt-1 text-[12px] leading-5">No real qualified leads were found today, so these examples are shown temporarily. Status changes stay in this browser and never update your database.</p>
+          </div>
+        </div>
+      ) : null}
+
       <div className="p-4 sm:p-5 lg:p-6">
         {isFilterLoading ? (
           <InboxLoadingSkeleton />
@@ -281,7 +312,7 @@ export function CampaignLeadInbox({
                       now={now}
                       onDelete={onLeadDeleted}
                       onOpenReddit={() => {
-                        if (trackClientActivity) {
+                        if (trackClientActivity && !lead.isDemo) {
                           sendCampaignClientActivity({
                             campaignId,
                             eventType: "REDDIT_LINK_CLICKED",
@@ -342,6 +373,11 @@ function InboxLeadCard({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status={lead.status} />
+              {lead.isDemo ? (
+                <span className="rounded-full bg-[#1ed760]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#73f5a0]">
+                  Demo
+                </span>
+              ) : null}
               <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#d4d4d4]">
                 r/{lead.redditItem.subreddit}
               </span>
@@ -437,7 +473,7 @@ function InboxLeadCard({
             onClick={() => onStatusChange(lead.status === "DISMISSED" ? "REVIEWED" : "DISMISSED")}
           />
 
-          {canDelete && onDelete ? (
+          {canDelete && onDelete && !lead.isDemo ? (
             <DeleteCampaignLeadDialog
               campaignId={campaignId}
               lead={{

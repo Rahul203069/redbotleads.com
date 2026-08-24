@@ -56,6 +56,7 @@ export function CampaignDetailLiveSections({
   campaignIsActive,
   canDeleteLeads = false,
   initialDiagnostics,
+  initialDemoLeads,
   initialLeads,
   initialNotificationHealth,
   initialSync,
@@ -80,6 +81,7 @@ export function CampaignDetailLiveSections({
   campaignIsActive: boolean;
   canDeleteLeads?: boolean;
   initialDiagnostics: CampaignInitialRssDiagnostics;
+  initialDemoLeads: ClassifiedLead[];
   initialLeads: ClassifiedLead[];
   initialNotificationHealth: LiveNotificationHealth | null;
   initialSync: CampaignSync;
@@ -108,6 +110,7 @@ export function CampaignDetailLiveSections({
   const [, startTransition] = useTransition();
   const { isLeadFilterLoading } = useCampaignLeadFilterLoading();
   const [leads, setLeads] = useState(initialLeads);
+  const [demoLeads, setDemoLeads] = useState(initialDemoLeads);
   const [sync, setSync] = useState<CampaignSync>(initialSync);
   const [diagnostics, setDiagnostics] = useState<CampaignInitialRssDiagnostics>(initialDiagnostics);
   const [notificationHealth, setNotificationHealth] = useState(initialNotificationHealth);
@@ -120,6 +123,10 @@ export function CampaignDetailLiveSections({
   useEffect(() => {
     setLeads(initialLeads);
   }, [initialLeads]);
+
+  useEffect(() => {
+    setDemoLeads(initialDemoLeads);
+  }, [initialDemoLeads]);
 
   useEffect(() => {
     setSync(initialSync);
@@ -183,6 +190,8 @@ export function CampaignDetailLiveSections({
     () => leads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE),
     [leads],
   );
+  const shouldShowDemoLeads = isLiveToday && classifiedLeads.length === 0 && demoLeads.length > 0;
+  const liveLeads = shouldShowDemoLeads ? demoLeads : classifiedLeads;
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
   const lastSync = hasMounted
@@ -226,8 +235,9 @@ export function CampaignDetailLiveSections({
           campaignId={campaignId}
           canDeleteLeads={canDeleteLeads}
           emptyStateMode={leadEmptyStateMode}
+          includesDemo={shouldShowDemoLeads}
           isFilterLoading={isLeadFilterLoading}
-          leads={classifiedLeads}
+          leads={liveLeads}
           nextSyncLabel={nextSync}
           selectedLeadId={selectedLeadId}
           selectedPeriodLabel={selectedPeriodLabel}
@@ -237,9 +247,11 @@ export function CampaignDetailLiveSections({
           trackClientActivity={trackClientActivity}
           onLeadDeleted={(leadId) => {
             setLeads((current) => current.filter((lead) => lead.id !== leadId));
+            setDemoLeads((current) => current.filter((lead) => lead.id !== leadId));
           }}
           onLeadStatusChanged={(leadId, status: CampaignLeadStatus) => {
             setLeads((current) => current.map((lead) => lead.id === leadId ? { ...lead, status } : lead));
+            setDemoLeads((current) => current.map((lead) => lead.id === leadId ? { ...lead, status } : lead));
           }}
         />
       ) : (

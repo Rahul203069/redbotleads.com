@@ -7,6 +7,7 @@ export const PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE = 40;
 
 export type CampaignLeadView = {
   id: string;
+  isDemo?: boolean;
   score: number;
   label: "HIGH" | "MED" | "LOW";
   status: CampaignLeadStatus;

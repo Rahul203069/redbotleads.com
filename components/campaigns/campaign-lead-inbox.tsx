@@ -27,7 +27,6 @@ import {
   getCampaignLeadGroupLabel,
 } from "@/lib/campaign-lead-inbox";
 import {
-  CAMPAIGN_LEAD_STATUSES,
   CAMPAIGN_LEAD_STATUS_LABELS,
   type CampaignLeadStatus,
 } from "@/lib/campaign-lead-status";
@@ -404,18 +403,6 @@ function InboxLeadCard({
               <div className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#777]">Score</div>
               <div className="mt-0.5 text-[20px] font-bold leading-none text-[#ffffff]">{lead.score}</div>
             </div>
-            <label className="sr-only" htmlFor={`lead-status-${lead.id}`}>Status for {lead.redditItem.title || "lead"}</label>
-            <select
-              className="h-9 cursor-pointer rounded-full border-none bg-[#1f1f1f] px-3 text-[9px] font-bold uppercase tracking-[0.09em] text-[#ffffff] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={pending}
-              id={`lead-status-${lead.id}`}
-              onChange={(event) => onStatusChange(event.target.value as CampaignLeadStatus)}
-              value={lead.status}
-            >
-              {CAMPAIGN_LEAD_STATUSES.map((status) => (
-                <option key={status} value={status}>{CAMPAIGN_LEAD_STATUS_LABELS[status]}</option>
-              ))}
-            </select>
           </div>
         </div>
 

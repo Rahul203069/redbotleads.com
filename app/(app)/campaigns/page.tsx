@@ -21,17 +21,30 @@ export default async function CampaignsPage() {
     redirect("/login");
   }
 
-  const saasConfig = await getSaasConfig();
-  if (saasConfig.appMode === "LIVE") {
-    return <LiveCampaignsPage canCreate={isOwnerEmail(session.user.email)} email={session.user.email} isAdmin={canViewAnalytics(session.user.email)} userId={session.user.id} />;
-  }
-
+  const isAdminAccount = canViewAnalytics(session.user.email);
   const accessibleCampaignWhere = buildAccessibleCampaignWhere({
     email: session.user.email,
     userId: session.user.id,
   });
+  const saasConfig = await getSaasConfig();
+  if (saasConfig.appMode === "LIVE") {
+    if (!isAdminAccount) {
+      const accessibleCampaigns = await prisma.campaign.findMany({
+        where: accessibleCampaignWhere,
+        select: { id: true },
+        orderBy: { updatedAt: "desc" },
+        take: 2,
+      });
 
-  if (!canViewAnalytics(session.user.email)) {
+      if (accessibleCampaigns.length === 1) {
+        redirect(`/campaigns/${accessibleCampaigns[0].id}`);
+      }
+    }
+
+    return <LiveCampaignsPage canCreate={isOwnerEmail(session.user.email)} email={session.user.email} isAdmin={isAdminAccount} userId={session.user.id} />;
+  }
+
+  if (!isAdminAccount) {
     const campaign = await prisma.campaign.findFirst({
       where: accessibleCampaignWhere,
       select: { id: true },
@@ -116,7 +129,7 @@ export default async function CampaignsPage() {
             </p>
           </div>
           {canCreateCampaigns ? (
-            <CampaignWizard isAdminAccount={canViewAnalytics(session.user.email)} triggerLabel="Create campaign" />
+            <CampaignWizard isAdminAccount={isAdminAccount} triggerLabel="Create campaign" />
           ) : (
             <BetaCampaignAccessButton label="Create campaign" />
           )}
@@ -144,7 +157,7 @@ export default async function CampaignsPage() {
             </p>
             <div className="mt-6">
               {canCreateCampaigns ? (
-                <CampaignWizard isAdminAccount={canViewAnalytics(session.user.email)} triggerLabel="Create first campaign" />
+                <CampaignWizard isAdminAccount={isAdminAccount} triggerLabel="Create first campaign" />
               ) : (
                 <BetaCampaignAccessButton label="Create first campaign" />
               )}

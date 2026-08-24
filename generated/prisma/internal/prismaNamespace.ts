@@ -396,6 +396,7 @@ export const ModelName = {
   CampaignPublicVisitor: 'CampaignPublicVisitor',
   CampaignClientAccess: 'CampaignClientAccess',
   CampaignClientActivityEvent: 'CampaignClientActivityEvent',
+  CampaignLeadViewState: 'CampaignLeadViewState',
   CampaignRun: 'CampaignRun',
   CronRun: 'CronRun',
   CampaignInitialRssPollEvent: 'CampaignInitialRssPollEvent',
@@ -430,7 +431,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignPublicVisitor" | "campaignClientAccess" | "campaignClientActivityEvent" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignPublicVisitor" | "campaignClientAccess" | "campaignClientActivityEvent" | "campaignLeadViewState" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1319,6 +1320,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CampaignClientActivityEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CampaignClientActivityEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    CampaignLeadViewState: {
+      payload: Prisma.$CampaignLeadViewStatePayload<ExtArgs>
+      fields: Prisma.CampaignLeadViewStateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignLeadViewStateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignLeadViewStateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignLeadViewStateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignLeadViewStateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>
+        }
+        findMany: {
+          args: Prisma.CampaignLeadViewStateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>[]
+        }
+        create: {
+          args: Prisma.CampaignLeadViewStateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>
+        }
+        createMany: {
+          args: Prisma.CampaignLeadViewStateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignLeadViewStateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignLeadViewStateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>
+        }
+        update: {
+          args: Prisma.CampaignLeadViewStateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignLeadViewStateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignLeadViewStateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignLeadViewStateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignLeadViewStateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignLeadViewStatePayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignLeadViewStateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignLeadViewState>
+        }
+        groupBy: {
+          args: Prisma.CampaignLeadViewStateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignLeadViewStateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignLeadViewStateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignLeadViewStateCountAggregateOutputType> | number
         }
       }
     }
@@ -2949,6 +3024,17 @@ export const CampaignClientActivityEventScalarFieldEnum = {
 export type CampaignClientActivityEventScalarFieldEnum = (typeof CampaignClientActivityEventScalarFieldEnum)[keyof typeof CampaignClientActivityEventScalarFieldEnum]
 
 
+export const CampaignLeadViewStateScalarFieldEnum = {
+  userId: 'userId',
+  campaignId: 'campaignId',
+  lastViewedAt: 'lastViewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignLeadViewStateScalarFieldEnum = (typeof CampaignLeadViewStateScalarFieldEnum)[keyof typeof CampaignLeadViewStateScalarFieldEnum]
+
+
 export const CampaignRunScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -3450,14 +3536,14 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'SaasAppMode'
  */
 export type EnumSaasAppModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SaasAppMode'>
-
+    
 
 
 /**
  * Reference to a field of type 'SaasAppMode[]'
  */
 export type ListEnumSaasAppModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SaasAppMode[]'>
-
+    
 
 
 /**
@@ -3832,6 +3918,7 @@ export type GlobalOmitConfig = {
   campaignPublicVisitor?: Prisma.CampaignPublicVisitorOmit
   campaignClientAccess?: Prisma.CampaignClientAccessOmit
   campaignClientActivityEvent?: Prisma.CampaignClientActivityEventOmit
+  campaignLeadViewState?: Prisma.CampaignLeadViewStateOmit
   campaignRun?: Prisma.CampaignRunOmit
   cronRun?: Prisma.CronRunOmit
   campaignInitialRssPollEvent?: Prisma.CampaignInitialRssPollEventOmit
@@ -3913,3 +4000,4 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
+

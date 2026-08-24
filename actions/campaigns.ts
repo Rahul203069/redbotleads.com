@@ -83,6 +83,11 @@ const campaignLeadStatusSchema = campaignLeadReferenceSchema.extend({
   status: z.enum(CAMPAIGN_LEAD_STATUSES),
 });
 
+const campaignLeadVisitSchema = z.object({
+  campaignId: z.string().trim().min(1, "Campaign ID is missing."),
+  viewedAt: z.string().datetime({ offset: true }),
+});
+
 export type CampaignActionState = {
   status: "idle" | "success" | "error";
   message?: string;
@@ -102,6 +107,11 @@ export type CampaignLeadStatusActionResult = {
   status: "success" | "error";
   message: string;
   leadStatus?: CampaignLeadStatus;
+};
+
+export type CampaignLeadVisitActionResult = {
+  status: "success" | "error";
+  message: string;
 };
 
 const semanticQuerySchema = z.object({
@@ -1137,6 +1147,92 @@ export async function setCampaignLeadStatus(input: {
     return {
       status: "error",
       message: "Could not update this lead. Try again.",
+    };
+  }
+}
+
+export async function recordCampaignLeadVisit(input: {
+  campaignId: string;
+  viewedAt: string;
+}): Promise<CampaignLeadVisitActionResult> {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return {
+      status: "error",
+      message: "You must be signed in to record a campaign visit.",
+    };
+  }
+
+  const parsed = campaignLeadVisitSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Campaign and visit time are required.",
+    };
+  }
+
+  const campaign = await prisma.campaign.findFirst({
+    where: buildAccessibleCampaignWhere({
+      campaignId: parsed.data.campaignId,
+      email: session.user.email,
+      userId: session.user.id,
+    }),
+    select: {
+      id: true,
+    },
+  });
+
+  if (!campaign) {
+    return {
+      status: "error",
+      message: "Campaign not found or access was denied.",
+    };
+  }
+
+  const now = new Date();
+  const requestedViewedAt = new Date(parsed.data.viewedAt);
+  const safeViewedAt = requestedViewedAt > now ? now : requestedViewedAt;
+  const viewKey = {
+    campaignId: campaign.id,
+    userId: session.user.id,
+  };
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.campaignLeadViewState.upsert({
+        where: {
+          userId_campaignId: viewKey,
+        },
+        create: {
+          ...viewKey,
+          lastViewedAt: safeViewedAt,
+        },
+        update: {},
+      });
+      await tx.campaignLeadViewState.updateMany({
+        where: {
+          ...viewKey,
+          lastViewedAt: {
+            lt: safeViewedAt,
+          },
+        },
+        data: {
+          lastViewedAt: safeViewedAt,
+        },
+      });
+    });
+
+    return {
+      status: "success",
+      message: "Campaign visit recorded.",
+    };
+  } catch (error) {
+    console.error("Campaign lead visit update failed", error);
+    return {
+      status: "error",
+      message: "Could not record this campaign visit.",
     };
   }
 }

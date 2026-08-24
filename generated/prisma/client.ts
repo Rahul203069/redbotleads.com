@@ -102,6 +102,11 @@ export type CampaignClientAccess = Prisma.CampaignClientAccessModel
  */
 export type CampaignClientActivityEvent = Prisma.CampaignClientActivityEventModel
 /**
+ * Model CampaignLeadViewState
+ * 
+ */
+export type CampaignLeadViewState = Prisma.CampaignLeadViewStateModel
+/**
  * Model CampaignRun
  * 
  */

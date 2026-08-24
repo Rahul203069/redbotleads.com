@@ -196,6 +196,7 @@ export default async function CampaignDetailPage({
 
   const displayName = getCampaignDisplayName(campaign, access);
   const canManage = canManageCampaign(access);
+  const visitStartedAt = new Date();
 
   const [sync, latestSemanticRun, manualSemanticState] = await Promise.all([
     reconcileCampaignSyncState(campaign.id),
@@ -232,7 +233,7 @@ export default async function CampaignDetailPage({
   const leadEmptyStateMode = !isLiveTodayView && shouldWaitForTodaySync ? "WAITING" : "NO_RESULTS";
 
   const nextSync = formatDateTimeInTimeZone(semanticNextSyncAt, browserTimeZone);
-  const [initialLeads, initialDiagnostics, publicViewStats, initialNotificationHealth, notificationUser] = await Promise.all([
+  const [initialLeads, initialDiagnostics, publicViewStats, initialNotificationHealth, notificationUser, initialLeadViewState] = await Promise.all([
     getCampaignLeadViewsForUser({
       campaignId: campaign.id,
       ...(leadDateSelection.source === "dates"
@@ -261,6 +262,19 @@ export default async function CampaignDetailPage({
           select: {
             telegramConnectedAt: true,
             telegramUsername: true,
+          },
+        })
+      : Promise.resolve(null),
+    isLiveTodayView
+      ? prisma.campaignLeadViewState.findUnique({
+          where: {
+            userId_campaignId: {
+              campaignId: campaign.id,
+              userId: session.user.id,
+            },
+          },
+          select: {
+            lastViewedAt: true,
           },
         })
       : Promise.resolve(null),
@@ -448,6 +462,7 @@ export default async function CampaignDetailPage({
         leadEmptyStateMode={leadEmptyStateMode}
         leadDateFilter={leadDateFilter}
         nextSyncLabel={nextSync}
+        previousVisitAt={initialLeadViewState?.lastViewedAt.toISOString() ?? null}
         selectedLeadId={String(resolvedSearchParams.lead ?? "").trim() || null}
         semanticLastSyncAt={
           latestSemanticRunAt?.toISOString() ?? null
@@ -462,6 +477,7 @@ export default async function CampaignDetailPage({
         telegramUsername={notificationUser?.telegramUsername ?? null}
         timeZone={browserTimeZone}
         todayDateKey={getDateKeyInTimeZone(new Date(), browserTimeZone)}
+        visitStartedAt={visitStartedAt.toISOString()}
         viewMode={isLiveTodayView ? "LIVE_TODAY" : "DAILY_HISTORY"}
       />
       </div>

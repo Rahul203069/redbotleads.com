@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import {
   getCampaignInitialRssDiagnostics,
   getCampaignLeads,
   getCampaignSyncStatuses,
+  recordCampaignLeadVisit,
   type CampaignInitialRssDiagnostics,
 } from "@/actions/campaigns";
 import { getCampaignNotificationHealth } from "@/actions/live-mode";
@@ -17,6 +18,10 @@ import { InitialRssDiagnosticsPanel } from "@/components/campaigns/initial-rss-d
 import { CampaignLiveStatusStrip } from "@/components/live/campaign-live-status-strip";
 import type { CampaignLeadEmptyStateMode } from "@/lib/campaign-lead-empty-state";
 import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
+import {
+  getJustAddedCampaignLeadIds,
+  JUST_ADDED_HIGHLIGHT_MS,
+} from "@/lib/campaign-lead-inbox";
 import type { LiveNotificationHealth } from "@/lib/live-leads";
 
 export type CampaignContentMode = "DAILY_HISTORY" | "LIVE_TODAY";
@@ -63,6 +68,7 @@ export function CampaignDetailLiveSections({
   leadEmptyStateMode,
   leadDateFilter,
   nextSyncLabel,
+  previousVisitAt,
   selectedLeadId,
   semanticLastSyncAt,
   semanticNextSyncAt,
@@ -75,6 +81,7 @@ export function CampaignDetailLiveSections({
   telegramUsername,
   timeZone,
   todayDateKey,
+  visitStartedAt,
   viewMode,
 }: {
   campaignId: string;
@@ -93,6 +100,7 @@ export function CampaignDetailLiveSections({
     to?: string;
   };
   nextSyncLabel: string;
+  previousVisitAt: string | null;
   selectedLeadId?: string | null;
   semanticLastSyncAt: string | null;
   semanticNextSyncAt: string;
@@ -105,6 +113,7 @@ export function CampaignDetailLiveSections({
   telegramUsername: string | null;
   timeZone: string;
   todayDateKey: string;
+  visitStartedAt: string;
   viewMode: CampaignContentMode;
 }) {
   const [, startTransition] = useTransition();
@@ -115,6 +124,11 @@ export function CampaignDetailLiveSections({
   const [diagnostics, setDiagnostics] = useState<CampaignInitialRssDiagnostics>(initialDiagnostics);
   const [notificationHealth, setNotificationHealth] = useState(initialNotificationHealth);
   const [hasMounted, setHasMounted] = useState(false);
+  const [justAddedLeadIds, setJustAddedLeadIds] = useState<string[]>([]);
+  const knownLeadIdsRef = useRef(new Set(initialLeads.map((lead) => lead.id)));
+  const highlightTimeoutsRef = useRef<number[]>([]);
+  const recordedVisitKeyRef = useRef<string | null>(null);
+  const isLiveToday = viewMode === "LIVE_TODAY";
 
   useEffect(() => {
     setHasMounted(true);
@@ -122,6 +136,8 @@ export function CampaignDetailLiveSections({
 
   useEffect(() => {
     setLeads(initialLeads);
+    knownLeadIdsRef.current = new Set(initialLeads.map((lead) => lead.id));
+    setJustAddedLeadIds([]);
   }, [initialLeads]);
 
   useEffect(() => {
@@ -140,8 +156,27 @@ export function CampaignDetailLiveSections({
     setNotificationHealth(initialNotificationHealth);
   }, [initialNotificationHealth]);
 
+  useEffect(() => {
+    const visitKey = `${campaignId}:${visitStartedAt}`;
+
+    if (!isLiveToday || recordedVisitKeyRef.current === visitKey) {
+      return;
+    }
+
+    recordedVisitKeyRef.current = visitKey;
+    void recordCampaignLeadVisit({
+      campaignId,
+      viewedAt: visitStartedAt,
+    });
+  }, [campaignId, isLiveToday, visitStartedAt]);
+
+  useEffect(() => () => {
+    for (const timeoutId of highlightTimeoutsRef.current) {
+      window.clearTimeout(timeoutId);
+    }
+  }, []);
+
   const isSyncRunning = sync?.status === "QUEUED" || sync?.status === "PROCESSING";
-  const isLiveToday = viewMode === "LIVE_TODAY";
 
   useEffect(() => {
     const pollInterval = isSyncRunning ? 10_000 : isLiveToday ? 30_000 : null;
@@ -166,6 +201,21 @@ export function CampaignDetailLiveSections({
             getCampaignInitialRssDiagnostics(campaignId),
             isLiveToday ? getCampaignNotificationHealth(campaignId) : Promise.resolve(null),
           ]);
+
+          const newlyAddedLeadIds = getJustAddedCampaignLeadIds(knownLeadIdsRef.current, latestLeads);
+
+          for (const lead of latestLeads) {
+            knownLeadIdsRef.current.add(lead.id);
+          }
+
+          if (newlyAddedLeadIds.length > 0) {
+            setJustAddedLeadIds((current) => Array.from(new Set([...current, ...newlyAddedLeadIds])));
+            const timeoutId = window.setTimeout(() => {
+              setJustAddedLeadIds((current) => current.filter((leadId) => !newlyAddedLeadIds.includes(leadId)));
+              highlightTimeoutsRef.current = highlightTimeoutsRef.current.filter((id) => id !== timeoutId);
+            }, JUST_ADDED_HIGHLIGHT_MS);
+            highlightTimeoutsRef.current.push(timeoutId);
+          }
 
           setSync(normalizeSync(latestSync[0]?.sync ?? null));
           setLeads(latestLeads);
@@ -239,12 +289,15 @@ export function CampaignDetailLiveSections({
           isFilterLoading={isLeadFilterLoading}
           leads={liveLeads}
           nextSyncLabel={nextSync}
+          previousVisitAt={previousVisitAt}
           selectedLeadId={selectedLeadId}
           selectedPeriodLabel={selectedPeriodLabel}
           syncStatus={sync?.status ?? "IDLE"}
           timeZone={timeZone}
           todayDateKey={todayDateKey}
           trackClientActivity={trackClientActivity}
+          justAddedLeadIds={justAddedLeadIds}
+          visitStartedAt={visitStartedAt}
           onLeadDeleted={(leadId) => {
             setLeads((current) => current.filter((lead) => lead.id !== leadId));
             setDemoLeads((current) => current.filter((lead) => lead.id !== leadId));

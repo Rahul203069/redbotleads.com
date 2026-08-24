@@ -3,8 +3,11 @@ import test from "node:test";
 
 import {
   countCampaignLeadStatuses,
+  formatLeadRelativeTime,
   getCampaignLeadDateKey,
   getCampaignLeadGroupLabel,
+  getJustAddedCampaignLeadIds,
+  isCampaignLeadNewSinceVisit,
 } from "./campaign-lead-inbox";
 
 test("counts every shared workflow status and the complete inbox", () => {
@@ -54,4 +57,43 @@ test("labels current and previous local dates clearly", () => {
     timeZone: "Asia/Calcutta",
     todayDateKey: "2026-08-22",
   }), "August 18");
+});
+
+test("marks only real leads detected after the previous visit as new", () => {
+  assert.equal(isCampaignLeadNewSinceVisit({
+    createdAt: "2026-08-24T10:01:00.000Z",
+    previousVisitAt: "2026-08-24T10:00:00.000Z",
+  }), true);
+  assert.equal(isCampaignLeadNewSinceVisit({
+    createdAt: "2026-08-24T10:00:00.000Z",
+    previousVisitAt: "2026-08-24T10:00:00.000Z",
+  }), false);
+  assert.equal(isCampaignLeadNewSinceVisit({
+    createdAt: "2026-08-24T10:01:00.000Z",
+    isDemo: true,
+    previousVisitAt: null,
+  }), false);
+});
+
+test("treats real leads as new to a first-time visitor", () => {
+  assert.equal(isCampaignLeadNewSinceVisit({
+    createdAt: "2026-08-24T10:01:00.000Z",
+    previousVisitAt: null,
+  }), true);
+});
+
+test("finds real lead IDs that were not present in the current live session", () => {
+  assert.deepEqual(getJustAddedCampaignLeadIds(
+    new Set(["known"]),
+    [{ id: "known" }, { id: "new" }, { id: "demo", isDemo: true }],
+  ), ["new"]);
+});
+
+test("formats live feed ages in compact relative units", () => {
+  const now = new Date("2026-08-24T12:00:00.000Z").getTime();
+
+  assert.equal(formatLeadRelativeTime("2026-08-24T11:59:40.000Z", now), "just now");
+  assert.equal(formatLeadRelativeTime("2026-08-24T11:42:00.000Z", now), "18m ago");
+  assert.equal(formatLeadRelativeTime("2026-08-24T09:00:00.000Z", now), "3h ago");
+  assert.equal(formatLeadRelativeTime("2026-08-22T12:00:00.000Z", now), "2d ago");
 });

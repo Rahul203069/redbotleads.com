@@ -9,10 +9,11 @@ import {
   LoaderCircle,
   Radio,
   SearchX,
+  Sparkles,
   Star,
   XCircle,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   markCampaignLeadReviewed,
@@ -23,8 +24,10 @@ import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign
 import { useToast } from "@/components/ui/use-toast";
 import {
   countCampaignLeadStatuses,
+  formatLeadRelativeTime,
   getCampaignLeadDateKey,
   getCampaignLeadGroupLabel,
+  isCampaignLeadNewSinceVisit,
 } from "@/lib/campaign-lead-inbox";
 import {
   CAMPAIGN_LEAD_STATUS_LABELS,
@@ -54,41 +57,64 @@ export function CampaignLeadInbox({
   emptyStateMode,
   includesDemo = false,
   isFilterLoading,
+  justAddedLeadIds = [],
   leads,
   nextSyncLabel,
   onLeadDeleted,
   onLeadStatusChanged,
+  previousVisitAt,
   selectedLeadId,
   selectedPeriodLabel,
   syncStatus,
   timeZone,
   todayDateKey,
   trackClientActivity = false,
+  visitStartedAt,
 }: {
   campaignId: string;
   canDeleteLeads?: boolean;
   emptyStateMode: CampaignLeadEmptyStateMode;
   includesDemo?: boolean;
   isFilterLoading: boolean;
+  justAddedLeadIds?: string[];
   leads: CampaignLeadView[];
   nextSyncLabel: string;
   onLeadDeleted?: (leadId: string) => void;
   onLeadStatusChanged: (leadId: string, status: CampaignLeadStatus) => void;
+  previousVisitAt: string | null;
   selectedLeadId?: string | null;
   selectedPeriodLabel: string;
   syncStatus: CampaignLeadSyncStatus;
   timeZone: string;
   todayDateKey: string;
   trackClientActivity?: boolean;
+  visitStartedAt: string;
 }) {
   const { toast } = useToast();
   const [activeFilter, setActiveFilter] = useState<InboxFilter>("ALL");
+  const [now, setNow] = useState<number | null>(null);
   const [pendingLeadIds, setPendingLeadIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const intervalId = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const orderedLeads = useMemo(
     () => [...leads].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()),
     [leads],
   );
+  const nowMs = now ?? new Date(visitStartedAt).getTime();
+  const justAddedLeadIdSet = useMemo(() => new Set(justAddedLeadIds), [justAddedLeadIds]);
+  const newSinceVisitLeadIdSet = useMemo(() => new Set(orderedLeads
+    .filter((lead) => isCampaignLeadNewSinceVisit({
+      createdAt: lead.createdAt,
+      isDemo: lead.isDemo,
+      previousVisitAt,
+    }))
+    .map((lead) => lead.id)), [orderedLeads, previousVisitAt]);
+  const newSinceVisitCount = newSinceVisitLeadIdSet.size;
   const counts = useMemo(() => countCampaignLeadStatuses(orderedLeads), [orderedLeads]);
   const filteredLeads = useMemo(
     () => orderedLeads.filter((lead) => (
@@ -116,6 +142,16 @@ export function CampaignLeadInbox({
   const isProcessing = syncStatus === "QUEUED" || syncStatus === "PROCESSING";
   const shouldShowWaitingState = emptyStateMode === "WAITING"
     || (emptyStateMode === "AUTO" && (isProcessing || (leads.length === 0 && resolvedEmptyState === "WAITING")));
+  const freshnessSummary = previousVisitAt
+    ? newSinceVisitCount > 0
+      ? `${newSinceVisitCount} new since your last visit.`
+      : "No new leads since your last visit."
+    : newSinceVisitCount > 0
+      ? `${newSinceVisitCount} new lead${newSinceVisitCount === 1 ? " is" : "s are"} waiting for you.`
+      : "Your live feed is ready.";
+  const lastVisitSummary = previousVisitAt
+    ? `Last checked ${formatLeadRelativeTime(previousVisitAt, nowMs)}`
+    : "This is your first live visit";
 
   function selectFilter(filter: InboxFilter) {
     setActiveFilter(filter);
@@ -217,14 +253,17 @@ export function CampaignLeadInbox({
               {counts.ALL} qualified lead{counts.ALL === 1 ? "" : "s"}
             </h2>
             <p className="mt-1 text-[13px] leading-5 text-[#a7a7a7]">
-              {counts.NEW > 0 ? `${counts.NEW} new for ${selectedPeriodLabel}.` : `You're caught up for ${selectedPeriodLabel}.`}
+              {freshnessSummary}
+            </p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-[#777]">
+              {counts.NEW} unreviewed · {lastVisitSummary}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" role="group" aria-label="Filter leads by status">
             {inboxFilters.map((filter) => {
               const selected = activeFilter === filter;
-              const label = filter === "ALL" ? "All" : CAMPAIGN_LEAD_STATUS_LABELS[filter];
+              const label = filter === "ALL" ? "All" : filter === "NEW" ? "Unreviewed" : CAMPAIGN_LEAD_STATUS_LABELS[filter];
 
               return (
                 <button
@@ -244,6 +283,17 @@ export function CampaignLeadInbox({
             })}
           </div>
         </div>
+      </div>
+
+      <div aria-live="polite" aria-atomic="true">
+        {justAddedLeadIds.length > 0 ? (
+          <div className="flex items-center gap-3 border-b border-[#1ed760]/20 bg-[#101a13] px-5 py-3 text-[#b8e9c7] lg:px-6">
+            <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-[#55e982]" />
+            <p className="text-[11px] font-semibold leading-5">
+              {justAddedLeadIds.length} new lead{justAddedLeadIds.length === 1 ? "" : "s"} just arrived and {justAddedLeadIds.length === 1 ? "is" : "are"} now at the top.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       {includesDemo ? (
@@ -279,7 +329,7 @@ export function CampaignLeadInbox({
           />
         ) : filteredLeads.length === 0 ? (
           <InboxState
-            description={`There are no ${activeFilter === "ALL" ? "matching" : CAMPAIGN_LEAD_STATUS_LABELS[activeFilter].toLowerCase()} leads for ${selectedPeriodLabel}.`}
+            description={`There are no ${activeFilter === "ALL" ? "matching" : activeFilter === "NEW" ? "unreviewed" : CAMPAIGN_LEAD_STATUS_LABELS[activeFilter].toLowerCase()} leads for ${selectedPeriodLabel}.`}
             icon={SearchX}
             title="Nothing in this view"
           />
@@ -301,6 +351,10 @@ export function CampaignLeadInbox({
                       canDelete={canDeleteLeads}
                       key={lead.id}
                       lead={lead}
+                      isFirstVisit={previousVisitAt === null}
+                      isJustAdded={justAddedLeadIdSet.has(lead.id)}
+                      isNewSinceVisit={newSinceVisitLeadIdSet.has(lead.id)}
+                      nowMs={nowMs}
                       onDelete={onLeadDeleted}
                       onOpenReddit={() => {
                         if (trackClientActivity && !lead.isDemo) {
@@ -331,7 +385,11 @@ export function CampaignLeadInbox({
 function InboxLeadCard({
   campaignId,
   canDelete,
+  isFirstVisit,
+  isJustAdded,
+  isNewSinceVisit,
   lead,
+  nowMs,
   onDelete,
   onOpenReddit,
   onStatusChange,
@@ -341,7 +399,11 @@ function InboxLeadCard({
 }: {
   campaignId: string;
   canDelete: boolean;
+  isFirstVisit: boolean;
+  isJustAdded: boolean;
+  isNewSinceVisit: boolean;
   lead: CampaignLeadView;
+  nowMs: number;
   onDelete?: (leadId: string) => void;
   onOpenReddit: () => void;
   onStatusChange: (status: CampaignLeadStatus) => void;
@@ -350,16 +412,28 @@ function InboxLeadCard({
   timeZone: string;
 }) {
   const sourceText = getSourceText(lead);
+  const freshnessClassName = isJustAdded
+    ? "border-[#55e982]/75 bg-[#101a13] shadow-[0_0_0_1px_rgba(30,215,96,0.08),0_8px_24px_rgba(30,215,96,0.08)]"
+    : isNewSinceVisit
+      ? "border-[#1ed760]/35 bg-[#111511]"
+      : lead.status === "NEW"
+        ? "border-white/[0.12] bg-[#111111]"
+        : "border-white/[0.07] bg-[#111111]";
 
   return (
     <article
-      className={`scroll-mt-5 rounded-[18px] border bg-[#111111] transition-colors duration-200 ${selected ? "border-[#73f5a0]/70 ring-2 ring-[#1ed760]/20" : lead.status === "NEW" ? "border-[#1ed760]/35" : "border-white/[0.07]"}`}
+      className={`scroll-mt-5 rounded-[18px] border transition-colors duration-200 ${freshnessClassName} ${selected ? "ring-2 ring-[#1ed760]/25" : ""}`}
       id={`lead-${lead.id}`}
     >
       <div className="p-3.5 sm:p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
+              {isJustAdded ? (
+                <FreshnessBadge icon={Sparkles} label="Just added" />
+              ) : isNewSinceVisit ? (
+                <FreshnessBadge icon={Clock3} label={isFirstVisit ? "New to you" : "New since last visit"} />
+              ) : null}
               <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#d4d4d4]">
                 {lead.redditItem.type}
               </span>
@@ -383,8 +457,11 @@ function InboxLeadCard({
 
             <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#8f8f8f]">
               <span>r/{lead.redditItem.subreddit}</span>
-              <time dateTime={lead.createdAt}>
-                Scored {formatScoredDate(lead.createdAt, timeZone)}
+              <time className="text-[#55e982]" dateTime={lead.redditItem.createdUtc} title={formatExactTime(lead.redditItem.createdUtc, timeZone)}>
+                Posted {formatLeadRelativeTime(lead.redditItem.createdUtc, nowMs)}
+              </time>
+              <time dateTime={lead.createdAt} title={formatExactTime(lead.createdAt, timeZone)}>
+                Found {formatLeadRelativeTime(lead.createdAt, nowMs)}
               </time>
               {lead.ai?.intentType ? <span>{formatEnumLabel(lead.ai.intentType)}</span> : null}
               {lead.ai?.buyerStage ? <span>{formatEnumLabel(lead.ai.buyerStage)}</span> : null}
@@ -519,7 +596,22 @@ function StatusBadge({ status }: { status: CampaignLeadStatus }) {
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${className}`}>
       <Icon aria-hidden="true" className="h-3 w-3" />
-      {CAMPAIGN_LEAD_STATUS_LABELS[status]}
+      {status === "NEW" ? "Unreviewed" : CAMPAIGN_LEAD_STATUS_LABELS[status]}
+    </span>
+  );
+}
+
+function FreshnessBadge({
+  icon: Icon,
+  label,
+}: {
+  icon: typeof Clock3;
+  label: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-[#1ed760]/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#73f5a0]">
+      <Icon aria-hidden="true" className="h-3 w-3" />
+      {label}
     </span>
   );
 }
@@ -587,12 +679,10 @@ function formatEnumLabel(value: string | null | undefined) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-function formatScoredDate(value: string, timeZone: string) {
+function formatExactTime(value: string, timeZone: string) {
   return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    month: "short",
+    dateStyle: "medium",
+    timeStyle: "short",
     timeZone,
   }).format(new Date(value));
 }

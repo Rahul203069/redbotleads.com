@@ -4,6 +4,8 @@ export type CampaignLeadStatusCounts = Record<CampaignLeadStatus, number> & {
   ALL: number;
 };
 
+export const JUST_ADDED_HIGHLIGHT_MS = 15_000;
+
 export function countCampaignLeadStatuses(
   leads: Array<{ status: CampaignLeadStatus }>,
 ): CampaignLeadStatusCounts {
@@ -66,6 +68,60 @@ export function getCampaignLeadGroupLabel({
     timeZone,
     year: dateKey.slice(0, 4) === todayDateKey.slice(0, 4) ? undefined : "numeric",
   }).format(safeDate);
+}
+
+export function isCampaignLeadNewSinceVisit({
+  createdAt,
+  isDemo = false,
+  previousVisitAt,
+}: {
+  createdAt: string;
+  isDemo?: boolean;
+  previousVisitAt: string | null;
+}) {
+  if (isDemo) {
+    return false;
+  }
+
+  const createdAtMs = new Date(createdAt).getTime();
+
+  if (Number.isNaN(createdAtMs)) {
+    return false;
+  }
+
+  if (!previousVisitAt) {
+    return true;
+  }
+
+  const previousVisitAtMs = new Date(previousVisitAt).getTime();
+  return !Number.isNaN(previousVisitAtMs) && createdAtMs > previousVisitAtMs;
+}
+
+export function getJustAddedCampaignLeadIds(
+  knownLeadIds: ReadonlySet<string>,
+  incomingLeads: Array<{ id: string; isDemo?: boolean }>,
+) {
+  return incomingLeads
+    .filter((lead) => !lead.isDemo && !knownLeadIds.has(lead.id))
+    .map((lead) => lead.id);
+}
+
+export function formatLeadRelativeTime(value: string, nowMs: number) {
+  const valueMs = new Date(value).getTime();
+
+  if (Number.isNaN(valueMs)) {
+    return "unknown";
+  }
+
+  const minutes = Math.floor(Math.max(0, nowMs - valueMs) / 60_000);
+
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 function shiftDateKey(dateKey: string, days: number) {

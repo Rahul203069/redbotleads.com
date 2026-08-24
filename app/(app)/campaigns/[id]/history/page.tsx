@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CalendarDays, Filter } from "lucide-react";
 
 import { LiveCampaignTabs } from "@/components/live/live-campaign-tabs";
-import { LiveLeadFeed } from "@/components/live/live-lead-feed";
+import { ReadOnlyLiveLeadFeed } from "@/components/live/read-only-live-lead-feed";
 import { auth } from "@/lib/auth";
 import { CAMPAIGN_LEAD_STATUSES, type CampaignLeadStatus } from "@/lib/campaign-lead-status";
 import { getLiveCampaignHistory } from "@/lib/live-leads";
@@ -60,7 +60,7 @@ export default async function CampaignHistoryPage({ params, searchParams }: { pa
         <FilterSelect defaultValue={query.subreddit ?? ""} label="Subreddit" name="subreddit" options={[["","All subreddits"],...history.subreddits.map((item) => [item, `r/${item}`] as [string,string])]} />
         {range === "custom" ? <><DateInput defaultValue={query.from} label="From" name="from" /><DateInput defaultValue={query.to} label="To" name="to" /></> : null}
       </form>
-      <div className="mt-5 border-t border-white/[0.07] pt-5"><LiveLeadFeed leads={history.leads} timeZone={timeZone} /></div>
+      <div className="mt-5 border-t border-white/[0.07] pt-5"><ReadOnlyLiveLeadFeed emptyDescription="No qualified Reddit leads matched these history filters." emptyTitle="No matching leads" leads={history.leads} timeZone={timeZone} /></div>
       {history.nextCursor ? <div className="mt-5 flex justify-center border-t border-white/[0.07] pt-5"><Link className="inline-flex min-h-11 cursor-pointer items-center rounded-full bg-[#1f1f1f] px-5 text-[10px] font-bold uppercase tracking-[0.13em] text-white hover:bg-[#292929] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70" href={buildNextHref(id, query, range, history.nextCursor)}>Load older leads</Link></div> : null}
     </section>
   </div>;

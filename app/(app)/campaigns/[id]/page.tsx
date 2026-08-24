@@ -33,6 +33,7 @@ import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
 import {
   getDailyLeadDateSelection,
+  parseDailyLeadsPage,
   type DailyLeadDateRangeValue,
   type DailyLeadDateSelection,
 } from "@/lib/daily-leads-analytics";
@@ -55,6 +56,7 @@ const MIN_VISIBLE_LEAD_SCORE = 40;
 type SearchParams = {
   date?: string | string[];
   from?: string;
+  page?: string;
   range?: string;
   to?: string;
 };
@@ -78,18 +80,6 @@ export default async function CampaignDetailPage({
     ? "UTC"
     : normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const { id } = await params;
-  const applicationConfig = await getSaasConfig();
-  if (applicationConfig.appMode === "LIVE") {
-    return (
-      <LiveCampaignOverview
-        campaignId={id}
-        email={session.user.email}
-        isAdminAccount={isAdminAccount}
-        timeZone={browserTimeZone}
-        userId={session.user.id}
-      />
-    );
-  }
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
   const todayRange = getDayRangeInTimeZone(getDateKeyInTimeZone(new Date(), browserTimeZone), browserTimeZone);
   const leadDateSelection = getDailyLeadDateSelection(
@@ -108,6 +98,22 @@ export default async function CampaignDetailPage({
       : leadDateSelection.range.to.toISOString(),
   };
   const leadDateFilterKey = getLeadDateFilterKey(leadDateFilter);
+  const applicationConfig = await getSaasConfig();
+  if (applicationConfig.appMode === "LIVE") {
+    return (
+      <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
+        <LiveCampaignOverview
+          campaignId={id}
+          dateSelection={leadDateSelection}
+          email={session.user.email}
+          isAdminAccount={isAdminAccount}
+          page={parseDailyLeadsPage(resolvedSearchParams.page)}
+          timeZone={browserTimeZone}
+          userId={session.user.id}
+        />
+      </CampaignLeadFilterLoadingProvider>
+    );
+  }
 
   const campaign = await prisma.campaign.findFirst({
     where: buildAccessibleCampaignWhere({

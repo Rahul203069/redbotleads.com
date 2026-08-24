@@ -253,7 +253,13 @@ export async function getLiveCampaignCards(viewer: Viewer, timeRange: { todayFro
   });
 }
 
-export async function getLiveCampaignOverview(viewer: Viewer & { campaignId: string }, todayFrom: Date) {
+export async function getLiveCampaignOverview(
+  viewer: Viewer & { campaignId: string },
+  options: {
+    dateRanges: Array<{ from: Date; to: Date }>;
+    page?: number;
+  },
+) {
   const campaign = await prisma.campaign.findFirst({
     where: accessibleCampaignWhere(viewer, viewer.campaignId),
     select: {
@@ -276,12 +282,26 @@ export async function getLiveCampaignOverview(viewer: Viewer & { campaignId: str
     },
   });
   if (!campaign) return null;
-  const leadWhere = { campaignId: campaign.id, ai: { isNot: null }, score: { gte: LIVE_MIN_VISIBLE_LEAD_SCORE } } satisfies Prisma.LeadWhereInput;
-  const [today, highIntent, contacted, recent] = await Promise.all([
-    prisma.lead.count({ where: { ...leadWhere, createdAt: { gte: todayFrom } } }),
+  const dateWhere = buildLiveLeadDateWhere(options.dateRanges);
+  const leadWhere = {
+    campaignId: campaign.id,
+    ai: { isNot: null },
+    score: { gte: LIVE_MIN_VISIBLE_LEAD_SCORE },
+    ...dateWhere,
+  } satisfies Prisma.LeadWhereInput;
+  const total = await prisma.lead.count({ where: leadWhere });
+  const totalPages = Math.max(1, Math.ceil(total / LIVE_PAGE_SIZE));
+  const page = Math.min(Math.max(1, Math.trunc(options.page ?? 1)), totalPages);
+  const [highIntent, contacted, leads] = await Promise.all([
     prisma.lead.count({ where: { ...leadWhere, score: { gte: LIVE_HIGH_INTENT_SCORE } } }),
     prisma.lead.count({ where: { ...leadWhere, status: "CONTACTED" } }),
-    prisma.lead.findMany({ where: leadWhere, select: liveLeadSelect, orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: 5 }),
+    prisma.lead.findMany({
+      where: leadWhere,
+      select: liveLeadSelect,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * LIVE_PAGE_SIZE,
+      take: LIVE_PAGE_SIZE,
+    }),
   ]);
   const access = getCampaignAccessFromRecord({ campaign, email: viewer.email, userId: viewer.userId });
   const displayName = getCampaignDisplayName(campaign, access);
@@ -296,8 +316,46 @@ export async function getLiveCampaignOverview(viewer: Viewer & { campaignId: str
       role: access?.role ?? "CLIENT",
       lastCheckedAt: (latestRun?.completedAt ?? latestRun?.updatedAt)?.toISOString() ?? null,
     },
-    metrics: { today, highIntent, contacted },
-    recentLeads: recent.map((lead) => serializeLead(lead, displayName)),
+    leads: leads.map((lead) => serializeLead(lead, displayName)),
+    metrics: { total, highIntent, contacted },
+    pagination: {
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+      page,
+      pageSize: LIVE_PAGE_SIZE,
+      totalPages,
+      totalRows: total,
+    },
+  };
+}
+
+function buildLiveLeadDateWhere(dateRanges: Array<{ from: Date; to: Date }>): Prisma.LeadWhereInput {
+  const validRanges = dateRanges.filter((range) => (
+    !Number.isNaN(range.from.getTime())
+    && !Number.isNaN(range.to.getTime())
+    && range.from < range.to
+  ));
+
+  if (validRanges.length === 0) {
+    return {};
+  }
+
+  if (validRanges.length === 1) {
+    return {
+      createdAt: {
+        gte: validRanges[0].from,
+        lt: validRanges[0].to,
+      },
+    };
+  }
+
+  return {
+    OR: validRanges.map((range) => ({
+      createdAt: {
+        gte: range.from,
+        lt: range.to,
+      },
+    })),
   };
 }
 

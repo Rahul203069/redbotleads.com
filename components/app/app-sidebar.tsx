@@ -30,6 +30,7 @@ const dailyNavItems = [
 ];
 
 const liveNavItems = [
+  { href: "/app", label: "Overview", description: "Workspace state", icon: OverviewIcon },
   { href: "/inbox", label: "Inbox", description: "Review new leads", icon: InboxIcon },
   { href: "/campaigns", label: "Campaigns", description: "Manage monitoring", icon: CampaignsIcon },
   { href: "/notifications", label: "Notifications", description: "Delivery center", icon: BellIcon },

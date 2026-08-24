@@ -2,10 +2,25 @@ import NextAuth, { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { lookup as dnsLookup } from "node:dns";
+import type { LookupFunction } from "node:net";
 
 import { normalizeEmail } from "@/lib/auth-input";
 import { verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+
+const googleOauthDnsFallbackHost =
+  process.env.NODE_ENV === "development" ? process.env.GOOGLE_OAUTH_DNS_FALLBACK_HOST?.trim() : undefined;
+const googleOauthDnsFallbackTargets = new Set(["accounts.google.com", "oauth2.googleapis.com"]);
+
+const googleOauthLookup: LookupFunction = (hostname, options, callback) => {
+  const lookupHostname =
+    googleOauthDnsFallbackHost && googleOauthDnsFallbackTargets.has(hostname)
+      ? googleOauthDnsFallbackHost
+      : hostname;
+
+  dnsLookup(lookupHostname, options, callback);
+};
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -70,6 +85,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      ...(googleOauthDnsFallbackHost
+        ? {
+            httpOptions: {
+              lookup: googleOauthLookup,
+            },
+          }
+        : {}),
     }),
   ],
   callbacks: {

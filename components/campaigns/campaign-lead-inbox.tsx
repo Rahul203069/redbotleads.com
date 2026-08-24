@@ -17,7 +17,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import {
   markCampaignLeadReviewed,
-  setCampaignLeadStatus,
 } from "@/actions/campaigns";
 import { sendCampaignClientActivity } from "@/components/campaigns/client-activity-tracker";
 import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign-lead-dialog";
@@ -39,17 +38,6 @@ import type {
 } from "@/lib/campaign-lead-empty-state";
 import { resolveCampaignLeadEmptyState } from "@/lib/campaign-lead-empty-state";
 import type { CampaignLeadView } from "@/lib/campaign-leads";
-
-type InboxFilter = "ALL" | CampaignLeadStatus;
-
-const inboxFilters: InboxFilter[] = [
-  "ALL",
-  "NEW",
-  "SAVED",
-  "REVIEWED",
-  "CONTACTED",
-  "DISMISSED",
-];
 
 export function CampaignLeadInbox({
   campaignId,
@@ -91,7 +79,6 @@ export function CampaignLeadInbox({
   visitStartedAt: string;
 }) {
   const { toast } = useToast();
-  const [activeFilter, setActiveFilter] = useState<InboxFilter>("ALL");
   const [now, setNow] = useState<number | null>(null);
   const [pendingLeadIds, setPendingLeadIds] = useState<string[]>([]);
 
@@ -116,17 +103,10 @@ export function CampaignLeadInbox({
     .map((lead) => lead.id)), [orderedLeads, previousVisitAt]);
   const newSinceVisitCount = newSinceVisitLeadIdSet.size;
   const counts = useMemo(() => countCampaignLeadStatuses(orderedLeads), [orderedLeads]);
-  const filteredLeads = useMemo(
-    () => orderedLeads.filter((lead) => (
-      activeFilter === "ALL"
-      || lead.status === activeFilter
-    )),
-    [activeFilter, orderedLeads],
-  );
   const groupedLeads = useMemo(() => {
     const groups = new Map<string, CampaignLeadView[]>();
 
-    for (const lead of filteredLeads) {
+    for (const lead of orderedLeads) {
       const dateKey = getCampaignLeadDateKey(lead.createdAt, timeZone);
       const group = groups.get(dateKey) ?? [];
       group.push(lead);
@@ -134,7 +114,7 @@ export function CampaignLeadInbox({
     }
 
     return Array.from(groups.entries());
-  }, [filteredLeads, timeZone]);
+  }, [orderedLeads, timeZone]);
   const resolvedEmptyState = resolveCampaignLeadEmptyState({
     mode: emptyStateMode,
     syncStatus,
@@ -152,10 +132,6 @@ export function CampaignLeadInbox({
   const lastVisitSummary = previousVisitAt
     ? `Last checked ${formatLeadRelativeTime(previousVisitAt, nowMs)}`
     : "This is your first live visit";
-
-  function selectFilter(filter: InboxFilter) {
-    setActiveFilter(filter);
-  }
 
   async function markReviewed(lead: CampaignLeadView) {
     if (lead.status !== "NEW" || pendingLeadIds.includes(lead.id)) {
@@ -198,91 +174,22 @@ export function CampaignLeadInbox({
     }
   }
 
-  async function changeStatus(lead: CampaignLeadView, status: CampaignLeadStatus) {
-    if (lead.status === status || pendingLeadIds.includes(lead.id)) {
-      return;
-    }
-
-    if (lead.isDemo) {
-      onLeadStatusChanged(lead.id, status);
-      toast({
-        title: CAMPAIGN_LEAD_STATUS_LABELS[status],
-        description: "This demo lead was updated only in your browser. Your database was not changed.",
-      });
-      return;
-    }
-
-    const previousStatus = lead.status;
-    setPendingLeadIds((current) => [...current, lead.id]);
-    onLeadStatusChanged(lead.id, status);
-
-    try {
-      const result = await setCampaignLeadStatus({
-        campaignId,
-        leadId: lead.id,
-        status,
-      });
-
-      if (result.status === "error") {
-        throw new Error(result.message);
-      }
-
-      onLeadStatusChanged(lead.id, result.leadStatus ?? status);
-    } catch (error) {
-      onLeadStatusChanged(lead.id, previousStatus);
-      toast({
-        title: "Could not update this lead",
-        description: error instanceof Error ? error.message : "Try again in a moment.",
-        variant: "destructive",
-      });
-    } finally {
-      setPendingLeadIds((current) => current.filter((id) => id !== lead.id));
-    }
-  }
-
   return (
     <section aria-busy={isFilterLoading} className="overflow-hidden rounded-[24px] border border-white/[0.06] bg-[#181818] shadow-[rgba(0,0,0,0.3)_0px_8px_24px]">
       <div className="border-b border-white/[0.07] px-5 py-5 lg:px-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <div className="flex items-center gap-2 text-[#55e982]">
-              <Radio aria-hidden="true" className="h-4 w-4" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Live today</span>
-            </div>
-            <h2 className="mt-2 text-[24px] font-bold tracking-[-0.03em] text-[#ffffff]">
-              {counts.ALL} qualified lead{counts.ALL === 1 ? "" : "s"}
-            </h2>
-            <p className="mt-1 text-[13px] leading-5 text-[#a7a7a7]">
-              {freshnessSummary}
-            </p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-[#777]">
-              {counts.NEW} unreviewed · {lastVisitSummary}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap" role="group" aria-label="Filter leads by status">
-            {inboxFilters.map((filter) => {
-              const selected = activeFilter === filter;
-              const label = filter === "ALL" ? "All" : filter === "NEW" ? "Unreviewed" : CAMPAIGN_LEAD_STATUS_LABELS[filter];
-
-              return (
-                <button
-                  aria-pressed={selected}
-                  className={`min-h-10 cursor-pointer rounded-full px-3.5 py-2 text-[10px] font-bold uppercase tracking-[0.12em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 ${
-                    selected
-                      ? "bg-[#1ed760] text-[#0d160f]"
-                      : "bg-[#101010] text-[#a7a7a7] shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset] hover:bg-[#252525] hover:text-[#ffffff]"
-                  }`}
-                  key={filter}
-                  onClick={() => selectFilter(filter)}
-                  type="button"
-                >
-                  {label} {counts[filter]}
-                </button>
-              );
-            })}
-          </div>
+        <div className="flex items-center gap-2 text-[#55e982]">
+          <Radio aria-hidden="true" className="h-4 w-4" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Live today</span>
         </div>
+        <h2 className="mt-2 text-[24px] font-bold tracking-[-0.03em] text-[#ffffff]">
+          {counts.ALL} qualified lead{counts.ALL === 1 ? "" : "s"}
+        </h2>
+        <p className="mt-1 text-[13px] leading-5 text-[#a7a7a7]">
+          {freshnessSummary}
+        </p>
+        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.11em] text-[#777]">
+          {lastVisitSummary}
+        </p>
       </div>
 
       <div aria-live="polite" aria-atomic="true">
@@ -327,12 +234,6 @@ export function CampaignLeadInbox({
             icon={SearchX}
             title="No qualified leads found"
           />
-        ) : filteredLeads.length === 0 ? (
-          <InboxState
-            description={`There are no ${activeFilter === "ALL" ? "matching" : activeFilter === "NEW" ? "unreviewed" : CAMPAIGN_LEAD_STATUS_LABELS[activeFilter].toLowerCase()} leads for ${selectedPeriodLabel}.`}
-            icon={SearchX}
-            title="Nothing in this view"
-          />
         ) : (
           <div className="space-y-7">
             {groupedLeads.map(([dateKey, groupLeads]) => (
@@ -366,7 +267,6 @@ export function CampaignLeadInbox({
                         }
                         void markReviewed(lead);
                       }}
-                      onStatusChange={(status) => void changeStatus(lead, status)}
                       pending={pendingLeadIds.includes(lead.id)}
                       selected={selectedLeadId === lead.id}
                       timeZone={timeZone}
@@ -392,7 +292,6 @@ function InboxLeadCard({
   nowMs,
   onDelete,
   onOpenReddit,
-  onStatusChange,
   pending,
   selected,
   timeZone,
@@ -406,7 +305,6 @@ function InboxLeadCard({
   nowMs: number;
   onDelete?: (leadId: string) => void;
   onOpenReddit: () => void;
-  onStatusChange: (status: CampaignLeadStatus) => void;
   pending: boolean;
   selected: boolean;
   timeZone: string;
@@ -432,7 +330,7 @@ function InboxLeadCard({
               {isJustAdded ? (
                 <FreshnessBadge icon={Sparkles} label="Just added" />
               ) : isNewSinceVisit ? (
-                <FreshnessBadge icon={Clock3} label={isFirstVisit ? "New to you" : "New since last visit"} />
+                <FreshnessBadge icon={Clock3} label={isFirstVisit ? "New post" : "New post since last visit"} />
               ) : null}
               <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#d4d4d4]">
                 {lead.redditItem.type}
@@ -493,14 +391,6 @@ function InboxLeadCard({
         ) : null}
 
         <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-white/[0.07] pt-3">
-          <ActionButton
-            active={lead.status === "DISMISSED"}
-            disabled={pending}
-            icon={XCircle}
-            label={lead.status === "DISMISSED" ? "Restore" : "Dismiss"}
-            onClick={() => onStatusChange(lead.status === "DISMISSED" ? "REVIEWED" : "DISMISSED")}
-          />
-
           {canDelete && onDelete && !lead.isDemo ? (
             <DeleteCampaignLeadDialog
               campaignId={campaignId}
@@ -529,35 +419,6 @@ function InboxLeadCard({
         </div>
       </div>
     </article>
-  );
-}
-
-function ActionButton({
-  active,
-  disabled,
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  disabled: boolean;
-  icon: typeof Star;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      aria-pressed={active}
-      className={`inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full px-3 text-[9px] font-bold uppercase tracking-[0.1em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 disabled:cursor-not-allowed disabled:opacity-60 ${
-        active ? "bg-[#1ed760]/15 text-[#55e982]" : "text-[#a7a7a7] hover:bg-[#252525] hover:text-[#ffffff]"
-      }`}
-      disabled={disabled}
-      onClick={onClick}
-      type="button"
-    >
-      <Icon aria-hidden="true" className="h-3.5 w-3.5" />
-      {label}
-    </button>
   );
 }
 

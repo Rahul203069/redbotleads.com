@@ -34,7 +34,6 @@ async function findAccessibleLead(input: { campaignId: string; leadId: string; e
 
 function revalidateLeadSurfaces(campaignId: string) {
   revalidatePath("/inbox");
-  revalidatePath("/notifications");
   revalidatePath("/campaigns");
   revalidatePath(`/campaigns/${campaignId}`);
   revalidatePath(`/campaigns/${campaignId}/history`);
@@ -126,7 +125,7 @@ export async function markNotificationHandled(notificationId: string): Promise<L
     data: { handledAt: new Date() },
   });
   if (!result.count) return { status: "error", message: "Notification not found or already handled." };
-  revalidatePath("/notifications");
+  revalidatePath("/inbox");
   return { status: "success", message: "Notification marked handled." };
 }
 
@@ -137,7 +136,7 @@ export async function markAllNotificationsHandled(): Promise<LiveActionResult> {
     where: { recipientUserId: session.user.id, handledAt: null },
     data: { handledAt: new Date() },
   });
-  revalidatePath("/notifications");
+  revalidatePath("/inbox");
   return { status: "success", message: `${result.count} notification${result.count === 1 ? "" : "s"} marked handled.` };
 }
 

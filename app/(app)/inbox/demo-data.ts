@@ -1,5 +1,10 @@
 import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
-import type { LiveLeadFilter, LiveLeadStatusCounts, LiveLeadView } from "@/lib/live-leads";
+import type {
+  LiveLeadFilter,
+  LiveLeadStatusCounts,
+  LiveLeadView,
+  LiveNotificationHealth,
+} from "@/lib/live-leads";
 
 export const DEMO_INBOX_CAMPAIGN = {
   id: "demo-inbox-campaign",
@@ -171,6 +176,46 @@ export function countDemoInboxLeads(leads: LiveLeadView[]): LiveLeadStatusCounts
   return counts;
 }
 
+export function createDemoNotificationHealth(
+  leads: LiveLeadView[],
+  now = Date.now(),
+): LiveNotificationHealth {
+  const failedLead = leads.find((lead) => lead.id === "demo-lead-china-canada") ?? leads[0];
+  const pendingLead = leads.find((lead) => lead.id === "demo-lead-machinery") ?? leads[1] ?? leads[0];
+
+  if (!failedLead || !pendingLead) {
+    return { failedCount: 0, issues: [], lastSentAt: null, pendingCount: 0 };
+  }
+
+  return {
+    failedCount: 1,
+    pendingCount: 1,
+    lastSentAt: minutesAgo(now, 9),
+    issues: [
+      {
+        campaignDisplayName: DEMO_INBOX_CAMPAIGN.name,
+        channel: "TELEGRAM",
+        createdAt: minutesAgo(now, 3),
+        error: "Waiting for the Telegram delivery worker to pick up this alert.",
+        id: "demo-notification-pending",
+        isDemo: true,
+        lead: toNotificationLead(pendingLead),
+        status: "PENDING",
+      },
+      {
+        campaignDisplayName: DEMO_INBOX_CAMPAIGN.name,
+        channel: "TELEGRAM",
+        createdAt: minutesAgo(now, 16),
+        error: "Telegram temporarily rejected the message. Check the bot connection before retrying.",
+        id: "demo-notification-failed",
+        isDemo: true,
+        lead: toNotificationLead(failedLead),
+        status: "FAILED",
+      },
+    ],
+  };
+}
+
 type DemoLeadInput = {
   body: string;
   buyerStage: string;
@@ -217,6 +262,19 @@ function createLead(now: number, input: DemoLeadInput): LiveLeadView {
     score: input.score,
     semanticScore: input.semanticScore,
     status: input.status,
+  };
+}
+
+function toNotificationLead(lead: LiveLeadView) {
+  return {
+    campaignId: lead.campaign.id,
+    id: lead.id,
+    score: lead.score,
+    redditItem: {
+      body: lead.redditItem.body,
+      subreddit: lead.redditItem.subreddit,
+      title: lead.redditItem.title,
+    },
   };
 }
 

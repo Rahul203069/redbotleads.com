@@ -419,46 +419,82 @@ export async function getLiveCampaignHistory(
   };
 }
 
-export type LiveNotificationFilter = "ALL" | "UNHANDLED" | "HANDLED" | "PENDING" | "FAILED";
-
-export async function getLiveNotifications(viewer: Viewer & { cursor?: string; filter?: LiveNotificationFilter }) {
-  const filter = viewer.filter ?? "ALL";
-  const where: Prisma.NotificationWhereInput = {
-    recipientUserId: viewer.userId,
-    ...(filter === "UNHANDLED" ? { handledAt: null } : {}),
-    ...(filter === "HANDLED" ? { handledAt: { not: null } } : {}),
-    ...(filter === "PENDING" || filter === "FAILED" ? { status: filter } : {}),
+export type LiveNotificationIssue = {
+  campaignDisplayName: string;
+  channel: "EMAIL" | "SLACK" | "TELEGRAM";
+  createdAt: string;
+  error: string | null;
+  id: string;
+  isDemo?: boolean;
+  lead: {
+    campaignId: string;
+    id: string;
+    score: number;
+    redditItem: {
+      body: string | null;
+      subreddit: string;
+      title: string | null;
+    };
   };
-  const [records, unhandledCount] = await Promise.all([
+  status: "PENDING" | "FAILED";
+};
+
+export type LiveNotificationHealth = {
+  failedCount: number;
+  issues: LiveNotificationIssue[];
+  lastSentAt: string | null;
+  pendingCount: number;
+};
+
+export async function getLiveNotificationHealth(viewer: Viewer): Promise<LiveNotificationHealth> {
+  const issueWhere: Prisma.NotificationWhereInput = {
+    handledAt: null,
+    recipientUserId: viewer.userId,
+    status: { in: ["PENDING", "FAILED"] },
+  };
+  const [grouped, issues, lastSent] = await Promise.all([
+    prisma.notification.groupBy({
+      by: ["status"],
+      where: issueWhere,
+      _count: { _all: true },
+    }),
     prisma.notification.findMany({
-      where,
+      where: issueWhere,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      take: LIVE_PAGE_SIZE + 1,
-      ...(viewer.cursor ? { cursor: { id: viewer.cursor }, skip: 1 } : {}),
+      take: 3,
       select: {
         id: true,
         channel: true,
         status: true,
         error: true,
-        sentAt: true,
-        handledAt: true,
         createdAt: true,
         campaignDisplayName: true,
-        lead: { select: { id: true, campaignId: true, score: true, redditItem: { select: { title: true, body: true, subreddit: true } } } },
+        lead: {
+          select: {
+            id: true,
+            campaignId: true,
+            score: true,
+            redditItem: { select: { title: true, body: true, subreddit: true } },
+          },
+        },
       },
     }),
-    prisma.notification.count({ where: { recipientUserId: viewer.userId, handledAt: null } }),
+    prisma.notification.findFirst({
+      where: { recipientUserId: viewer.userId, status: "SENT", sentAt: { not: null } },
+      orderBy: { sentAt: "desc" },
+      select: { sentAt: true },
+    }),
   ]);
-  const hasMore = records.length > LIVE_PAGE_SIZE;
-  const pageRecords = hasMore ? records.slice(0, LIVE_PAGE_SIZE) : records;
+  const countByStatus = new Map(grouped.map((row) => [row.status, row._count._all]));
+
   return {
-    notifications: pageRecords.map((notification) => ({
+    failedCount: countByStatus.get("FAILED") ?? 0,
+    pendingCount: countByStatus.get("PENDING") ?? 0,
+    lastSentAt: lastSent?.sentAt?.toISOString() ?? null,
+    issues: issues.map((notification) => ({
       ...notification,
+      status: notification.status as "PENDING" | "FAILED",
       createdAt: notification.createdAt.toISOString(),
-      sentAt: notification.sentAt?.toISOString() ?? null,
-      handledAt: notification.handledAt?.toISOString() ?? null,
     })),
-    nextCursor: hasMore ? pageRecords.at(-1)?.id ?? null : null,
-    unhandledCount,
   };
 }

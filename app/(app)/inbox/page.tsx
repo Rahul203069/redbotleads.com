@@ -6,17 +6,22 @@ import { Beaker, Filter, Inbox } from "lucide-react";
 import {
   countDemoInboxLeads,
   createDemoInboxLeads,
+  createDemoNotificationHealth,
   DEMO_INBOX_CAMPAIGN,
   filterDemoInboxLeads,
 } from "@/app/(app)/inbox/demo-data";
 import { LiveLeadFeed } from "@/components/live/live-lead-feed";
+import { InboxDeliveryHealth } from "@/components/live/inbox-delivery-health";
 import { auth } from "@/lib/auth";
 import {
   getLiveInbox,
   getLiveLeadById,
+  getLiveNotificationHealth,
   type LiveLeadFilter,
   type LiveLeadStatusCounts,
+  type LiveNotificationHealth,
 } from "@/lib/live-leads";
+import { prisma } from "@/lib/prisma";
 import { getSaasConfig } from "@/lib/saas-config";
 import { BROWSER_TIME_ZONE_COOKIE, normalizeTimeZone } from "@/lib/time-zone";
 
@@ -43,21 +48,34 @@ export default async function LiveInboxPage({ searchParams }: { searchParams?: P
   const cursor = String(params.cursor ?? "").trim() || undefined;
   const cookieStore = await cookies();
   const timeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
-  const inbox = await getLiveInbox({ userId: session.user.id, email: session.user.email, filter, campaignId, cursor });
-  const selectedLead = params.lead
-    ? await getLiveLeadById({ userId: session.user.id, email: session.user.email, leadId: params.lead })
-    : null;
+  const includeDemo = !campaignId || campaignId === DEMO_INBOX_CAMPAIGN.id;
+  const [inbox, selectedLead, realNotificationHealth, user] = await Promise.all([
+    getLiveInbox({ userId: session.user.id, email: session.user.email, filter, campaignId, cursor }),
+    params.lead
+      ? getLiveLeadById({ userId: session.user.id, email: session.user.email, leadId: params.lead })
+      : Promise.resolve(null),
+    getLiveNotificationHealth({ userId: session.user.id, email: session.user.email }),
+    prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { telegramConnectedAt: true, telegramUsername: true },
+    }),
+  ]);
   const realLeads = selectedLead && !inbox.leads.some((lead) => lead.id === selectedLead.id)
     ? [selectedLead, ...inbox.leads]
     : inbox.leads;
   const allDemoLeads = createDemoInboxLeads();
-  const includeDemo = !campaignId || campaignId === DEMO_INBOX_CAMPAIGN.id;
   const showDemoLeads = includeDemo && !cursor;
   const demoLeads = showDemoLeads ? filterDemoInboxLeads(allDemoLeads, filter) : [];
   const leads = [...demoLeads, ...realLeads];
   const counts = includeDemo
     ? mergeInboxCounts(inbox.counts, countDemoInboxLeads(allDemoLeads))
     : inbox.counts;
+  const notificationHealth = includeDemo
+    ? mergeNotificationHealth(
+        realNotificationHealth,
+        createDemoNotificationHealth(allDemoLeads),
+      )
+    : realNotificationHealth;
   const campaigns = [DEMO_INBOX_CAMPAIGN, ...inbox.campaigns];
 
   return (
@@ -76,6 +94,14 @@ export default async function LiveInboxPage({ searchParams }: { searchParams?: P
           </div>
         </div>
       </section>
+
+      <InboxDeliveryHealth
+        health={notificationHealth}
+        includesDemo={includeDemo}
+        telegramConnectedAt={user?.telegramConnectedAt?.toISOString() ?? null}
+        telegramUsername={user?.telegramUsername ?? null}
+        timeZone={timeZone}
+      />
 
       <section className="rounded-[24px] border border-white/[0.06] bg-[#181818] p-4 sm:p-5">
         <div className="flex flex-col gap-4 border-b border-white/[0.07] pb-5 xl:flex-row xl:items-center xl:justify-between">
@@ -125,6 +151,24 @@ function mergeInboxCounts(real: LiveLeadStatusCounts, demo: LiveLeadStatusCounts
     SAVED: real.SAVED + demo.SAVED,
     CONTACTED: real.CONTACTED + demo.CONTACTED,
     DISMISSED: real.DISMISSED + demo.DISMISSED,
+  };
+}
+
+function mergeNotificationHealth(
+  real: LiveNotificationHealth,
+  demo: LiveNotificationHealth,
+): LiveNotificationHealth {
+  const lastSentDates = [real.lastSentAt, demo.lastSentAt]
+    .filter((value): value is string => Boolean(value))
+    .sort((left, right) => new Date(right).getTime() - new Date(left).getTime());
+
+  return {
+    failedCount: real.failedCount + demo.failedCount,
+    pendingCount: real.pendingCount + demo.pendingCount,
+    lastSentAt: lastSentDates[0] ?? null,
+    issues: [...demo.issues, ...real.issues]
+      .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
+      .slice(0, 3),
   };
 }
 

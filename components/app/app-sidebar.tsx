@@ -33,7 +33,6 @@ const liveNavItems = [
   { href: "/app", label: "Overview", description: "Workspace state", icon: OverviewIcon },
   { href: "/inbox", label: "Inbox", description: "Review new leads", icon: InboxIcon },
   { href: "/campaigns", label: "Campaigns", description: "Manage monitoring", icon: CampaignsIcon },
-  { href: "/notifications", label: "Notifications", description: "Delivery center", icon: BellIcon },
   { href: "/settings", label: "Settings", description: "Account and alerts", icon: SettingsIcon },
 ];
 
@@ -334,14 +333,6 @@ function InboxIcon() {
   return (
     <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
       <path d="M4 5.5h16v13H4v-13Zm0 8h4l1.5 2h5l1.5-2h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function BellIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 24 24">
-      <path d="M6.5 9a5.5 5.5 0 0 1 11 0c0 6 2.5 6 2.5 7.5H4C4 15 6.5 15 6.5 9Zm3.5 10h4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
     </svg>
   );
 }

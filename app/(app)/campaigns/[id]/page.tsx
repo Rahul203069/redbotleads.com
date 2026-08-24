@@ -80,7 +80,15 @@ export default async function CampaignDetailPage({
   const { id } = await params;
   const applicationConfig = await getSaasConfig();
   if (applicationConfig.appMode === "LIVE") {
-    return <LiveCampaignOverview campaignId={id} email={session.user.email} timeZone={browserTimeZone} userId={session.user.id} />;
+    return (
+      <LiveCampaignOverview
+        campaignId={id}
+        email={session.user.email}
+        isAdminAccount={isAdminAccount}
+        timeZone={browserTimeZone}
+        userId={session.user.id}
+      />
+    );
   }
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
   const todayRange = getDayRangeInTimeZone(getDateKeyInTimeZone(new Date(), browserTimeZone), browserTimeZone);

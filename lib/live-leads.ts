@@ -262,7 +262,6 @@ export async function getLiveCampaignOverview(viewer: Viewer & { campaignId: str
       description: true,
       isActive: true,
       regions: true,
-      subreddits: true,
       userId: true,
       clientAccesses: {
         where: { normalizedEmail: normalizeAccessEmail(viewer.email) },
@@ -294,7 +293,6 @@ export async function getLiveCampaignOverview(viewer: Viewer & { campaignId: str
       description: campaign.description,
       isActive: campaign.isActive,
       regions: campaign.regions,
-      sources: campaign.subreddits,
       role: access?.role ?? "CLIENT",
       lastCheckedAt: (latestRun?.completedAt ?? latestRun?.updatedAt)?.toISOString() ?? null,
     },

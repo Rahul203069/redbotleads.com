@@ -31,7 +31,15 @@ export function LiveLeadFeed({
   const [pendingIds, setPendingIds] = useState<string[]>([]);
   const [now, setNow] = useState<number | null>(null);
 
-  useEffect(() => setLocalLeads(leads), [leads]);
+  useEffect(() => {
+    setLocalLeads((current) => leads.map((lead) => {
+      if (!lead.isDemo) return lead;
+      const localDemoLead = current.find((item) => item.id === lead.id);
+      return localDemoLead
+        ? { ...lead, notes: localDemoLead.notes, status: localDemoLead.status }
+        : lead;
+    }));
+  }, [leads]);
   useEffect(() => {
     setNow(Date.now());
     const minuteTimer = window.setInterval(() => setNow(Date.now()), 60_000);
@@ -62,6 +70,10 @@ export function LiveLeadFeed({
 
   async function markReviewed(lead: LiveLeadView) {
     if (lead.status !== "NEW" || pendingIds.includes(lead.id)) return;
+    if (lead.isDemo) {
+      updateLocalLead(lead.id, { status: "REVIEWED" });
+      return;
+    }
     setPendingIds((current) => [...current, lead.id]);
     updateLocalLead(lead.id, { status: "REVIEWED" });
     const result = await markLiveLeadReviewed({ campaignId: lead.campaign.id, leadId: lead.id });
@@ -74,6 +86,11 @@ export function LiveLeadFeed({
 
   async function changeStatus(lead: LiveLeadView, status: CampaignLeadStatus) {
     if (pendingIds.includes(lead.id) || lead.status === status) return;
+    if (lead.isDemo) {
+      updateLocalLead(lead.id, { status });
+      toast({ title: CAMPAIGN_LEAD_STATUS_LABELS[status], description: "Demo lead updated locally. Your database was not changed." });
+      return;
+    }
     const previousStatus = lead.status;
     setPendingIds((current) => [...current, lead.id]);
     updateLocalLead(lead.id, { status });
@@ -114,6 +131,7 @@ export function LiveLeadFeed({
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge status={lead.status} />
+                    {lead.isDemo ? <span className="rounded-full bg-[#1ed760]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-[#73f5a0]">Demo</span> : null}
                     <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#d4d4d4]">{lead.campaign.name}</span>
                     <span className="rounded-full bg-[#1f1f1f] px-2.5 py-1 text-[10px] font-semibold text-[#a7a7a7]">r/{lead.redditItem.subreddit}</span>
                   </div>
@@ -175,6 +193,11 @@ function LeadNoteEditor({ lead, onSaved }: { lead: LiveLeadView; onSaved: (notes
       <div className="mt-3 flex items-center justify-between gap-3">
         <span className="text-[10px] text-[#777]">{notes.length}/4000</span>
         <Button className="cursor-pointer rounded-full bg-[#1f1f1f]" disabled={isPending || notes === (lead.notes ?? "")} onClick={() => startTransition(async () => {
+          if (lead.isDemo) {
+            onSaved(notes.trim() || null);
+            toast({ title: "Demo note saved", description: "The note was updated locally. Your database was not changed." });
+            return;
+          }
           const result = await saveLiveLeadNote({ campaignId: lead.campaign.id, leadId: lead.id, notes });
           if (result.status === "error") toast({ title: "Could not save note", description: result.message, variant: "destructive" });
           else { onSaved(notes.trim() || null); toast({ title: "Note saved", description: result.message }); }

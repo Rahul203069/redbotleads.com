@@ -1,11 +1,22 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Filter, Inbox } from "lucide-react";
+import { Beaker, Filter, Inbox } from "lucide-react";
 
+import {
+  countDemoInboxLeads,
+  createDemoInboxLeads,
+  DEMO_INBOX_CAMPAIGN,
+  filterDemoInboxLeads,
+} from "@/app/(app)/inbox/demo-data";
 import { LiveLeadFeed } from "@/components/live/live-lead-feed";
 import { auth } from "@/lib/auth";
-import { getLiveInbox, getLiveLeadById, type LiveLeadFilter } from "@/lib/live-leads";
+import {
+  getLiveInbox,
+  getLiveLeadById,
+  type LiveLeadFilter,
+  type LiveLeadStatusCounts,
+} from "@/lib/live-leads";
 import { getSaasConfig } from "@/lib/saas-config";
 import { BROWSER_TIME_ZONE_COOKIE, normalizeTimeZone } from "@/lib/time-zone";
 
@@ -36,9 +47,18 @@ export default async function LiveInboxPage({ searchParams }: { searchParams?: P
   const selectedLead = params.lead
     ? await getLiveLeadById({ userId: session.user.id, email: session.user.email, leadId: params.lead })
     : null;
-  const leads = selectedLead && !inbox.leads.some((lead) => lead.id === selectedLead.id)
+  const realLeads = selectedLead && !inbox.leads.some((lead) => lead.id === selectedLead.id)
     ? [selectedLead, ...inbox.leads]
     : inbox.leads;
+  const allDemoLeads = createDemoInboxLeads();
+  const includeDemo = !campaignId || campaignId === DEMO_INBOX_CAMPAIGN.id;
+  const showDemoLeads = includeDemo && !cursor;
+  const demoLeads = showDemoLeads ? filterDemoInboxLeads(allDemoLeads, filter) : [];
+  const leads = [...demoLeads, ...realLeads];
+  const counts = includeDemo
+    ? mergeInboxCounts(inbox.counts, countDemoInboxLeads(allDemoLeads))
+    : inbox.counts;
+  const campaigns = [DEMO_INBOX_CAMPAIGN, ...inbox.campaigns];
 
   return (
     <div className="space-y-5">
@@ -46,13 +66,13 @@ export default async function LiveInboxPage({ searchParams }: { searchParams?: P
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <div className="flex items-center gap-2 text-[#55e982]"><Inbox className="h-4 w-4" /><p className="text-[11px] font-bold uppercase tracking-[0.22em]">Live lead inbox</p></div>
-            <h1 className="mt-3 text-[2rem] font-bold tracking-[-0.04em] text-white lg:text-[2.6rem]">{inbox.counts.UNREVIEWED} opportunit{inbox.counts.UNREVIEWED === 1 ? "y" : "ies"} waiting</h1>
+            <h1 className="mt-3 text-[2rem] font-bold tracking-[-0.04em] text-white lg:text-[2.6rem]">{counts.UNREVIEWED} opportunit{counts.UNREVIEWED === 1 ? "y" : "ies"} waiting</h1>
             <p className="mt-3 text-[14px] leading-6 text-[#b8b8b8]">Review qualified leads from every active campaign. Unreviewed items stay here until you take action.</p>
           </div>
           <div className="grid grid-cols-3 gap-2 sm:min-w-[360px]">
-            <Metric label="All" value={inbox.counts.ALL} />
-            <Metric label="New" value={inbox.counts.UNREVIEWED} accent />
-            <Metric label="Saved" value={inbox.counts.SAVED} />
+            <Metric label="All" value={counts.ALL} />
+            <Metric label="New" value={counts.UNREVIEWED} accent />
+            <Metric label="Saved" value={counts.SAVED} />
           </div>
         </div>
       </section>
@@ -62,7 +82,7 @@ export default async function LiveInboxPage({ searchParams }: { searchParams?: P
           <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1" role="navigation" aria-label="Lead status filters">
             {filters.map((item) => {
               const active = item.value === filter;
-              const count = item.value === "ALL" ? inbox.counts.ALL : item.value === "UNREVIEWED" ? inbox.counts.UNREVIEWED : inbox.counts[item.value];
+              const count = item.value === "ALL" ? counts.ALL : item.value === "UNREVIEWED" ? counts.UNREVIEWED : counts[item.value];
               return <Link aria-current={active ? "page" : undefined} className={`inline-flex min-h-10 shrink-0 cursor-pointer items-center rounded-full px-3.5 text-[10px] font-bold uppercase tracking-[0.12em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 ${active ? "bg-[#1ed760] text-[#0d160f]" : "bg-[#101010] text-[#a7a7a7] hover:bg-[#252525] hover:text-white"}`} href={buildInboxHref({ campaign: campaignId, status: item.value })} key={item.value}>{item.label} {count}</Link>;
             })}
           </div>
@@ -71,11 +91,20 @@ export default async function LiveInboxPage({ searchParams }: { searchParams?: P
             <label className="sr-only" htmlFor="inbox-campaign">Filter by campaign</label>
             <select className="h-11 min-w-0 cursor-pointer rounded-full border border-white/[0.1] bg-[#101010] px-4 text-[12px] font-semibold text-white outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70 sm:min-w-[230px]" defaultValue={campaignId ?? ""} id="inbox-campaign" name="campaign">
               <option value="">All Campaigns</option>
-              {inbox.campaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
+              {campaigns.map((campaign) => <option key={campaign.id} value={campaign.id}>{campaign.name}</option>)}
             </select>
             <button className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[#1f1f1f] px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors hover:bg-[#292929] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70" type="submit"><Filter className="h-4 w-4" /> Apply</button>
           </form>
         </div>
+        {showDemoLeads ? (
+          <div className="mt-5 flex items-start gap-3 rounded-[16px] border border-[#1ed760]/20 bg-[#111811] p-4 text-[#b8e9c7]">
+            <Beaker aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#55e982]" />
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#73f5a0]">Frontend demo data</p>
+              <p className="mt-1 text-[12px] leading-5">These sample opportunities are for preview only. Status and note changes are temporary and never update your database.</p>
+            </div>
+          </div>
+        ) : null}
         <div className="pt-5">
           <LiveLeadFeed autoRefresh leads={leads} selectedLeadId={params.lead} timeZone={timeZone} />
         </div>
@@ -85,6 +114,18 @@ export default async function LiveInboxPage({ searchParams }: { searchParams?: P
       </section>
     </div>
   );
+}
+
+function mergeInboxCounts(real: LiveLeadStatusCounts, demo: LiveLeadStatusCounts): LiveLeadStatusCounts {
+  return {
+    ALL: real.ALL + demo.ALL,
+    UNREVIEWED: real.UNREVIEWED + demo.UNREVIEWED,
+    NEW: real.NEW + demo.NEW,
+    REVIEWED: real.REVIEWED + demo.REVIEWED,
+    SAVED: real.SAVED + demo.SAVED,
+    CONTACTED: real.CONTACTED + demo.CONTACTED,
+    DISMISSED: real.DISMISSED + demo.DISMISSED,
+  };
 }
 
 function Metric({ accent = false, label, value }: { accent?: boolean; label: string; value: number }) {

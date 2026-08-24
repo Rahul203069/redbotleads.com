@@ -21,6 +21,7 @@ export type LiveLeadView = {
   campaign: { id: string; name: string };
   createdAt: string;
   id: string;
+  isDemo?: boolean;
   label: "HIGH" | "MED" | "LOW";
   notes: string | null;
   redditItem: {

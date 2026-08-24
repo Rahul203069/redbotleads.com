@@ -99,7 +99,7 @@ export default async function CampaignDetailPage({
   };
   const leadDateFilterKey = getLeadDateFilterKey(leadDateFilter);
   const applicationConfig = await getSaasConfig();
-  if (applicationConfig.appMode === "LIVE") {
+  if (applicationConfig.appMode === "LIVE" && isAdminAccount) {
     return (
       <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
         <LiveCampaignOverview

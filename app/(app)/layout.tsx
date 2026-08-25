@@ -5,6 +5,7 @@ import { AppMainShell } from "@/components/app/app-main-shell";
 import { AppSidebar } from "@/components/app/app-sidebar";
 import { BrowserTimeZoneSync } from "@/components/app/browser-time-zone-sync";
 import { auth } from "@/lib/auth";
+import { resolveViewerAppMode } from "@/lib/app-mode";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
@@ -55,9 +56,10 @@ export default async function AuthenticatedAppLayout({
   ]);
   const shouldShowSlackPrompt =
     isAdminAccount && !user?.slackWebhookUrl?.trim() && !user?.telegramChatId?.trim();
+  const viewerAppMode = resolveViewerAppMode(saasConfig.appMode, isAdminAccount);
   const campaignHref = nonAdminCampaigns?.length === 1
     ? `/campaigns/${nonAdminCampaigns[0].id}`
-    : saasConfig.appMode === "DAILY" && nonAdminCampaigns?.[0]
+    : viewerAppMode === "DAILY" && nonAdminCampaigns?.[0]
       ? `/campaigns/${nonAdminCampaigns[0].id}`
       : "/campaigns";
 
@@ -67,7 +69,7 @@ export default async function AuthenticatedAppLayout({
       <div className="grid min-h-screen w-full grid-cols-1 gap-4 lg:grid-cols-[304px_minmax(0,1fr)] lg:gap-0">
         <div className="lg:sticky lg:top-0 lg:h-screen lg:pl-4 lg:pr-0 lg:py-4 xl:pl-6">
           <AppSidebar
-            appMode={saasConfig.appMode}
+            appMode={viewerAppMode}
             campaignHref={campaignHref}
             isOwner={isAdminAccount}
             shouldShowSlackConnect={shouldShowSlackPrompt}

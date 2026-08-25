@@ -7,6 +7,7 @@ import {
   getCampaignLeadDateKey,
   getCampaignLeadGroupLabel,
   getJustAddedCampaignLeadIds,
+  groupCampaignLeadsByFreshness,
   isCampaignLeadNewSinceVisit,
 } from "./campaign-lead-inbox";
 
@@ -87,6 +88,45 @@ test("finds real lead IDs that were not present in the current live session", ()
     new Set(["known"]),
     [{ id: "known" }, { id: "new" }, { id: "demo", isDemo: true }],
   ), ["new"]);
+});
+
+test("separates returning-visitor leads into new and earlier sections", () => {
+  const leads = [
+    { id: "newest", createdAt: "2026-08-24T10:03:00.000Z" },
+    { id: "older", createdAt: "2026-08-24T09:59:00.000Z" },
+    { id: "newer", createdAt: "2026-08-24T10:01:00.000Z" },
+  ];
+
+  const groups = groupCampaignLeadsByFreshness(
+    leads,
+    "2026-08-24T10:00:00.000Z",
+  );
+
+  assert.deepEqual(groups.newLeads.map((lead) => lead.id), ["newest", "newer"]);
+  assert.deepEqual(groups.earlierLeads.map((lead) => lead.id), ["older"]);
+  assert.deepEqual(groups.demoLeads, []);
+});
+
+test("treats every real lead as new on a first visit and keeps demos separate", () => {
+  const groups = groupCampaignLeadsByFreshness([
+    { id: "real-one", createdAt: "2026-08-24T10:03:00.000Z" },
+    { id: "demo", createdAt: "2026-08-24T10:02:00.000Z", isDemo: true },
+    { id: "real-two", createdAt: "2026-08-24T10:01:00.000Z" },
+  ], null);
+
+  assert.deepEqual(groups.newLeads.map((lead) => lead.id), ["real-one", "real-two"]);
+  assert.deepEqual(groups.earlierLeads, []);
+  assert.deepEqual(groups.demoLeads.map((lead) => lead.id), ["demo"]);
+});
+
+test("can present demo leads in the same freshness sections as fetched leads", () => {
+  const groups = groupCampaignLeadsByFreshness([
+    { id: "demo", createdAt: "2026-08-24T10:02:00.000Z", isDemo: true },
+  ], "2026-08-24T10:00:00.000Z", { treatDemoAsReal: true });
+
+  assert.deepEqual(groups.newLeads.map((lead) => lead.id), ["demo"]);
+  assert.deepEqual(groups.earlierLeads, []);
+  assert.deepEqual(groups.demoLeads, []);
 });
 
 test("formats live feed ages in compact relative units", () => {

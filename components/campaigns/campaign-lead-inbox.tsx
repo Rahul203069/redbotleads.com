@@ -2,16 +2,12 @@
 
 import {
   AlertCircle,
-  Beaker,
-  CheckCircle2,
+  ArrowDown,
   Clock3,
-  ExternalLink,
   LoaderCircle,
   Radio,
   SearchX,
   Sparkles,
-  Star,
-  XCircle,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -22,16 +18,10 @@ import { sendCampaignClientActivity } from "@/components/campaigns/client-activi
 import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign-lead-dialog";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  countCampaignLeadStatuses,
   formatLeadRelativeTime,
-  getCampaignLeadDateKey,
-  getCampaignLeadGroupLabel,
-  isCampaignLeadNewSinceVisit,
+  groupCampaignLeadsByFreshness,
 } from "@/lib/campaign-lead-inbox";
-import {
-  CAMPAIGN_LEAD_STATUS_LABELS,
-  type CampaignLeadStatus,
-} from "@/lib/campaign-lead-status";
+import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
 import type {
   CampaignLeadEmptyStateMode,
   CampaignLeadSyncStatus,
@@ -43,7 +33,6 @@ export function CampaignLeadInbox({
   campaignId,
   canDeleteLeads = false,
   emptyStateMode,
-  includesDemo = false,
   isFilterLoading,
   justAddedLeadIds = [],
   leads,
@@ -55,14 +44,12 @@ export function CampaignLeadInbox({
   selectedPeriodLabel,
   syncStatus,
   timeZone,
-  todayDateKey,
   trackClientActivity = false,
   visitStartedAt,
 }: {
   campaignId: string;
   canDeleteLeads?: boolean;
   emptyStateMode: CampaignLeadEmptyStateMode;
-  includesDemo?: boolean;
   isFilterLoading: boolean;
   justAddedLeadIds?: string[];
   leads: CampaignLeadView[];
@@ -74,7 +61,6 @@ export function CampaignLeadInbox({
   selectedPeriodLabel: string;
   syncStatus: CampaignLeadSyncStatus;
   timeZone: string;
-  todayDateKey: string;
   trackClientActivity?: boolean;
   visitStartedAt: string;
 }) {
@@ -94,27 +80,41 @@ export function CampaignLeadInbox({
   );
   const nowMs = now ?? new Date(visitStartedAt).getTime();
   const justAddedLeadIdSet = useMemo(() => new Set(justAddedLeadIds), [justAddedLeadIds]);
-  const newSinceVisitLeadIdSet = useMemo(() => new Set(orderedLeads
-    .filter((lead) => isCampaignLeadNewSinceVisit({
-      createdAt: lead.createdAt,
-      isDemo: lead.isDemo,
-      previousVisitAt,
-    }))
-    .map((lead) => lead.id)), [orderedLeads, previousVisitAt]);
+  const freshnessGroups = useMemo(
+    () => groupCampaignLeadsByFreshness(orderedLeads, previousVisitAt, {
+      treatDemoAsReal: true,
+    }),
+    [orderedLeads, previousVisitAt],
+  );
+  const newSinceVisitLeadIdSet = useMemo(
+    () => new Set(freshnessGroups.newLeads.map((lead) => lead.id)),
+    [freshnessGroups.newLeads],
+  );
   const newSinceVisitCount = newSinceVisitLeadIdSet.size;
-  const counts = useMemo(() => countCampaignLeadStatuses(orderedLeads), [orderedLeads]);
-  const groupedLeads = useMemo(() => {
-    const groups = new Map<string, CampaignLeadView[]>();
-
-    for (const lead of orderedLeads) {
-      const dateKey = getCampaignLeadDateKey(lead.createdAt, timeZone);
-      const group = groups.get(dateKey) ?? [];
-      group.push(lead);
-      groups.set(dateKey, group);
-    }
-
-    return Array.from(groups.entries());
-  }, [orderedLeads, timeZone]);
+  const leadCount = freshnessGroups.newLeads.length + freshnessGroups.earlierLeads.length;
+  const feedSections = useMemo<Array<{
+    id: string;
+    isFresh: boolean;
+    label: string;
+    leads: CampaignLeadView[];
+  }>>(() => [
+    ...(freshnessGroups.newLeads.length > 0 ? [{
+      id: "new",
+      isFresh: true,
+      label: previousVisitAt ? "New since your last visit" : "New posts",
+      leads: freshnessGroups.newLeads,
+    }] : []),
+    ...(freshnessGroups.earlierLeads.length > 0 ? [{
+      id: "earlier",
+      isFresh: false,
+      label: "Earlier today",
+      leads: freshnessGroups.earlierLeads,
+    }] : []),
+  ], [freshnessGroups, previousVisitAt]);
+  const visibleJustAddedLeadIds = orderedLeads
+    .filter((lead) => justAddedLeadIdSet.has(lead.id))
+    .map((lead) => lead.id);
+  const firstJustAddedLeadId = visibleJustAddedLeadIds[0] ?? null;
   const resolvedEmptyState = resolveCampaignLeadEmptyState({
     mode: emptyStateMode,
     syncStatus,
@@ -133,6 +133,18 @@ export function CampaignLeadInbox({
     ? `Last checked ${formatLeadRelativeTime(previousVisitAt, nowMs)}`
     : "This is your first live visit";
 
+  function scrollToNewPosts() {
+    if (!firstJustAddedLeadId) {
+      return;
+    }
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.getElementById(`lead-${firstJustAddedLeadId}`)?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+
   async function markReviewed(lead: CampaignLeadView) {
     if (lead.status !== "NEW" || pendingLeadIds.includes(lead.id)) {
       return;
@@ -140,10 +152,6 @@ export function CampaignLeadInbox({
 
     if (lead.isDemo) {
       onLeadStatusChanged(lead.id, "REVIEWED");
-      toast({
-        title: "Demo lead reviewed",
-        description: "This preview was updated only in your browser. Your database was not changed.",
-      });
       return;
     }
 
@@ -182,7 +190,7 @@ export function CampaignLeadInbox({
           <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Live today</span>
         </div>
         <h2 className="mt-2 text-[24px] font-bold tracking-[-0.03em] text-[#ffffff]">
-          {counts.ALL} qualified lead{counts.ALL === 1 ? "" : "s"}
+          {leadCount} qualified lead{leadCount === 1 ? "" : "s"}
         </h2>
         <p className="mt-1 text-[13px] leading-5 text-[#a7a7a7]">
           {freshnessSummary}
@@ -193,25 +201,27 @@ export function CampaignLeadInbox({
       </div>
 
       <div aria-live="polite" aria-atomic="true">
-        {justAddedLeadIds.length > 0 ? (
-          <div className="flex items-center gap-3 border-b border-[#1ed760]/20 bg-[#101a13] px-5 py-3 text-[#b8e9c7] lg:px-6">
-            <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-[#55e982]" />
-            <p className="text-[11px] font-semibold leading-5">
-              {justAddedLeadIds.length} new lead{justAddedLeadIds.length === 1 ? "" : "s"} just arrived and {justAddedLeadIds.length === 1 ? "is" : "are"} now at the top.
-            </p>
+        {visibleJustAddedLeadIds.length > 0 ? (
+          <div className="flex flex-col gap-3 border-b border-[#1ed760]/20 bg-[#101a13] px-5 py-3 text-[#b8e9c7] sm:flex-row sm:items-center sm:justify-between lg:px-6">
+            <div className="flex items-center gap-3">
+              <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-[#55e982]" />
+              <p className="text-[11px] font-semibold leading-5">
+                {visibleJustAddedLeadIds.length} new lead{visibleJustAddedLeadIds.length === 1 ? "" : "s"} just arrived and {visibleJustAddedLeadIds.length === 1 ? "is" : "are"} ready to review.
+              </p>
+            </div>
+            {firstJustAddedLeadId ? (
+              <button
+                className="inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 self-start rounded-full bg-[#1ed760] px-3 text-[9px] font-bold uppercase tracking-[0.1em] text-[#0d160f] transition-colors duration-200 hover:bg-[#3be477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:self-auto"
+                onClick={scrollToNewPosts}
+                type="button"
+              >
+                View new posts
+                <ArrowDown aria-hidden="true" className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
-
-      {includesDemo ? (
-        <div className="flex items-start gap-3 border-b border-[#1ed760]/15 bg-[#111811] px-5 py-4 text-[#b8e9c7] lg:px-6">
-          <Beaker aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-[#55e982]" />
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#73f5a0]">Demo leads for testing</p>
-            <p className="mt-1 text-[12px] leading-5">No real qualified leads were found today, so these examples are shown temporarily. Status changes stay in this browser and never update your database.</p>
-          </div>
-        </div>
-      ) : null}
 
       <div className="p-4 sm:p-5 lg:p-6">
         {isFilterLoading ? (
@@ -236,17 +246,18 @@ export function CampaignLeadInbox({
           />
         ) : (
           <div className="space-y-7">
-            {groupedLeads.map(([dateKey, groupLeads]) => (
-              <section aria-labelledby={`lead-group-${dateKey}`} key={dateKey}>
+            {feedSections.map((section) => (
+              <section aria-labelledby={`lead-group-${section.id}`} key={section.id}>
                 <div className="mb-3 flex items-center gap-3">
-                  <h3 className="shrink-0 text-[11px] font-bold uppercase tracking-[0.18em] text-[#b3b3b3]" id={`lead-group-${dateKey}`}>
-                    {getCampaignLeadGroupLabel({ dateKey, timeZone, todayDateKey })}
+                  <h3 className={`flex shrink-0 items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] ${section.isFresh ? "text-[#73f5a0]" : "text-[#b3b3b3]"}`} id={`lead-group-${section.id}`}>
+                    {section.isFresh ? <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-[#55e982] motion-reduce:animate-none" /> : null}
+                    {section.label}
                   </h3>
-                  <div className="h-px flex-1 bg-white/[0.07]" />
-                  <span className="text-[10px] font-semibold text-[#6f6f6f]">{groupLeads.length}</span>
+                  <div className={`h-px flex-1 ${section.isFresh ? "bg-[#1ed760]/20" : "bg-white/[0.07]"}`} />
+                  <span className={`text-[10px] font-semibold ${section.isFresh ? "text-[#55e982]" : "text-[#6f6f6f]"}`}>{section.leads.length}</span>
                 </div>
-                <div className="space-y-2.5">
-                  {groupLeads.map((lead) => (
+                <div className="space-y-4">
+                  {section.leads.map((lead) => (
                     <InboxLeadCard
                       campaignId={campaignId}
                       canDelete={canDeleteLeads}
@@ -310,87 +321,82 @@ function InboxLeadCard({
   timeZone: string;
 }) {
   const sourceText = getSourceText(lead);
-  const freshnessClassName = isJustAdded
-    ? "border-[#55e982]/75 bg-[#101a13] shadow-[0_0_0_1px_rgba(30,215,96,0.08),0_8px_24px_rgba(30,215,96,0.08)]"
+  const freshnessClassName = selected
+    ? "ring-2 ring-[#1ed760]/50"
+    : isJustAdded
+      ? "ring-2 ring-[#1ed760]/45"
     : isNewSinceVisit
-      ? "border-[#1ed760]/35 bg-[#111511]"
-      : lead.status === "NEW"
-        ? "border-white/[0.12] bg-[#111111]"
-        : "border-white/[0.07] bg-[#111111]";
+      ? "ring-1 ring-[#1ed760]/30"
+      : "";
 
   return (
     <article
-      className={`scroll-mt-5 rounded-[18px] border transition-colors duration-200 ${freshnessClassName} ${selected ? "ring-2 ring-[#1ed760]/25" : ""}`}
+      className={`relative scroll-mt-24 overflow-hidden rounded-[22px] bg-[linear-gradient(180deg,#1f1f1f_0%,#1a1a1a_100%)] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px] transition hover:bg-[linear-gradient(180deg,#252525_0%,#1f1f1f_100%)] ${freshnessClassName}`}
       id={`lead-${lead.id}`}
     >
-      <div className="p-3.5 sm:p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {isJustAdded ? (
-                <FreshnessBadge icon={Sparkles} label="Just added" />
-              ) : isNewSinceVisit ? (
-                <FreshnessBadge icon={Clock3} label={isFirstVisit ? "New post" : "New post since last visit"} />
-              ) : null}
-              <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#d4d4d4]">
-                {lead.redditItem.type}
-              </span>
-              <LeadLabelBadge label={lead.label} />
-              <StatusBadge status={lead.status} />
-              {lead.isDemo ? (
-                <span className="rounded-full bg-[#1ed760]/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.13em] text-[#73f5a0]">
-                  Demo
-                </span>
-              ) : null}
-              {lead.ai?.category ? (
-                <span className="rounded-full bg-[#1f1f1f] px-2 py-0.5 text-[9px] font-semibold text-[#9f9f9f]">
-                  {lead.ai.category}
-                </span>
-              ) : null}
+      {isNewSinceVisit ? (
+        <span
+          aria-hidden="true"
+          className={`absolute inset-y-0 left-0 w-[3px] ${isJustAdded ? "bg-[#73f5a0]" : "bg-[#1ed760]/70"}`}
+        />
+      ) : null}
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1 space-y-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {isJustAdded ? (
+                  <FreshnessBadge icon={Sparkles} label="Just added" />
+                ) : isNewSinceVisit ? (
+                  <FreshnessBadge icon={Clock3} label={isFirstVisit ? "New post" : "New post since last visit"} />
+                ) : null}
+                <LeadCardBadge tone="neutral">{lead.redditItem.type}</LeadCardBadge>
+                <LeadCardBadge tone={lead.label === "HIGH" ? "good" : lead.label === "MED" ? "neutral" : "muted"}>
+                  {lead.label}
+                </LeadCardBadge>
+                <LeadCardBadge tone="muted">{lead.status}</LeadCardBadge>
+                {lead.ai?.category ? <LeadCardBadge tone="neutral">{lead.ai.category}</LeadCardBadge> : null}
+              </div>
+              <h4 className="mt-3 text-[16px] font-semibold leading-6 text-[#fdfdfd] [overflow-wrap:anywhere]">
+                {lead.redditItem.title || lead.redditItem.body || "Untitled Reddit item"}
+              </h4>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                <span>r/{lead.redditItem.subreddit}</span>
+                <time className="text-[#55e982]" dateTime={lead.redditItem.createdUtc} title={formatExactTime(lead.redditItem.createdUtc, timeZone)}>
+                  Posted {formatLeadRelativeTime(lead.redditItem.createdUtc, nowMs)}
+                </time>
+                <time dateTime={lead.createdAt} title={formatExactTime(lead.createdAt, timeZone)}>
+                  Found {formatLeadRelativeTime(lead.createdAt, nowMs)}
+                </time>
+                {lead.ai?.intentType ? <span>{formatEnumLabel(lead.ai.intentType)}</span> : null}
+                {lead.ai?.buyerStage ? <span>{formatEnumLabel(lead.ai.buyerStage)}</span> : null}
+              </div>
             </div>
-
-            <h4 className="mt-2 text-[15px] font-bold leading-5 text-[#ffffff] [overflow-wrap:anywhere] sm:text-[16px]">
-              {lead.redditItem.title || lead.redditItem.body || "Untitled Reddit item"}
-            </h4>
-
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#8f8f8f]">
-              <span>r/{lead.redditItem.subreddit}</span>
-              <time className="text-[#55e982]" dateTime={lead.redditItem.createdUtc} title={formatExactTime(lead.redditItem.createdUtc, timeZone)}>
-                Posted {formatLeadRelativeTime(lead.redditItem.createdUtc, nowMs)}
-              </time>
-              <time dateTime={lead.createdAt} title={formatExactTime(lead.createdAt, timeZone)}>
-                Found {formatLeadRelativeTime(lead.createdAt, nowMs)}
-              </time>
-              {lead.ai?.intentType ? <span>{formatEnumLabel(lead.ai.intentType)}</span> : null}
-              {lead.ai?.buyerStage ? <span>{formatEnumLabel(lead.ai.buyerStage)}</span> : null}
-            </div>
-
-            <div className="mt-2 rounded-[12px] bg-[#181818] px-3 py-2.5">
-              <p className="max-w-4xl text-[12px] leading-5 text-[#c6c6c6]">
-                {lead.ai?.summary?.trim() || "No summary available yet for this lead."}
-              </p>
+            <div className="w-full rounded-[18px] bg-[#121212] px-4 py-3 text-left shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] sm:w-auto sm:text-right">
+              <div className="flex items-center justify-between gap-3 sm:justify-end">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Score</span>
+                {pending ? <LoaderCircle aria-label="Saving lead status" className="h-4 w-4 animate-spin text-[#55e982] motion-reduce:animate-none" /> : null}
+              </div>
+              <div className="mt-2 text-[30px] font-bold leading-none tracking-[-0.05em] text-[#ffffff]">{lead.score}</div>
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
-            {pending ? <LoaderCircle aria-label="Saving lead status" className="h-4 w-4 animate-spin text-[#55e982]" /> : null}
-            <div className="rounded-[12px] bg-[#181818] px-3 py-2 text-right shadow-[rgb(124,124,124)_0px_0px_0px_1px_inset]">
-              <div className="text-[8px] font-bold uppercase tracking-[0.12em] text-[#777]">Score</div>
-              <div className="mt-0.5 text-[20px] font-bold leading-none text-[#ffffff]">{lead.score}</div>
-            </div>
-          </div>
-        </div>
-
-        {sourceText ? (
-          <div className="mt-3 border-t border-white/[0.07] pt-3">
-            <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#777]">Source text</p>
-            <p className="mt-1.5 whitespace-pre-wrap text-[12px] leading-5 text-[#c6c6c6]">
-              {sourceText}
+          <div className="rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+            <p className="text-[14px] leading-6 text-[#cbcbcb]">
+              {lead.ai?.summary?.trim() || "No summary available yet for this lead."}
             </p>
           </div>
-        ) : null}
 
-        <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-white/[0.07] pt-3">
+          {sourceText ? (
+            <div className="border-t border-white/8 pt-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Source text</p>
+              <p className="mt-2 whitespace-pre-wrap text-[14px] leading-6 text-[#bdbdbd]">
+                {sourceText}
+              </p>
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap items-center gap-3 pt-1 sm:justify-end">
           {canDelete && onDelete && !lead.isDemo ? (
             <DeleteCampaignLeadDialog
               campaignId={campaignId}
@@ -406,45 +412,19 @@ function InboxLeadCard({
 
           {lead.redditItem.url ? (
             <a
-              className="inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#1ed760] px-3 text-[9px] font-bold uppercase tracking-[0.1em] text-[#0d160f] transition-colors duration-200 hover:bg-[#3be477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffffff] sm:ml-auto"
+              className="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-[#1ed760] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#121212] transition-colors hover:bg-[#3be477] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] sm:w-auto"
               href={lead.redditItem.url}
               onClick={onOpenReddit}
               rel="noreferrer"
               target="_blank"
             >
-              View Reddit
-              <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
+              View on Reddit
             </a>
           ) : null}
+          </div>
         </div>
       </div>
     </article>
-  );
-}
-
-function StatusBadge({ status }: { status: CampaignLeadStatus }) {
-  const Icon = status === "NEW"
-    ? Clock3
-    : status === "SAVED"
-      ? Star
-      : status === "CONTACTED"
-        ? CheckCircle2
-        : status === "DISMISSED"
-          ? XCircle
-          : CheckCircle2;
-  const className = status === "NEW"
-    ? "bg-[#1ed760]/12 text-[#55e982]"
-    : status === "SAVED"
-      ? "bg-[#f2c94c]/12 text-[#ffd66e]"
-      : status === "DISMISSED"
-        ? "bg-[#f3727f]/12 text-[#ff9aa5]"
-        : "bg-[#1f1f1f] text-[#b8b8b8]";
-
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${className}`}>
-      <Icon aria-hidden="true" className="h-3 w-3" />
-      {status === "NEW" ? "Unreviewed" : CAMPAIGN_LEAD_STATUS_LABELS[status]}
-    </span>
   );
 }
 
@@ -456,23 +436,29 @@ function FreshnessBadge({
   label: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[#1ed760]/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#73f5a0]">
-      <Icon aria-hidden="true" className="h-3 w-3" />
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">
+      <Icon aria-hidden="true" className="h-3.5 w-3.5" />
       {label}
     </span>
   );
 }
 
-function LeadLabelBadge({ label }: { label: CampaignLeadView["label"] }) {
-  const className = label === "HIGH"
-    ? "bg-[#1ed760]/12 text-[#55e982]"
-    : label === "MED"
-      ? "bg-[#1f1f1f] text-[#d4d4d4]"
-      : "bg-[#1a1a1a] text-[#8f8f8f]";
+function LeadCardBadge({
+  children,
+  tone,
+}: {
+  children: React.ReactNode;
+  tone: "good" | "neutral" | "muted";
+}) {
+  const className = tone === "good"
+    ? "bg-[#121212] text-[#1ed760]"
+    : tone === "muted"
+      ? "bg-[#121212] text-[#b3b3b3]"
+      : "bg-[#121212] text-[#fdfdfd]";
 
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] ${className}`}>
-      {label}
+    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${className}`}>
+      {children}
     </span>
   );
 }

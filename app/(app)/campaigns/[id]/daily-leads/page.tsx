@@ -8,6 +8,7 @@ import { DailyLeadsSemanticFilter } from "@/components/admin/daily-leads-semanti
 import { CampaignClientActivityPageView } from "@/components/campaigns/client-activity-tracker";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
+import { resolveViewerAppMode } from "@/lib/app-mode";
 import { canViewAnalytics } from "@/lib/beta-access";
 import {
   buildAccessibleCampaignWhere,
@@ -54,8 +55,9 @@ export default async function CampaignDailyLeadsPage({
   }
 
   const { id } = await params;
+  const isAdminAccount = canViewAnalytics(session.user.email);
   const config = await getSaasConfig();
-  if (config.appMode === "LIVE") {
+  if (resolveViewerAppMode(config.appMode, isAdminAccount) === "LIVE") {
     redirect(`/campaigns/${id}/history`);
   }
   const campaign = await prisma.campaign.findFirst({
@@ -96,7 +98,6 @@ export default async function CampaignDailyLeadsPage({
   }
 
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
-  const isAdminAccount = canViewAnalytics(session.user.email);
   const cookieStore = await cookies();
   const browserTimeZone = isAdminAccount
     ? "UTC"

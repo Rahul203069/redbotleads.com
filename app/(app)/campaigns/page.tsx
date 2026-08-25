@@ -5,6 +5,7 @@ import { CampaignList } from "@/components/campaigns/campaign-list";
 import { CampaignWizard } from "@/components/campaigns/campaign-wizard";
 import { LiveCampaignsPage } from "@/components/live/live-campaigns-page";
 import { auth } from "@/lib/auth";
+import { resolveViewerAppMode } from "@/lib/app-mode";
 import { canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
 import {
   buildAccessibleCampaignWhere,
@@ -27,7 +28,8 @@ export default async function CampaignsPage() {
     userId: session.user.id,
   });
   const saasConfig = await getSaasConfig();
-  if (saasConfig.appMode === "LIVE") {
+  const viewerAppMode = resolveViewerAppMode(saasConfig.appMode, isAdminAccount);
+  if (viewerAppMode === "LIVE") {
     if (!isAdminAccount) {
       const accessibleCampaigns = await prisma.campaign.findMany({
         where: accessibleCampaignWhere,
@@ -89,7 +91,7 @@ export default async function CampaignsPage() {
       runs: {
         where: {
           trigger: {
-            in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+            in: ["DAILY_SEMANTIC", "HOURLY_SEMANTIC", "MANUAL_SEMANTIC"],
           },
         },
         orderBy: {

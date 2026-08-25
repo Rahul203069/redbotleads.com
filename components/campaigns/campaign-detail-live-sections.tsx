@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   getCampaignInitialRssDiagnostics,
@@ -80,7 +80,6 @@ export function CampaignDetailLiveSections({
   telegramConnectedAt,
   telegramUsername,
   timeZone,
-  todayDateKey,
   visitStartedAt,
   viewMode,
 }: {
@@ -112,12 +111,11 @@ export function CampaignDetailLiveSections({
   telegramConnectedAt: string | null;
   telegramUsername: string | null;
   timeZone: string;
-  todayDateKey: string;
   visitStartedAt: string;
   viewMode: CampaignContentMode;
 }) {
-  const [, startTransition] = useTransition();
   const { isLeadFilterLoading } = useCampaignLeadFilterLoading();
+  const isLiveToday = viewMode === "LIVE_TODAY";
   const [leads, setLeads] = useState(initialLeads);
   const [demoLeads, setDemoLeads] = useState(initialDemoLeads);
   const [sync, setSync] = useState<CampaignSync>(initialSync);
@@ -125,10 +123,15 @@ export function CampaignDetailLiveSections({
   const [notificationHealth, setNotificationHealth] = useState(initialNotificationHealth);
   const [hasMounted, setHasMounted] = useState(false);
   const [justAddedLeadIds, setJustAddedLeadIds] = useState<string[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(
+    isLiveToday ? visitStartedAt : null,
+  );
+  const [nextRefreshAt, setNextRefreshAt] = useState<string | null>(null);
+  const [refreshFailed, setRefreshFailed] = useState(false);
   const knownLeadIdsRef = useRef(new Set(initialLeads.map((lead) => lead.id)));
   const highlightTimeoutsRef = useRef<number[]>([]);
   const recordedVisitKeyRef = useRef<string | null>(null);
-  const isLiveToday = viewMode === "LIVE_TODAY";
 
   useEffect(() => {
     setHasMounted(true);
@@ -138,7 +141,9 @@ export function CampaignDetailLiveSections({
     setLeads(initialLeads);
     knownLeadIdsRef.current = new Set(initialLeads.map((lead) => lead.id));
     setJustAddedLeadIds([]);
-  }, [initialLeads]);
+    setLastRefreshedAt(isLiveToday ? visitStartedAt : null);
+    setRefreshFailed(false);
+  }, [initialLeads, isLiveToday, visitStartedAt]);
 
   useEffect(() => {
     setDemoLeads(initialDemoLeads);
@@ -182,57 +187,87 @@ export function CampaignDetailLiveSections({
     const pollInterval = isSyncRunning ? 10_000 : isLiveToday ? 30_000 : null;
 
     if (pollInterval === null) {
+      setNextRefreshAt(null);
       return;
     }
 
-    let isPolling = false;
+    let cancelled = false;
+    let timeoutId: number | null = null;
 
-    const poll = () => {
-      if (isPolling) {
+    const scheduleNextRefresh = (): void => {
+      if (cancelled) {
         return;
       }
 
-      isPolling = true;
-      startTransition(async () => {
-        try {
-          const [latestSync, latestLeads, latestDiagnostics, latestNotificationHealth] = await Promise.all([
-            getCampaignSyncStatuses([campaignId]),
-            getCampaignLeads(campaignId, leadDateFilter),
-            getCampaignInitialRssDiagnostics(campaignId),
-            isLiveToday ? getCampaignNotificationHealth(campaignId) : Promise.resolve(null),
-          ]);
-
-          const newlyAddedLeadIds = getJustAddedCampaignLeadIds(knownLeadIdsRef.current, latestLeads);
-
-          for (const lead of latestLeads) {
-            knownLeadIdsRef.current.add(lead.id);
-          }
-
-          if (newlyAddedLeadIds.length > 0) {
-            setJustAddedLeadIds((current) => Array.from(new Set([...current, ...newlyAddedLeadIds])));
-            const timeoutId = window.setTimeout(() => {
-              setJustAddedLeadIds((current) => current.filter((leadId) => !newlyAddedLeadIds.includes(leadId)));
-              highlightTimeoutsRef.current = highlightTimeoutsRef.current.filter((id) => id !== timeoutId);
-            }, JUST_ADDED_HIGHLIGHT_MS);
-            highlightTimeoutsRef.current.push(timeoutId);
-          }
-
-          setSync(normalizeSync(latestSync[0]?.sync ?? null));
-          setLeads(latestLeads);
-          setDiagnostics(latestDiagnostics);
-          if (latestNotificationHealth) {
-            setNotificationHealth(latestNotificationHealth);
-          }
-        } finally {
-          isPolling = false;
-        }
-      });
+      const scheduledAt = Date.now() + pollInterval;
+      setNextRefreshAt(new Date(scheduledAt).toISOString());
+      timeoutId = window.setTimeout(refreshLiveFeed, pollInterval);
     };
 
-    const intervalId = window.setInterval(poll, pollInterval);
+    const refreshLiveFeed = async (): Promise<void> => {
+      if (cancelled) {
+        return;
+      }
+
+      setIsRefreshing(true);
+      setNextRefreshAt(null);
+
+      try {
+        const [latestSync, latestLeads, latestDiagnostics, latestNotificationHealth] = await Promise.all([
+          getCampaignSyncStatuses([campaignId]),
+          getCampaignLeads(campaignId, leadDateFilter),
+          getCampaignInitialRssDiagnostics(campaignId),
+          isLiveToday ? getCampaignNotificationHealth(campaignId) : Promise.resolve(null),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        const newlyAddedLeadIds = getJustAddedCampaignLeadIds(knownLeadIdsRef.current, latestLeads);
+
+        for (const lead of latestLeads) {
+          knownLeadIdsRef.current.add(lead.id);
+        }
+
+        if (newlyAddedLeadIds.length > 0) {
+          setJustAddedLeadIds((current) => Array.from(new Set([...current, ...newlyAddedLeadIds])));
+          const highlightTimeoutId = window.setTimeout(() => {
+            setJustAddedLeadIds((current) => current.filter((leadId) => !newlyAddedLeadIds.includes(leadId)));
+            highlightTimeoutsRef.current = highlightTimeoutsRef.current.filter((id) => id !== highlightTimeoutId);
+          }, JUST_ADDED_HIGHLIGHT_MS);
+          highlightTimeoutsRef.current.push(highlightTimeoutId);
+        }
+
+        setSync(normalizeSync(latestSync[0]?.sync ?? null));
+        setLeads(latestLeads);
+        setDiagnostics(latestDiagnostics);
+        setLastRefreshedAt(new Date().toISOString());
+        setRefreshFailed(false);
+        if (latestNotificationHealth) {
+          setNotificationHealth(latestNotificationHealth);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Campaign live feed refresh failed", error);
+          setRefreshFailed(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsRefreshing(false);
+          scheduleNextRefresh();
+        }
+      }
+    };
+
+    setIsRefreshing(false);
+    scheduleNextRefresh();
 
     return () => {
-      window.clearInterval(intervalId);
+      cancelled = true;
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
     };
   }, [campaignId, isLiveToday, isSyncRunning, leadDateFilter]);
 
@@ -259,7 +294,11 @@ export function CampaignDetailLiveSections({
         <CampaignLiveStatusStrip
           campaignIsActive={campaignIsActive}
           health={notificationHealth}
+          isRefreshing={isRefreshing}
           lastCheckedAt={sync?.completedAt ?? sync?.updatedAt ?? semanticLastSyncAt}
+          lastRefreshedAt={lastRefreshedAt}
+          nextRefreshAt={nextRefreshAt}
+          refreshFailed={refreshFailed}
           syncStatus={sync?.status ?? "IDLE"}
           telegramConnectedAt={telegramConnectedAt}
           telegramUsername={telegramUsername}
@@ -285,7 +324,6 @@ export function CampaignDetailLiveSections({
           campaignId={campaignId}
           canDeleteLeads={canDeleteLeads}
           emptyStateMode={leadEmptyStateMode}
-          includesDemo={shouldShowDemoLeads}
           isFilterLoading={isLeadFilterLoading}
           leads={liveLeads}
           nextSyncLabel={nextSync}
@@ -294,7 +332,6 @@ export function CampaignDetailLiveSections({
           selectedPeriodLabel={selectedPeriodLabel}
           syncStatus={sync?.status ?? "IDLE"}
           timeZone={timeZone}
-          todayDateKey={todayDateKey}
           trackClientActivity={trackClientActivity}
           justAddedLeadIds={justAddedLeadIds}
           visitStartedAt={visitStartedAt}

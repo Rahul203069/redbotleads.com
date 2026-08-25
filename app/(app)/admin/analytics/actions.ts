@@ -10,11 +10,11 @@ import {
 } from "@/lib/daily-rss-poller-control";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
-import { enqueueDailySemanticCampaigns } from "@/lib/daily-semantic";
+import { enqueueHourlySemanticCampaigns } from "@/lib/daily-semantic";
+import { HOURLY_SEMANTIC_CRON_PATH } from "@/lib/semantic-cron-paths";
 import { prisma } from "@/lib/prisma";
 import { classificationQueue } from "@/worker/queues";
 
-const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
 const CLASSIFICATION_ERROR_MODEL = "classification-error";
 const UNSUPPORTED_TEMPERATURE_ERROR_TEXT = "Unsupported value: 'temperature'";
 
@@ -58,18 +58,18 @@ export async function runDailySemanticOverride(): Promise<ManualDailySemanticRes
   if (!session?.user?.id || !canViewAnalytics(session.user.email)) {
     return {
       status: "error",
-      message: "You do not have permission to run daily semantic filtering.",
+      message: "You do not have permission to run semantic filtering.",
     };
   }
 
-  const cronRun = await createCronRun(DAILY_SEMANTIC_CRON_PATH);
+  const cronRun = await createCronRun(HOURLY_SEMANTIC_CRON_PATH);
 
   try {
-    const result = await enqueueDailySemanticCampaigns({
+    const result = await enqueueHourlySemanticCampaigns({
       cronRunId: cronRun.id,
     });
 
-    const message = `Daily semantic override queued ${result.queued} campaign${result.queued === 1 ? "" : "s"}.`;
+    const message = `Semantic override queued ${result.queued} campaign${result.queued === 1 ? "" : "s"}; ${result.skipped} already queued or running.`;
     await completeCronRun(cronRun.id, message, result);
 
     revalidatePath("/admin/analytics");
@@ -84,12 +84,12 @@ export async function runDailySemanticOverride(): Promise<ManualDailySemanticRes
       failed: result.failed,
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Daily semantic override failed.";
+    const message = error instanceof Error ? error.message : "Semantic override failed.";
     await failCronRun(cronRun.id, message);
 
     return {
       status: "error",
-      message: `Daily semantic override failed: ${message}`,
+      message: `Semantic override failed: ${message}`,
       cronRunId: cronRun.id,
     };
   }

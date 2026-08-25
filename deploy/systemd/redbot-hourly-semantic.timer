@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Redbot semantic filtering every hour
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+RandomizedDelaySec=0
+Unit=redbot-hourly-semantic.service
+
+[Install]
+WantedBy=timers.target

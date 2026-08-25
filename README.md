@@ -243,17 +243,23 @@ Telegram webhook setup:
 curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=$NEXTAUTH_URL/api/telegram/webhook&secret_token=$TELEGRAM_WEBHOOK_SECRET"
 ```
 
-## Daily Semantic Scheduler
+## Hourly Semantic Scheduler
 
-The repo includes a Vercel Cron job at `/api/cron/daily-semantic`.
+The bigger server calls the authenticated `/api/cron/hourly-semantic` endpoint
+once per hour. The request only queues work; semantic matching, LLM
+classification, and notifications continue in the bigger server workers.
 
-- Route: [app/api/cron/daily-semantic/route.ts](C:\Users\rs329\goal\my-app\app\api\cron\daily-semantic\route.ts)
-- Schedule: [vercel.json](C:\Users\rs329\goal\my-app\vercel.json) targets `30 6 * * *` (06:30 UTC daily; 08:30 CEST). Vercel Hobby may invoke it at any point from 06:00–06:59 UTC (08:00–08:59 CEST).
+- Trigger script: `scripts/trigger-hourly-semantic.sh`
+- Timer definitions: `deploy/systemd/redbot-hourly-semantic.service` and `deploy/systemd/redbot-hourly-semantic.timer`
+- Compatibility route: `/api/cron/daily-semantic` invokes the same hourly enqueue logic.
+- Vercel has no managed cron entry for semantic filtering.
 
 What it does:
 
 - finds active campaigns with semantic queries
-- enqueues `DAILY_SEMANTIC_CAMPAIGN` jobs on the `daily-semantic` queue
+- enqueues `DAILY_SEMANTIC_CAMPAIGN` jobs on the existing `daily-semantic` queue
+- uses the campaign ID plus UTC hour as the job ID, preventing duplicate work
+  within an hour while allowing a fresh run in the following hour
 - respects each campaign's admin-controlled semantic search scope
 - `Campaign subreddits` compares against enabled subreddits linked only to that campaign; this is the default for new campaigns
 - `Global polling pool` compares against the shared enabled-subreddit pool linked to campaigns with admin-controlled RSS fetching enabled, even when those campaigns are inactive
@@ -261,7 +267,9 @@ What it does:
 - creates or reuses `Lead` records for semantic matches above the configured threshold
 - enqueues existing LLM classification jobs for matched leads that have not already been classified
 
-Frequent subreddit ingestion is handled by a locked 24/7 worker poller loop, not by Vercel Cron or a scheduler queue. The `/api/cron/rss-poll` and `/api/cron/daily-sync` routes remain available but are not scheduled in `vercel.json`.
+Frequent subreddit ingestion is handled by a locked 24/7 worker poller loop.
+The `/api/cron/rss-poll` and `/api/cron/daily-sync` routes remain available but
+are not externally scheduled.
 
 Daily subreddit RSS polling defaults:
 
@@ -282,7 +290,10 @@ Required env on Vercel:
 CRON_SECRET=
 ```
 
-Set the same secret in the Vercel Cron configuration so the scheduler route only accepts authorized calls.
+Copy `.env.semantic-cron.example` to `.env.semantic-cron` on the bigger server,
+set the production endpoint URL, and use the same `CRON_SECRET` value configured
+on Vercel. Installation and verification commands are documented in
+`SERVER-OPERATIONS-README.md`.
 
 ## DB Maintenance Worker
 
@@ -291,7 +302,7 @@ The VM stack includes a dedicated DB maintenance worker. It runs every 4 hours b
 Safety rule:
 
 - `RedditItem` rows are deleted only when they are older than `DB_MAINTENANCE_REDDIT_ITEM_RETENTION_HOURS` and have no related `Lead`.
-- The default retention is `48` hours, which is longer than the current daily semantic lookback window.
+- The default retention is `48` hours, which is longer than the recurring semantic lookback window.
 - Regular `VACUUM (ANALYZE)` runs after cleanup. `VACUUM FULL` is intentionally manual only.
 
 Useful commands:

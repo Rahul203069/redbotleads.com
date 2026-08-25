@@ -1,5 +1,7 @@
 import { Queue } from "bullmq";
 
+import { buildScheduledSemanticJobId } from "@/lib/semantic-job-id";
+
 import { markCampaignFailed, markCampaignQueued } from "./campaign-sync";
 import { createCampaignRun, markCampaignRunFailed } from "./campaign-runs";
 import { redisQueueTimeoutMs, workerRedisConnection } from "./config";
@@ -46,7 +48,9 @@ export type DailySemanticCampaignJobData = {
   campaignRunId?: string;
   cronRunId?: string;
   queuedAt: string;
-  source?: "scheduled" | "manual_initial";
+  scheduleBucket?: string;
+  source?: "daily_scheduled" | "hourly_scheduled" | "manual_initial";
+  runTrigger?: "DAILY_SEMANTIC" | "HOURLY_SEMANTIC";
 };
 
 export type SemanticPlaygroundRunJobData = {
@@ -458,39 +462,56 @@ export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJo
     throw new Error("A valid queuedAt timestamp is required for daily semantic search.");
   }
 
-  const jobId = buildJobId("daily-semantic", data.campaignId, queuedAt.toISOString().slice(0, 10));
+  const scheduleBucket = data.scheduleBucket?.trim() || queuedAt.toISOString().slice(0, 10);
+  const jobId = buildScheduledSemanticJobId(data.campaignId, scheduleBucket);
   const existingJob = await dailySemanticQueue.getJob(jobId);
 
   if (existingJob) {
-    return existingJob;
+    return {
+      job: existingJob,
+      outcome: "already_queued" as const,
+    };
   }
 
   const existingLiveJob = await getLiveDailySemanticJobForCampaign(data.campaignId);
 
   if (existingLiveJob) {
-    return existingLiveJob;
+    return {
+      job: existingLiveJob,
+      outcome: "already_running" as const,
+    };
   }
+
+  const runTrigger = data.runTrigger ?? "DAILY_SEMANTIC";
+  const scheduleDescription = runTrigger === "HOURLY_SEMANTIC" ? "Hourly" : "Daily";
 
   const campaignRun = data.campaignRunId
     ? { id: data.campaignRunId }
     : await createCampaignRun({
         campaignId: data.campaignId,
         cronRunId: data.cronRunId,
-        trigger: "DAILY_SEMANTIC",
-        message: "Daily semantic search queued.",
+        trigger: runTrigger,
+        message: `${scheduleDescription} semantic search queued.`,
       });
 
-  return dailySemanticQueue.add(dailySemanticCampaignJobName, {
+  const job = await dailySemanticQueue.add(dailySemanticCampaignJobName, {
     campaignId: data.campaignId,
     campaignRunId: campaignRun.id,
     cronRunId: data.cronRunId,
     queuedAt: queuedAt.toISOString(),
-    source: data.source ?? "scheduled",
+    scheduleBucket,
+    source: data.source ?? "daily_scheduled",
+    runTrigger,
   }, {
     jobId,
     removeOnComplete: 500,
     removeOnFail: 500,
   });
+
+  return {
+    job,
+    outcome: "queued" as const,
+  };
 }
 
 export async function ensureDailySemanticQueueReady() {

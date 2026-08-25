@@ -11,9 +11,8 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import {
-  DAILY_SEMANTIC_HOBBY_WINDOW_LABEL,
-  DAILY_SEMANTIC_SCHEDULE_LABEL,
-  getNextDailySemanticCronAt,
+  HOURLY_SEMANTIC_SCHEDULE_LABEL,
+  getNextHourlySemanticCronAt,
 } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import {
@@ -151,7 +150,9 @@ export default async function AppHomePage() {
           where: {
             campaignId: campaign.id,
             status: "COMPLETED",
-            trigger: "DAILY_SEMANTIC",
+            trigger: {
+              in: ["DAILY_SEMANTIC", "HOURLY_SEMANTIC"],
+            },
           },
           select: {
             completedAt: true,
@@ -169,7 +170,7 @@ export default async function AppHomePage() {
   const newStrongLeads = campaign?.leads.filter(
     (lead) => lead.ai && lead.score > STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
   ).length ?? 0;
-  const nextSyncAt = campaign ? getNextDailySemanticCronAt(now) : null;
+  const nextSyncAt = campaign ? getNextHourlySemanticCronAt(now) : null;
   const campaignStatus = campaign?.sync?.status ?? (campaign ? "IDLE" : "NONE");
 
   const matchedTrendPairs = trendScans
@@ -231,7 +232,7 @@ export default async function AppHomePage() {
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Campaign status" value={campaign ? formatStatus(campaign.isActive ? campaignStatus : "PAUSED") : "None"} />
-        <StatCard label={`Next sync · ${DAILY_SEMANTIC_SCHEDULE_LABEL} target`} value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
+        <StatCard label={`Next scan · ${HOURLY_SEMANTIC_SCHEDULE_LABEL}`} value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
         <StatCard label="Total leads" value={String(visibleLeads).padStart(2, "0")} />
         <StatCard label="New strong leads" value={String(newStrongLeads).padStart(2, "0")} />
       </section>
@@ -305,7 +306,7 @@ async function AdminWorkspaceDashboard({
 }) {
   const now = new Date();
   const dayAgo = new Date(now.valueOf() - DAY_IN_MS);
-  const nextDailySemanticSyncAt = getNextDailySemanticCronAt(now);
+  const nextHourlySemanticSyncAt = getNextHourlySemanticCronAt(now);
   const accessibleCampaignWhere = buildAccessibleCampaignWhere({ email, userId });
   const normalizedEmail = String(email ?? "").trim().toLowerCase();
 
@@ -403,7 +404,7 @@ async function AdminWorkspaceDashboard({
       return {
         id: campaign.id,
         name: getCampaignDisplayName(campaign, access),
-        nextSyncAt: nextDailySemanticSyncAt,
+        nextSyncAt: nextHourlySemanticSyncAt,
         status: campaign.sync?.status ?? "IDLE",
       };
     })
@@ -458,7 +459,7 @@ async function AdminWorkspaceDashboard({
 
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-5">
-          <SectionCard description={`Daily lead processing targets ${DAILY_SEMANTIC_SCHEDULE_LABEL}. Vercel Hobby may invoke it from ${DAILY_SEMANTIC_HOBBY_WINDOW_LABEL}; times below use your dashboard timezone.`} title="Upcoming syncs">
+          <SectionCard description={`Semantic filtering runs ${HOURLY_SEMANTIC_SCHEDULE_LABEL.toLowerCase()} from the monitoring server; times below use your dashboard timezone.`} title="Upcoming scans">
             {upcomingSyncs.length === 0 ? (
               <EmptyCopy text="No active campaigns are scheduled yet." />
             ) : (

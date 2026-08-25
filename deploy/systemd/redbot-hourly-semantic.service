@@ -1,0 +1,17 @@
+[Unit]
+Description=Trigger Redbot hourly semantic filtering
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/redbotleads.com
+EnvironmentFile=/home/ubuntu/redbotleads.com/.env.semantic-cron
+ExecStart=/usr/bin/bash /home/ubuntu/redbotleads.com/scripts/trigger-hourly-semantic.sh
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

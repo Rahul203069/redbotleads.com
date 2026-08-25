@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
-import { getNextDailySemanticCronAt } from "@/lib/daily-semantic-schedule";
+import { getNextHourlySemanticCronAt } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import {
   getPlaygroundCandidateScopeFromSnapshot,
@@ -624,5 +624,5 @@ function labelFromScore(score: number): LeadLabel {
 }
 
 function getNextDailySemanticSyncBoundary(source: Date) {
-  return getNextDailySemanticCronAt(source);
+  return getNextHourlySemanticCronAt(source);
 }

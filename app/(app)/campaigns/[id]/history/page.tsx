@@ -6,6 +6,8 @@ import { CalendarDays, Filter } from "lucide-react";
 import { LiveCampaignTabs } from "@/components/live/live-campaign-tabs";
 import { ReadOnlyLiveLeadFeed } from "@/components/live/read-only-live-lead-feed";
 import { auth } from "@/lib/auth";
+import { resolveViewerAppMode } from "@/lib/app-mode";
+import { canViewAnalytics } from "@/lib/beta-access";
 import { CAMPAIGN_LEAD_STATUSES, type CampaignLeadStatus } from "@/lib/campaign-lead-status";
 import { getLiveCampaignHistory } from "@/lib/live-leads";
 import { getSaasConfig } from "@/lib/saas-config";
@@ -17,7 +19,11 @@ export default async function CampaignHistoryPage({ params, searchParams }: { pa
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   const config = await getSaasConfig();
-  if (config.appMode !== "LIVE") {
+  const viewerAppMode = resolveViewerAppMode(
+    config.appMode,
+    canViewAnalytics(session.user.email),
+  );
+  if (viewerAppMode !== "LIVE") {
     const { id } = await params;
     redirect(`/campaigns/${id}`);
   }

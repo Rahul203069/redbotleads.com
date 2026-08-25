@@ -39,6 +39,7 @@ yarn-error.log*
 !.env.docker.example
 !.env.vm.example
 !.env.rss-poll-worker.example
+!.env.semantic-cron.example
 
 # vercel
 .vercel

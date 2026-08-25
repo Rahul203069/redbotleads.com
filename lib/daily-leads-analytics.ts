@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { summarizeNotificationDeliveries } from "@/lib/notification-delivery-summary";
+import { SEMANTIC_CRON_PATHS } from "@/lib/semantic-cron-paths";
 import { addDaysToDateKey, getDateKeyInTimeZone, normalizeTimeZone } from "@/lib/time-zone";
 
-export const DAILY_SEMANTIC_CRON_PATH = "/api/cron/daily-semantic";
 export const DAILY_STRONG_LEAD_SCORE = 75;
 export const DAILY_LEADS_PAGE_SIZE = 50;
 export const DAILY_LEAD_SEMANTIC_STATUS_OPTIONS = ["ALL", "MATCHED", "NO_MATCH"] as const;
@@ -197,7 +197,7 @@ export async function getDailyLeadAnalytics({
   };
   const runWhere = {
     trigger: {
-      in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+      in: ["DAILY_SEMANTIC", "HOURLY_SEMANTIC", "MANUAL_SEMANTIC"],
     },
     createdAt: {
       gte: from,
@@ -213,7 +213,9 @@ export async function getDailyLeadAnalytics({
   const [cronRuns, campaignRuns, scanStatusCounts, matchedScansForMetrics, scans, trendScans] = await Promise.all([
     prisma.cronRun.findMany({
       where: {
-        path: DAILY_SEMANTIC_CRON_PATH,
+        path: {
+          in: [...SEMANTIC_CRON_PATHS],
+        },
         startedAt: {
           gte: from,
           lt: to,

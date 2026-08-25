@@ -38,7 +38,7 @@ The main VM uses `compose.vm.yaml` and `.env.vm`.
 | `postgres` | `reddit-leads-postgres` | PostgreSQL 17 and pgvector storage |
 | `pgbouncer` | `reddit-leads-pgbouncer` | TLS database connection pooling on port `6432` |
 | `redis` | `reddit-leads-redis` | BullMQ queues and worker coordination |
-| `worker` | `reddit-leads-worker` | Combined RSS refiller, daily semantic, embedding, ingestion, semantic matching, classification, playground, and notification workers |
+| `worker` | `reddit-leads-worker` | Combined RSS refiller, scheduled semantic, embedding, ingestion, semantic matching, classification, playground, and notification workers |
 | `db-maintenance-worker` | `reddit-leads-db-maintenance-worker` | Retention cleanup and database maintenance |
 | `migrate` | One-off container | Prisma deployment and database setup; it is not expected to remain running |
 
@@ -62,7 +62,7 @@ git log -1 --oneline
 ### Update and restart only the main worker
 
 Use this when changes affect files under `worker/` or worker-used files under
-`lib/`, including daily semantic matching, RSS refilling, embeddings, or
+`lib/`, including scheduled semantic matching, RSS refilling, embeddings, or
 classification.
 
 ```bash
@@ -94,6 +94,38 @@ All worker processes started in single-process dev mode
 Rebuilding the main worker does not require restarting PostgreSQL, PgBouncer,
 Redis, or the DB-maintenance worker. Run database migrations only when a change
 contains a new Prisma migration.
+
+### Install the hourly semantic trigger
+
+The main VM uses a systemd timer to call the production web endpoint. The
+endpoint only queues jobs; the worker container performs semantic filtering and
+LLM classification.
+
+```bash
+cd /home/ubuntu/redbotleads.com
+cp .env.semantic-cron.example .env.semantic-cron
+chmod 600 .env.semantic-cron
+
+# Set the production URL and the same CRON_SECRET configured on Vercel.
+nano .env.semantic-cron
+
+sudo cp deploy/systemd/redbot-hourly-semantic.service /etc/systemd/system/
+sudo cp deploy/systemd/redbot-hourly-semantic.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now redbot-hourly-semantic.timer
+sudo systemctl start redbot-hourly-semantic.service
+```
+
+Verify the timer and its most recent response without printing the secret:
+
+```bash
+systemctl list-timers redbot-hourly-semantic.timer
+sudo systemctl status redbot-hourly-semantic.service --no-pager
+sudo journalctl -u redbot-hourly-semantic.service -n 50 --no-pager
+```
+
+The timer is persistent, so a missed invocation runs when the server comes back
+online. Duplicate calls in the same UTC hour reuse the same campaign job IDs.
 
 ### Restart without rebuilding
 
@@ -172,6 +204,7 @@ is deliberately migrated to a Compose-managed service.
 | Code area | Main VM | Small RSS VM |
 | --- | --- | --- |
 | `worker/daily-semantic.ts` | Rebuild `worker` | No change |
+| Hourly trigger script or systemd unit | Reinstall/reload the main VM timer | No change |
 | `worker/rss-poll-refiller.ts` | Rebuild `worker` | No change; refiller is not running there |
 | `worker/embedding.ts`, classification, notifications | Rebuild `worker` | No change |
 | `worker-rss/src/rss-polling.ts` or its imports | No change unless duplicated in the main worker | Rebuild standalone container |
@@ -179,7 +212,7 @@ is deliberately migrated to a Compose-managed service.
 | Next.js UI/API/server actions | Redeploy the web application | No change |
 
 Per-campaign semantic search scope is evaluated only by the main VM's combined
-daily-semantic worker. Changing a campaign between `Campaign subreddits` and
+scheduled semantic worker. Changing a campaign between `Campaign subreddits` and
 `Global polling pool` does not require rebuilding or restarting RSS-only VMs.
 
 ## Safety and troubleshooting

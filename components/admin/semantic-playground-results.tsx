@@ -12,9 +12,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  DAILY_SEMANTIC_HOBBY_WINDOW_LABEL,
-  DAILY_SEMANTIC_SCHEDULE_LABEL,
-  getNextDailySemanticCronAt,
+  HOURLY_SEMANTIC_SCHEDULE_LABEL,
+  getNextHourlySemanticCronAt,
 } from "@/lib/daily-semantic-schedule";
 
 type PlaygroundResultSort = "semantic" | "llm";
@@ -469,7 +468,7 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
                 value={syncAt}
               />
               <span className="text-[12px] leading-5 text-[#b3b3b3]">
-                Auto-selected using the {DAILY_SEMANTIC_SCHEDULE_LABEL} target (06:30 UTC). Vercel Hobby may invoke it from {DAILY_SEMANTIC_HOBBY_WINDOW_LABEL}.
+                Auto-selected using the next {HOURLY_SEMANTIC_SCHEDULE_LABEL.toLowerCase()} semantic scan boundary.
               </span>
             </label>
 
@@ -621,7 +620,7 @@ function getInferredDailySemanticSyncIso(fetchedAt: string) {
     return null;
   }
 
-  return getNextDailySemanticCronAt(source).toISOString();
+  return getNextHourlySemanticCronAt(source).toISOString();
 }
 
 function formatPlaygroundLeadForJson(result: SemanticPlaygroundResultItem) {

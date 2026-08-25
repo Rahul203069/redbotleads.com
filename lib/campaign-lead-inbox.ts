@@ -6,6 +6,12 @@ export type CampaignLeadStatusCounts = Record<CampaignLeadStatus, number> & {
 
 export const JUST_ADDED_HIGHLIGHT_MS = 15_000;
 
+export type CampaignLeadFreshnessGroups<T> = {
+  newLeads: T[];
+  earlierLeads: T[];
+  demoLeads: T[];
+};
+
 export function countCampaignLeadStatuses(
   leads: Array<{ status: CampaignLeadStatus }>,
 ): CampaignLeadStatusCounts {
@@ -95,6 +101,39 @@ export function isCampaignLeadNewSinceVisit({
 
   const previousVisitAtMs = new Date(previousVisitAt).getTime();
   return !Number.isNaN(previousVisitAtMs) && createdAtMs > previousVisitAtMs;
+}
+
+export function groupCampaignLeadsByFreshness<
+  T extends { createdAt: string; isDemo?: boolean },
+>(
+  leads: T[],
+  previousVisitAt: string | null,
+  options: { treatDemoAsReal?: boolean } = {},
+): CampaignLeadFreshnessGroups<T> {
+  const groups: CampaignLeadFreshnessGroups<T> = {
+    newLeads: [],
+    earlierLeads: [],
+    demoLeads: [],
+  };
+
+  for (const lead of leads) {
+    if (lead.isDemo && !options.treatDemoAsReal) {
+      groups.demoLeads.push(lead);
+      continue;
+    }
+
+    if (isCampaignLeadNewSinceVisit({
+      createdAt: lead.createdAt,
+      isDemo: options.treatDemoAsReal ? false : lead.isDemo,
+      previousVisitAt,
+    })) {
+      groups.newLeads.push(lead);
+    } else {
+      groups.earlierLeads.push(lead);
+    }
+  }
+
+  return groups;
 }
 
 export function getJustAddedCampaignLeadIds(

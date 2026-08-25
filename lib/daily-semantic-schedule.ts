@@ -1,22 +1,14 @@
-export const DAILY_SEMANTIC_CRON_UTC_HOUR = 6;
-export const DAILY_SEMANTIC_CRON_UTC_MINUTE = 30;
-export const DAILY_SEMANTIC_SCHEDULE_LABEL = "08:30 CEST";
-export const DAILY_SEMANTIC_HOBBY_WINDOW_LABEL = "08:00–08:59 CEST";
+export const HOURLY_SEMANTIC_INTERVAL_MS = 60 * 60 * 1000;
+export const HOURLY_SEMANTIC_SCHEDULE_LABEL = "Every hour";
 
-export function getNextDailySemanticCronAt(now = new Date()) {
-  const next = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    DAILY_SEMANTIC_CRON_UTC_HOUR,
-    DAILY_SEMANTIC_CRON_UTC_MINUTE,
-    0,
-    0,
-  ));
+export function getHourlySemanticScheduleBucket(now = new Date()) {
+  return now.toISOString().slice(0, 13);
+}
 
-  if (next.getTime() <= now.getTime()) {
-    next.setUTCDate(next.getUTCDate() + 1);
-  }
+export function getNextHourlySemanticCronAt(now = new Date()) {
+  const nextBoundary =
+    (Math.floor(now.getTime() / HOURLY_SEMANTIC_INTERVAL_MS) + 1)
+    * HOURLY_SEMANTIC_INTERVAL_MS;
 
-  return next;
+  return new Date(nextBoundary);
 }

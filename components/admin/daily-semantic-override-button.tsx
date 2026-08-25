@@ -19,7 +19,7 @@ export function DailySemanticOverrideButton() {
 
       if (result.status === "success") {
         toast({
-          title: "Daily semantic queued",
+          title: "Semantic filtering queued",
           description: `${result.message} Failed: ${result.failed ?? 0}.`,
         });
         router.refresh();

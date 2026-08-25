@@ -89,12 +89,12 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
   });
 
   if (!campaign) {
-    await markCampaignRunCompleted(data.campaignRunId, "Skipping daily semantic search for inactive or missing campaign.");
+    await markCampaignRunCompleted(data.campaignRunId, "Skipping scheduled semantic search for inactive or missing campaign.");
     workerLogger.info({ jobId, campaignId: data.campaignId }, "Skipping daily semantic search for inactive or missing campaign");
     return { skipped: true, reason: "campaign_missing_or_inactive" };
   }
 
-  await markCampaignRunProcessing(data.campaignRunId, "Starting daily semantic search for this campaign.");
+  await markCampaignRunProcessing(data.campaignRunId, "Starting scheduled semantic search for this campaign.");
 
   const candidateScope = campaign.semanticSearchScope;
   const subredditPool = candidateScope === "GLOBAL"
@@ -113,8 +113,8 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
 
   if (subreddits.length === 0) {
     const emptyScopeMessage = candidateScope === "GLOBAL"
-      ? "Skipping daily semantic search because no subreddits are enabled in the global polling pool."
-      : "Skipping daily semantic search because this campaign has no linked subreddits enabled for RSS polling.";
+      ? "Skipping scheduled semantic search because no subreddits are enabled in the global polling pool."
+      : "Skipping scheduled semantic search because this campaign has no linked subreddits enabled for RSS polling.";
     await markCampaignRunCompleted(
       data.campaignRunId,
       emptyScopeMessage,
@@ -138,7 +138,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
   });
 
   if (semanticQueryCount === 0) {
-    await markCampaignRunCompleted(data.campaignRunId, "Skipping daily semantic search because campaign has no semantic queries.");
+    await markCampaignRunCompleted(data.campaignRunId, "Skipping scheduled semantic search because campaign has no semantic queries.");
     workerLogger.info({ jobId, campaignId: campaign.id }, "Skipping daily semantic search because campaign has no semantic queries");
     return { skipped: true, reason: "no_semantic_queries" };
   }
@@ -150,7 +150,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
       id: data.campaignRunId ? { not: data.campaignRunId } : undefined,
       status: "COMPLETED",
       trigger: {
-        in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+        in: ["DAILY_SEMANTIC", "HOURLY_SEMANTIC", "MANUAL_SEMANTIC"],
       },
     },
     select: {
@@ -284,9 +284,9 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
   };
 
   if (queuedClassifications > 0) {
-    await markCampaignRunProcessing(data.campaignRunId, "Daily semantic leads are waiting for AI scoring.", stats);
+    await markCampaignRunProcessing(data.campaignRunId, "Scheduled semantic leads are waiting for AI scoring.", stats);
   } else {
-    await markCampaignRunCompleted(data.campaignRunId, "Daily semantic search complete. No new AI scoring was needed.", stats);
+    await markCampaignRunCompleted(data.campaignRunId, "Scheduled semantic search complete. No new AI scoring was needed.", stats);
   }
 
   await refreshDailySemanticCampaignRunStats(data.campaignRunId);
@@ -298,7 +298,7 @@ async function runDailySemanticCampaign(data: DailySemanticCampaignJobData, jobI
   } catch (error) {
     await markCampaignRunFailed(
       data.campaignRunId,
-      error instanceof Error ? error.message : "Daily semantic search failed.",
+      error instanceof Error ? error.message : "Scheduled semantic search failed.",
     );
     throw error;
   }

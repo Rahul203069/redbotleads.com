@@ -56,7 +56,9 @@ export async function updateApplicationMode(input: string): Promise<ApplicationM
   revalidatePath("/", "layout");
   return {
     status: "success",
-    message: parsed.data === "LIVE" ? "Live Mode is now active for everyone." : "Daily Mode is now active for everyone.",
+    message: parsed.data === "LIVE"
+      ? "Live Mode is now active for non-admin users. Admin remains in Daily Mode."
+      : "Daily Mode is now active for non-admin users. Admin remains in Daily Mode.",
     appMode: parsed.data,
   };
 }

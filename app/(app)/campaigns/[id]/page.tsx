@@ -7,7 +7,6 @@ import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
 import { CampaignRssPollingToggle } from "@/components/admin/campaign-rss-polling-toggle";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
-import { LiveCampaignOverview } from "@/components/live/live-campaign-overview";
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignPublicViewStats } from "@/components/campaigns/campaign-public-view-stats";
 import { CampaignShareDialogButton } from "@/components/campaigns/campaign-share-dialog-button";
@@ -21,6 +20,7 @@ import { NewCampaignSemanticRunControl } from "@/components/campaigns/new-campai
 import { ViewCampaignDescriptionDialog } from "@/components/campaigns/view-campaign-description-dialog";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
+import { resolveViewerAppMode } from "@/lib/app-mode";
 import { getCampaignInitialRssDiagnostics } from "@/actions/campaigns";
 import { canViewAnalytics } from "@/lib/beta-access";
 import {
@@ -35,11 +35,10 @@ import { getLiveNotificationHealth } from "@/lib/live-leads";
 import { getManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
 import {
   getDailyLeadDateSelection,
-  parseDailyLeadsPage,
   type DailyLeadDateRangeValue,
   type DailyLeadDateSelection,
 } from "@/lib/daily-leads-analytics";
-import { getNextDailySemanticCronAt } from "@/lib/daily-semantic-schedule";
+import { getNextHourlySemanticCronAt } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import { getPublicShareViewStats } from "@/lib/public-share-analytics";
 import { getSaasConfig } from "@/lib/saas-config";
@@ -102,24 +101,9 @@ export default async function CampaignDetailPage({
   };
   const leadDateFilterKey = getLeadDateFilterKey(leadDateFilter);
   const applicationConfig = await getSaasConfig();
-  const isLiveTodayView = applicationConfig.appMode === "LIVE"
-    && !isAdminAccount
+  const viewerAppMode = resolveViewerAppMode(applicationConfig.appMode, isAdminAccount);
+  const isLiveTodayView = viewerAppMode === "LIVE"
     && isExactDateSelection(leadDateSelection, todayRange);
-  if (applicationConfig.appMode === "LIVE" && isAdminAccount) {
-    return (
-      <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
-        <LiveCampaignOverview
-          campaignId={id}
-          dateSelection={leadDateSelection}
-          email={session.user.email}
-          isAdminAccount={isAdminAccount}
-          page={parseDailyLeadsPage(resolvedSearchParams.page)}
-          timeZone={browserTimeZone}
-          userId={session.user.id}
-        />
-      </CampaignLeadFilterLoadingProvider>
-    );
-  }
 
   const campaign = await prisma.campaign.findFirst({
     where: buildAccessibleCampaignWhere({
@@ -204,7 +188,7 @@ export default async function CampaignDetailPage({
       where: {
         campaignId: campaign.id,
         trigger: {
-          in: ["DAILY_SEMANTIC", "MANUAL_SEMANTIC"],
+          in: ["DAILY_SEMANTIC", "HOURLY_SEMANTIC", "MANUAL_SEMANTIC"],
         },
       },
       orderBy: {
@@ -225,7 +209,7 @@ export default async function CampaignDetailPage({
       : Promise.resolve(null),
   ]);
   const latestSemanticRunAt = getLatestSemanticRunTimestamp(latestSemanticRun);
-  const semanticNextSyncAt = getNextDailySemanticCronAt();
+  const semanticNextSyncAt = getNextHourlySemanticCronAt();
   const shouldWaitForTodaySync = shouldWaitForTodayDailySemanticSync({
     latestSemanticRunAt,
     selection: leadDateSelection,
@@ -476,7 +460,6 @@ export default async function CampaignDetailPage({
         telegramConnectedAt={notificationUser?.telegramConnectedAt?.toISOString() ?? null}
         telegramUsername={notificationUser?.telegramUsername ?? null}
         timeZone={browserTimeZone}
-        todayDateKey={getDateKeyInTimeZone(new Date(), browserTimeZone)}
         visitStartedAt={visitStartedAt.toISOString()}
         viewMode={isLiveTodayView ? "LIVE_TODAY" : "DAILY_HISTORY"}
       />
@@ -606,10 +589,10 @@ function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
           ? "border-[#1ed760]/25 bg-[#1ed760]/10 text-[#7cf5a3]"
           : "border-[#3f3f46] bg-[#121212] text-[#b3b3b3]"
       }`}
-      title={isActive ? "Campaign will run through scheduled daily RSS and semantic jobs." : "Activate this campaign to include it in scheduled daily processing."}
+      title={isActive ? "Campaign receives hourly semantic filtering from newly collected Reddit posts." : "Activate this campaign to include it in hourly semantic filtering."}
     >
       <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
-      {isActive ? "Scheduled daily" : "Paused"}
+      {isActive ? "Monitored hourly" : "Paused"}
     </div>
   );
 }

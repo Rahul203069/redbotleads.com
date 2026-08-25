@@ -527,7 +527,7 @@ export function CampaignWizard({ isAdminAccount, triggerLabel, triggerVariant = 
             <DialogFooter className="gap-4">
               <div className="text-[12px] leading-5 text-[#b3b3b3]">
                 {createdCampaign
-                  ? "The scheduled daily semantic run remains enabled."
+                  ? "Hourly semantic monitoring remains enabled."
                   : "All fields are saved only after the final step completes."}
               </div>
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">

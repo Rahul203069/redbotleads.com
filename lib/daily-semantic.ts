@@ -1,76 +1,105 @@
+import { getHourlySemanticScheduleBucket } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import { dailySemanticMaxCampaignsPerCron } from "@/worker/config";
 import { enqueueDailySemanticCampaign } from "@/worker/queues";
 
-export async function enqueueDailySemanticCampaigns(options?: {
+type HourlySemanticEnqueueOptions = {
   cronRunId?: string;
   now?: Date;
   batchSize?: number;
-}) {
+};
+
+export async function enqueueHourlySemanticCampaigns(options?: HourlySemanticEnqueueOptions) {
   const now = options?.now ?? new Date();
-  const batchSize = options?.batchSize ?? dailySemanticMaxCampaignsPerCron;
-
-  const campaigns = await prisma.campaign.findMany({
-    where: {
-      isActive: true,
-      semanticQueries: {
-        some: {},
-      },
-    },
-    select: {
-      id: true,
-    },
-    orderBy: {
-      updatedAt: "asc",
-    },
-    take: batchSize,
-  });
-
-  if (campaigns.length === 0) {
-    return {
-      queued: 0,
-      skipped: 0,
-      failed: 0,
-      campaignIds: [] as string[],
-      failures: [] as Array<{ campaignId: string; message: string }>,
-    };
-  }
-
+  const batchSize = Math.max(1, options?.batchSize ?? dailySemanticMaxCampaignsPerCron);
   const queuedAt = now.toISOString();
-  const results = await Promise.allSettled(
-    campaigns.map((campaign) =>
-      enqueueDailySemanticCampaign({
-        campaignId: campaign.id,
-        cronRunId: options?.cronRunId,
-        queuedAt,
-      }),
-    ),
-  );
-
+  const scheduleBucket = getHourlySemanticScheduleBucket(now);
   const queuedCampaignIds: string[] = [];
   const failures: Array<{ campaignId: string; message: string }> = [];
+  let eligible = 0;
+  let alreadyQueued = 0;
+  let alreadyRunning = 0;
+  let cursor: string | undefined;
 
-  results.forEach((result, index) => {
-    const campaignId = campaigns[index]?.id;
-
-    if (!campaignId) {
-      return;
-    }
-
-    if (result.status === "fulfilled") {
-      queuedCampaignIds.push(campaignId);
-      return;
-    }
-
-    failures.push({
-      campaignId,
-      message: result.reason instanceof Error ? result.reason.message : "Daily semantic enqueue failed.",
+  while (true) {
+    const campaigns = await prisma.campaign.findMany({
+      where: {
+        isActive: true,
+        semanticQueries: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+      orderBy: {
+        id: "asc",
+      },
+      ...(cursor
+        ? {
+            cursor: { id: cursor },
+            skip: 1,
+          }
+        : {}),
+      take: batchSize,
     });
-  });
+
+    if (campaigns.length === 0) {
+      break;
+    }
+
+    eligible += campaigns.length;
+    const results = await Promise.allSettled(
+      campaigns.map((campaign) =>
+        enqueueDailySemanticCampaign({
+          campaignId: campaign.id,
+          cronRunId: options?.cronRunId,
+          queuedAt,
+          runTrigger: "HOURLY_SEMANTIC",
+          scheduleBucket,
+          source: "hourly_scheduled",
+        }),
+      ),
+    );
+
+    results.forEach((result, index) => {
+      const campaignId = campaigns[index]?.id;
+
+      if (!campaignId) {
+        return;
+      }
+
+      if (result.status === "rejected") {
+        failures.push({
+          campaignId,
+          message: result.reason instanceof Error ? result.reason.message : "Hourly semantic enqueue failed.",
+        });
+        return;
+      }
+
+      if (result.value.outcome === "queued") {
+        queuedCampaignIds.push(campaignId);
+      } else if (result.value.outcome === "already_queued") {
+        alreadyQueued += 1;
+      } else {
+        alreadyRunning += 1;
+      }
+    });
+
+    cursor = campaigns[campaigns.length - 1]?.id;
+
+    if (campaigns.length < batchSize || !cursor) {
+      break;
+    }
+  }
 
   return {
+    scheduleBucket,
+    eligible,
     queued: queuedCampaignIds.length,
-    skipped: Math.max(0, campaigns.length - queuedCampaignIds.length - failures.length),
+    skipped: alreadyQueued + alreadyRunning,
+    alreadyQueued,
+    alreadyRunning,
     failed: failures.length,
     campaignIds: queuedCampaignIds,
     failures,

@@ -12,3 +12,10 @@ export function normalizeSaasAppMode(
   if (value === "DAILY") return "DAILY";
   return legacyLayout === "INBOX" ? "LIVE" : DEFAULT_SAAS_APP_MODE;
 }
+
+export function resolveViewerAppMode(
+  configuredMode: string | null | undefined,
+  isAdminAccount: boolean,
+): SaasAppMode {
+  return isAdminAccount ? "DAILY" : normalizeSaasAppMode(configuredMode);
+}

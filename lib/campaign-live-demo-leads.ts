@@ -91,7 +91,7 @@ export function createCampaignLiveDemoLeads({
       postedMinutesAgo: 76,
       score: 89,
       semanticScore: 0.91,
-      status: "SAVED",
+      status: "NEW",
       subreddit: "freightforwarding",
       summary: "The buyer is comparing providers for a specific full-container shipment into Vancouver.",
       title: "FCL shipment from Busan to Vancouver",

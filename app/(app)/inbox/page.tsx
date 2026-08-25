@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
+import { resolveViewerAppMode } from "@/lib/app-mode";
+import { canViewAnalytics } from "@/lib/beta-access";
 import { buildAccessibleCampaignWhere } from "@/lib/campaign-access";
 import { prisma } from "@/lib/prisma";
 import { getSaasConfig } from "@/lib/saas-config";
@@ -29,8 +31,12 @@ export default async function LegacyInboxRedirect({
   }
 
   const config = await getSaasConfig();
+  const viewerAppMode = resolveViewerAppMode(
+    config.appMode,
+    canViewAnalytics(session.user.email),
+  );
 
-  if (config.appMode !== "LIVE") {
+  if (viewerAppMode !== "LIVE") {
     redirect("/app");
   }
 

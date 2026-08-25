@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/daily-semantic",
-      "schedule": "30 6 * * *"
-    }
-  ]
-}

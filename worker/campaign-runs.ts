@@ -1,7 +1,7 @@
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
-type RunTrigger = "CAMPAIGN_CREATED" | "MANUAL_RESYNC" | "DAILY_SYNC" | "RSS_POLL_MATCH" | "DAILY_SEMANTIC" | "MANUAL_SEMANTIC";
+type RunTrigger = "CAMPAIGN_CREATED" | "MANUAL_RESYNC" | "DAILY_SYNC" | "RSS_POLL_MATCH" | "DAILY_SEMANTIC" | "HOURLY_SEMANTIC" | "MANUAL_SEMANTIC";
 type RunStatus = "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {

@@ -70,16 +70,19 @@ export function ApplicationModeControl({ initialMode }: { initialMode: SaasAppMo
             );
           })}
         </div>
+        <p className="text-[10px] leading-4 text-[#8f8f8f]">
+          This changes the experience for non-admin users. Admin accounts always remain in Daily Mode.
+        </p>
         <Button className="w-full cursor-pointer rounded-full bg-[#1f1f1f] text-[11px] font-bold uppercase tracking-[0.14em] text-white hover:bg-[#252525]" disabled={selectedMode === currentMode || isPending} onClick={() => setConfirmationOpen(true)} type="button">
-          Apply globally
+          Apply to users
         </Button>
       </div>
       <Dialog open={confirmationOpen} onOpenChange={(open) => !isPending && setConfirmationOpen(open)}>
         <DialogContent className="max-w-lg">
           <div className="space-y-5 p-6">
             <DialogHeader>
-              <DialogTitle>Enable {selectedMode === "LIVE" ? "Live Mode" : "Daily Mode"} for everyone?</DialogTitle>
-              <DialogDescription>The navigation and campaign experience changes globally after the next refresh. Existing lead records are preserved.</DialogDescription>
+              <DialogTitle>Enable {selectedMode === "LIVE" ? "Live Mode" : "Daily Mode"} for non-admin users?</DialogTitle>
+              <DialogDescription>User navigation and campaign pages change after their next refresh. Your admin experience remains in Daily Mode, and existing lead records are preserved.</DialogDescription>
             </DialogHeader>
           </div>
           <DialogFooter className="border-t border-[#27272a] p-4">

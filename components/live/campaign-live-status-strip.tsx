@@ -1,15 +1,29 @@
 "use client";
 
-import { AlertTriangle, BellRing, CheckCircle2, Clock3, Settings2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  AlertTriangle,
+  BellRing,
+  CheckCircle2,
+  Clock3,
+  LoaderCircle,
+  Radio,
+  Settings2,
+} from "lucide-react";
 import Link from "next/link";
 
 import type { CampaignLeadSyncStatus } from "@/lib/campaign-lead-empty-state";
+import { formatLeadRelativeTime } from "@/lib/campaign-lead-inbox";
 import type { LiveNotificationHealth } from "@/lib/live-leads";
 
 export function CampaignLiveStatusStrip({
   campaignIsActive,
   health,
+  isRefreshing,
   lastCheckedAt,
+  lastRefreshedAt,
+  nextRefreshAt,
+  refreshFailed,
   syncStatus,
   telegramConnectedAt,
   telegramUsername,
@@ -17,12 +31,17 @@ export function CampaignLiveStatusStrip({
 }: {
   campaignIsActive: boolean;
   health: LiveNotificationHealth | null;
+  isRefreshing: boolean;
   lastCheckedAt: string | null;
+  lastRefreshedAt: string | null;
+  nextRefreshAt: string | null;
+  refreshFailed: boolean;
   syncStatus: CampaignLeadSyncStatus;
   telegramConnectedAt: string | null;
   telegramUsername: string | null;
   timeZone: string;
 }) {
+  const [nowMs, setNowMs] = useState<number | null>(null);
   const isSyncing = syncStatus === "QUEUED" || syncStatus === "PROCESSING";
   const telegramConnected = Boolean(telegramConnectedAt);
   const telegramLabel = telegramUsername
@@ -30,6 +49,37 @@ export function CampaignLiveStatusStrip({
     : "Telegram";
   const pendingCount = health?.pendingCount ?? 0;
   const failedCount = health?.failedCount ?? 0;
+  const isScanning = campaignIsActive && (isSyncing || isRefreshing);
+  const nextRefreshSeconds = nowMs !== null && nextRefreshAt
+    ? Math.max(0, Math.ceil((new Date(nextRefreshAt).getTime() - nowMs) / 1_000))
+    : null;
+  const statusTitle = !campaignIsActive
+    ? "Monitoring paused"
+    : isSyncing
+      ? "Checking Reddit for new posts…"
+      : isRefreshing
+        ? "Refreshing live feed…"
+        : refreshFailed
+          ? "Refresh delayed · Retrying automatically"
+          : "Live monitoring active";
+  const statusDetail = !campaignIsActive
+    ? "Automatic checks will resume when this campaign is active."
+    : isSyncing
+      ? "The monitoring pipeline is processing a fresh Reddit check."
+      : isRefreshing
+        ? "Fetching the latest qualified posts. Your current feed stays visible."
+        : refreshFailed
+          ? "Your existing posts are still available while the next refresh is scheduled."
+          : "New qualified posts appear here automatically while this page is open.";
+
+  useEffect(() => {
+    const firstTickId = window.setTimeout(() => setNowMs(Date.now()), 0);
+    const intervalId = window.setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => {
+      window.clearTimeout(firstTickId);
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   return (
     <section
@@ -39,23 +89,41 @@ export function CampaignLiveStatusStrip({
     >
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex min-w-0 items-start gap-3">
-          <span className={`relative mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full ${campaignIsActive ? "bg-[#1ed760]/12 text-[#55e982]" : "bg-[#252525] text-[#8f8f8f]"}`}>
-            <BellRing aria-hidden="true" className="h-4 w-4" />
-            {campaignIsActive ? <span aria-hidden="true" className="absolute right-0.5 top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#181818] bg-[#55e982]" /> : null}
+          <span className={`relative mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full ${campaignIsActive ? refreshFailed ? "bg-[#3b2d10] text-[#ffd66e]" : "bg-[#1ed760]/12 text-[#55e982]" : "bg-[#252525] text-[#8f8f8f]"}`}>
+            {isScanning ? (
+              <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin motion-reduce:animate-none" />
+            ) : refreshFailed && campaignIsActive ? (
+              <AlertTriangle aria-hidden="true" className="h-4 w-4" />
+            ) : (
+              <Radio aria-hidden="true" className="h-4 w-4" />
+            )}
+            {campaignIsActive && !refreshFailed ? (
+              <span aria-hidden="true" className="absolute right-0.5 top-0.5 h-2.5 w-2.5 animate-pulse rounded-full border-2 border-[#181818] bg-[#55e982] motion-reduce:animate-none" />
+            ) : null}
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <h2 className="text-[14px] font-bold text-white">
-                {campaignIsActive ? isSyncing ? "Checking Reddit now" : "Live monitoring active" : "Monitoring paused"}
-              </h2>
-              <span className="text-[11px] text-[#737373]">·</span>
-              <p className="text-[11px] text-[#a7a7a7]">
-                {lastCheckedAt ? `Last checked ${formatDateTime(lastCheckedAt, timeZone)}` : "Waiting for the first check"}
-              </p>
+              <h2 aria-live="polite" className="text-[14px] font-bold text-white">{statusTitle}</h2>
+              {campaignIsActive && !isScanning && !refreshFailed && nextRefreshSeconds !== null ? (
+                <p className="text-[11px] font-semibold text-[#73f5a0]">
+                  · Next refresh in {nextRefreshSeconds}s
+                </p>
+              ) : null}
             </div>
             <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">
-              New qualified leads appear here automatically. You can keep this page open.
+              {statusDetail}
             </p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-medium text-[#737373]">
+              <span>
+                {lastRefreshedAt && nowMs !== null
+                  ? `Feed updated ${formatLeadRelativeTime(lastRefreshedAt, nowMs)}`
+                  : "Waiting for the first feed refresh"}
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>
+                {lastCheckedAt ? `Reddit checked ${formatDateTime(lastCheckedAt, timeZone)}` : "Waiting for the first Reddit check"}
+              </span>
+            </div>
           </div>
         </div>
 

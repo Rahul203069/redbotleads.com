@@ -97,7 +97,6 @@ export async function GET(request: NextRequest) {
       id: session.user.id,
     },
     data: {
-      preferredAlertChannel: "SLACK",
       slackAuthedUserId: payload.authed_user?.id ?? null,
       slackChannelId: payload.incoming_webhook?.channel_id ?? null,
       slackChannelName: payload.incoming_webhook?.channel ?? null,

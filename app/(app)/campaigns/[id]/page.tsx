@@ -30,7 +30,6 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
-import { createCampaignLiveDemoLeads } from "@/lib/campaign-live-demo-leads";
 import { getLiveNotificationHealth } from "@/lib/live-leads";
 import { getManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
 import {
@@ -267,12 +266,6 @@ export default async function CampaignDetailPage({
     ?? initialDiagnostics?.run.queuedAt
     ?? campaign.createdAt.toISOString();
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
-  const initialDemoLeads = isLiveTodayView && classifiedLeads.length === 0
-    ? createCampaignLiveDemoLeads({
-        dayFrom: todayRange.from,
-        dayTo: todayRange.to,
-      })
-    : [];
   const canExportLeads = isAdminAccount || canManage;
   const leadDateLabel = getLeadDateSelectionLabel(leadDateSelection, browserTimeZone);
 
@@ -411,7 +404,6 @@ export default async function CampaignDetailPage({
         campaignIsActive={campaign.isActive}
         canDeleteLeads={isAdminAccount}
         initialDiagnostics={initialDiagnostics}
-        initialDemoLeads={initialDemoLeads}
         initialLeads={classifiedLeads}
         initialNotificationHealth={initialNotificationHealth}
         initialSync={

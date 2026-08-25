@@ -35,6 +35,30 @@ export async function updateNotificationSettings(
   const preferredAlertChannel = normalizeAlertChannel(formData.get("preferredAlertChannel"));
 
   try {
+    const channelConnections = await prisma.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+      select: {
+        slackWebhookUrl: true,
+        telegramChatId: true,
+      },
+    });
+
+    if (preferredAlertChannel === "SLACK" && !channelConnections?.slackWebhookUrl?.trim()) {
+      return {
+        status: "error",
+        message: "Connect Slack before selecting it for lead alerts.",
+      };
+    }
+
+    if (preferredAlertChannel === "TELEGRAM" && !channelConnections?.telegramChatId?.trim()) {
+      return {
+        status: "error",
+        message: "Connect Telegram before selecting it for lead alerts.",
+      };
+    }
+
     await prisma.user.update({
       where: {
         id: session.user.id,

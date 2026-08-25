@@ -17,6 +17,7 @@ import { formatLeadRelativeTime } from "@/lib/campaign-lead-inbox";
 import type { LiveNotificationHealth } from "@/lib/live-leads";
 
 export function CampaignLiveStatusStrip({
+  campaignId,
   campaignIsActive,
   health,
   isRefreshing,
@@ -29,6 +30,7 @@ export function CampaignLiveStatusStrip({
   telegramUsername,
   timeZone,
 }: {
+  campaignId: string;
   campaignIsActive: boolean;
   health: LiveNotificationHealth | null;
   isRefreshing: boolean;
@@ -145,7 +147,7 @@ export function CampaignLiveStatusStrip({
           />
           <Link
             className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[#252525] px-4 text-[10px] font-bold uppercase tracking-[0.12em] text-white transition-colors duration-200 hover:bg-[#303030] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70"
-            href="/settings/notifcation"
+            href={`/settings/notifcation?campaignId=${encodeURIComponent(campaignId)}`}
           >
             <Settings2 aria-hidden="true" className="h-4 w-4" />
             Alerts

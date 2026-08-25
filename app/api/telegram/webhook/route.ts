@@ -90,6 +90,7 @@ export async function POST(request: NextRequest) {
         id: pairing.userId,
       },
       data: {
+        preferredAlertChannel: "TELEGRAM",
         telegramChatId: String(chatId),
         telegramConnectedAt: new Date(),
         telegramUsername: username,
@@ -110,7 +111,7 @@ export async function POST(request: NextRequest) {
     userId: pairing.userId,
   });
 
-  await safeTelegramReply(String(chatId), "Telegram connected. Lead alerts can now be sent here. Tap below to return to Redbot Leads.", {
+  await safeTelegramReply(String(chatId), "Telegram connected and selected for lead alerts. Tap below to return to Redbot Leads.", {
     appUrl: notificationSettingsUrl,
   });
 

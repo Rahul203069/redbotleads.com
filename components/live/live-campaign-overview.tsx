@@ -91,7 +91,7 @@ export async function LiveCampaignOverview({
             </p>
             <Link
               className="mt-3 inline-flex cursor-pointer items-center gap-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#55e982] transition-colors hover:text-[#73f5a0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70"
-              href="/settings/notifcation"
+              href={`/settings/notifcation?campaignId=${encodeURIComponent(campaignId)}`}
             >
               Manage <ArrowRight className="h-3.5 w-3.5" />
             </Link>

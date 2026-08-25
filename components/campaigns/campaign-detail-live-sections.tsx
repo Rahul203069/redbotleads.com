@@ -292,6 +292,7 @@ export function CampaignDetailLiveSections({
     <>
       {isLiveToday ? (
         <CampaignLiveStatusStrip
+          campaignId={campaignId}
           campaignIsActive={campaignIsActive}
           health={notificationHealth}
           isRefreshing={isRefreshing}

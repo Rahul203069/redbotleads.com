@@ -16,6 +16,7 @@ export default async function NotificationSettingsPage({
   searchParams,
 }: {
   searchParams?: Promise<{
+    campaignId?: string;
     slack?: string;
   }>;
 }) {
@@ -45,6 +46,20 @@ export default async function NotificationSettingsPage({
   if (!user) {
     redirect("/login");
   }
+
+  const campaignId = String(params?.campaignId ?? "").trim();
+  const returnCampaign = campaignId
+    ? await prisma.campaign.findFirst({
+        where: buildAccessibleCampaignWhere({
+          campaignId,
+          email: session.user.email,
+          userId: session.user.id,
+        }),
+        select: {
+          id: true,
+        },
+      })
+    : null;
 
   const isAdminAccount = canViewAnalytics(session.user.email);
   const notificationCampaigns = !isAdminAccount
@@ -117,7 +132,10 @@ export default async function NotificationSettingsPage({
         </div>
       </section>
 
-      <SettingsBackLink />
+      <SettingsBackLink
+        href={returnCampaign ? `/campaigns/${returnCampaign.id}` : undefined}
+        label={returnCampaign ? "Back to campaign" : undefined}
+      />
 
       {params?.slack ? (
         <div

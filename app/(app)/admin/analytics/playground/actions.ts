@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
-import { getNextHourlySemanticCronAt } from "@/lib/daily-semantic-schedule";
+import { getNextSemanticScanAt } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import {
   getPlaygroundCandidateScopeFromSnapshot,
@@ -357,7 +357,7 @@ export async function addPlaygroundResultToCampaignLead(formData: FormData): Pro
   const campaign = playgroundResult.run.campaign;
   const score = playgroundResult.score;
   const label = playgroundResult.label ?? labelFromScore(score);
-  const inferredSyncAt = getNextDailySemanticSyncBoundary(playgroundResult.redditItem.fetchedAt);
+  const inferredSyncAt = getNextSemanticSyncBoundary(playgroundResult.redditItem.fetchedAt);
   const overrideSyncAt = syncAtValue ? new Date(syncAtValue) : null;
 
   if (overrideSyncAt && Number.isNaN(overrideSyncAt.getTime())) {
@@ -623,6 +623,6 @@ function labelFromScore(score: number): LeadLabel {
   return "LOW";
 }
 
-function getNextDailySemanticSyncBoundary(source: Date) {
-  return getNextHourlySemanticCronAt(source);
+function getNextSemanticSyncBoundary(source: Date) {
+  return getNextSemanticScanAt(source);
 }

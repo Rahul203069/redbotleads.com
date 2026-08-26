@@ -95,7 +95,7 @@ Rebuilding the main worker does not require restarting PostgreSQL, PgBouncer,
 Redis, or the DB-maintenance worker. Run database migrations only when a change
 contains a new Prisma migration.
 
-### Install the hourly semantic trigger
+### Install the 30-minute semantic trigger
 
 The main VM uses a systemd timer to call the production web endpoint. The
 endpoint only queues jobs; the worker container performs semantic filtering and
@@ -125,7 +125,9 @@ sudo journalctl -u redbot-hourly-semantic.service -n 50 --no-pager
 ```
 
 The timer is persistent, so a missed invocation runs when the server comes back
-online. Duplicate calls in the same UTC hour reuse the same campaign job IDs.
+online. Duplicate calls in the same UTC half-hour reuse the same campaign job
+IDs. The endpoint, script, and systemd unit retain their historical `hourly`
+names for compatibility.
 
 ### Restart without rebuilding
 
@@ -204,7 +206,7 @@ is deliberately migrated to a Compose-managed service.
 | Code area | Main VM | Small RSS VM |
 | --- | --- | --- |
 | `worker/daily-semantic.ts` | Rebuild `worker` | No change |
-| Hourly trigger script or systemd unit | Reinstall/reload the main VM timer | No change |
+| Semantic trigger script or systemd unit | Reinstall/reload the main VM timer | No change |
 | `worker/rss-poll-refiller.ts` | Rebuild `worker` | No change; refiller is not running there |
 | `worker/embedding.ts`, classification, notifications | Rebuild `worker` | No change |
 | `worker-rss/src/rss-polling.ts` or its imports | No change unless duplicated in the main worker | Rebuild standalone container |

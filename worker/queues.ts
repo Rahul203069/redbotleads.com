@@ -483,7 +483,7 @@ export async function enqueueDailySemanticCampaign(data: DailySemanticCampaignJo
   }
 
   const runTrigger = data.runTrigger ?? "DAILY_SEMANTIC";
-  const scheduleDescription = runTrigger === "HOURLY_SEMANTIC" ? "Hourly" : "Daily";
+  const scheduleDescription = runTrigger === "HOURLY_SEMANTIC" ? "Scheduled" : "Daily";
 
   const campaignRun = data.campaignRunId
     ? { id: data.campaignRunId }

@@ -1,8 +1,8 @@
 [Unit]
-Description=Run Redbot semantic filtering every hour
+Description=Run Redbot semantic filtering every 30 minutes
 
 [Timer]
-OnCalendar=hourly
+OnCalendar=*-*-* *:00,30:00
 Persistent=true
 RandomizedDelaySec=0
 Unit=redbot-hourly-semantic.service

@@ -11,8 +11,8 @@ import {
   getCampaignDisplayName,
 } from "@/lib/campaign-access";
 import {
-  HOURLY_SEMANTIC_SCHEDULE_LABEL,
-  getNextHourlySemanticCronAt,
+  SEMANTIC_SCAN_SCHEDULE_LABEL,
+  getNextSemanticScanAt,
 } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import {
@@ -170,7 +170,7 @@ export default async function AppHomePage() {
   const newStrongLeads = campaign?.leads.filter(
     (lead) => lead.ai && lead.score > STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
   ).length ?? 0;
-  const nextSyncAt = campaign ? getNextHourlySemanticCronAt(now) : null;
+  const nextSyncAt = campaign ? getNextSemanticScanAt(now) : null;
   const campaignStatus = campaign?.sync?.status ?? (campaign ? "IDLE" : "NONE");
 
   const matchedTrendPairs = trendScans
@@ -232,7 +232,7 @@ export default async function AppHomePage() {
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Campaign status" value={campaign ? formatStatus(campaign.isActive ? campaignStatus : "PAUSED") : "None"} />
-        <StatCard label={`Next scan · ${HOURLY_SEMANTIC_SCHEDULE_LABEL}`} value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
+        <StatCard label={`Next scan · ${SEMANTIC_SCAN_SCHEDULE_LABEL}`} value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
         <StatCard label="Total leads" value={String(visibleLeads).padStart(2, "0")} />
         <StatCard label="New strong leads" value={String(newStrongLeads).padStart(2, "0")} />
       </section>
@@ -306,7 +306,7 @@ async function AdminWorkspaceDashboard({
 }) {
   const now = new Date();
   const dayAgo = new Date(now.valueOf() - DAY_IN_MS);
-  const nextHourlySemanticSyncAt = getNextHourlySemanticCronAt(now);
+  const nextSemanticSyncAt = getNextSemanticScanAt(now);
   const accessibleCampaignWhere = buildAccessibleCampaignWhere({ email, userId });
   const normalizedEmail = String(email ?? "").trim().toLowerCase();
 
@@ -404,7 +404,7 @@ async function AdminWorkspaceDashboard({
       return {
         id: campaign.id,
         name: getCampaignDisplayName(campaign, access),
-        nextSyncAt: nextHourlySemanticSyncAt,
+        nextSyncAt: nextSemanticSyncAt,
         status: campaign.sync?.status ?? "IDLE",
       };
     })
@@ -459,7 +459,7 @@ async function AdminWorkspaceDashboard({
 
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-5">
-          <SectionCard description={`Semantic filtering runs ${HOURLY_SEMANTIC_SCHEDULE_LABEL.toLowerCase()} from the monitoring server; times below use your dashboard timezone.`} title="Upcoming scans">
+          <SectionCard description={`Semantic filtering runs ${SEMANTIC_SCAN_SCHEDULE_LABEL.toLowerCase()} from the monitoring server; times below use your dashboard timezone.`} title="Upcoming scans">
             {upcomingSyncs.length === 0 ? (
               <EmptyCopy text="No active campaigns are scheduled yet." />
             ) : (

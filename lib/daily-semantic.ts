@@ -1,19 +1,19 @@
-import { getHourlySemanticScheduleBucket } from "@/lib/daily-semantic-schedule";
+import { getSemanticScanScheduleBucket } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import { dailySemanticMaxCampaignsPerCron } from "@/worker/config";
 import { enqueueDailySemanticCampaign } from "@/worker/queues";
 
-type HourlySemanticEnqueueOptions = {
+type ScheduledSemanticEnqueueOptions = {
   cronRunId?: string;
   now?: Date;
   batchSize?: number;
 };
 
-export async function enqueueHourlySemanticCampaigns(options?: HourlySemanticEnqueueOptions) {
+export async function enqueueScheduledSemanticCampaigns(options?: ScheduledSemanticEnqueueOptions) {
   const now = options?.now ?? new Date();
   const batchSize = Math.max(1, options?.batchSize ?? dailySemanticMaxCampaignsPerCron);
   const queuedAt = now.toISOString();
-  const scheduleBucket = getHourlySemanticScheduleBucket(now);
+  const scheduleBucket = getSemanticScanScheduleBucket(now);
   const queuedCampaignIds: string[] = [];
   const failures: Array<{ campaignId: string; message: string }> = [];
   let eligible = 0;
@@ -72,7 +72,7 @@ export async function enqueueHourlySemanticCampaigns(options?: HourlySemanticEnq
       if (result.status === "rejected") {
         failures.push({
           campaignId,
-          message: result.reason instanceof Error ? result.reason.message : "Hourly semantic enqueue failed.",
+          message: result.reason instanceof Error ? result.reason.message : "Scheduled semantic enqueue failed.",
         });
         return;
       }

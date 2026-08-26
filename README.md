@@ -243,23 +243,23 @@ Telegram webhook setup:
 curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=$NEXTAUTH_URL/api/telegram/webhook&secret_token=$TELEGRAM_WEBHOOK_SECRET"
 ```
 
-## Hourly Semantic Scheduler
+## 30-Minute Semantic Scheduler
 
 The bigger server calls the authenticated `/api/cron/hourly-semantic` endpoint
-once per hour. The request only queues work; semantic matching, LLM
+every 30 minutes. The request only queues work; semantic matching, LLM
 classification, and notifications continue in the bigger server workers.
 
 - Trigger script: `scripts/trigger-hourly-semantic.sh`
 - Timer definitions: `deploy/systemd/redbot-hourly-semantic.service` and `deploy/systemd/redbot-hourly-semantic.timer`
-- Compatibility route: `/api/cron/daily-semantic` invokes the same hourly enqueue logic.
+- Compatibility route: `/api/cron/daily-semantic` invokes the same recurring enqueue logic.
 - Vercel has no managed cron entry for semantic filtering.
 
 What it does:
 
 - finds active campaigns with semantic queries
 - enqueues `DAILY_SEMANTIC_CAMPAIGN` jobs on the existing `daily-semantic` queue
-- uses the campaign ID plus UTC hour as the job ID, preventing duplicate work
-  within an hour while allowing a fresh run in the following hour
+- uses the campaign ID plus UTC half-hour as the job ID, preventing duplicate
+  work within 30 minutes while allowing a fresh run in the following half-hour
 - respects each campaign's admin-controlled semantic search scope
 - `Campaign subreddits` compares against enabled subreddits linked only to that campaign; this is the default for new campaigns
 - `Global polling pool` compares against the shared enabled-subreddit pool linked to campaigns with admin-controlled RSS fetching enabled, even when those campaigns are inactive

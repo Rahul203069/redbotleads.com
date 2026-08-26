@@ -12,8 +12,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  HOURLY_SEMANTIC_SCHEDULE_LABEL,
-  getNextHourlySemanticCronAt,
+  SEMANTIC_SCAN_SCHEDULE_LABEL,
+  getNextSemanticScanAt,
 } from "@/lib/daily-semantic-schedule";
 
 type PlaygroundResultSort = "semantic" | "llm";
@@ -468,7 +468,7 @@ function ResultCard({ result }: { result: SemanticPlaygroundResultItem }) {
                 value={syncAt}
               />
               <span className="text-[12px] leading-5 text-[#b3b3b3]">
-                Auto-selected using the next {HOURLY_SEMANTIC_SCHEDULE_LABEL.toLowerCase()} semantic scan boundary.
+                Auto-selected using the next {SEMANTIC_SCAN_SCHEDULE_LABEL.toLowerCase()} semantic scan boundary.
               </span>
             </label>
 
@@ -620,7 +620,7 @@ function getInferredDailySemanticSyncIso(fetchedAt: string) {
     return null;
   }
 
-  return getNextHourlySemanticCronAt(source).toISOString();
+  return getNextSemanticScanAt(source).toISOString();
 }
 
 function formatPlaygroundLeadForJson(result: SemanticPlaygroundResultItem) {

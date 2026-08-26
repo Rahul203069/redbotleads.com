@@ -10,7 +10,7 @@ import {
 } from "@/lib/daily-rss-poller-control";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
-import { enqueueHourlySemanticCampaigns } from "@/lib/daily-semantic";
+import { enqueueScheduledSemanticCampaigns } from "@/lib/daily-semantic";
 import { HOURLY_SEMANTIC_CRON_PATH } from "@/lib/semantic-cron-paths";
 import { prisma } from "@/lib/prisma";
 import { classificationQueue } from "@/worker/queues";
@@ -65,7 +65,7 @@ export async function runDailySemanticOverride(): Promise<ManualDailySemanticRes
   const cronRun = await createCronRun(HOURLY_SEMANTIC_CRON_PATH);
 
   try {
-    const result = await enqueueHourlySemanticCampaigns({
+    const result = await enqueueScheduledSemanticCampaigns({
       cronRunId: cronRun.id,
     });
 

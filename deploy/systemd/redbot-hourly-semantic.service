@@ -1,5 +1,5 @@
 [Unit]
-Description=Trigger Redbot hourly semantic filtering
+Description=Trigger Redbot scheduled semantic filtering
 Wants=network-online.target
 After=network-online.target
 

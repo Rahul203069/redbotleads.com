@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 
 import { completeCronRun, createCronRun, failCronRun } from "@/lib/cron-runs";
-import { enqueueHourlySemanticCampaigns } from "@/lib/daily-semantic";
+import { enqueueScheduledSemanticCampaigns } from "@/lib/daily-semantic";
 
-export async function handleHourlySemanticCronRequest(request: Request, path: string) {
+export async function handleScheduledSemanticCronRequest(request: Request, path: string) {
   const url = new URL(request.url);
   const expectedSecret = process.env.CRON_SECRET?.trim();
   const probe = url.searchParams.get("probe") === "1";
 
-  console.info("Hourly semantic trigger request received", {
+  console.info("Scheduled semantic trigger request received", {
     path,
     probe,
     hasCronSecret: Boolean(expectedSecret),
@@ -19,7 +19,7 @@ export async function handleHourlySemanticCronRequest(request: Request, path: st
     const authorization = request.headers.get("authorization");
 
     if (authorization !== `Bearer ${expectedSecret}`) {
-      console.warn("Hourly semantic trigger request rejected", {
+      console.warn("Scheduled semantic trigger request rejected", {
         path,
         reason: authorization ? "invalid_authorization" : "missing_authorization",
       });
@@ -27,7 +27,7 @@ export async function handleHourlySemanticCronRequest(request: Request, path: st
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
   } else if (process.env.NODE_ENV === "production") {
-    console.error("Hourly semantic trigger cannot run because CRON_SECRET is not configured", { path });
+    console.error("Scheduled semantic trigger cannot run because CRON_SECRET is not configured", { path });
     return NextResponse.json({ error: "CRON_SECRET is not configured." }, { status: 500 });
   }
 
@@ -43,17 +43,17 @@ export async function handleHourlySemanticCronRequest(request: Request, path: st
   const cronRun = await createCronRun(path);
 
   try {
-    const result = await enqueueHourlySemanticCampaigns({
+    const result = await enqueueScheduledSemanticCampaigns({
       cronRunId: cronRun.id,
     });
     const message = [
-      `Hourly semantic trigger queued ${result.queued} campaign${result.queued === 1 ? "" : "s"}.`,
+      `Scheduled semantic trigger queued ${result.queued} campaign${result.queued === 1 ? "" : "s"}.`,
       `${result.skipped} already queued or running.`,
       `${result.failed} failed.`,
     ].join(" ");
 
     await completeCronRun(cronRun.id, message, result);
-    console.info("Hourly semantic trigger completed", {
+    console.info("Scheduled semantic trigger completed", {
       path,
       cronRunId: cronRun.id,
       scheduleBucket: result.scheduleBucket,
@@ -70,10 +70,10 @@ export async function handleHourlySemanticCronRequest(request: Request, path: st
       ranAt: new Date().toISOString(),
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Hourly semantic scheduler failed.";
+    const message = error instanceof Error ? error.message : "Scheduled semantic trigger failed.";
     await failCronRun(cronRun.id, message);
 
-    console.error("Hourly semantic trigger failed", {
+    console.error("Scheduled semantic trigger failed", {
       path,
       cronRunId: cronRun.id,
       error: message,

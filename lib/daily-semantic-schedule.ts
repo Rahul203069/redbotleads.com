@@ -1,14 +1,16 @@
-export const HOURLY_SEMANTIC_INTERVAL_MS = 60 * 60 * 1000;
-export const HOURLY_SEMANTIC_SCHEDULE_LABEL = "Every hour";
+export const SEMANTIC_SCAN_INTERVAL_MS = 30 * 60 * 1000;
+export const SEMANTIC_SCAN_SCHEDULE_LABEL = "Every 30 minutes";
 
-export function getHourlySemanticScheduleBucket(now = new Date()) {
-  return now.toISOString().slice(0, 13);
+export function getSemanticScanScheduleBucket(now = new Date()) {
+  const bucketStart = Math.floor(now.getTime() / SEMANTIC_SCAN_INTERVAL_MS) * SEMANTIC_SCAN_INTERVAL_MS;
+
+  return new Date(bucketStart).toISOString().slice(0, 16);
 }
 
-export function getNextHourlySemanticCronAt(now = new Date()) {
+export function getNextSemanticScanAt(now = new Date()) {
   const nextBoundary =
-    (Math.floor(now.getTime() / HOURLY_SEMANTIC_INTERVAL_MS) + 1)
-    * HOURLY_SEMANTIC_INTERVAL_MS;
+    (Math.floor(now.getTime() / SEMANTIC_SCAN_INTERVAL_MS) + 1)
+    * SEMANTIC_SCAN_INTERVAL_MS;
 
   return new Date(nextBoundary);
 }

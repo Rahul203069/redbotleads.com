@@ -37,7 +37,7 @@ import {
   type DailyLeadDateRangeValue,
   type DailyLeadDateSelection,
 } from "@/lib/daily-leads-analytics";
-import { getNextHourlySemanticCronAt } from "@/lib/daily-semantic-schedule";
+import { getNextSemanticScanAt } from "@/lib/daily-semantic-schedule";
 import { prisma } from "@/lib/prisma";
 import { getPublicShareViewStats } from "@/lib/public-share-analytics";
 import { getSaasConfig } from "@/lib/saas-config";
@@ -208,7 +208,7 @@ export default async function CampaignDetailPage({
       : Promise.resolve(null),
   ]);
   const latestSemanticRunAt = getLatestSemanticRunTimestamp(latestSemanticRun);
-  const semanticNextSyncAt = getNextHourlySemanticCronAt();
+  const semanticNextSyncAt = getNextSemanticScanAt();
   const shouldWaitForTodaySync = shouldWaitForTodayDailySemanticSync({
     latestSemanticRunAt,
     selection: leadDateSelection,
@@ -581,10 +581,10 @@ function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
           ? "border-[#1ed760]/25 bg-[#1ed760]/10 text-[#7cf5a3]"
           : "border-[#3f3f46] bg-[#121212] text-[#b3b3b3]"
       }`}
-      title={isActive ? "Campaign receives hourly semantic filtering from newly collected Reddit posts." : "Activate this campaign to include it in hourly semantic filtering."}
+      title={isActive ? "Campaign receives semantic filtering every 30 minutes from newly collected Reddit posts." : "Activate this campaign to include it in 30-minute semantic filtering."}
     >
       <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
-      {isActive ? "Monitored hourly" : "Paused"}
+      {isActive ? "Every 30 min" : "Paused"}
     </div>
   );
 }

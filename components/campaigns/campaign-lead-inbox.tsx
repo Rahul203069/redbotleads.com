@@ -29,6 +29,8 @@ import type {
 import { resolveCampaignLeadEmptyState } from "@/lib/campaign-lead-empty-state";
 import type { CampaignLeadView } from "@/lib/campaign-leads";
 
+const COLLAPSED_SOURCE_TEXT_LENGTH = 280;
+
 export function CampaignLeadInbox({
   campaignId,
   canDeleteLeads = false,
@@ -67,6 +69,7 @@ export function CampaignLeadInbox({
   const { toast } = useToast();
   const [now, setNow] = useState<number | null>(null);
   const [pendingLeadIds, setPendingLeadIds] = useState<string[]>([]);
+  const [expandedLeadIds, setExpandedLeadIds] = useState<string[]>([]);
 
   useEffect(() => {
     setNow(Date.now());
@@ -261,6 +264,7 @@ export function CampaignLeadInbox({
                     <InboxLeadCard
                       campaignId={campaignId}
                       canDelete={canDeleteLeads}
+                      expanded={expandedLeadIds.includes(lead.id)}
                       key={lead.id}
                       lead={lead}
                       isFirstVisit={previousVisitAt === null}
@@ -268,6 +272,23 @@ export function CampaignLeadInbox({
                       isNewSinceVisit={newSinceVisitLeadIdSet.has(lead.id)}
                       nowMs={nowMs}
                       onDelete={onLeadDeleted}
+                      onToggleExpanded={() => {
+                        const isExpanding = !expandedLeadIds.includes(lead.id);
+
+                        setExpandedLeadIds((current) =>
+                          current.includes(lead.id)
+                            ? current.filter((id) => id !== lead.id)
+                            : [...current, lead.id],
+                        );
+
+                        if (isExpanding && trackClientActivity && !lead.isDemo) {
+                          sendCampaignClientActivity({
+                            campaignId,
+                            eventType: "LEAD_EXPANDED",
+                            leadId: lead.id,
+                          });
+                        }
+                      }}
                       onOpenReddit={() => {
                         if (trackClientActivity && !lead.isDemo) {
                           sendCampaignClientActivity({
@@ -296,12 +317,14 @@ export function CampaignLeadInbox({
 function InboxLeadCard({
   campaignId,
   canDelete,
+  expanded,
   isFirstVisit,
   isJustAdded,
   isNewSinceVisit,
   lead,
   nowMs,
   onDelete,
+  onToggleExpanded,
   onOpenReddit,
   pending,
   selected,
@@ -309,18 +332,23 @@ function InboxLeadCard({
 }: {
   campaignId: string;
   canDelete: boolean;
+  expanded: boolean;
   isFirstVisit: boolean;
   isJustAdded: boolean;
   isNewSinceVisit: boolean;
   lead: CampaignLeadView;
   nowMs: number;
   onDelete?: (leadId: string) => void;
+  onToggleExpanded: () => void;
   onOpenReddit: () => void;
   pending: boolean;
   selected: boolean;
   timeZone: string;
 }) {
   const sourceText = getSourceText(lead);
+  const sourceTextId = `lead-source-text-${lead.id}`;
+  const visibleSourceText = getSourceTextPreview(sourceText, expanded);
+  const canExpandSourceText = hasLongSourceText(sourceText);
   const freshnessClassName = selected
     ? "ring-2 ring-[#1ed760]/50"
     : isJustAdded
@@ -390,9 +418,20 @@ function InboxLeadCard({
           {sourceText ? (
             <div className="border-t border-white/8 pt-4">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">Source text</p>
-              <p className="mt-2 whitespace-pre-wrap text-[14px] leading-6 text-[#bdbdbd]">
-                {sourceText}
+              <p className={`mt-2 text-[14px] leading-6 text-[#bdbdbd] ${expanded ? "whitespace-pre-wrap" : ""}`} id={sourceTextId}>
+                {visibleSourceText}
               </p>
+              {canExpandSourceText ? (
+                <button
+                  aria-controls={sourceTextId}
+                  aria-expanded={expanded}
+                  className="mt-2 inline-flex min-h-9 cursor-pointer items-center rounded-full px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#fdfdfd] transition-colors duration-200 hover:bg-white/[0.06] hover:text-[#55e982] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  onClick={onToggleExpanded}
+                  type="button"
+                >
+                  {expanded ? "Show less" : "Show more"}
+                </button>
+              ) : null}
             </div>
           ) : null}
 
@@ -502,6 +541,28 @@ function InboxLoadingSkeleton() {
 
 function getSourceText(lead: CampaignLeadView) {
   return (lead.redditItem.body?.trim() || lead.redditItem.description?.trim() || "").trim();
+}
+
+function getSourceTextPreview(sourceText: string, expanded: boolean) {
+  if (!sourceText || expanded) {
+    return sourceText;
+  }
+
+  const normalizedSourceText = normalizeSourceText(sourceText);
+
+  if (normalizedSourceText.length <= COLLAPSED_SOURCE_TEXT_LENGTH) {
+    return sourceText;
+  }
+
+  return `${normalizedSourceText.slice(0, COLLAPSED_SOURCE_TEXT_LENGTH - 3).trimEnd()}...`;
+}
+
+function hasLongSourceText(sourceText: string) {
+  return normalizeSourceText(sourceText).length > COLLAPSED_SOURCE_TEXT_LENGTH;
+}
+
+function normalizeSourceText(sourceText: string) {
+  return sourceText.replace(/\s+/g, " ").trim();
 }
 
 function formatEnumLabel(value: string | null | undefined) {

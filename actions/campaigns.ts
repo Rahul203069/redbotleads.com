@@ -14,7 +14,12 @@ import {
   buildAdminSemanticPassedScanWhere,
   type AdminSemanticPassedPost,
 } from "@/lib/admin-semantic-passed-posts";
-import { BETA_OWNER_ONLY_MESSAGE, canViewAnalytics, isOwnerEmail } from "@/lib/beta-access";
+import {
+  ANALYTICS_OWNER_EMAILS,
+  BETA_OWNER_ONLY_MESSAGE,
+  canViewAnalytics,
+  isOwnerEmail,
+} from "@/lib/beta-access";
 import {
   buildDailySemanticRunStatsAfterLeadDeletion,
   getCampaignLeadDeletionRevalidationPaths,
@@ -25,6 +30,7 @@ import {
   canEditCampaignDescription,
   getCampaignAccessFromRecord,
 } from "@/lib/campaign-access";
+import { formatCampaignDescriptionReviewMessage } from "@/lib/campaign-description-review";
 import {
   CAMPAIGN_LEAD_STATUSES,
   type CampaignLeadStatus,
@@ -43,6 +49,7 @@ import {
 import { generateStructuredOutput } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { parseSemanticQueriesJson, type CleanSemanticQuery } from "@/lib/semantic-queries";
+import { sendTelegramMessage } from "@/lib/telegram";
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 import { enqueueManualSemanticCampaign } from "@/worker/queues";
 
@@ -766,6 +773,7 @@ export async function updateCampaignDescription(formData: FormData): Promise<Cam
       userId: session.user.id,
     }),
     select: {
+      description: true,
       id: true,
       name: true,
       userId: true,
@@ -796,22 +804,43 @@ export async function updateCampaignDescription(formData: FormData): Promise<Cam
     };
   }
 
-  try {
-    await prisma.campaign.update({
-      where: {
-        id: campaign.id,
-      },
-      data: {
-        description: parsed.data.description || null,
-      },
-    });
-  } catch (error) {
-    console.error("Campaign description update failed", error);
+  const nextDescription = parsed.data.description || null;
+  const descriptionChanged = (campaign.description ?? "") !== (nextDescription ?? "");
 
-    return {
-      status: "error",
-      message: error instanceof Error ? `Save failed: ${error.message}` : "Save failed while updating the campaign description.",
-    };
+  if (descriptionChanged) {
+    try {
+      await prisma.campaign.update({
+        where: {
+          id: campaign.id,
+        },
+        data: {
+          description: nextDescription,
+        },
+      });
+    } catch (error) {
+      console.error("Campaign description update failed", error);
+
+      return {
+        status: "error",
+        message: error instanceof Error ? `Save failed: ${error.message}` : "Save failed while updating the campaign description.",
+      };
+    }
+
+    if (!canViewAnalytics(session.user.email)) {
+      try {
+        await sendCampaignDescriptionReviewAlerts({
+          campaignId: campaign.id,
+          campaignName: campaign.name,
+          userEmail: session.user.email,
+        });
+      } catch (error) {
+        console.error("Campaign description review alert failed", {
+          campaignId: campaign.id,
+          error,
+          userEmail: session.user.email ?? null,
+        });
+      }
+    }
   }
 
   revalidatePath("/app");
@@ -824,6 +853,63 @@ export async function updateCampaignDescription(formData: FormData): Promise<Cam
     status: "success",
     message: "Campaign description updated.",
   };
+}
+
+async function sendCampaignDescriptionReviewAlerts({
+  campaignId,
+  campaignName,
+  userEmail,
+}: {
+  campaignId: string;
+  campaignName: string;
+  userEmail: string | null | undefined;
+}) {
+  const recipients = await prisma.user.findMany({
+    where: {
+      email: {
+        in: [...ANALYTICS_OWNER_EMAILS],
+      },
+      telegramChatId: {
+        not: null,
+      },
+    },
+    select: {
+      telegramChatId: true,
+    },
+  });
+  const chatIds = [...new Set(
+    recipients
+      .map((recipient) => recipient.telegramChatId?.trim())
+      .filter((chatId): chatId is string => Boolean(chatId)),
+  )];
+
+  if (chatIds.length === 0) {
+    console.warn("Campaign description review alert skipped: no admin Telegram account is connected", {
+      campaignId,
+      userEmail: userEmail ?? null,
+    });
+    return;
+  }
+
+  const text = formatCampaignDescriptionReviewMessage({ campaignName, userEmail });
+  const results = await Promise.allSettled(
+    chatIds.map((chatId) => sendTelegramMessage({
+      chatId,
+      disableWebPagePreview: true,
+      text,
+    })),
+  );
+
+  results.forEach((result, index) => {
+    if (result.status === "rejected") {
+      console.error("Campaign description review Telegram delivery failed", {
+        campaignId,
+        error: result.reason,
+        recipientIndex: index,
+        userEmail: userEmail ?? null,
+      });
+    }
+  });
 }
 
 export async function deleteCampaign(formData: FormData): Promise<CampaignActionState> {

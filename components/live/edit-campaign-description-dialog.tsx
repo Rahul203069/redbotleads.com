@@ -1,6 +1,6 @@
 "use client";
 
-import { LoaderCircle, PencilLine, X } from "lucide-react";
+import { CheckCircle2, Clock3, LoaderCircle, PencilLine, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
 
@@ -31,10 +31,12 @@ export function EditCampaignDescriptionDialog({
   const [draft, setDraft] = useState(description ?? "");
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [savedDescription, setSavedDescription] = useState((description ?? "").trim());
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const { toast } = useToast();
-  const isDirty = draft.trim() !== (description ?? "").trim();
+  const isDirty = draft.trim() !== savedDescription;
 
   function handleOpenChange(nextOpen: boolean) {
     if (pending && !nextOpen) {
@@ -42,9 +44,14 @@ export function EditCampaignDescriptionDialog({
     }
 
     setOpen(nextOpen);
+    if (nextOpen) {
+      setSaved(false);
+    }
+
     if (!nextOpen) {
-      setDraft(description ?? "");
+      setDraft(savedDescription);
       setError(null);
+      setSaved(false);
     }
   }
 
@@ -56,9 +63,10 @@ export function EditCampaignDescriptionDialog({
     startTransition(async () => {
       const result = await updateCampaignDescription(formData);
       if (result.status === "success") {
-        setDraft(draft.trim());
-        setOpen(false);
-        toast({ title: "Campaign description updated", description: result.message });
+        const nextDescription = draft.trim();
+        setDraft(nextDescription);
+        setSavedDescription(nextDescription);
+        setSaved(true);
         router.refresh();
         return;
       }
@@ -89,6 +97,47 @@ export function EditCampaignDescriptionDialog({
           </button>
         </DialogClose>
 
+        {saved ? (
+          <div className="p-6 sm:p-7" role="status">
+            <DialogHeader className="pr-12">
+              <div className="mb-2 inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[#27452f] bg-[#142119] text-[#1ed760]">
+                <CheckCircle2 aria-hidden="true" className="h-5 w-5" />
+              </div>
+              <DialogTitle className="text-xl">Description update received</DialogTitle>
+              <DialogDescription className="max-w-xl">
+                Your campaign description has been saved successfully.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-6 rounded-2xl border border-[#2d3c32] bg-[#101712] p-4 sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#1ed760]/10 text-[#1ed760]">
+                  <Clock3 aria-hidden="true" className="h-4 w-4" />
+                </div>
+                <div>
+                  <p className="text-[14px] font-semibold text-[#f4f4f5]">Allow up to 24 hours</p>
+                  <p className="mt-1 text-[13px] leading-6 text-[#a7a7a7]">
+                    Changes may take up to 24 hours to appear in new lead results while our team reviews the campaign and updates its semantic targeting.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p className="mt-4 text-[13px] leading-6 text-[#8f8f8f]">
+              You can continue using the campaign normally while the review is completed.
+            </p>
+
+            <DialogFooter className="mt-6 border-t border-[#27312E] pt-5 sm:justify-end">
+              <Button
+                className="w-full cursor-pointer bg-[#1ed760] text-[#0d160f] hover:bg-[#3be477] sm:w-auto"
+                onClick={() => handleOpenChange(false)}
+                type="button"
+              >
+                Done
+              </Button>
+            </DialogFooter>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit}>
           <div className="p-6 sm:p-7">
             <DialogHeader className="pr-12">
@@ -141,6 +190,7 @@ export function EditCampaignDescriptionDialog({
             </DialogFooter>
           </div>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );

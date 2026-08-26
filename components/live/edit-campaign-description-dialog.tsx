@@ -34,8 +34,13 @@ export function EditCampaignDescriptionDialog({
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const { toast } = useToast();
+  const isDirty = draft.trim() !== (description ?? "").trim();
 
   function handleOpenChange(nextOpen: boolean) {
+    if (pending && !nextOpen) {
+      return;
+    }
+
     setOpen(nextOpen);
     if (!nextOpen) {
       setDraft(description ?? "");
@@ -77,6 +82,7 @@ export function EditCampaignDescriptionDialog({
           <button
             aria-label="Close dialog"
             className="absolute right-4 top-4 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-[#111113] text-[#a1a1aa] outline-none transition-colors hover:bg-[#18181b] hover:text-white focus-visible:ring-2 focus-visible:ring-white/35"
+            disabled={pending}
             type="button"
           >
             <X aria-hidden="true" className="h-4 w-4" />
@@ -108,7 +114,10 @@ export function EditCampaignDescriptionDialog({
                 id="live-campaign-description"
                 maxLength={MAX_DESCRIPTION_LENGTH}
                 name="description"
-                onChange={(event) => setDraft(event.target.value)}
+                onChange={(event) => {
+                  setDraft(event.target.value);
+                  setError(null);
+                }}
                 value={draft}
               />
               <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
@@ -125,7 +134,7 @@ export function EditCampaignDescriptionDialog({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button className="w-full cursor-pointer bg-[#1ed760] text-[#0d160f] hover:bg-[#3be477] sm:w-auto" disabled={pending} type="submit">
+              <Button className="w-full cursor-pointer bg-[#1ed760] text-[#0d160f] hover:bg-[#3be477] sm:w-auto" disabled={pending || !isDirty} type="submit">
                 {pending ? <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" /> : null}
                 {pending ? "Saving..." : "Save description"}
               </Button>

@@ -17,7 +17,7 @@ import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dia
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
 import { NewCampaignSemanticRunControl } from "@/components/campaigns/new-campaign-semantic-run-control";
-import { ViewCampaignDescriptionDialog } from "@/components/campaigns/view-campaign-description-dialog";
+import { EditCampaignDescriptionDialog } from "@/components/live/edit-campaign-description-dialog";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { resolveViewerAppMode } from "@/lib/app-mode";
@@ -386,7 +386,7 @@ export default async function CampaignDetailPage({
               {!isAdminAccount ? (
                 <div className="grid shrink-0 gap-3 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
                   <CampaignShareDialogButton campaignId={campaign.id} />
-                  <ViewCampaignDescriptionDialog description={campaign.description} />
+                  <EditCampaignDescriptionDialog campaignId={campaign.id} description={campaign.description} />
                 </div>
               ) : null}
             </div>

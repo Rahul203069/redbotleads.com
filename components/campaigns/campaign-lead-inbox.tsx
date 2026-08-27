@@ -3,8 +3,6 @@
 import {
   AlertCircle,
   ArrowDown,
-  Check,
-  CheckCircle2,
   Clock3,
   LoaderCircle,
   Radio,
@@ -98,32 +96,32 @@ export function CampaignLeadInbox({
   );
   const newSinceVisitCount = newSinceVisitLeadIdSet.size;
   const leadCount = freshnessGroups.newLeads.length + freshnessGroups.earlierLeads.length;
-  const detectionBatches = useMemo(
-    () => groupCampaignLeadsByDetectionMinute(freshnessGroups.newLeads),
-    [freshnessGroups.newLeads],
+  const earlierDetectionBatches = useMemo(
+    () => groupCampaignLeadsByDetectionMinute(freshnessGroups.earlierLeads),
+    [freshnessGroups.earlierLeads],
   );
   const feedSections = useMemo<Array<{
     detectedAt: string | null;
     id: string;
-    kind: "new" | "seen";
+    kind: "earlier" | "new";
     label: string;
     leads: CampaignLeadView[];
   }>>(() => [
-    ...detectionBatches.map((batch) => ({
-      detectedAt: batch.detectedAt,
-      id: `new-${batch.id}`,
+    ...(freshnessGroups.newLeads.length > 0 ? [{
+      detectedAt: null,
+      id: "new",
       kind: "new" as const,
-      label: batch.detectedAt ? "New" : "New posts",
+      label: previousVisitAt ? "New since your last visit" : "New posts",
+      leads: freshnessGroups.newLeads,
+    }] : []),
+    ...earlierDetectionBatches.map((batch) => ({
+      detectedAt: batch.detectedAt,
+      id: `earlier-${batch.id}`,
+      kind: "earlier" as const,
+      label: batch.detectedAt ? "Found at" : "Earlier posts",
       leads: batch.leads,
     })),
-    ...(freshnessGroups.earlierLeads.length > 0 ? [{
-      detectedAt: null,
-      id: "earlier",
-      kind: "seen" as const,
-      label: "Seen earlier today",
-      leads: freshnessGroups.earlierLeads,
-    }] : []),
-  ], [detectionBatches, freshnessGroups.earlierLeads]);
+  ], [earlierDetectionBatches, freshnessGroups.newLeads, previousVisitAt]);
   const visibleJustAddedLeadIds = orderedLeads
     .filter((lead) => justAddedLeadIdSet.has(lead.id))
     .map((lead) => lead.id);
@@ -261,10 +259,6 @@ export function CampaignLeadInbox({
           <div className="space-y-7">
             {feedSections.map((section) => (
               <div className="space-y-4" key={section.id}>
-                {section.kind === "seen" && previousVisitAt ? (
-                  <LastVisitBoundary timeZone={timeZone} value={previousVisitAt} />
-                ) : null}
-
                 <section aria-labelledby={`lead-group-${section.id}`}>
                   <div className="mb-3 flex flex-wrap items-center gap-2 sm:gap-3">
                     <h3
@@ -274,19 +268,18 @@ export function CampaignLeadInbox({
                       {section.kind === "new" ? (
                         <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-[#55e982] motion-reduce:animate-none" />
                       ) : (
-                        <Check aria-hidden="true" className="h-3.5 w-3.5 text-[#858585]" />
+                        <Clock3 aria-hidden="true" className="h-3.5 w-3.5 text-[#858585]" />
                       )}
-                      <span>{section.label}</span>
                       {section.detectedAt ? (
                         <time
-                          className="inline-flex items-center gap-1.5 rounded-full bg-[#142018] px-2.5 py-1 text-[9px] tracking-[0.12em] text-[#b8e9c7]"
                           dateTime={section.detectedAt}
                           title={formatExactTime(section.detectedAt, timeZone)}
                         >
-                          <Clock3 aria-hidden="true" className="h-3 w-3" />
-                          Found at {formatClockTime(section.detectedAt, timeZone)}
+                          {section.label} {formatClockTime(section.detectedAt, timeZone)}
                         </time>
-                      ) : null}
+                      ) : (
+                        <span>{section.label}</span>
+                      )}
                     </h3>
                     <div className={`h-px min-w-6 flex-1 ${section.kind === "new" ? "bg-[#1ed760]/25" : "bg-white/[0.07]"}`} />
                     <span
@@ -307,7 +300,6 @@ export function CampaignLeadInbox({
                         isFirstVisit={previousVisitAt === null}
                         isJustAdded={justAddedLeadIdSet.has(lead.id)}
                         isNewSinceVisit={newSinceVisitLeadIdSet.has(lead.id)}
-                        isSeenEarlier={section.kind === "seen"}
                         nowMs={nowMs}
                         onDelete={onLeadDeleted}
                         onToggleExpanded={() => {
@@ -360,7 +352,6 @@ function InboxLeadCard({
   isFirstVisit,
   isJustAdded,
   isNewSinceVisit,
-  isSeenEarlier,
   lead,
   nowMs,
   onDelete,
@@ -376,7 +367,6 @@ function InboxLeadCard({
   isFirstVisit: boolean;
   isJustAdded: boolean;
   isNewSinceVisit: boolean;
-  isSeenEarlier: boolean;
   lead: CampaignLeadView;
   nowMs: number;
   onDelete?: (leadId: string) => void;
@@ -418,8 +408,6 @@ function InboxLeadCard({
                   <FreshnessBadge icon={Sparkles} label="Just added" />
                 ) : isNewSinceVisit ? (
                   <FreshnessBadge icon={Clock3} label={isFirstVisit ? "New post" : "New post since last visit"} />
-                ) : isSeenEarlier ? (
-                  <FreshnessBadge icon={Check} label="Seen earlier" tone="seen" />
                 ) : null}
                 <LeadCardBadge tone="neutral">{lead.redditItem.type}</LeadCardBadge>
                 <LeadCardBadge tone={lead.label === "HIGH" ? "good" : lead.label === "MED" ? "neutral" : "muted"}>
@@ -513,42 +501,15 @@ function InboxLeadCard({
 function FreshnessBadge({
   icon: Icon,
   label,
-  tone = "new",
 }: {
   icon: typeof Clock3;
   label: string;
-  tone?: "new" | "seen";
 }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${tone === "new" ? "text-[#1ed760]" : "text-[#929292]"}`}>
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">
       <Icon aria-hidden="true" className="h-3.5 w-3.5" />
       {label}
     </span>
-  );
-}
-
-function LastVisitBoundary({ timeZone, value }: { timeZone: string; value: string }) {
-  return (
-    <div
-      aria-label={`Last visit ${formatExactTime(value, timeZone)}. Leads below were found earlier.`}
-      className="flex flex-col gap-2 rounded-[16px] border border-white/[0.07] bg-[#121212] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-      role="separator"
-    >
-      <div className="flex items-center gap-2 text-[#a3a3a3]">
-        <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.16em]">Last visit</span>
-        <time
-          className="text-[11px] font-semibold text-[#d4d4d4]"
-          dateTime={value}
-          title={formatExactTime(value, timeZone)}
-        >
-          at {formatClockTime(value, timeZone)}
-        </time>
-      </div>
-      <span className="pl-6 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#737373] sm:pl-0">
-        Previously seen below
-      </span>
-    </div>
   );
 }
 

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { BrandLogo } from "@/components/app/brand-logo";
-import { PublicCampaignDescription } from "@/components/campaigns/public-campaign-description";
 import { PublicCampaignLeadCards } from "@/components/campaigns/public-campaign-lead-cards";
 import { PublicShareViewTracker } from "@/components/campaigns/public-share-view-tracker";
 import {
@@ -48,7 +47,6 @@ export default async function PublicLeadsOnlyPage({
     },
     select: {
       id: true,
-      description: true,
       subreddits: true,
       updatedAt: true,
       sync: {
@@ -105,7 +103,6 @@ export default async function PublicLeadsOnlyPage({
           <h1 className="mt-5 text-[1.85rem] font-bold leading-tight text-[#fdfdfd] sm:text-[2.5rem] lg:text-[3rem]">
             Classified leads
           </h1>
-          <PublicCampaignDescription description={campaign.description} />
           <p className="mt-3 max-w-2xl text-[14px] leading-6 text-[#b3b3b3]">
             These Reddit items scored {PUBLIC_CAMPAIGN_MIN_VISIBLE_LEAD_SCORE}+ and were classified by the LLM.
           </p>

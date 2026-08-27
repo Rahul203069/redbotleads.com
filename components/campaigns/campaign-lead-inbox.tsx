@@ -3,6 +3,8 @@
 import {
   AlertCircle,
   ArrowDown,
+  Check,
+  CheckCircle2,
   Clock3,
   LoaderCircle,
   Radio,
@@ -19,6 +21,7 @@ import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign
 import { useToast } from "@/components/ui/use-toast";
 import {
   formatLeadRelativeTime,
+  groupCampaignLeadsByDetectionMinute,
   groupCampaignLeadsByFreshness,
 } from "@/lib/campaign-lead-inbox";
 import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
@@ -95,25 +98,32 @@ export function CampaignLeadInbox({
   );
   const newSinceVisitCount = newSinceVisitLeadIdSet.size;
   const leadCount = freshnessGroups.newLeads.length + freshnessGroups.earlierLeads.length;
+  const detectionBatches = useMemo(
+    () => groupCampaignLeadsByDetectionMinute(freshnessGroups.newLeads),
+    [freshnessGroups.newLeads],
+  );
   const feedSections = useMemo<Array<{
+    detectedAt: string | null;
     id: string;
-    isFresh: boolean;
+    kind: "new" | "seen";
     label: string;
     leads: CampaignLeadView[];
   }>>(() => [
-    ...(freshnessGroups.newLeads.length > 0 ? [{
-      id: "new",
-      isFresh: true,
-      label: previousVisitAt ? "New since your last visit" : "New posts",
-      leads: freshnessGroups.newLeads,
-    }] : []),
+    ...detectionBatches.map((batch) => ({
+      detectedAt: batch.detectedAt,
+      id: `new-${batch.id}`,
+      kind: "new" as const,
+      label: batch.detectedAt ? "New" : "New posts",
+      leads: batch.leads,
+    })),
     ...(freshnessGroups.earlierLeads.length > 0 ? [{
+      detectedAt: null,
       id: "earlier",
-      isFresh: false,
-      label: "Earlier today",
+      kind: "seen" as const,
+      label: "Seen earlier today",
       leads: freshnessGroups.earlierLeads,
     }] : []),
-  ], [freshnessGroups, previousVisitAt]);
+  ], [detectionBatches, freshnessGroups.earlierLeads]);
   const visibleJustAddedLeadIds = orderedLeads
     .filter((lead) => justAddedLeadIdSet.has(lead.id))
     .map((lead) => lead.id);
@@ -250,62 +260,91 @@ export function CampaignLeadInbox({
         ) : (
           <div className="space-y-7">
             {feedSections.map((section) => (
-              <section aria-labelledby={`lead-group-${section.id}`} key={section.id}>
-                <div className="mb-3 flex items-center gap-3">
-                  <h3 className={`flex shrink-0 items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] ${section.isFresh ? "text-[#73f5a0]" : "text-[#b3b3b3]"}`} id={`lead-group-${section.id}`}>
-                    {section.isFresh ? <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-[#55e982] motion-reduce:animate-none" /> : null}
-                    {section.label}
-                  </h3>
-                  <div className={`h-px flex-1 ${section.isFresh ? "bg-[#1ed760]/20" : "bg-white/[0.07]"}`} />
-                  <span className={`text-[10px] font-semibold ${section.isFresh ? "text-[#55e982]" : "text-[#6f6f6f]"}`}>{section.leads.length}</span>
-                </div>
-                <div className="space-y-4">
-                  {section.leads.map((lead) => (
-                    <InboxLeadCard
-                      campaignId={campaignId}
-                      canDelete={canDeleteLeads}
-                      expanded={expandedLeadIds.includes(lead.id)}
-                      key={lead.id}
-                      lead={lead}
-                      isFirstVisit={previousVisitAt === null}
-                      isJustAdded={justAddedLeadIdSet.has(lead.id)}
-                      isNewSinceVisit={newSinceVisitLeadIdSet.has(lead.id)}
-                      nowMs={nowMs}
-                      onDelete={onLeadDeleted}
-                      onToggleExpanded={() => {
-                        const isExpanding = !expandedLeadIds.includes(lead.id);
+              <div className="space-y-4" key={section.id}>
+                {section.kind === "seen" && previousVisitAt ? (
+                  <LastVisitBoundary timeZone={timeZone} value={previousVisitAt} />
+                ) : null}
 
-                        setExpandedLeadIds((current) =>
-                          current.includes(lead.id)
-                            ? current.filter((id) => id !== lead.id)
-                            : [...current, lead.id],
-                        );
+                <section aria-labelledby={`lead-group-${section.id}`}>
+                  <div className="mb-3 flex flex-wrap items-center gap-2 sm:gap-3">
+                    <h3
+                      className={`flex min-w-0 shrink-0 flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.16em] ${section.kind === "new" ? "text-[#73f5a0]" : "text-[#b3b3b3]"}`}
+                      id={`lead-group-${section.id}`}
+                    >
+                      {section.kind === "new" ? (
+                        <span aria-hidden="true" className="h-2 w-2 animate-pulse rounded-full bg-[#55e982] motion-reduce:animate-none" />
+                      ) : (
+                        <Check aria-hidden="true" className="h-3.5 w-3.5 text-[#858585]" />
+                      )}
+                      <span>{section.label}</span>
+                      {section.detectedAt ? (
+                        <time
+                          className="inline-flex items-center gap-1.5 rounded-full bg-[#142018] px-2.5 py-1 text-[9px] tracking-[0.12em] text-[#b8e9c7]"
+                          dateTime={section.detectedAt}
+                          title={formatExactTime(section.detectedAt, timeZone)}
+                        >
+                          <Clock3 aria-hidden="true" className="h-3 w-3" />
+                          Found at {formatClockTime(section.detectedAt, timeZone)}
+                        </time>
+                      ) : null}
+                    </h3>
+                    <div className={`h-px min-w-6 flex-1 ${section.kind === "new" ? "bg-[#1ed760]/25" : "bg-white/[0.07]"}`} />
+                    <span
+                      aria-label={`${section.leads.length} lead${section.leads.length === 1 ? "" : "s"}`}
+                      className={`shrink-0 rounded-full px-2 py-1 text-[9px] font-bold ${section.kind === "new" ? "bg-[#142018] text-[#55e982]" : "bg-[#202020] text-[#858585]"}`}
+                    >
+                      {section.leads.length}
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    {section.leads.map((lead) => (
+                      <InboxLeadCard
+                        campaignId={campaignId}
+                        canDelete={canDeleteLeads}
+                        expanded={expandedLeadIds.includes(lead.id)}
+                        key={lead.id}
+                        lead={lead}
+                        isFirstVisit={previousVisitAt === null}
+                        isJustAdded={justAddedLeadIdSet.has(lead.id)}
+                        isNewSinceVisit={newSinceVisitLeadIdSet.has(lead.id)}
+                        isSeenEarlier={section.kind === "seen"}
+                        nowMs={nowMs}
+                        onDelete={onLeadDeleted}
+                        onToggleExpanded={() => {
+                          const isExpanding = !expandedLeadIds.includes(lead.id);
 
-                        if (isExpanding && trackClientActivity && !lead.isDemo) {
-                          sendCampaignClientActivity({
-                            campaignId,
-                            eventType: "LEAD_EXPANDED",
-                            leadId: lead.id,
-                          });
-                        }
-                      }}
-                      onOpenReddit={() => {
-                        if (trackClientActivity && !lead.isDemo) {
-                          sendCampaignClientActivity({
-                            campaignId,
-                            eventType: "REDDIT_LINK_CLICKED",
-                            leadId: lead.id,
-                          });
-                        }
-                        void markReviewed(lead);
-                      }}
-                      pending={pendingLeadIds.includes(lead.id)}
-                      selected={selectedLeadId === lead.id}
-                      timeZone={timeZone}
-                    />
-                  ))}
-                </div>
-              </section>
+                          setExpandedLeadIds((current) =>
+                            current.includes(lead.id)
+                              ? current.filter((id) => id !== lead.id)
+                              : [...current, lead.id],
+                          );
+
+                          if (isExpanding && trackClientActivity && !lead.isDemo) {
+                            sendCampaignClientActivity({
+                              campaignId,
+                              eventType: "LEAD_EXPANDED",
+                              leadId: lead.id,
+                            });
+                          }
+                        }}
+                        onOpenReddit={() => {
+                          if (trackClientActivity && !lead.isDemo) {
+                            sendCampaignClientActivity({
+                              campaignId,
+                              eventType: "REDDIT_LINK_CLICKED",
+                              leadId: lead.id,
+                            });
+                          }
+                          void markReviewed(lead);
+                        }}
+                        pending={pendingLeadIds.includes(lead.id)}
+                        selected={selectedLeadId === lead.id}
+                        timeZone={timeZone}
+                      />
+                    ))}
+                  </div>
+                </section>
+              </div>
             ))}
           </div>
         )}
@@ -321,6 +360,7 @@ function InboxLeadCard({
   isFirstVisit,
   isJustAdded,
   isNewSinceVisit,
+  isSeenEarlier,
   lead,
   nowMs,
   onDelete,
@@ -336,6 +376,7 @@ function InboxLeadCard({
   isFirstVisit: boolean;
   isJustAdded: boolean;
   isNewSinceVisit: boolean;
+  isSeenEarlier: boolean;
   lead: CampaignLeadView;
   nowMs: number;
   onDelete?: (leadId: string) => void;
@@ -377,6 +418,8 @@ function InboxLeadCard({
                   <FreshnessBadge icon={Sparkles} label="Just added" />
                 ) : isNewSinceVisit ? (
                   <FreshnessBadge icon={Clock3} label={isFirstVisit ? "New post" : "New post since last visit"} />
+                ) : isSeenEarlier ? (
+                  <FreshnessBadge icon={Check} label="Seen earlier" tone="seen" />
                 ) : null}
                 <LeadCardBadge tone="neutral">{lead.redditItem.type}</LeadCardBadge>
                 <LeadCardBadge tone={lead.label === "HIGH" ? "good" : lead.label === "MED" ? "neutral" : "muted"}>
@@ -470,15 +513,42 @@ function InboxLeadCard({
 function FreshnessBadge({
   icon: Icon,
   label,
+  tone = "new",
 }: {
   icon: typeof Clock3;
   label: string;
+  tone?: "new" | "seen";
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">
+    <span className={`inline-flex items-center gap-1.5 rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${tone === "new" ? "text-[#1ed760]" : "text-[#929292]"}`}>
       <Icon aria-hidden="true" className="h-3.5 w-3.5" />
       {label}
     </span>
+  );
+}
+
+function LastVisitBoundary({ timeZone, value }: { timeZone: string; value: string }) {
+  return (
+    <div
+      aria-label={`Last visit ${formatExactTime(value, timeZone)}. Leads below were found earlier.`}
+      className="flex flex-col gap-2 rounded-[16px] border border-white/[0.07] bg-[#121212] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+      role="separator"
+    >
+      <div className="flex items-center gap-2 text-[#a3a3a3]">
+        <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0" />
+        <span className="text-[10px] font-bold uppercase tracking-[0.16em]">Last visit</span>
+        <time
+          className="text-[11px] font-semibold text-[#d4d4d4]"
+          dateTime={value}
+          title={formatExactTime(value, timeZone)}
+        >
+          at {formatClockTime(value, timeZone)}
+        </time>
+      </div>
+      <span className="pl-6 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#737373] sm:pl-0">
+        Previously seen below
+      </span>
+    </div>
   );
 }
 
@@ -576,7 +646,15 @@ function formatEnumLabel(value: string | null | undefined) {
 function formatExactTime(value: string, timeZone: string) {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",
-    timeStyle: "short",
+    timeStyle: "medium",
+    timeZone,
+  }).format(new Date(value));
+}
+
+function formatClockTime(value: string, timeZone: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
     timeZone,
   }).format(new Date(value));
 }

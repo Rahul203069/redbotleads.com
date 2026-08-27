@@ -12,6 +12,12 @@ export type CampaignLeadFreshnessGroups<T> = {
   demoLeads: T[];
 };
 
+export type CampaignLeadDetectionBatch<T> = {
+  detectedAt: string | null;
+  id: string;
+  leads: T[];
+};
+
 export function countCampaignLeadStatuses(
   leads: Array<{ status: CampaignLeadStatus }>,
 ): CampaignLeadStatusCounts {
@@ -134,6 +140,43 @@ export function groupCampaignLeadsByFreshness<
   }
 
   return groups;
+}
+
+export function groupCampaignLeadsByDetectionMinute<
+  T extends { createdAt: string },
+>(leads: T[]): CampaignLeadDetectionBatch<T>[] {
+  const batches = new Map<string, CampaignLeadDetectionBatch<T>>();
+  const orderedLeads = [...leads].sort((left, right) => {
+    const leftTime = new Date(left.createdAt).getTime();
+    const rightTime = new Date(right.createdAt).getTime();
+
+    if (Number.isNaN(leftTime) && Number.isNaN(rightTime)) return 0;
+    if (Number.isNaN(leftTime)) return 1;
+    if (Number.isNaN(rightTime)) return -1;
+    return rightTime - leftTime;
+  });
+
+  for (const lead of orderedLeads) {
+    const detectedAtMs = new Date(lead.createdAt).getTime();
+    const minuteStartMs = Number.isNaN(detectedAtMs)
+      ? null
+      : Math.floor(detectedAtMs / 60_000) * 60_000;
+    const id = minuteStartMs === null ? "unknown" : new Date(minuteStartMs).toISOString();
+    const existingBatch = batches.get(id);
+
+    if (existingBatch) {
+      existingBatch.leads.push(lead);
+      continue;
+    }
+
+    batches.set(id, {
+      detectedAt: minuteStartMs === null ? null : lead.createdAt,
+      id,
+      leads: [lead],
+    });
+  }
+
+  return Array.from(batches.values());
 }
 
 export function getJustAddedCampaignLeadIds(

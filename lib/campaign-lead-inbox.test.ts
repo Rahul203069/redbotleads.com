@@ -7,6 +7,7 @@ import {
   getCampaignLeadDateKey,
   getCampaignLeadGroupLabel,
   getJustAddedCampaignLeadIds,
+  groupCampaignLeadsByDetectionMinute,
   groupCampaignLeadsByFreshness,
   isCampaignLeadNewSinceVisit,
 } from "./campaign-lead-inbox";
@@ -127,6 +128,56 @@ test("can present demo leads in the same freshness sections as fetched leads", (
   assert.deepEqual(groups.newLeads.map((lead) => lead.id), ["demo"]);
   assert.deepEqual(groups.earlierLeads, []);
   assert.deepEqual(groups.demoLeads, []);
+});
+
+test("groups newly detected leads into newest-first minute batches", () => {
+  const batches = groupCampaignLeadsByDetectionMinute([
+    { id: "middle", createdAt: "2026-08-24T10:14:12.000Z" },
+    { id: "newest", createdAt: "2026-08-24T10:15:01.000Z" },
+    { id: "oldest", createdAt: "2026-08-24T10:14:02.000Z" },
+  ]);
+
+  assert.deepEqual(batches.map((batch) => ({
+    detectedAt: batch.detectedAt,
+    id: batch.id,
+    leadIds: batch.leads.map((lead) => lead.id),
+  })), [
+    {
+      detectedAt: "2026-08-24T10:15:01.000Z",
+      id: "2026-08-24T10:15:00.000Z",
+      leadIds: ["newest"],
+    },
+    {
+      detectedAt: "2026-08-24T10:14:12.000Z",
+      id: "2026-08-24T10:14:00.000Z",
+      leadIds: ["middle", "oldest"],
+    },
+  ]);
+});
+
+test("keeps invalid detection timestamps in a safe fallback batch", () => {
+  const batches = groupCampaignLeadsByDetectionMinute([
+    { id: "invalid-one", createdAt: "not-a-date" },
+    { id: "valid", createdAt: "2026-08-24T10:14:12.000Z" },
+    { id: "invalid-two", createdAt: "" },
+  ]);
+
+  assert.deepEqual(batches.map((batch) => ({
+    detectedAt: batch.detectedAt,
+    id: batch.id,
+    leadIds: batch.leads.map((lead) => lead.id),
+  })), [
+    {
+      detectedAt: "2026-08-24T10:14:12.000Z",
+      id: "2026-08-24T10:14:00.000Z",
+      leadIds: ["valid"],
+    },
+    {
+      detectedAt: null,
+      id: "unknown",
+      leadIds: ["invalid-one", "invalid-two"],
+    },
+  ]);
 });
 
 test("formats live feed ages in compact relative units", () => {

@@ -7,14 +7,9 @@ export function CampaignHistoricalSummary({
 }) {
   return (
     <section aria-label="Historical lead summary">
-      <dl className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <MetricCard label="Leads found" value={String(summary.leadCount)} />
+      <dl className="grid grid-cols-2 gap-3">
+        <MetricCard label="Total leads" value={String(summary.leadCount)} />
         <MetricCard label="Strong matches" tone="positive" value={String(summary.strongMatchCount)} />
-        <MetricCard
-          label="Average score"
-          value={summary.averageScore === null ? "—" : `${summary.averageScore}/100`}
-        />
-        <MetricCard label="Communities" value={String(summary.communityCount)} />
       </dl>
     </section>
   );

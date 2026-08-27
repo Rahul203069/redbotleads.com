@@ -39,8 +39,6 @@ export type CampaignLeadDetectionBatch<T> = {
 };
 
 export type CampaignHistoricalLeadSummary = {
-  averageScore: number | null;
-  communityCount: number;
   leadCount: number;
   strongMatchCount: number;
 };
@@ -65,22 +63,9 @@ export function countCampaignLeadStatuses(
 }
 
 export function summarizeHistoricalCampaignLeads(
-  leads: Array<{
-    label: string;
-    redditItem: { subreddit: string };
-    score: number;
-  }>,
+  leads: Array<{ label: string }>,
 ): CampaignHistoricalLeadSummary {
-  const communities = new Set(
-    leads
-      .map((lead) => lead.redditItem.subreddit.trim().toLowerCase())
-      .filter(Boolean),
-  );
-  const scoreTotal = leads.reduce((total, lead) => total + lead.score, 0);
-
   return {
-    averageScore: leads.length > 0 ? Math.round(scoreTotal / leads.length) : null,
-    communityCount: communities.size,
     leadCount: leads.length,
     strongMatchCount: leads.filter((lead) => lead.label === "HIGH").length,
   };

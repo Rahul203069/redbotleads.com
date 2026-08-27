@@ -34,16 +34,14 @@ test("counts every shared workflow status and the complete inbox", () => {
   });
 });
 
-test("summarizes historical lead outcomes without sync metadata", () => {
+test("summarizes only total leads and strong historical matches", () => {
   const summary = summarizeHistoricalCampaignLeads([
-    { label: "HIGH", redditItem: { subreddit: "SaaS" }, score: 91 },
-    { label: "MED", redditItem: { subreddit: "saas" }, score: 72 },
-    { label: "HIGH", redditItem: { subreddit: " startups " }, score: 80 },
+    { label: "HIGH" },
+    { label: "MED" },
+    { label: "HIGH" },
   ]);
 
   assert.deepEqual(summary, {
-    averageScore: 81,
-    communityCount: 2,
     leadCount: 3,
     strongMatchCount: 2,
   });
@@ -51,8 +49,6 @@ test("summarizes historical lead outcomes without sync metadata", () => {
 
 test("uses an honest empty historical summary when no leads were found", () => {
   assert.deepEqual(summarizeHistoricalCampaignLeads([]), {
-    averageScore: null,
-    communityCount: 0,
     leadCount: 0,
     strongMatchCount: 0,
   });

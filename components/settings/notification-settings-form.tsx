@@ -3,7 +3,6 @@
 import { useActionState, useEffect, useRef } from "react";
 
 import {
-  connectTelegram,
   disconnectSlack,
   disconnectTelegram,
   sendTelegramTestMessage,
@@ -13,6 +12,7 @@ import {
 } from "@/actions/settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TelegramConnectionDialog } from "@/components/settings/telegram-connection-dialog";
 import { useToast } from "@/components/ui/use-toast";
 
 const initialState: SettingsActionState = {
@@ -47,7 +47,6 @@ export function NotificationSettingsForm({
   const emailFormRef = useRef<HTMLFormElement>(null);
   const [state, formAction, isPending] = useActionState(updateNotificationSettings, initialState);
   const [disconnectState, disconnectAction, isDisconnecting] = useActionState(disconnectSlack, initialState);
-  const [telegramConnectState, telegramConnectAction, isConnectingTelegram] = useActionState(connectTelegram, initialState);
   const [telegramDisconnectState, telegramDisconnectAction, isDisconnectingTelegram] = useActionState(disconnectTelegram, initialState);
   const [telegramTestState, telegramTestAction, isTestingTelegram] = useActionState(sendTelegramTestMessage, initialState);
   const [thresholdState, thresholdAction, isSavingThreshold] = useActionState(
@@ -114,11 +113,6 @@ export function NotificationSettingsForm({
   useEffect(() => {
     const states = [
       {
-        state: telegramConnectState,
-        successTitle: "Telegram setup",
-        errorTitle: "Could not connect Telegram",
-      },
-      {
         state: telegramDisconnectState,
         successTitle: "Telegram disconnected",
         errorTitle: "Could not disconnect Telegram",
@@ -146,7 +140,7 @@ export function NotificationSettingsForm({
         });
       }
     }
-  }, [telegramConnectState, telegramDisconnectState, telegramTestState, toast]);
+  }, [telegramDisconnectState, telegramTestState, toast]);
 
   return (
     <div className="grid gap-5 rounded-[22px] bg-[#1f1f1f] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
@@ -359,15 +353,7 @@ export function NotificationSettingsForm({
         </div>
 
         <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center">
-          <form action={telegramConnectAction}>
-            <Button
-              disabled={isConnectingTelegram}
-              type="submit"
-              className="w-full rounded-full border-none bg-[#1ed760] px-5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#121212] shadow-none hover:bg-[#3be477]"
-            >
-              {isConnectingTelegram ? "Opening Telegram..." : isTelegramConnected ? "Reconnect Telegram" : "Connect Telegram"}
-            </Button>
-          </form>
+          <TelegramConnectionDialog isConnected={isTelegramConnected} />
 
           {isTelegramConnected ? (
             <>
@@ -398,7 +384,7 @@ export function NotificationSettingsForm({
           ) : null}
         </div>
 
-        {[telegramConnectState, telegramDisconnectState, telegramTestState].map((telegramState, index) =>
+        {[telegramDisconnectState, telegramTestState].map((telegramState, index) =>
           telegramState.status === "error" && telegramState.message ? (
             <div
               className="rounded-[18px] bg-[#241313] px-4 py-3 text-sm text-[#fee2e2] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"

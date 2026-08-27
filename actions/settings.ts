@@ -2,7 +2,6 @@
 
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
@@ -16,6 +15,11 @@ const telegramPairingTtlMs = 10 * 60 * 1000;
 export type SettingsActionState = {
   status: "idle" | "success" | "error";
   message?: string;
+  telegramPairing?: {
+    expiresAt: string;
+    id: string;
+    startUrl: string;
+  };
 };
 
 export async function updateNotificationSettings(
@@ -183,11 +187,9 @@ export async function connectTelegram(
     };
   }
 
-  let startUrl: string;
-
   try {
     const code = randomBytes(24).toString("base64url");
-    startUrl = getTelegramBotStartUrl(code);
+    const startUrl = getTelegramBotStartUrl(code);
 
     const pairing = await prisma.telegramPairing.create({
       data: {
@@ -206,6 +208,16 @@ export async function connectTelegram(
       pairingId: pairing.id,
       userId: session.user.id,
     });
+
+    return {
+      status: "success",
+      message: "Secure Telegram connection ready.",
+      telegramPairing: {
+        expiresAt: pairing.expiresAt.toISOString(),
+        id: pairing.id,
+        startUrl,
+      },
+    };
   } catch (error) {
     console.error("Telegram pairing creation failed", error);
 
@@ -214,8 +226,6 @@ export async function connectTelegram(
       message: error instanceof Error ? `Telegram setup failed: ${error.message}` : "Could not start Telegram setup.",
     };
   }
-
-  redirect(startUrl);
 }
 
 export async function disconnectTelegram(

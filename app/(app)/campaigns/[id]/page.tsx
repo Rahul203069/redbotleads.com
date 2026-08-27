@@ -376,6 +376,7 @@ export default async function CampaignDetailPage({
                   {campaign.description || "No campaign description added yet."}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
+                  {!selectedPeriodIsToday ? <ViewingPeriodPill label={leadDateLabel} /> : null}
                   <ScheduledProcessingPill isActive={campaign.isActive} />
                   <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
                   <TrackedSincePill date={firstSyncAt} timeZone={browserTimeZone} />
@@ -556,6 +557,22 @@ function HeroChip({ label }: { label: string }) {
   return (
     <span className="inline-flex items-center rounded-full bg-[#121212] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#cbcbcb] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
       {label}
+    </span>
+  );
+}
+
+function ViewingPeriodPill({ label }: { label: string }) {
+  return (
+    <span
+      aria-atomic="true"
+      aria-live="polite"
+      className="inline-flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 rounded-full border border-[#1ed760]/20 bg-[#1ed760]/8 px-3 py-1.5 text-[10px] font-semibold text-[#cbcbcb]"
+      title={`Viewing historical leads for ${label}.`}
+    >
+      <CalendarDays aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[#55e982]" />
+      <span className="uppercase tracking-[0.16em] text-[#858585]">Viewing</span>
+      <span aria-hidden="true" className="text-[#666]">·</span>
+      <span className="min-w-0 break-words font-bold text-[#f3f5f4]">{label}</span>
     </span>
   );
 }

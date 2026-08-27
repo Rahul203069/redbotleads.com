@@ -323,10 +323,7 @@ export function CampaignDetailLiveSections({
               sync={sync}
             />
           ) : (
-            <CampaignHistoricalSummary
-              periodLabel={selectedPeriodLabel}
-              summary={historicalSummary}
-            />
+            <CampaignHistoricalSummary summary={historicalSummary} />
           )}
           {showInitialRssDiagnostics ? <InitialRssDiagnosticsPanel diagnostics={diagnostics} /> : null}
         </>

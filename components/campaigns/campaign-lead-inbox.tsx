@@ -214,9 +214,9 @@ export function CampaignLeadInbox({
           <span
             aria-atomic="true"
             aria-live="polite"
-            className="inline-flex items-center gap-1.5 rounded-full border border-[#1ed760]/20 bg-[#1ed760]/10 px-2.5 py-1 text-[10px] font-bold text-[#73f5a0]"
+            className="inline-flex min-h-8 items-center gap-2 rounded-full border border-[#55e982]/40 bg-[#163a21] px-3.5 py-1.5 text-[12px] font-bold leading-4 text-[#8bf7ae] shadow-[0_6px_18px_rgba(30,215,96,0.12)] sm:text-[13px]"
           >
-            <Sparkles aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+            <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0" />
             {formatStrongMatchCount(strongLeadCount)}
           </span>
         </div>

@@ -11,6 +11,7 @@ import {
 } from "@/actions/campaigns";
 import { getCampaignNotificationHealth } from "@/actions/live-mode";
 import { ClassifiedLeadsPanel, type ClassifiedLead } from "@/components/campaigns/classified-leads-panel";
+import { CampaignHistoricalSummary } from "@/components/campaigns/campaign-historical-summary";
 import { CampaignLeadInbox } from "@/components/campaigns/campaign-lead-inbox";
 import { useCampaignLeadFilterLoading } from "@/components/campaigns/campaign-lead-filter-loading-provider";
 import { CampaignSyncPanel, type CampaignSync } from "@/components/campaigns/campaign-sync-panel";
@@ -19,8 +20,10 @@ import { CampaignLiveStatusStrip } from "@/components/live/campaign-live-status-
 import type { CampaignLeadEmptyStateMode } from "@/lib/campaign-lead-empty-state";
 import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
 import {
+  getCampaignLeadRefreshInterval,
   getJustAddedCampaignLeadIds,
   JUST_ADDED_HIGHLIGHT_MS,
+  summarizeHistoricalCampaignLeads,
 } from "@/lib/campaign-lead-inbox";
 import type { LiveNotificationHealth } from "@/lib/live-leads";
 
@@ -71,6 +74,7 @@ export function CampaignDetailLiveSections({
   selectedLeadId,
   semanticLastSyncAt,
   semanticNextSyncAt,
+  selectedPeriodIsToday,
   showInitialRssDiagnostics = true,
   showJsonExport = true,
   showSemanticSort = true,
@@ -101,6 +105,7 @@ export function CampaignDetailLiveSections({
   selectedLeadId?: string | null;
   semanticLastSyncAt: string | null;
   semanticNextSyncAt: string;
+  selectedPeriodIsToday: boolean;
   showInitialRssDiagnostics?: boolean;
   showJsonExport?: boolean;
   showSemanticSort?: boolean;
@@ -177,7 +182,11 @@ export function CampaignDetailLiveSections({
   const isSyncRunning = sync?.status === "QUEUED" || sync?.status === "PROCESSING";
 
   useEffect(() => {
-    const pollInterval = isSyncRunning ? 10_000 : isLiveToday ? 30_000 : null;
+    const pollInterval = getCampaignLeadRefreshInterval({
+      isLiveToday,
+      isSyncRunning,
+      selectedPeriodIsToday,
+    });
 
     if (pollInterval === null) {
       setNextRefreshAt(null);
@@ -262,7 +271,7 @@ export function CampaignDetailLiveSections({
         window.clearTimeout(timeoutId);
       }
     };
-  }, [campaignId, isLiveToday, isSyncRunning, leadDateFilter]);
+  }, [campaignId, isLiveToday, isSyncRunning, leadDateFilter, selectedPeriodIsToday]);
 
   const classifiedLeads = useMemo(
     () => leads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE),
@@ -270,6 +279,10 @@ export function CampaignDetailLiveSections({
   );
   const leadCount = classifiedLeads.length;
   const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
+  const historicalSummary = useMemo(
+    () => summarizeHistoricalCampaignLeads(classifiedLeads),
+    [classifiedLeads],
+  );
   const lastSync = hasMounted
     ? semanticLastSyncAt
       ? formatLocalDateTime(semanticLastSyncAt)
@@ -298,16 +311,20 @@ export function CampaignDetailLiveSections({
         />
       ) : (
         <>
-          <CampaignSyncPanel
-            nextSyncLabel={nextSyncLabel}
-            summaryMetrics={{
-              lastSync,
-              nextSync,
-              leadCount,
-              highIntentCount,
-            }}
-            sync={sync}
-          />
+          {selectedPeriodIsToday ? (
+            <CampaignSyncPanel
+              nextSyncLabel={nextSyncLabel}
+              summaryMetrics={{
+                lastSync,
+                nextSync,
+                leadCount,
+                highIntentCount,
+              }}
+              sync={sync}
+            />
+          ) : (
+            <CampaignHistoricalSummary summary={historicalSummary} />
+          )}
           {showInitialRssDiagnostics ? <InitialRssDiagnosticsPanel diagnostics={diagnostics} /> : null}
         </>
       )}

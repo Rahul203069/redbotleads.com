@@ -6,6 +6,26 @@ export type CampaignLeadStatusCounts = Record<CampaignLeadStatus, number> & {
 
 export const JUST_ADDED_HIGHLIGHT_MS = 15_000;
 
+export function getCampaignLeadRefreshInterval({
+  isLiveToday,
+  isSyncRunning,
+  selectedPeriodIsToday,
+}: {
+  isLiveToday: boolean;
+  isSyncRunning: boolean;
+  selectedPeriodIsToday: boolean;
+}) {
+  if (!selectedPeriodIsToday) {
+    return null;
+  }
+
+  if (isSyncRunning) {
+    return 10_000;
+  }
+
+  return isLiveToday ? 30_000 : null;
+}
+
 export type CampaignLeadFreshnessGroups<T> = {
   newLeads: T[];
   earlierLeads: T[];
@@ -16,6 +36,13 @@ export type CampaignLeadDetectionBatch<T> = {
   detectedAt: string | null;
   id: string;
   leads: T[];
+};
+
+export type CampaignHistoricalLeadSummary = {
+  averageScore: number | null;
+  communityCount: number;
+  leadCount: number;
+  strongMatchCount: number;
 };
 
 export function countCampaignLeadStatuses(
@@ -35,6 +62,28 @@ export function countCampaignLeadStatuses(
   }
 
   return counts;
+}
+
+export function summarizeHistoricalCampaignLeads(
+  leads: Array<{
+    label: string;
+    redditItem: { subreddit: string };
+    score: number;
+  }>,
+): CampaignHistoricalLeadSummary {
+  const communities = new Set(
+    leads
+      .map((lead) => lead.redditItem.subreddit.trim().toLowerCase())
+      .filter(Boolean),
+  );
+  const scoreTotal = leads.reduce((total, lead) => total + lead.score, 0);
+
+  return {
+    averageScore: leads.length > 0 ? Math.round(scoreTotal / leads.length) : null,
+    communityCount: communities.size,
+    leadCount: leads.length,
+    strongMatchCount: leads.filter((lead) => lead.label === "HIGH").length,
+  };
 }
 
 export function getCampaignLeadDateKey(value: string | Date, timeZone: string) {

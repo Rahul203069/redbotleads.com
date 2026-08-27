@@ -77,9 +77,7 @@ export default async function CampaignDetailPage({
 
   const isAdminAccount = canViewAnalytics(session.user.email);
   const cookieStore = await cookies();
-  const browserTimeZone = isAdminAccount
-    ? "UTC"
-    : normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
+  const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const { id } = await params;
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
   const todayRange = getDayRangeInTimeZone(getDateKeyInTimeZone(new Date(), browserTimeZone), browserTimeZone);
@@ -101,8 +99,8 @@ export default async function CampaignDetailPage({
   const leadDateFilterKey = getLeadDateFilterKey(leadDateFilter);
   const applicationConfig = await getSaasConfig();
   const viewerAppMode = resolveViewerAppMode(applicationConfig.appMode, isAdminAccount);
-  const isLiveTodayView = viewerAppMode === "LIVE"
-    && isExactDateSelection(leadDateSelection, todayRange);
+  const selectedPeriodIsToday = isExactDateSelection(leadDateSelection, todayRange);
+  const isLiveTodayView = viewerAppMode === "LIVE" && selectedPeriodIsToday;
 
   const campaign = await prisma.campaign.findFirst({
     where: buildAccessibleCampaignWhere({
@@ -444,6 +442,7 @@ export default async function CampaignDetailPage({
           latestSemanticRunAt?.toISOString() ?? null
         }
         semanticNextSyncAt={semanticNextSyncAt.toISOString()}
+        selectedPeriodIsToday={selectedPeriodIsToday}
         showInitialRssDiagnostics={isAdminAccount}
         showJsonExport={isAdminAccount}
         showSemanticSort={isAdminAccount}

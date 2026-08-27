@@ -32,6 +32,27 @@ export function formatDateTimeInTimeZone(value: Date | string, timeZone: string)
   }).format(typeof value === "string" ? new Date(value) : value);
 }
 
+export function formatClockTimeInTimeZone(value: Date | string, timeZone: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: normalizeTimeZone(timeZone),
+  }).format(typeof value === "string" ? new Date(value) : value);
+}
+
+export function formatExactDateTimeInTimeZone(value: Date | string, timeZone: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    month: "short",
+    second: "2-digit",
+    timeZone: normalizeTimeZone(timeZone),
+    timeZoneName: "short",
+    year: "numeric",
+  }).format(typeof value === "string" ? new Date(value) : value);
+}
+
 export function formatDateInTimeZone(value: Date | string, timeZone: string) {
   return new Intl.DateTimeFormat("en-US", {
     day: "numeric",

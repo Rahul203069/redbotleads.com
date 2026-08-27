@@ -29,6 +29,10 @@ import type {
 } from "@/lib/campaign-lead-empty-state";
 import { resolveCampaignLeadEmptyState } from "@/lib/campaign-lead-empty-state";
 import type { CampaignLeadView } from "@/lib/campaign-leads";
+import {
+  formatClockTimeInTimeZone,
+  formatExactDateTimeInTimeZone,
+} from "@/lib/time-zone";
 
 const COLLAPSED_SOURCE_TEXT_LENGTH = 280;
 
@@ -272,10 +276,11 @@ export function CampaignLeadInbox({
                       )}
                       {section.detectedAt ? (
                         <time
+                          aria-label={`${section.label} ${formatExactDateTimeInTimeZone(section.detectedAt, timeZone)}`}
                           dateTime={section.detectedAt}
-                          title={formatExactTime(section.detectedAt, timeZone)}
+                          title={formatExactDateTimeInTimeZone(section.detectedAt, timeZone)}
                         >
-                          {section.label} {formatClockTime(section.detectedAt, timeZone)}
+                          {section.label} {formatClockTimeInTimeZone(section.detectedAt, timeZone)}
                         </time>
                       ) : (
                         <span>{section.label}</span>
@@ -421,10 +426,10 @@ function InboxLeadCard({
               </h4>
               <div className="mt-3 flex flex-wrap items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
                 <span>r/{lead.redditItem.subreddit}</span>
-                <time className="text-[#55e982]" dateTime={lead.redditItem.createdUtc} title={formatExactTime(lead.redditItem.createdUtc, timeZone)}>
+                <time className="text-[#55e982]" dateTime={lead.redditItem.createdUtc} title={formatExactDateTimeInTimeZone(lead.redditItem.createdUtc, timeZone)}>
                   Posted {formatLeadRelativeTime(lead.redditItem.createdUtc, nowMs)}
                 </time>
-                <time dateTime={lead.createdAt} title={formatExactTime(lead.createdAt, timeZone)}>
+                <time dateTime={lead.createdAt} title={formatExactDateTimeInTimeZone(lead.createdAt, timeZone)}>
                   Found {formatLeadRelativeTime(lead.createdAt, nowMs)}
                 </time>
                 {lead.ai?.intentType ? <span>{formatEnumLabel(lead.ai.intentType)}</span> : null}
@@ -602,20 +607,4 @@ function formatEnumLabel(value: string | null | undefined) {
   }
 
   return value.replace(/_/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
-}
-
-function formatExactTime(value: string, timeZone: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "medium",
-    timeZone,
-  }).format(new Date(value));
-}
-
-function formatClockTime(value: string, timeZone: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone,
-  }).format(new Date(value));
 }

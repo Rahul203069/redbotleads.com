@@ -4,12 +4,14 @@ import test from "node:test";
 import {
   countCampaignLeadStatuses,
   formatLeadRelativeTime,
+  getCampaignLeadRefreshInterval,
   getCampaignLeadDateKey,
   getCampaignLeadGroupLabel,
   getJustAddedCampaignLeadIds,
   groupCampaignLeadsByDetectionMinute,
   groupCampaignLeadsByFreshness,
   isCampaignLeadNewSinceVisit,
+  summarizeHistoricalCampaignLeads,
 } from "./campaign-lead-inbox";
 
 test("counts every shared workflow status and the complete inbox", () => {
@@ -30,6 +32,51 @@ test("counts every shared workflow status and the complete inbox", () => {
     CONTACTED: 1,
     DISMISSED: 1,
   });
+});
+
+test("summarizes historical lead outcomes without sync metadata", () => {
+  const summary = summarizeHistoricalCampaignLeads([
+    { label: "HIGH", redditItem: { subreddit: "SaaS" }, score: 91 },
+    { label: "MED", redditItem: { subreddit: "saas" }, score: 72 },
+    { label: "HIGH", redditItem: { subreddit: " startups " }, score: 80 },
+  ]);
+
+  assert.deepEqual(summary, {
+    averageScore: 81,
+    communityCount: 2,
+    leadCount: 3,
+    strongMatchCount: 2,
+  });
+});
+
+test("uses an honest empty historical summary when no leads were found", () => {
+  assert.deepEqual(summarizeHistoricalCampaignLeads([]), {
+    averageScore: null,
+    communityCount: 0,
+    leadCount: 0,
+    strongMatchCount: 0,
+  });
+});
+
+test("never polls a historical selection even while the current campaign sync is running", () => {
+  assert.equal(getCampaignLeadRefreshInterval({
+    isLiveToday: false,
+    isSyncRunning: true,
+    selectedPeriodIsToday: false,
+  }), null);
+});
+
+test("preserves refresh timing for current-day campaign views", () => {
+  assert.equal(getCampaignLeadRefreshInterval({
+    isLiveToday: true,
+    isSyncRunning: false,
+    selectedPeriodIsToday: true,
+  }), 30_000);
+  assert.equal(getCampaignLeadRefreshInterval({
+    isLiveToday: false,
+    isSyncRunning: true,
+    selectedPeriodIsToday: true,
+  }), 10_000);
 });
 
 test("groups detected leads using the viewer timezone", () => {

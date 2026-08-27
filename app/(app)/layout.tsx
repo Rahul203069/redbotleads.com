@@ -65,7 +65,7 @@ export default async function AuthenticatedAppLayout({
 
   return (
     <div className="min-h-screen bg-transparent px-4 py-4 text-[#F3F5F4] lg:px-0 lg:py-0">
-      {!isAdminAccount ? <BrowserTimeZoneSync initialTimeZone={browserTimeZone} /> : null}
+      <BrowserTimeZoneSync initialTimeZone={browserTimeZone} />
       <div className="grid min-h-screen w-full grid-cols-1 gap-4 lg:grid-cols-[304px_minmax(0,1fr)] lg:gap-0">
         <div className="lg:sticky lg:top-0 lg:h-screen lg:pl-4 lg:pr-0 lg:py-4 xl:pl-6">
           <AppSidebar

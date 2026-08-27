@@ -23,7 +23,6 @@ export function CampaignLiveStatusStrip({
   isRefreshing,
   lastCheckedAt,
   lastRefreshedAt,
-  nextRefreshAt,
   refreshFailed,
   syncStatus,
   telegramConnectedAt,
@@ -36,7 +35,6 @@ export function CampaignLiveStatusStrip({
   isRefreshing: boolean;
   lastCheckedAt: string | null;
   lastRefreshedAt: string | null;
-  nextRefreshAt: string | null;
   refreshFailed: boolean;
   syncStatus: CampaignLeadSyncStatus;
   telegramConnectedAt: string | null;
@@ -52,9 +50,6 @@ export function CampaignLiveStatusStrip({
   const pendingCount = health?.pendingCount ?? 0;
   const failedCount = health?.failedCount ?? 0;
   const isScanning = campaignIsActive && (isSyncing || isRefreshing);
-  const nextRefreshSeconds = nowMs !== null && nextRefreshAt
-    ? Math.max(0, Math.ceil((new Date(nextRefreshAt).getTime() - nowMs) / 1_000))
-    : null;
   const statusTitle = !campaignIsActive
     ? "Monitoring paused"
     : isSyncing
@@ -76,7 +71,7 @@ export function CampaignLiveStatusStrip({
 
   useEffect(() => {
     const firstTickId = window.setTimeout(() => setNowMs(Date.now()), 0);
-    const intervalId = window.setInterval(() => setNowMs(Date.now()), 1_000);
+    const intervalId = window.setInterval(() => setNowMs(Date.now()), 60_000);
     return () => {
       window.clearTimeout(firstTickId);
       window.clearInterval(intervalId);
@@ -104,14 +99,7 @@ export function CampaignLiveStatusStrip({
             ) : null}
           </span>
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <h2 aria-live="polite" className="text-[14px] font-bold text-white">{statusTitle}</h2>
-              {campaignIsActive && !isScanning && !refreshFailed && nextRefreshSeconds !== null ? (
-                <p className="text-[11px] font-semibold text-[#73f5a0]">
-                  · Next refresh in {nextRefreshSeconds}s
-                </p>
-              ) : null}
-            </div>
+            <h2 aria-live="polite" className="text-[14px] font-bold text-white">{statusTitle}</h2>
             <p className="mt-1 text-[12px] leading-5 text-[#8f8f8f]">
               {statusDetail}
             </p>

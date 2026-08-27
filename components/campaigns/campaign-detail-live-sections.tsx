@@ -129,7 +129,6 @@ export function CampaignDetailLiveSections({
   const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(
     isLiveToday ? visitStartedAt : null,
   );
-  const [nextRefreshAt, setNextRefreshAt] = useState<string | null>(null);
   const [refreshFailed, setRefreshFailed] = useState(false);
   const knownLeadIdsRef = useRef(new Set(initialLeads.map((lead) => lead.id)));
   const highlightTimeoutsRef = useRef<number[]>([]);
@@ -189,7 +188,6 @@ export function CampaignDetailLiveSections({
     });
 
     if (pollInterval === null) {
-      setNextRefreshAt(null);
       return;
     }
 
@@ -201,8 +199,6 @@ export function CampaignDetailLiveSections({
         return;
       }
 
-      const scheduledAt = Date.now() + pollInterval;
-      setNextRefreshAt(new Date(scheduledAt).toISOString());
       timeoutId = window.setTimeout(refreshLiveFeed, pollInterval);
     };
 
@@ -212,7 +208,6 @@ export function CampaignDetailLiveSections({
       }
 
       setIsRefreshing(true);
-      setNextRefreshAt(null);
 
       try {
         const [latestSync, latestLeads, latestDiagnostics, latestNotificationHealth] = await Promise.all([
@@ -302,7 +297,6 @@ export function CampaignDetailLiveSections({
           isRefreshing={isRefreshing}
           lastCheckedAt={sync?.completedAt ?? sync?.updatedAt ?? semanticLastSyncAt}
           lastRefreshedAt={lastRefreshedAt}
-          nextRefreshAt={nextRefreshAt}
           refreshFailed={refreshFailed}
           syncStatus={sync?.status ?? "IDLE"}
           telegramConnectedAt={telegramConnectedAt}

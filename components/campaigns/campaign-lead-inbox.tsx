@@ -19,6 +19,7 @@ import { DeleteCampaignLeadDialog } from "@/components/campaigns/delete-campaign
 import { useToast } from "@/components/ui/use-toast";
 import {
   formatLeadRelativeTime,
+  formatStrongMatchCount,
   groupCampaignLeadsByDetectionMinute,
   groupCampaignLeadsByFreshness,
 } from "@/lib/campaign-lead-inbox";
@@ -49,6 +50,7 @@ export function CampaignLeadInbox({
   previousVisitAt,
   selectedLeadId,
   selectedPeriodLabel,
+  strongLeadCount,
   syncStatus,
   timeZone,
   trackClientActivity = false,
@@ -66,6 +68,7 @@ export function CampaignLeadInbox({
   previousVisitAt: string | null;
   selectedLeadId?: string | null;
   selectedPeriodLabel: string;
+  strongLeadCount: number;
   syncStatus: CampaignLeadSyncStatus;
   timeZone: string;
   trackClientActivity?: boolean;
@@ -204,9 +207,19 @@ export function CampaignLeadInbox({
           <Radio aria-hidden="true" className="h-4 w-4" />
           <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Live today</span>
         </div>
-        <h2 className="mt-2 text-[24px] font-bold tracking-[-0.03em] text-[#ffffff]">
-          {leadCount} qualified lead{leadCount === 1 ? "" : "s"}
-        </h2>
+        <div className="mt-2 flex flex-wrap items-center gap-2.5">
+          <h2 className="text-[24px] font-bold tracking-[-0.03em] text-[#ffffff]">
+            {leadCount} qualified lead{leadCount === 1 ? "" : "s"}
+          </h2>
+          <span
+            aria-atomic="true"
+            aria-live="polite"
+            className="inline-flex items-center gap-1.5 rounded-full border border-[#1ed760]/20 bg-[#1ed760]/10 px-2.5 py-1 text-[10px] font-bold text-[#73f5a0]"
+          >
+            <Sparkles aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+            {formatStrongMatchCount(strongLeadCount)}
+          </span>
+        </div>
         <p className="mt-1 text-[13px] leading-5 text-[#a7a7a7]">
           {freshnessSummary}
         </p>

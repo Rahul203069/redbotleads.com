@@ -6,6 +6,10 @@ export type CampaignLeadStatusCounts = Record<CampaignLeadStatus, number> & {
 
 export const JUST_ADDED_HIGHLIGHT_MS = 15_000;
 
+export function formatStrongMatchCount(count: number) {
+  return `${count} strong match${count === 1 ? "" : "es"} so far`;
+}
+
 export function getCampaignLeadRefreshInterval({
   isLiveToday,
   isSyncRunning,

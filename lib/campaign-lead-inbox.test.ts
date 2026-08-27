@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   countCampaignLeadStatuses,
   formatLeadRelativeTime,
+  formatStrongMatchCount,
   getCampaignLeadRefreshInterval,
   getCampaignLeadDateKey,
   getCampaignLeadGroupLabel,
@@ -32,6 +33,12 @@ test("counts every shared workflow status and the complete inbox", () => {
     CONTACTED: 1,
     DISMISSED: 1,
   });
+});
+
+test("formats zero, singular, and multiple live strong-match counts", () => {
+  assert.equal(formatStrongMatchCount(0), "0 strong matches so far");
+  assert.equal(formatStrongMatchCount(1), "1 strong match so far");
+  assert.equal(formatStrongMatchCount(4), "4 strong matches so far");
 });
 
 test("summarizes only total leads and strong historical matches", () => {

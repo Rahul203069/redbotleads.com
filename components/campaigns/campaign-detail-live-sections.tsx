@@ -339,6 +339,7 @@ export function CampaignDetailLiveSections({
           previousVisitAt={previousVisitAt}
           selectedLeadId={selectedLeadId}
           selectedPeriodLabel={selectedPeriodLabel}
+          strongLeadCount={highIntentCount}
           syncStatus={sync?.status ?? "IDLE"}
           timeZone={timeZone}
           trackClientActivity={trackClientActivity}

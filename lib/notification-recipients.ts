@@ -1,4 +1,5 @@
 export type AlertChannel = "EMAIL" | "SLACK" | "TELEGRAM";
+export type ClientNotificationChannel = Exclude<AlertChannel, "EMAIL">;
 export type NotificationRecipientRole = "OWNER" | "CLIENT";
 export type NotificationDeliveryStatus = "PENDING" | "SENT" | "FAILED";
 
@@ -123,7 +124,7 @@ export function chooseStrictClientChannel(input: {
   preferredAlertChannel: AlertChannel;
   slackWebhookUrl: string | null;
   telegramChatId: string | null;
-}) {
+}): ClientNotificationChannel | null {
   if (input.preferredAlertChannel === "SLACK") {
     return input.slackWebhookUrl?.trim() ? "SLACK" : null;
   }

@@ -4,9 +4,12 @@ import { ArrowLeft, UserPlus } from "lucide-react";
 
 import { revokeCampaignClientAccess } from "@/app/(app)/admin/analytics/onboarding/actions";
 import { CampaignClientOnboardingForm } from "@/components/admin/campaign-client-onboarding-form";
+import { NotificationSetupBadge } from "@/components/admin/notification-setup-badge";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
+import { normalizeAccessEmail } from "@/lib/campaign-access";
+import { chooseStrictClientChannel } from "@/lib/notification-recipients";
 import { prisma } from "@/lib/prisma";
 
 export default async function CampaignClientOnboardingPage() {
@@ -48,7 +51,11 @@ export default async function CampaignClientOnboardingPage() {
         user: {
           select: {
             email: true,
+            id: true,
             name: true,
+            preferredAlertChannel: true,
+            slackWebhookUrl: true,
+            telegramChatId: true,
           },
         },
       },
@@ -57,6 +64,36 @@ export default async function CampaignClientOnboardingPage() {
       },
     }),
   ]);
+  const unlinkedEmails = Array.from(new Set(
+    accesses
+      .filter((access) => !access.user)
+      .map((access) => access.normalizedEmail),
+  ));
+  const matchingUsers = unlinkedEmails.length === 0
+    ? []
+    : await prisma.user.findMany({
+        where: {
+          OR: unlinkedEmails.map((email) => ({
+            email: {
+              equals: email,
+              mode: "insensitive" as const,
+            },
+          })),
+        },
+        select: {
+          email: true,
+          id: true,
+          name: true,
+          preferredAlertChannel: true,
+          slackWebhookUrl: true,
+          telegramChatId: true,
+        },
+      });
+  const matchingUserByEmail = new Map(
+    matchingUsers
+      .filter((user): user is typeof user & { email: string } => Boolean(user.email))
+      .map((user) => [normalizeAccessEmail(user.email), user]),
+  );
 
   return (
     <div className="space-y-5 text-[#ffffff]">
@@ -114,40 +151,52 @@ export default async function CampaignClientOnboardingPage() {
               No client access grants have been created yet.
             </div>
           ) : (
-            accesses.map((access) => (
-              <article
-                className="grid gap-4 rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] lg:grid-cols-[1fr_auto] lg:items-center"
-                key={access.id}
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <StatusPill label={access.user ? "linked" : "pending"} tone={access.user ? "good" : "warn"} />
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8f8f8f]">
-                      Created {formatDate(access.createdAt)}
-                    </span>
-                  </div>
-                  <h3 className="mt-3 text-[16px] font-bold text-[#ffffff]">{access.displayName}</h3>
-                  <p className="mt-2 text-[13px] leading-5 text-[#cbcbcb]">
-                    {access.email} gets access to {access.campaign.name}.
-                  </p>
-                  {access.user ? (
-                    <p className="mt-1 text-[12px] text-[#8f8f8f]">
-                      Linked user: {access.user.email ?? access.user.name ?? "Unknown user"}
+            accesses.map((access) => {
+              const user = access.user ?? matchingUserByEmail.get(access.normalizedEmail) ?? null;
+              const notificationChannel = user
+                ? chooseStrictClientChannel({
+                    preferredAlertChannel: user.preferredAlertChannel,
+                    slackWebhookUrl: user.slackWebhookUrl,
+                    telegramChatId: user.telegramChatId,
+                  })
+                : null;
+
+              return (
+                <article
+                  className="grid gap-4 rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] lg:grid-cols-[1fr_auto] lg:items-center"
+                  key={access.id}
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusPill label={user ? "linked" : "pending"} tone={user ? "good" : "warn"} />
+                      <NotificationSetupBadge channel={notificationChannel} />
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8f8f8f]">
+                        Created {formatDate(access.createdAt)}
+                      </span>
+                    </div>
+                    <h3 className="mt-3 text-[16px] font-bold text-[#ffffff]">{access.displayName}</h3>
+                    <p className="mt-2 text-[13px] leading-5 text-[#cbcbcb]">
+                      {access.email} gets access to {access.campaign.name}.
                     </p>
-                  ) : null}
-                </div>
-                <form action={revokeCampaignClientAccess}>
-                  <input name="accessId" type="hidden" value={access.id} />
-                  <Button
-                    className="w-full rounded-full border-none bg-[#3a151b] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ff9aa5] shadow-[rgb(243,114,127)_0px_0px_0px_1px_inset] hover:bg-[#4a1c24] lg:w-auto"
-                    type="submit"
-                    variant="secondary"
-                  >
-                    Revoke
-                  </Button>
-                </form>
-              </article>
-            ))
+                    {user ? (
+                      <p className="mt-1 text-[12px] text-[#8f8f8f]">
+                        Linked user: {user.email ?? user.name ?? "Unknown user"}
+                      </p>
+                    ) : null}
+                  </div>
+                  <form action={revokeCampaignClientAccess}>
+                    <input name="accessId" type="hidden" value={access.id} />
+                    <Button
+                      className="w-full rounded-full border-none bg-[#3a151b] px-4 text-[11px] font-bold uppercase tracking-[0.14em] text-[#ff9aa5] shadow-[rgb(243,114,127)_0px_0px_0px_1px_inset] hover:bg-[#4a1c24] lg:w-auto"
+                      type="submit"
+                      variant="secondary"
+                    >
+                      Revoke
+                    </Button>
+                  </form>
+                </article>
+              );
+            })
           )}
         </div>
       </section>

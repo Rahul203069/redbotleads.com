@@ -11,6 +11,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { NotificationSetupBadge } from "@/components/admin/notification-setup-badge";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import {
@@ -175,6 +176,7 @@ export default async function ClientActivityOverviewPage({
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <EngagementStatusBadge status={row.engagementStatus} />
+                      <NotificationSetupBadge channel={row.notificationChannel} />
                       {!row.userId ? <span className="rounded-full bg-[#3b2d10] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#ffd66e]">Awaiting signup</span> : null}
                     </div>
                     <h3 className="mt-3 truncate text-[18px] font-bold text-[#ffffff]">{row.name || row.email}</h3>

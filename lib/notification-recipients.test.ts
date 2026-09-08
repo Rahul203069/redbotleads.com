@@ -145,6 +145,28 @@ test("does not fall back when a client's selected channel is disconnected", () =
   );
 });
 
+test("uses only the client's preferred channel when both connections exist", () => {
+  const connections = {
+    slackWebhookUrl: "https://hooks.slack.com/services/example",
+    telegramChatId: "chat-1",
+  };
+
+  assert.equal(
+    chooseStrictClientChannel({
+      ...connections,
+      preferredAlertChannel: "SLACK",
+    }),
+    "SLACK",
+  );
+  assert.equal(
+    chooseStrictClientChannel({
+      ...connections,
+      preferredAlertChannel: "TELEGRAM",
+    }),
+    "TELEGRAM",
+  );
+});
+
 test("never replays old valid classifications to clients", () => {
   const access = buildAccess();
 

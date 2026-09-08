@@ -17,6 +17,7 @@ import {
   summarizeClientActivity,
 } from "@/lib/client-activity-core";
 import { normalizeAccessEmail } from "@/lib/campaign-access";
+import { chooseStrictClientChannel } from "@/lib/notification-recipients";
 import { prisma } from "@/lib/prisma";
 
 const MIN_VISIBLE_CLIENT_LEAD_SCORE = 40;
@@ -277,6 +278,9 @@ export async function getCampaignClientActivityOverview({
           email: true,
           id: true,
           name: true,
+          preferredAlertChannel: true,
+          slackWebhookUrl: true,
+          telegramChatId: true,
         },
       },
     },
@@ -304,6 +308,9 @@ export async function getCampaignClientActivityOverview({
           email: true,
           id: true,
           name: true,
+          preferredAlertChannel: true,
+          slackWebhookUrl: true,
+          telegramChatId: true,
         },
       });
   const userByEmail = new Map(
@@ -437,6 +444,13 @@ export async function getCampaignClientActivityOverview({
         lastLeadReviewAt: userId ? lastReviewByUser.get(userId) ?? null : null,
         leadExpansions: summary.leadExpansions,
         name: assignment.user?.name ?? null,
+        notificationChannel: assignment.user
+          ? chooseStrictClientChannel({
+              preferredAlertChannel: assignment.user.preferredAlertChannel,
+              slackWebhookUrl: assignment.user.slackWebhookUrl,
+              telegramChatId: assignment.user.telegramChatId,
+            })
+          : null,
         redditClicks: summary.redditClicks,
         signedUpAt: assignment.user?.createdAt ?? null,
         uniqueLeadsReviewed: summary.uniqueLeadsReviewed,
@@ -527,6 +541,9 @@ export async function getCampaignClientActivityDetail({
       email: true,
       id: true,
       name: true,
+      preferredAlertChannel: true,
+      slackWebhookUrl: true,
+      telegramChatId: true,
     },
   });
 
@@ -742,6 +759,11 @@ export async function getCampaignClientActivityDetail({
       email: user.email,
       id: user.id,
       name: user.name,
+      notificationChannel: chooseStrictClientChannel({
+        preferredAlertChannel: user.preferredAlertChannel,
+        slackWebhookUrl: user.slackWebhookUrl,
+        telegramChatId: user.telegramChatId,
+      }),
     },
   };
 }

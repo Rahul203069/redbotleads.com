@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { ClientActivityTrendChart } from "@/components/admin/client-activity-trend-chart";
+import { NotificationSetupBadge } from "@/components/admin/notification-setup-badge";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import {
@@ -77,6 +78,7 @@ export default async function ClientActivityDetailPage({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <EngagementStatusBadge status={detail.allTime.engagementStatus} />
+              <NotificationSetupBadge channel={detail.user.notificationChannel} />
               <span className="rounded-full bg-[#121212] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#b3b3b3]">
                 Joined {formatDateInTimeZone(detail.user.createdAt, "UTC")}
               </span>

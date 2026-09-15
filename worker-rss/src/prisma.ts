@@ -16,7 +16,9 @@ if (!connectionString) {
 const configuredPoolMax = Number.parseInt(process.env.DATABASE_POOL_MAX ?? "", 10);
 const poolMax = Number.isInteger(configuredPoolMax) && configuredPoolMax > 0 ? configuredPoolMax : 2;
 
-function withPostgresSslIdentity(config: { connectionString: string; ssl?: unknown }) {
+function withPostgresSslIdentity<
+  TConfig extends { connectionString: string; ssl?: unknown },
+>(config: TConfig): TConfig {
   const url = new URL(config.connectionString);
   const sslMode = url.searchParams.get("sslmode");
   const host = url.hostname;

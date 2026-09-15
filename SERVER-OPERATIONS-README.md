@@ -14,7 +14,8 @@ The inventory below was verified directly on September 16, 2026.
 | --- | --- | --- | --- |
 | Main VM (Azure mothership) | `172.173.155.9` | `/home/azureuser/redbotleads.com` | Docker Compose v5.5.1 |
 | Small RSS VM (1 GB) | `18.227.102.219` | `/home/ubuntu/my-app` | Standalone Docker container; Compose is not installed |
-| Small RSS VM (512 MB) | `43.205.103.250` | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
+| Small RSS VM (512 MB, ap-south-1) | `43.205.103.250` | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
+| Small RSS VM (512 MB, us-east-1) | `184.192.178.149` | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
 | Cold rollback VM | `3.136.16.18` | `/home/ubuntu/redbotleads.com` | Keep all services and its timer stopped through September 23, 2026 |
 | Cold rollback RSS VM (1 GB) | `3.22.139.5` | `/home/ubuntu/my-app` | Keep the worker stopped through September 23, 2026 |
 | Cold rollback RSS VM (512 MB) | `44.198.45.6` | `/home/ubuntu/my-app` | Keep the worker stopped through September 23, 2026 |
@@ -37,6 +38,12 @@ ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-us-east-2 (1).pem" ubuntu@1
 
 ```powershell
 ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-ap-south-1.pem" ubuntu@43.205.103.250
+```
+
+512 MB us-east-1 RSS VM:
+
+```powershell
+ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-us-east-1 (1).pem" ubuntu@184.192.178.149
 ```
 
 ## Main VM services
@@ -166,6 +173,7 @@ Verified container properties:
 - Bind mounts: none
 - Runtime env file on host: `/home/ubuntu/my-app/.env.rss-poll-worker`
 - Dockerfile: `/home/ubuntu/my-app/worker-rss/Dockerfile`
+- The 512 MB VMs use a 1 GB host swapfile plus Docker limits of `--memory 300m --memory-swap 600m`.
 - The RSS refiller and daily semantic worker do **not** run on this VM.
 
 ### Inspect the small VM
@@ -207,6 +215,8 @@ docker run -d \
 docker ps --filter name=reddit-leads-rss-polling
 docker logs --tail 200 -f reddit-leads-rss-polling
 ```
+
+Add `--memory 300m --memory-swap 600m` to `docker run` on either 512 MB VM.
 
 Because this is a standalone container, do not use `docker compose` or
 `docker-compose` on the small VM unless Compose is installed and the deployment

@@ -12,7 +12,7 @@ The inventory below was verified directly on September 16, 2026.
 
 | Server | Public IP | Repository | Runtime |
 | --- | --- | --- | --- |
-| Main VM (Azure mothership) | `172.173.155.9` | `/home/azureuser/redbotleads.com` | Docker Compose v5.5.1 |
+| Main VM (Azure mothership) | `172.173.155.9` (static) | `/home/azureuser/redbotleads.com` | Docker Compose v5.5.1 |
 | Small RSS VM (1 GB) | `3.129.159.30` (static) | `/home/ubuntu/my-app` | Standalone Docker container; Compose is not installed |
 | Small RSS VM (512 MB, ap-south-1) | `15.252.224.220` (static) | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
 | Small RSS VM (512 MB, us-east-1) | `184.192.178.149` (static) | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |

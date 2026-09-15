@@ -13,9 +13,9 @@ The inventory below was verified directly on September 16, 2026.
 | Server | Public IP | Repository | Runtime |
 | --- | --- | --- | --- |
 | Main VM (Azure mothership) | `172.173.155.9` | `/home/azureuser/redbotleads.com` | Docker Compose v5.5.1 |
-| Small RSS VM (1 GB) | `18.227.102.219` | `/home/ubuntu/my-app` | Standalone Docker container; Compose is not installed |
-| Small RSS VM (512 MB, ap-south-1) | `43.205.103.250` | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
-| Small RSS VM (512 MB, us-east-1) | `184.192.178.149` | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
+| Small RSS VM (1 GB) | `3.129.159.30` (static) | `/home/ubuntu/my-app` | Standalone Docker container; Compose is not installed |
+| Small RSS VM (512 MB, ap-south-1) | `15.252.224.220` (static) | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
+| Small RSS VM (512 MB, us-east-1) | `184.192.178.149` (static) | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
 | Cold rollback VM | `3.136.16.18` | `/home/ubuntu/redbotleads.com` | Keep all services and its timer stopped through September 23, 2026 |
 | Cold rollback RSS VM (1 GB) | `3.22.139.5` | `/home/ubuntu/my-app` | Keep the worker stopped through September 23, 2026 |
 | Cold rollback RSS VM (512 MB) | `44.198.45.6` | `/home/ubuntu/my-app` | Keep the worker stopped through September 23, 2026 |
@@ -31,13 +31,13 @@ ssh -i "C:\Users\rs329\Downloads\mothership_key.pem" azureuser@172.173.155.9
 1 GB RSS VM:
 
 ```powershell
-ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-us-east-2 (1).pem" ubuntu@18.227.102.219
+ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-us-east-2 (1).pem" ubuntu@3.129.159.30
 ```
 
 512 MB RSS VM:
 
 ```powershell
-ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-ap-south-1.pem" ubuntu@43.205.103.250
+ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-ap-south-1.pem" ubuntu@15.252.224.220
 ```
 
 512 MB us-east-1 RSS VM:

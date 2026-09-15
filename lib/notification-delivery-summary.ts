@@ -4,7 +4,7 @@ export function summarizeNotificationDeliveries<
     createdAt: Date;
     error: string | null;
     sentAt: Date | null;
-    status: "PENDING" | "SENT" | "FAILED";
+    status: "PENDING" | "SENT" | "FAILED" | "SKIPPED";
   },
 >(notifications: T[]) {
   if (notifications.length === 0) {
@@ -14,6 +14,7 @@ export function summarizeNotificationDeliveries<
   const sentCount = notifications.filter((notification) => notification.status === "SENT").length;
   const failedCount = notifications.filter((notification) => notification.status === "FAILED").length;
   const pendingCount = notifications.filter((notification) => notification.status === "PENDING").length;
+  const skippedCount = notifications.filter((notification) => notification.status === "SKIPPED").length;
   const channels = Array.from(new Set(notifications.map((notification) => notification.channel)));
   const errors = Array.from(
     new Set(
@@ -40,7 +41,9 @@ export function summarizeNotificationDeliveries<
         ? "FAILED"
         : pendingCount === notifications.length
           ? "PENDING"
-          : "PARTIAL";
+          : skippedCount === notifications.length
+            ? "SKIPPED"
+            : "PARTIAL";
 
   return {
     channel: channels.join(", "),
@@ -49,6 +52,7 @@ export function summarizeNotificationDeliveries<
     failedCount,
     pendingCount,
     recipientCount: notifications.length,
+    skippedCount,
     sentAt: latestSentAt,
     sentCount,
     status,

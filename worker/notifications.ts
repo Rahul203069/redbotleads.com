@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { canViewAnalytics } from "@/lib/beta-access";
+import { shouldSkipCampaignNotification } from "@/lib/notification-recipients";
 import { prisma } from "@/lib/prisma";
 import { isTelegramRateLimitError, sendTelegramMessage } from "@/lib/telegram";
 import { Worker } from "bullmq";
@@ -76,6 +77,7 @@ async function runSlackNotification(
     select: {
       id: true,
       campaignDisplayName: true,
+      campaignNotificationEpoch: true,
       recipientRole: true,
       status: true,
       campaignClientAccess: {
@@ -96,6 +98,12 @@ async function runSlackNotification(
       },
       lead: {
         select: {
+          campaign: {
+            select: {
+              notificationEpoch: true,
+              notificationsPaused: true,
+            },
+          },
           campaignId: true,
           id: true,
           score: true,
@@ -125,6 +133,10 @@ async function runSlackNotification(
 
   if (notification.status !== "PENDING") {
     return { skipped: true, reason: "notification_not_pending" };
+  }
+
+  if (await skipNotificationForCampaignState(notification, jobId)) {
+    return { skipped: true, reason: "campaign_notifications_paused" };
   }
 
   const recipientError = getRecipientDeliveryError(notification, "SLACK");
@@ -291,6 +303,7 @@ async function runTelegramNotification(
     select: {
       id: true,
       campaignDisplayName: true,
+      campaignNotificationEpoch: true,
       recipientRole: true,
       status: true,
       campaignClientAccess: {
@@ -311,6 +324,12 @@ async function runTelegramNotification(
       },
       lead: {
         select: {
+          campaign: {
+            select: {
+              notificationEpoch: true,
+              notificationsPaused: true,
+            },
+          },
           campaignId: true,
           id: true,
           score: true,
@@ -340,6 +359,10 @@ async function runTelegramNotification(
 
   if (notification.status !== "PENDING") {
     return { skipped: true, reason: "notification_not_pending" };
+  }
+
+  if (await skipNotificationForCampaignState(notification, jobId)) {
+    return { skipped: true, reason: "campaign_notifications_paused" };
   }
 
   const recipientError = getRecipientDeliveryError(notification, "TELEGRAM");
@@ -507,6 +530,7 @@ async function runEmailNotification(
     select: {
       id: true,
       campaignDisplayName: true,
+      campaignNotificationEpoch: true,
       recipientRole: true,
       status: true,
       campaignClientAccess: {
@@ -527,6 +551,12 @@ async function runEmailNotification(
       },
       lead: {
         select: {
+          campaign: {
+            select: {
+              notificationEpoch: true,
+              notificationsPaused: true,
+            },
+          },
           campaignId: true,
           id: true,
           score: true,
@@ -556,6 +586,10 @@ async function runEmailNotification(
 
   if (notification.status !== "PENDING") {
     return { skipped: true, reason: "notification_not_pending" };
+  }
+
+  if (await skipNotificationForCampaignState(notification, jobId)) {
+    return { skipped: true, reason: "campaign_notifications_paused" };
   }
 
   const recipientError = getRecipientDeliveryError(notification, "EMAIL");
@@ -669,6 +703,55 @@ async function failNotification(notificationId: string, error: string) {
       error,
     },
   });
+}
+
+async function skipNotificationForCampaignState(
+  notification: {
+    campaignNotificationEpoch: number;
+    id: string;
+    lead: {
+      campaign: {
+        notificationEpoch: number;
+        notificationsPaused: boolean;
+      };
+    };
+  },
+  jobId: string,
+) {
+  const campaign = notification.lead.campaign;
+
+  if (!shouldSkipCampaignNotification({
+    campaignNotificationEpoch: notification.campaignNotificationEpoch,
+    notificationEpoch: campaign.notificationEpoch,
+    notificationsPaused: campaign.notificationsPaused,
+  })) {
+    return false;
+  }
+
+  await prisma.notification.updateMany({
+    where: {
+      id: notification.id,
+      status: "PENDING",
+    },
+    data: {
+      error: null,
+      handledAt: new Date(),
+      status: "SKIPPED",
+    },
+  });
+
+  workerLogger.info(
+    {
+      campaignNotificationEpoch: notification.campaignNotificationEpoch,
+      jobId,
+      notificationEpoch: campaign.notificationEpoch,
+      notificationId: notification.id,
+      notificationsPaused: campaign.notificationsPaused,
+    },
+    "Notification skipped because campaign notifications are paused or the job predates a pause",
+  );
+
+  return true;
 }
 
 function getRecipientDeliveryError(

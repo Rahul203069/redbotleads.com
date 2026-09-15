@@ -5,11 +5,11 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-User=ubuntu
-Group=ubuntu
-WorkingDirectory=/home/ubuntu/redbotleads.com
-EnvironmentFile=/home/ubuntu/redbotleads.com/.env.semantic-cron
-ExecStart=/usr/bin/bash /home/ubuntu/redbotleads.com/scripts/trigger-hourly-semantic.sh
+User=azureuser
+Group=azureuser
+WorkingDirectory=/home/azureuser/redbotleads.com
+EnvironmentFile=/home/azureuser/redbotleads.com/.env.semantic-cron
+ExecStart=/usr/bin/bash /home/azureuser/redbotleads.com/scripts/trigger-hourly-semantic.sh
 NoNewPrivileges=true
 PrivateTmp=true
 

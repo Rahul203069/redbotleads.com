@@ -1,6 +1,6 @@
 # Server Operations Reference
 
-This file records the current Lightsail server layout and the commands used to
+This file records the current server layout and the commands used to
 connect, inspect, update, and restart worker services.
 
 > Never commit the `.pem` private keys or server `.env` files. The SSH commands
@@ -8,25 +8,35 @@ connect, inspect, update, and restart worker services.
 
 ## Server inventory
 
-The inventory below was verified directly on July 16, 2026.
+The inventory below was verified directly on September 16, 2026.
 
 | Server | Public IP | Repository | Runtime |
 | --- | --- | --- | --- |
-| Main VM | `3.136.16.18` | `/home/ubuntu/redbotleads.com` | Docker Compose v5.3.1 |
-| Small RSS VM | `3.22.139.5` | `/home/ubuntu/my-app` | Standalone Docker container; Compose is not installed |
+| Main VM (Azure mothership) | `172.173.155.9` | `/home/azureuser/redbotleads.com` | Docker Compose v5.5.1 |
+| Small RSS VM (1 GB) | `18.227.102.219` | `/home/ubuntu/my-app` | Standalone Docker container; Compose is not installed |
+| Small RSS VM (512 MB) | `43.205.103.250` | `/home/ubuntu/my-app` | Standalone Docker container with a 300 MB memory limit |
+| Cold rollback VM | `3.136.16.18` | `/home/ubuntu/redbotleads.com` | Keep all services and its timer stopped through September 23, 2026 |
+| Cold rollback RSS VM (1 GB) | `3.22.139.5` | `/home/ubuntu/my-app` | Keep the worker stopped through September 23, 2026 |
+| Cold rollback RSS VM (512 MB) | `44.198.45.6` | `/home/ubuntu/my-app` | Keep the worker stopped through September 23, 2026 |
 
 ## SSH from Windows PowerShell
 
 Main VM:
 
 ```powershell
-ssh -i "C:\Users\rs329\Downloads\lightsail-key.pem" ubuntu@3.136.16.18
+ssh -i "C:\Users\rs329\Downloads\mothership_key.pem" azureuser@172.173.155.9
 ```
 
-Small RSS VM:
+1 GB RSS VM:
 
 ```powershell
-ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-us-east-2.pem" ubuntu@3.22.139.5
+ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-us-east-2 (1).pem" ubuntu@18.227.102.219
+```
+
+512 MB RSS VM:
+
+```powershell
+ssh -i "C:\Users\rs329\Downloads\LightsailDefaultKey-ap-south-1.pem" ubuntu@43.205.103.250
 ```
 
 ## Main VM services
@@ -51,7 +61,7 @@ npm run worker:dev
 ### Inspect the main VM
 
 ```bash
-cd /home/ubuntu/redbotleads.com
+cd /home/azureuser/redbotleads.com
 
 docker compose --env-file .env.vm -f compose.vm.yaml ps
 docker compose --env-file .env.vm -f compose.vm.yaml logs --tail 200 worker
@@ -66,7 +76,7 @@ Use this when changes affect files under `worker/` or worker-used files under
 classification.
 
 ```bash
-cd /home/ubuntu/redbotleads.com
+cd /home/azureuser/redbotleads.com
 
 # Inspect first. Preserve intentional server-only files such as vm.env.
 git status --short
@@ -102,7 +112,7 @@ endpoint only queues jobs; the worker container performs semantic filtering and
 LLM classification.
 
 ```bash
-cd /home/ubuntu/redbotleads.com
+cd /home/azureuser/redbotleads.com
 cp .env.semantic-cron.example .env.semantic-cron
 chmod 600 .env.semantic-cron
 
@@ -135,14 +145,15 @@ Use this only when the image is already current and the process merely needs a
 restart:
 
 ```bash
-cd /home/ubuntu/redbotleads.com
+cd /home/azureuser/redbotleads.com
 docker compose --env-file .env.vm -f compose.vm.yaml restart worker
 docker compose --env-file .env.vm -f compose.vm.yaml logs --tail 200 -f worker
 ```
 
-## Small RSS VM service
+## Small RSS VM services
 
-The small VM currently runs one standalone container:
+Each small VM currently runs one standalone container that consumes work from
+the same Redis queue:
 
 | Container | Image | Command | Responsibility |
 | --- | --- | --- | --- |
@@ -236,7 +247,7 @@ docker inspect reddit-leads-rss-polling \
 - If the main worker fails after recreation:
 
 ```bash
-cd /home/ubuntu/redbotleads.com
+cd /home/azureuser/redbotleads.com
 docker compose --env-file .env.vm -f compose.vm.yaml ps worker
 docker compose --env-file .env.vm -f compose.vm.yaml logs --tail 300 worker
 ```

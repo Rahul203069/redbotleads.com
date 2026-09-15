@@ -1,7 +1,7 @@
 export type AlertChannel = "EMAIL" | "SLACK" | "TELEGRAM";
 export type ClientNotificationChannel = Exclude<AlertChannel, "EMAIL">;
 export type NotificationRecipientRole = "OWNER" | "CLIENT";
-export type NotificationDeliveryStatus = "PENDING" | "SENT" | "FAILED";
+export type NotificationDeliveryStatus = "PENDING" | "SENT" | "FAILED" | "SKIPPED";
 
 export type NotificationRecipient = {
   campaignClientAccessId: string | null;
@@ -138,4 +138,13 @@ export function chooseStrictClientChannel(input: {
 
 export function shouldEnqueueNotification(status: NotificationDeliveryStatus) {
   return status === "PENDING";
+}
+
+export function shouldSkipCampaignNotification(input: {
+  campaignNotificationEpoch: number;
+  notificationEpoch: number;
+  notificationsPaused: boolean;
+}) {
+  return input.notificationsPaused
+    || input.campaignNotificationEpoch !== input.notificationEpoch;
 }

@@ -36,6 +36,12 @@ export type CampaignRssPollingToggleResult = {
   rssPollingEnabled?: boolean;
 };
 
+export type CampaignNotificationsToggleResult = {
+  status: "success" | "error";
+  message: string;
+  notificationsPaused?: boolean;
+};
+
 export type ManualDailySemanticResult = {
   status: "success" | "error";
   message: string;
@@ -349,6 +355,118 @@ export async function setAdminCampaignActiveState(formData: FormData): Promise<C
     return {
       status: "error",
       message: error instanceof Error ? `Campaign status update failed: ${error.message}` : "Campaign status update failed.",
+    };
+  }
+}
+
+export async function setAdminCampaignNotificationsPaused(
+  formData: FormData,
+): Promise<CampaignNotificationsToggleResult> {
+  const session = await auth();
+
+  if (!session?.user?.id || !canViewAnalytics(session.user.email)) {
+    return {
+      status: "error",
+      message: "You do not have permission to update campaign notifications.",
+    };
+  }
+
+  const campaignId = String(formData.get("campaignId") ?? "").trim();
+  const notificationsPaused = String(formData.get("notificationsPaused") ?? "") === "true";
+
+  if (!campaignId) {
+    return {
+      status: "error",
+      message: "Campaign ID is missing.",
+    };
+  }
+
+  try {
+    const result = await prisma.$transaction(async (transaction) => {
+      const transition = await transaction.campaign.updateMany({
+        where: {
+          id: campaignId,
+          notificationsPaused: !notificationsPaused,
+        },
+        data: notificationsPaused
+          ? {
+              notificationEpoch: {
+                increment: 1,
+              },
+              notificationsPaused: true,
+            }
+          : {
+              notificationsPaused: false,
+            },
+      });
+      const campaign = await transaction.campaign.findUnique({
+        where: {
+          id: campaignId,
+        },
+        select: {
+          id: true,
+          notificationsPaused: true,
+        },
+      });
+
+      if (!campaign) {
+        return null;
+      }
+
+      const skipped = notificationsPaused
+        ? await transaction.notification.updateMany({
+            where: {
+              lead: {
+                campaignId,
+              },
+              status: "PENDING",
+            },
+            data: {
+              error: null,
+              handledAt: new Date(),
+              status: "SKIPPED",
+            },
+          })
+        : { count: 0 };
+
+      return {
+        campaign,
+        changed: transition.count > 0,
+        skippedCount: skipped.count,
+      };
+    });
+
+    if (!result) {
+      return {
+        status: "error",
+        message: "Campaign was not found.",
+      };
+    }
+
+    revalidatePath("/admin/analytics");
+    revalidatePath(`/campaigns/${result.campaign.id}`);
+    revalidatePath(`/campaigns/${result.campaign.id}/analytics`);
+    revalidatePath(`/campaigns/${result.campaign.id}/daily-leads`);
+
+    const skippedLabel = result.skippedCount === 1
+      ? "1 queued notification was discarded."
+      : `${result.skippedCount} queued notifications were discarded.`;
+
+    return {
+      status: "success",
+      message: result.campaign.notificationsPaused
+        ? `Notifications are paused for every account linked to this campaign. ${skippedLabel}`
+        : result.changed
+          ? "Notifications resumed for every account linked to this campaign. Paused notifications will not be replayed."
+          : "Campaign notifications are already active.",
+      notificationsPaused: result.campaign.notificationsPaused,
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message: error instanceof Error
+        ? `Campaign notification update failed: ${error.message}`
+        : "Campaign notification update failed.",
     };
   }
 }

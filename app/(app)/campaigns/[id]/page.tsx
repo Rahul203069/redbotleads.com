@@ -5,6 +5,7 @@ import { BarChart3, CalendarCheck2, CalendarDays, Clock3 } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
+import { CampaignNotificationsToggle } from "@/components/admin/campaign-notifications-toggle";
 import { CampaignRssPollingToggle } from "@/components/admin/campaign-rss-polling-toggle";
 import { CampaignDetailLiveSections } from "@/components/campaigns/campaign-detail-live-sections";
 import { CampaignLeadFilterLoadingProvider } from "@/components/campaigns/campaign-lead-filter-loading-provider";
@@ -298,6 +299,12 @@ export default async function CampaignDetailPage({
                   campaignId={campaign.id}
                   campaignName={displayName}
                   initialIsActive={campaign.isActive}
+                  presentation="page"
+                />
+                <CampaignNotificationsToggle
+                  campaignId={campaign.id}
+                  campaignName={displayName}
+                  initialNotificationsPaused={campaign.notificationsPaused}
                   presentation="page"
                 />
                 <CampaignRssPollingToggle

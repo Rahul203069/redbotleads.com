@@ -60,6 +60,7 @@ enum NotifyStatus {
   PENDING
   SENT
   FAILED
+  SKIPPED
 }
 
 enum NotificationRecipientRole {
@@ -305,6 +306,8 @@ model Campaign {
 
   isActive          Boolean    @default(true)
   rssPollingEnabled Boolean    @default(true)
+  notificationsPaused Boolean  @default(false)
+  notificationEpoch  Int       @default(0)
   minScoreToAlert   Int        @default(75)
   sourceMode        SourceMode @default(PUBLIC)
   semanticSearchScope CampaignSemanticSearchScope @default(CAMPAIGN)
@@ -859,6 +862,7 @@ model Notification {
   recipientRole NotificationRecipientRole @default(OWNER)
   campaignClientAccessId String?
   campaignDisplayName String
+  campaignNotificationEpoch Int @default(0)
   channel NotifyChannel
   status  NotifyStatus @default(PENDING)
   error   String?

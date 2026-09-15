@@ -6,6 +6,7 @@ import {
   chooseOwnerNotificationRecipient,
   chooseStrictClientChannel,
   shouldEnqueueNotification,
+  shouldSkipCampaignNotification,
   type ClientNotificationAccess,
 } from "./notification-recipients";
 
@@ -208,4 +209,32 @@ test("only pending notification rows are eligible for queueing", () => {
   assert.equal(shouldEnqueueNotification("PENDING"), true);
   assert.equal(shouldEnqueueNotification("SENT"), false);
   assert.equal(shouldEnqueueNotification("FAILED"), false);
+  assert.equal(shouldEnqueueNotification("SKIPPED"), false);
+});
+
+test("skips delivery while paused and after a pause invalidates an older notification", () => {
+  assert.equal(
+    shouldSkipCampaignNotification({
+      campaignNotificationEpoch: 2,
+      notificationEpoch: 2,
+      notificationsPaused: true,
+    }),
+    true,
+  );
+  assert.equal(
+    shouldSkipCampaignNotification({
+      campaignNotificationEpoch: 1,
+      notificationEpoch: 2,
+      notificationsPaused: false,
+    }),
+    true,
+  );
+  assert.equal(
+    shouldSkipCampaignNotification({
+      campaignNotificationEpoch: 2,
+      notificationEpoch: 2,
+      notificationsPaused: false,
+    }),
+    false,
+  );
 });

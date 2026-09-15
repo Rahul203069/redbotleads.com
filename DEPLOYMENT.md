@@ -2,25 +2,24 @@
 
 ## VM topology
 
-The Ubuntu 24.04 Lightsail VM runs PostgreSQL 17 with pgvector, PgBouncer,
+The Ubuntu 24.04 Azure VM at `172.173.155.9` runs PostgreSQL 17 with pgvector, PgBouncer,
 Redis, the application worker, and the database-maintenance worker. PostgreSQL
 port `5432` is private to Docker. Vercel connects to TLS PgBouncer at
-`db.redbotleads.com:6432`.
+`172.173.155.9:6432`.
 
 The initial deployment creates a fresh database. It does not copy data from
 Neon.
 
-Recommended minimum VM: 2 vCPU, 4 GB RAM, 60 GB SSD, and a Lightsail static IP.
+Recommended minimum VM: 2 vCPU, 4 GB RAM, a 64 GB OS disk, and a static public IP.
 
 ## 1. DNS and firewall
 
-1. Attach a Lightsail static IP to the VM.
-2. Create an `A` record for `db.redbotleads.com` pointing to that IP.
-3. Allow TCP `80` for Let's Encrypt renewal and TCP `6432` for Vercel.
+1. Attach a static public IP to the Azure VM.
+2. Allow TCP `80` for Let's Encrypt renewal and TCP `6432` for Vercel.
+3. Allow TCP `6379` for Vercel and the separate RSS worker while they use the
+   public Redis endpoint. Keep a strong Redis password.
 4. Restrict TCP `22` to the administrator IP.
 5. Do not open PostgreSQL port `5432`.
-6. Keep Redis port `6379` closed unless Vercel still needs the BullMQ endpoint;
-   if it does, retain the password and restrict access as tightly as possible.
 
 ## 2. Install the host tools
 
@@ -51,22 +50,31 @@ Do not reuse the owner password for the application role.
 
 ## 4. Issue the PgBouncer certificate
 
-Stop anything using port 80, then issue and copy the certificate:
+Stop anything using port 80, then issue the short-lived IP certificate and copy
+it into the PgBouncer TLS directory:
 
 ```bash
-sudo certbot certonly --standalone -d db.redbotleads.com
-sudo env CERT_DIR=/etc/letsencrypt/live/db.redbotleads.com sh ./scripts/sync-pgbouncer-tls.sh
+sudo certbot certonly --standalone --preferred-profile shortlived \
+  --ip-address 172.173.155.9
+sudo env CERT_DIR=/etc/letsencrypt/live/172.173.155.9 \
+  sh ./scripts/sync-pgbouncer-tls.sh
 ```
 
 The first certificate sync can report that PgBouncer is not running; the files
 are still copied. Add this renewal hook after the stack is running:
 
 ```bash
-sudo sh -c 'printf "%s\n" "#!/bin/sh" "cd /home/ubuntu/redbotleads.com && CERT_DIR=/etc/letsencrypt/live/db.redbotleads.com sh ./scripts/sync-pgbouncer-tls.sh" > /etc/letsencrypt/renewal-hooks/deploy/reload-pgbouncer'
+sudo sh -c 'printf "%s\n" "#!/bin/sh" "cd /home/azureuser/redbotleads.com && CERT_DIR=/etc/letsencrypt/live/172.173.155.9 sh ./scripts/sync-pgbouncer-tls.sh" > /etc/letsencrypt/renewal-hooks/deploy/reload-pgbouncer'
 sudo chmod 755 /etc/letsencrypt/renewal-hooks/deploy/reload-pgbouncer
 ```
 
-Adjust `/home/ubuntu/redbotleads.com` if the repository is elsewhere.
+The IP certificate uses Let's Encrypt's short-lived profile. Verify automatic
+renewal and the deploy hook with:
+
+```bash
+systemctl status snap.certbot.renew.timer --no-pager
+sudo certbot renew --dry-run
+```
 
 ## 5. Initialize and migrate
 
@@ -102,7 +110,7 @@ docker compose --env-file .env.vm -f compose.vm.yaml run --rm \
 Set the production `DATABASE_URL` to the limited application role:
 
 ```env
-DATABASE_URL=postgresql://reddit_leads_app:URL_ENCODED_PASSWORD@3.136.16.18:6432/reddit_leads?sslmode=verify-full
+DATABASE_URL=postgresql://reddit_leads_app:URL_ENCODED_PASSWORD@172.173.155.9:6432/reddit_leads?sslmode=verify-full
 DATABASE_POOL_MAX=2
 ```
 
@@ -141,7 +149,7 @@ credentials with access limited to that bucket.
 Run the backup daily with cron:
 
 ```cron
-15 2 * * * cd /home/ubuntu/redbotleads.com && S3_BACKUP_URI=s3://YOUR_PRIVATE_BUCKET/postgres sh ./scripts/backup-postgres.sh >> /home/ubuntu/reddit-leads-backup.log 2>&1
+15 2 * * * cd /home/azureuser/redbotleads.com && S3_BACKUP_URI=s3://YOUR_PRIVATE_BUCKET/postgres sh ./scripts/backup-postgres.sh >> /home/azureuser/reddit-leads-backup.log 2>&1
 ```
 
 Restore only into an empty database and stop workers first:
@@ -174,8 +182,6 @@ The optional `worker-rss` image must use the same application database role and
 Redis URL:
 
 ```env
-DATABASE_URL=postgresql://reddit_leads_app:PASSWORD@PRIVATE_VM_ADDRESS:5432/reddit_leads
-REDIS_URL=redis://:PASSWORD@PRIVATE_REDIS_ADDRESS:6379
+DATABASE_URL=postgresql://reddit_leads_app:PASSWORD@172.173.155.9:6432/reddit_leads?sslmode=verify-full
+REDIS_URL=redis://:PASSWORD@172.173.155.9:6379
 ```
-
-Prefer running it in the main Compose network instead of exposing PostgreSQL.

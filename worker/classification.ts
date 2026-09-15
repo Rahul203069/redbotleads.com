@@ -80,6 +80,8 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
           negativeKeywords: true,
           subreddits: true,
           minScoreToAlert: true,
+          notificationEpoch: true,
+          notificationsPaused: true,
           clientAccesses: {
             select: {
               id: true,
@@ -290,7 +292,9 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
       notificationRecipients.map((recipient) =>
         persistAndEnqueueNotification({
           campaignRunId: data.campaignRunId,
+          campaignNotificationEpoch: lead.campaign.notificationEpoch,
           leadId: lead.id,
+          notificationsPaused: lead.campaign.notificationsPaused,
           recipient,
         }),
       ),
@@ -312,6 +316,7 @@ async function runClassification(data: ClassificationJobData, jobId: string) {
         category: result.category,
         crossedAlertThreshold: result.score >= lead.campaign.minScoreToAlert,
         clientNotificationCount: clientRecipients.length,
+        notificationsPaused: lead.campaign.notificationsPaused,
         hadValidClassification,
         selectedNotificationRecipients: notificationRecipients.map((recipient) => ({
           channel: recipient.channel,
@@ -505,11 +510,15 @@ function clampText(value: string, maxLength: number) {
 
 async function persistAndEnqueueNotification({
   campaignRunId,
+  campaignNotificationEpoch,
   leadId,
+  notificationsPaused,
   recipient,
 }: {
   campaignRunId?: string;
+  campaignNotificationEpoch: number;
   leadId: string;
+  notificationsPaused: boolean;
   recipient: NotificationRecipient;
 }) {
   const notification = await prisma.notification.upsert({
@@ -524,12 +533,14 @@ async function persistAndEnqueueNotification({
     create: {
       campaignClientAccessId: recipient.campaignClientAccessId,
       campaignDisplayName: recipient.campaignDisplayName,
+      campaignNotificationEpoch,
       campaignRunId: campaignRunId ?? null,
       channel: recipient.channel,
+      handledAt: notificationsPaused ? new Date() : null,
       leadId,
       recipientRole: recipient.recipientRole,
       recipientUserId: recipient.recipientUserId,
-      status: "PENDING",
+      status: notificationsPaused ? "SKIPPED" : "PENDING",
     },
     select: {
       id: true,

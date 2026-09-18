@@ -10,7 +10,7 @@ This unpacked Chrome extension runs the owner-operated outreach workflow started
 4. Sign in to the SaaS app, Reddit, and ChatGPT in the same Chrome profile.
 5. Open an owner campaign page, choose **Outreach**, save the instructions, and run the preflight.
 
-The manifest currently allows the local app plus `redbotleads.com`. If the production hostname differs, add that exact HTTPS hostname to both `host_permissions` and the app-page content-script `matches` list before loading the extension.
+The manifest allows the local app, `redbotleads.com`, and the production `redbotleads-com.vercel.app` deployment. If the production hostname changes, add that exact HTTPS hostname to both `host_permissions` and the app-page content-script `matches` list before loading the extension.
 
 ## Safety behavior
 

@@ -208,6 +208,8 @@ export type RedditAccountWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"RedditAccount"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   campaigns?: Prisma.CampaignListRelationFilter
+  outreachContacts?: Prisma.OutreachContactListRelationFilter
+  outreachRuns?: Prisma.OutreachRunListRelationFilter
 }
 
 export type RedditAccountOrderByWithRelationInput = {
@@ -221,6 +223,8 @@ export type RedditAccountOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   campaigns?: Prisma.CampaignOrderByRelationAggregateInput
+  outreachContacts?: Prisma.OutreachContactOrderByRelationAggregateInput
+  outreachRuns?: Prisma.OutreachRunOrderByRelationAggregateInput
 }
 
 export type RedditAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -238,6 +242,8 @@ export type RedditAccountWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"RedditAccount"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   campaigns?: Prisma.CampaignListRelationFilter
+  outreachContacts?: Prisma.OutreachContactListRelationFilter
+  outreachRuns?: Prisma.OutreachRunListRelationFilter
 }, "id" | "userId_redditUser">
 
 export type RedditAccountOrderByWithAggregationInput = {
@@ -278,6 +284,8 @@ export type RedditAccountCreateInput = {
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutRedditAccountsInput
   campaigns?: Prisma.CampaignCreateNestedManyWithoutRedditAccountInput
+  outreachContacts?: Prisma.OutreachContactCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutRedditAccountInput
 }
 
 export type RedditAccountUncheckedCreateInput = {
@@ -290,6 +298,8 @@ export type RedditAccountUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutRedditAccountInput
+  outreachContacts?: Prisma.OutreachContactUncheckedCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutRedditAccountInput
 }
 
 export type RedditAccountUpdateInput = {
@@ -302,6 +312,8 @@ export type RedditAccountUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutRedditAccountsNestedInput
   campaigns?: Prisma.CampaignUpdateManyWithoutRedditAccountNestedInput
+  outreachContacts?: Prisma.OutreachContactUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutRedditAccountNestedInput
 }
 
 export type RedditAccountUncheckedUpdateInput = {
@@ -314,6 +326,8 @@ export type RedditAccountUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutRedditAccountNestedInput
+  outreachContacts?: Prisma.OutreachContactUncheckedUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutRedditAccountNestedInput
 }
 
 export type RedditAccountCreateManyInput = {
@@ -401,6 +415,11 @@ export type RedditAccountNullableScalarRelationFilter = {
   isNot?: Prisma.RedditAccountWhereInput | null
 }
 
+export type RedditAccountScalarRelationFilter = {
+  is?: Prisma.RedditAccountWhereInput
+  isNot?: Prisma.RedditAccountWhereInput
+}
+
 export type RedditAccountCreateNestedManyWithoutUserInput = {
   create?: Prisma.XOR<Prisma.RedditAccountCreateWithoutUserInput, Prisma.RedditAccountUncheckedCreateWithoutUserInput> | Prisma.RedditAccountCreateWithoutUserInput[] | Prisma.RedditAccountUncheckedCreateWithoutUserInput[]
   connectOrCreate?: Prisma.RedditAccountCreateOrConnectWithoutUserInput | Prisma.RedditAccountCreateOrConnectWithoutUserInput[]
@@ -459,6 +478,34 @@ export type RedditAccountUpdateOneWithoutCampaignsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RedditAccountUpdateToOneWithWhereWithoutCampaignsInput, Prisma.RedditAccountUpdateWithoutCampaignsInput>, Prisma.RedditAccountUncheckedUpdateWithoutCampaignsInput>
 }
 
+export type RedditAccountCreateNestedOneWithoutOutreachRunsInput = {
+  create?: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachRunsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachRunsInput>
+  connectOrCreate?: Prisma.RedditAccountCreateOrConnectWithoutOutreachRunsInput
+  connect?: Prisma.RedditAccountWhereUniqueInput
+}
+
+export type RedditAccountUpdateOneRequiredWithoutOutreachRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachRunsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachRunsInput>
+  connectOrCreate?: Prisma.RedditAccountCreateOrConnectWithoutOutreachRunsInput
+  upsert?: Prisma.RedditAccountUpsertWithoutOutreachRunsInput
+  connect?: Prisma.RedditAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RedditAccountUpdateToOneWithWhereWithoutOutreachRunsInput, Prisma.RedditAccountUpdateWithoutOutreachRunsInput>, Prisma.RedditAccountUncheckedUpdateWithoutOutreachRunsInput>
+}
+
+export type RedditAccountCreateNestedOneWithoutOutreachContactsInput = {
+  create?: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachContactsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachContactsInput>
+  connectOrCreate?: Prisma.RedditAccountCreateOrConnectWithoutOutreachContactsInput
+  connect?: Prisma.RedditAccountWhereUniqueInput
+}
+
+export type RedditAccountUpdateOneRequiredWithoutOutreachContactsNestedInput = {
+  create?: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachContactsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachContactsInput>
+  connectOrCreate?: Prisma.RedditAccountCreateOrConnectWithoutOutreachContactsInput
+  upsert?: Prisma.RedditAccountUpsertWithoutOutreachContactsInput
+  connect?: Prisma.RedditAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RedditAccountUpdateToOneWithWhereWithoutOutreachContactsInput, Prisma.RedditAccountUpdateWithoutOutreachContactsInput>, Prisma.RedditAccountUncheckedUpdateWithoutOutreachContactsInput>
+}
+
 export type RedditAccountCreateWithoutUserInput = {
   id?: string
   redditUser: string
@@ -468,6 +515,8 @@ export type RedditAccountCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   campaigns?: Prisma.CampaignCreateNestedManyWithoutRedditAccountInput
+  outreachContacts?: Prisma.OutreachContactCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutRedditAccountInput
 }
 
 export type RedditAccountUncheckedCreateWithoutUserInput = {
@@ -479,6 +528,8 @@ export type RedditAccountUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutRedditAccountInput
+  outreachContacts?: Prisma.OutreachContactUncheckedCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutRedditAccountInput
 }
 
 export type RedditAccountCreateOrConnectWithoutUserInput = {
@@ -530,6 +581,8 @@ export type RedditAccountCreateWithoutCampaignsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutRedditAccountsInput
+  outreachContacts?: Prisma.OutreachContactCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutRedditAccountInput
 }
 
 export type RedditAccountUncheckedCreateWithoutCampaignsInput = {
@@ -541,6 +594,8 @@ export type RedditAccountUncheckedCreateWithoutCampaignsInput = {
   expiresAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  outreachContacts?: Prisma.OutreachContactUncheckedCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutRedditAccountInput
 }
 
 export type RedditAccountCreateOrConnectWithoutCampaignsInput = {
@@ -568,6 +623,8 @@ export type RedditAccountUpdateWithoutCampaignsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutRedditAccountsNestedInput
+  outreachContacts?: Prisma.OutreachContactUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutRedditAccountNestedInput
 }
 
 export type RedditAccountUncheckedUpdateWithoutCampaignsInput = {
@@ -579,6 +636,144 @@ export type RedditAccountUncheckedUpdateWithoutCampaignsInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  outreachContacts?: Prisma.OutreachContactUncheckedUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutRedditAccountNestedInput
+}
+
+export type RedditAccountCreateWithoutOutreachRunsInput = {
+  id?: string
+  redditUser: string
+  accessToken?: string | null
+  refreshToken?: string | null
+  expiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutRedditAccountsInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutRedditAccountInput
+  outreachContacts?: Prisma.OutreachContactCreateNestedManyWithoutRedditAccountInput
+}
+
+export type RedditAccountUncheckedCreateWithoutOutreachRunsInput = {
+  id?: string
+  userId: string
+  redditUser: string
+  accessToken?: string | null
+  refreshToken?: string | null
+  expiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutRedditAccountInput
+  outreachContacts?: Prisma.OutreachContactUncheckedCreateNestedManyWithoutRedditAccountInput
+}
+
+export type RedditAccountCreateOrConnectWithoutOutreachRunsInput = {
+  where: Prisma.RedditAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachRunsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachRunsInput>
+}
+
+export type RedditAccountUpsertWithoutOutreachRunsInput = {
+  update: Prisma.XOR<Prisma.RedditAccountUpdateWithoutOutreachRunsInput, Prisma.RedditAccountUncheckedUpdateWithoutOutreachRunsInput>
+  create: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachRunsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachRunsInput>
+  where?: Prisma.RedditAccountWhereInput
+}
+
+export type RedditAccountUpdateToOneWithWhereWithoutOutreachRunsInput = {
+  where?: Prisma.RedditAccountWhereInput
+  data: Prisma.XOR<Prisma.RedditAccountUpdateWithoutOutreachRunsInput, Prisma.RedditAccountUncheckedUpdateWithoutOutreachRunsInput>
+}
+
+export type RedditAccountUpdateWithoutOutreachRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  redditUser?: Prisma.StringFieldUpdateOperationsInput | string
+  accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutRedditAccountsNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutRedditAccountNestedInput
+  outreachContacts?: Prisma.OutreachContactUpdateManyWithoutRedditAccountNestedInput
+}
+
+export type RedditAccountUncheckedUpdateWithoutOutreachRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  redditUser?: Prisma.StringFieldUpdateOperationsInput | string
+  accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutRedditAccountNestedInput
+  outreachContacts?: Prisma.OutreachContactUncheckedUpdateManyWithoutRedditAccountNestedInput
+}
+
+export type RedditAccountCreateWithoutOutreachContactsInput = {
+  id?: string
+  redditUser: string
+  accessToken?: string | null
+  refreshToken?: string | null
+  expiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutRedditAccountsInput
+  campaigns?: Prisma.CampaignCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutRedditAccountInput
+}
+
+export type RedditAccountUncheckedCreateWithoutOutreachContactsInput = {
+  id?: string
+  userId: string
+  redditUser: string
+  accessToken?: string | null
+  refreshToken?: string | null
+  expiresAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  campaigns?: Prisma.CampaignUncheckedCreateNestedManyWithoutRedditAccountInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutRedditAccountInput
+}
+
+export type RedditAccountCreateOrConnectWithoutOutreachContactsInput = {
+  where: Prisma.RedditAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachContactsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachContactsInput>
+}
+
+export type RedditAccountUpsertWithoutOutreachContactsInput = {
+  update: Prisma.XOR<Prisma.RedditAccountUpdateWithoutOutreachContactsInput, Prisma.RedditAccountUncheckedUpdateWithoutOutreachContactsInput>
+  create: Prisma.XOR<Prisma.RedditAccountCreateWithoutOutreachContactsInput, Prisma.RedditAccountUncheckedCreateWithoutOutreachContactsInput>
+  where?: Prisma.RedditAccountWhereInput
+}
+
+export type RedditAccountUpdateToOneWithWhereWithoutOutreachContactsInput = {
+  where?: Prisma.RedditAccountWhereInput
+  data: Prisma.XOR<Prisma.RedditAccountUpdateWithoutOutreachContactsInput, Prisma.RedditAccountUncheckedUpdateWithoutOutreachContactsInput>
+}
+
+export type RedditAccountUpdateWithoutOutreachContactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  redditUser?: Prisma.StringFieldUpdateOperationsInput | string
+  accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutRedditAccountsNestedInput
+  campaigns?: Prisma.CampaignUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutRedditAccountNestedInput
+}
+
+export type RedditAccountUncheckedUpdateWithoutOutreachContactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  redditUser?: Prisma.StringFieldUpdateOperationsInput | string
+  accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  refreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutRedditAccountNestedInput
 }
 
 export type RedditAccountCreateManyUserInput = {
@@ -600,6 +795,8 @@ export type RedditAccountUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaigns?: Prisma.CampaignUpdateManyWithoutRedditAccountNestedInput
+  outreachContacts?: Prisma.OutreachContactUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutRedditAccountNestedInput
 }
 
 export type RedditAccountUncheckedUpdateWithoutUserInput = {
@@ -611,6 +808,8 @@ export type RedditAccountUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   campaigns?: Prisma.CampaignUncheckedUpdateManyWithoutRedditAccountNestedInput
+  outreachContacts?: Prisma.OutreachContactUncheckedUpdateManyWithoutRedditAccountNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutRedditAccountNestedInput
 }
 
 export type RedditAccountUncheckedUpdateManyWithoutUserInput = {
@@ -630,10 +829,14 @@ export type RedditAccountUncheckedUpdateManyWithoutUserInput = {
 
 export type RedditAccountCountOutputType = {
   campaigns: number
+  outreachContacts: number
+  outreachRuns: number
 }
 
 export type RedditAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   campaigns?: boolean | RedditAccountCountOutputTypeCountCampaignsArgs
+  outreachContacts?: boolean | RedditAccountCountOutputTypeCountOutreachContactsArgs
+  outreachRuns?: boolean | RedditAccountCountOutputTypeCountOutreachRunsArgs
 }
 
 /**
@@ -653,6 +856,20 @@ export type RedditAccountCountOutputTypeCountCampaignsArgs<ExtArgs extends runti
   where?: Prisma.CampaignWhereInput
 }
 
+/**
+ * RedditAccountCountOutputType without action
+ */
+export type RedditAccountCountOutputTypeCountOutreachContactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OutreachContactWhereInput
+}
+
+/**
+ * RedditAccountCountOutputType without action
+ */
+export type RedditAccountCountOutputTypeCountOutreachRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OutreachRunWhereInput
+}
+
 
 export type RedditAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -665,6 +882,8 @@ export type RedditAccountSelect<ExtArgs extends runtime.Types.Extensions.Interna
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaigns?: boolean | Prisma.RedditAccount$campaignsArgs<ExtArgs>
+  outreachContacts?: boolean | Prisma.RedditAccount$outreachContactsArgs<ExtArgs>
+  outreachRuns?: boolean | Prisma.RedditAccount$outreachRunsArgs<ExtArgs>
   _count?: boolean | Prisma.RedditAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditAccount"]>
 
@@ -707,6 +926,8 @@ export type RedditAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalA
 export type RedditAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   campaigns?: boolean | Prisma.RedditAccount$campaignsArgs<ExtArgs>
+  outreachContacts?: boolean | Prisma.RedditAccount$outreachContactsArgs<ExtArgs>
+  outreachRuns?: boolean | Prisma.RedditAccount$outreachRunsArgs<ExtArgs>
   _count?: boolean | Prisma.RedditAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RedditAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -721,6 +942,8 @@ export type $RedditAccountPayload<ExtArgs extends runtime.Types.Extensions.Inter
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     campaigns: Prisma.$CampaignPayload<ExtArgs>[]
+    outreachContacts: Prisma.$OutreachContactPayload<ExtArgs>[]
+    outreachRuns: Prisma.$OutreachRunPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1127,6 +1350,8 @@ export interface Prisma__RedditAccountClient<T, Null = never, ExtArgs extends ru
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   campaigns<T extends Prisma.RedditAccount$campaignsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditAccount$campaignsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  outreachContacts<T extends Prisma.RedditAccount$outreachContactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditAccount$outreachContactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OutreachContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  outreachRuns<T extends Prisma.RedditAccount$outreachRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditAccount$outreachRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OutreachRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1581,6 +1806,54 @@ export type RedditAccount$campaignsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.CampaignScalarFieldEnum | Prisma.CampaignScalarFieldEnum[]
+}
+
+/**
+ * RedditAccount.outreachContacts
+ */
+export type RedditAccount$outreachContactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OutreachContact
+   */
+  select?: Prisma.OutreachContactSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OutreachContact
+   */
+  omit?: Prisma.OutreachContactOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutreachContactInclude<ExtArgs> | null
+  where?: Prisma.OutreachContactWhereInput
+  orderBy?: Prisma.OutreachContactOrderByWithRelationInput | Prisma.OutreachContactOrderByWithRelationInput[]
+  cursor?: Prisma.OutreachContactWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OutreachContactScalarFieldEnum | Prisma.OutreachContactScalarFieldEnum[]
+}
+
+/**
+ * RedditAccount.outreachRuns
+ */
+export type RedditAccount$outreachRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OutreachRun
+   */
+  select?: Prisma.OutreachRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OutreachRun
+   */
+  omit?: Prisma.OutreachRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutreachRunInclude<ExtArgs> | null
+  where?: Prisma.OutreachRunWhereInput
+  orderBy?: Prisma.OutreachRunOrderByWithRelationInput | Prisma.OutreachRunOrderByWithRelationInput[]
+  cursor?: Prisma.OutreachRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OutreachRunScalarFieldEnum | Prisma.OutreachRunScalarFieldEnum[]
 }
 
 /**

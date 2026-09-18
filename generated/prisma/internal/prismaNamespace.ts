@@ -413,6 +413,11 @@ export const ModelName = {
   Lead: 'Lead',
   LeadAI: 'LeadAI',
   Notification: 'Notification',
+  CampaignOutreachSettings: 'CampaignOutreachSettings',
+  OutreachRun: 'OutreachRun',
+  OutreachRunPost: 'OutreachRunPost',
+  OutreachContact: 'OutreachContact',
+  OutreachAttempt: 'OutreachAttempt',
   Subreddit: 'Subreddit',
   TrackedThread: 'TrackedThread',
   IngestCursor: 'IngestCursor'
@@ -431,7 +436,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignPublicVisitor" | "campaignClientAccess" | "campaignClientActivityEvent" | "campaignLeadViewState" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "subreddit" | "trackedThread" | "ingestCursor"
+    modelProps: "user" | "telegramPairing" | "saasConfig" | "userPassword" | "account" | "session" | "verificationToken" | "redditAccount" | "campaign" | "campaignPublicVisitor" | "campaignClientAccess" | "campaignClientActivityEvent" | "campaignLeadViewState" | "campaignRun" | "cronRun" | "campaignInitialRssPollEvent" | "subredditRssPollEvent" | "aiUsageEvent" | "campaignSemanticQuery" | "campaignSemanticPlaygroundRun" | "campaignSemanticPlaygroundQuery" | "campaignSemanticPlaygroundResult" | "campaignDailySemanticScan" | "campaignSync" | "redditItem" | "redditItemEmbedding" | "lead" | "leadAI" | "notification" | "campaignOutreachSettings" | "outreachRun" | "outreachRunPost" | "outreachContact" | "outreachAttempt" | "subreddit" | "trackedThread" | "ingestCursor"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2581,6 +2586,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CampaignOutreachSettings: {
+      payload: Prisma.$CampaignOutreachSettingsPayload<ExtArgs>
+      fields: Prisma.CampaignOutreachSettingsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CampaignOutreachSettingsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CampaignOutreachSettingsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>
+        }
+        findFirst: {
+          args: Prisma.CampaignOutreachSettingsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CampaignOutreachSettingsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>
+        }
+        findMany: {
+          args: Prisma.CampaignOutreachSettingsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>[]
+        }
+        create: {
+          args: Prisma.CampaignOutreachSettingsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>
+        }
+        createMany: {
+          args: Prisma.CampaignOutreachSettingsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CampaignOutreachSettingsCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>[]
+        }
+        delete: {
+          args: Prisma.CampaignOutreachSettingsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>
+        }
+        update: {
+          args: Prisma.CampaignOutreachSettingsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>
+        }
+        deleteMany: {
+          args: Prisma.CampaignOutreachSettingsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CampaignOutreachSettingsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CampaignOutreachSettingsUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>[]
+        }
+        upsert: {
+          args: Prisma.CampaignOutreachSettingsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CampaignOutreachSettingsPayload>
+        }
+        aggregate: {
+          args: Prisma.CampaignOutreachSettingsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCampaignOutreachSettings>
+        }
+        groupBy: {
+          args: Prisma.CampaignOutreachSettingsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignOutreachSettingsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CampaignOutreachSettingsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CampaignOutreachSettingsCountAggregateOutputType> | number
+        }
+      }
+    }
+    OutreachRun: {
+      payload: Prisma.$OutreachRunPayload<ExtArgs>
+      fields: Prisma.OutreachRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutreachRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutreachRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>
+        }
+        findFirst: {
+          args: Prisma.OutreachRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutreachRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>
+        }
+        findMany: {
+          args: Prisma.OutreachRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>[]
+        }
+        create: {
+          args: Prisma.OutreachRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>
+        }
+        createMany: {
+          args: Prisma.OutreachRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutreachRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>[]
+        }
+        delete: {
+          args: Prisma.OutreachRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>
+        }
+        update: {
+          args: Prisma.OutreachRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.OutreachRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutreachRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutreachRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.OutreachRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPayload>
+        }
+        aggregate: {
+          args: Prisma.OutreachRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutreachRun>
+        }
+        groupBy: {
+          args: Prisma.OutreachRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutreachRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    OutreachRunPost: {
+      payload: Prisma.$OutreachRunPostPayload<ExtArgs>
+      fields: Prisma.OutreachRunPostFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutreachRunPostFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutreachRunPostFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>
+        }
+        findFirst: {
+          args: Prisma.OutreachRunPostFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutreachRunPostFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>
+        }
+        findMany: {
+          args: Prisma.OutreachRunPostFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>[]
+        }
+        create: {
+          args: Prisma.OutreachRunPostCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>
+        }
+        createMany: {
+          args: Prisma.OutreachRunPostCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutreachRunPostCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>[]
+        }
+        delete: {
+          args: Prisma.OutreachRunPostDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>
+        }
+        update: {
+          args: Prisma.OutreachRunPostUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>
+        }
+        deleteMany: {
+          args: Prisma.OutreachRunPostDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutreachRunPostUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutreachRunPostUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>[]
+        }
+        upsert: {
+          args: Prisma.OutreachRunPostUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachRunPostPayload>
+        }
+        aggregate: {
+          args: Prisma.OutreachRunPostAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutreachRunPost>
+        }
+        groupBy: {
+          args: Prisma.OutreachRunPostGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachRunPostGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutreachRunPostCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachRunPostCountAggregateOutputType> | number
+        }
+      }
+    }
+    OutreachContact: {
+      payload: Prisma.$OutreachContactPayload<ExtArgs>
+      fields: Prisma.OutreachContactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutreachContactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutreachContactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>
+        }
+        findFirst: {
+          args: Prisma.OutreachContactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutreachContactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>
+        }
+        findMany: {
+          args: Prisma.OutreachContactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>[]
+        }
+        create: {
+          args: Prisma.OutreachContactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>
+        }
+        createMany: {
+          args: Prisma.OutreachContactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutreachContactCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>[]
+        }
+        delete: {
+          args: Prisma.OutreachContactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>
+        }
+        update: {
+          args: Prisma.OutreachContactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>
+        }
+        deleteMany: {
+          args: Prisma.OutreachContactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutreachContactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutreachContactUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>[]
+        }
+        upsert: {
+          args: Prisma.OutreachContactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachContactPayload>
+        }
+        aggregate: {
+          args: Prisma.OutreachContactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutreachContact>
+        }
+        groupBy: {
+          args: Prisma.OutreachContactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachContactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutreachContactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachContactCountAggregateOutputType> | number
+        }
+      }
+    }
+    OutreachAttempt: {
+      payload: Prisma.$OutreachAttemptPayload<ExtArgs>
+      fields: Prisma.OutreachAttemptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OutreachAttemptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OutreachAttemptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>
+        }
+        findFirst: {
+          args: Prisma.OutreachAttemptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OutreachAttemptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>
+        }
+        findMany: {
+          args: Prisma.OutreachAttemptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>[]
+        }
+        create: {
+          args: Prisma.OutreachAttemptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>
+        }
+        createMany: {
+          args: Prisma.OutreachAttemptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OutreachAttemptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>[]
+        }
+        delete: {
+          args: Prisma.OutreachAttemptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>
+        }
+        update: {
+          args: Prisma.OutreachAttemptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>
+        }
+        deleteMany: {
+          args: Prisma.OutreachAttemptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OutreachAttemptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OutreachAttemptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>[]
+        }
+        upsert: {
+          args: Prisma.OutreachAttemptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OutreachAttemptPayload>
+        }
+        aggregate: {
+          args: Prisma.OutreachAttemptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOutreachAttempt>
+        }
+        groupBy: {
+          args: Prisma.OutreachAttemptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachAttemptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OutreachAttemptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OutreachAttemptCountAggregateOutputType> | number
+        }
+      }
+    }
     Subreddit: {
       payload: Prisma.$SubredditPayload<ExtArgs>
       fields: Prisma.SubredditFieldRefs
@@ -3369,6 +3744,103 @@ export const NotificationScalarFieldEnum = {
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+export const CampaignOutreachSettingsScalarFieldEnum = {
+  campaignId: 'campaignId',
+  firstTouchInstructions: 'firstTouchInstructions',
+  firstTouchExamples: 'firstTouchExamples',
+  followUpInstructions: 'followUpInstructions',
+  followUpExamples: 'followUpExamples',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignOutreachSettingsScalarFieldEnum = (typeof CampaignOutreachSettingsScalarFieldEnum)[keyof typeof CampaignOutreachSettingsScalarFieldEnum]
+
+
+export const OutreachRunScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  redditAccountId: 'redditAccountId',
+  status: 'status',
+  filterJson: 'filterJson',
+  publicLeadsUrl: 'publicLeadsUrl',
+  extensionVersion: 'extensionVersion',
+  queuedPosts: 'queuedPosts',
+  analyzedPosts: 'analyzedPosts',
+  draftedMessages: 'draftedMessages',
+  sentMessages: 'sentMessages',
+  skippedMessages: 'skippedMessages',
+  failedMessages: 'failedMessages',
+  lastError: 'lastError',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  stoppedAt: 'stoppedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachRunScalarFieldEnum = (typeof OutreachRunScalarFieldEnum)[keyof typeof OutreachRunScalarFieldEnum]
+
+
+export const OutreachRunPostScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  redditItemId: 'redditItemId',
+  leadId: 'leadId',
+  status: 'status',
+  commentCount: 'commentCount',
+  selectedCount: 'selectedCount',
+  error: 'error',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachRunPostScalarFieldEnum = (typeof OutreachRunPostScalarFieldEnum)[keyof typeof OutreachRunPostScalarFieldEnum]
+
+
+export const OutreachContactScalarFieldEnum = {
+  id: 'id',
+  redditAccountId: 'redditAccountId',
+  normalizedUsername: 'normalizedUsername',
+  displayUsername: 'displayUsername',
+  firstSentAt: 'firstSentAt',
+  followUpSentAt: 'followUpSentAt',
+  lastSentAt: 'lastSentAt',
+  doNotContact: 'doNotContact',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachContactScalarFieldEnum = (typeof OutreachContactScalarFieldEnum)[keyof typeof OutreachContactScalarFieldEnum]
+
+
+export const OutreachAttemptScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  runPostId: 'runPostId',
+  campaignId: 'campaignId',
+  contactId: 'contactId',
+  sourceRedditItemId: 'sourceRedditItemId',
+  sourceCommentId: 'sourceCommentId',
+  sourceCommentUrl: 'sourceCommentUrl',
+  stage: 'stage',
+  status: 'status',
+  qualificationReason: 'qualificationReason',
+  message: 'message',
+  publicLeadsUrl: 'publicLeadsUrl',
+  error: 'error',
+  approvedAt: 'approvedAt',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachAttemptScalarFieldEnum = (typeof OutreachAttemptScalarFieldEnum)[keyof typeof OutreachAttemptScalarFieldEnum]
+
+
 export const SubredditScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -3814,6 +4286,62 @@ export type EnumNotifyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 export type ListEnumNotifyStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotifyStatus[]'>
     
 
+
+/**
+ * Reference to a field of type 'OutreachRunStatus'
+ */
+export type EnumOutreachRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachRunStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'OutreachRunStatus[]'
+ */
+export type ListEnumOutreachRunStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachRunStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OutreachRunPostStatus'
+ */
+export type EnumOutreachRunPostStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachRunPostStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'OutreachRunPostStatus[]'
+ */
+export type ListEnumOutreachRunPostStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachRunPostStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OutreachMessageStage'
+ */
+export type EnumOutreachMessageStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachMessageStage'>
+    
+
+
+/**
+ * Reference to a field of type 'OutreachMessageStage[]'
+ */
+export type ListEnumOutreachMessageStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachMessageStage[]'>
+    
+
+
+/**
+ * Reference to a field of type 'OutreachAttemptStatus'
+ */
+export type EnumOutreachAttemptStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachAttemptStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'OutreachAttemptStatus[]'
+ */
+export type ListEnumOutreachAttemptStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OutreachAttemptStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -3938,6 +4466,11 @@ export type GlobalOmitConfig = {
   lead?: Prisma.LeadOmit
   leadAI?: Prisma.LeadAIOmit
   notification?: Prisma.NotificationOmit
+  campaignOutreachSettings?: Prisma.CampaignOutreachSettingsOmit
+  outreachRun?: Prisma.OutreachRunOmit
+  outreachRunPost?: Prisma.OutreachRunPostOmit
+  outreachContact?: Prisma.OutreachContactOmit
+  outreachAttempt?: Prisma.OutreachAttemptOmit
   subreddit?: Prisma.SubredditOmit
   trackedThread?: Prisma.TrackedThreadOmit
   ingestCursor?: Prisma.IngestCursorOmit

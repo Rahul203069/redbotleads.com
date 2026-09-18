@@ -140,6 +140,39 @@ enum SubredditRssPollStatus {
   BACKOFF_SKIPPED
 }
 
+enum OutreachRunStatus {
+  QUEUED
+  RUNNING
+  PAUSED
+  LIMIT_REACHED
+  COMPLETED
+  STOPPED
+  FAILED
+}
+
+enum OutreachRunPostStatus {
+  QUEUED
+  SCANNING
+  GENERATING
+  READY
+  COMPLETED
+  SKIPPED
+  FAILED
+}
+
+enum OutreachMessageStage {
+  INITIAL
+  FOLLOW_UP
+}
+
+enum OutreachAttemptStatus {
+  DRAFT
+  AWAITING_APPROVAL
+  SENT
+  SKIPPED
+  FAILED
+}
+
 /* =========================
    NextAuth Models
    (Prisma Adapter)
@@ -189,6 +222,7 @@ model User {
   campaignClientActivityEvents CampaignClientActivityEvent[]
   campaignLeadViewStates CampaignLeadViewState[]
   receivedNotifications Notification[] @relation("NotificationRecipient")
+  outreachRuns OutreachRun[]
 }
 
 model TelegramPairing {
@@ -284,6 +318,8 @@ model RedditAccount {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   campaigns Campaign[]
+  outreachContacts OutreachContact[]
+  outreachRuns OutreachRun[]
 
   @@unique([userId, redditUser])
   @@index([redditUser])
@@ -333,6 +369,9 @@ model Campaign {
   clientActivityEvents CampaignClientActivityEvent[]
   leadViewStates CampaignLeadViewState[]
   publicVisitors CampaignPublicVisitor[]
+  outreachSettings CampaignOutreachSettings?
+  outreachRuns OutreachRun[]
+  outreachAttempts OutreachAttempt[]
 
   @@index([userId, isActive])
   @@index([redditAccountId])
@@ -778,6 +817,8 @@ model RedditItem {
   embedding RedditItemEmbedding?
   dailySemanticScans CampaignDailySemanticScan[]
   semanticPlaygroundResults CampaignSemanticPlaygroundResult[]
+  outreachRunPosts OutreachRunPost[]
+  outreachAttempts OutreachAttempt[]
 
   @@index([subreddit, createdUtc(sort: Desc)])
   @@index([createdUtc(sort: Desc)])
@@ -883,6 +924,126 @@ model Notification {
   @@index([recipientUserId, handledAt, createdAt(sort: Desc)])
   @@index([campaignClientAccessId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
+}
+
+model CampaignOutreachSettings {
+  campaignId String @id
+
+  firstTouchInstructions String @default("")
+  firstTouchExamples     String @default("")
+  followUpInstructions   String @default("")
+  followUpExamples       String @default("")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+}
+
+model OutreachRun {
+  id              String            @id @default(cuid())
+  userId          String
+  campaignId      String
+  redditAccountId String
+  status          OutreachRunStatus @default(QUEUED)
+  filterJson      Json
+  publicLeadsUrl  String
+  extensionVersion String?
+  queuedPosts     Int               @default(0)
+  analyzedPosts   Int               @default(0)
+  draftedMessages Int               @default(0)
+  sentMessages    Int               @default(0)
+  skippedMessages Int               @default(0)
+  failedMessages  Int               @default(0)
+  lastError       String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  stoppedAt       DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaign      Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  redditAccount RedditAccount @relation(fields: [redditAccountId], references: [id], onDelete: Cascade)
+  posts         OutreachRunPost[]
+  attempts      OutreachAttempt[]
+
+  @@index([redditAccountId, status, updatedAt(sort: Desc)])
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model OutreachRunPost {
+  id           String                @id @default(cuid())
+  runId        String
+  redditItemId String
+  leadId       String?
+  status       OutreachRunPostStatus @default(QUEUED)
+  commentCount Int                   @default(0)
+  selectedCount Int                  @default(0)
+  error        String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  run        OutreachRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  redditItem RedditItem  @relation(fields: [redditItemId], references: [id], onDelete: Cascade)
+  attempts  OutreachAttempt[]
+
+  @@unique([runId, redditItemId])
+  @@index([runId, status, createdAt])
+}
+
+model OutreachContact {
+  id                 String   @id @default(cuid())
+  redditAccountId    String
+  normalizedUsername String
+  displayUsername    String
+  firstSentAt        DateTime?
+  followUpSentAt     DateTime?
+  lastSentAt         DateTime?
+  doNotContact       Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  redditAccount RedditAccount    @relation(fields: [redditAccountId], references: [id], onDelete: Cascade)
+  attempts      OutreachAttempt[]
+
+  @@unique([redditAccountId, normalizedUsername])
+  @@index([redditAccountId, lastSentAt(sort: Desc)])
+}
+
+model OutreachAttempt {
+  id                 String                @id @default(cuid())
+  runId              String
+  runPostId          String?
+  campaignId         String
+  contactId          String
+  sourceRedditItemId String
+  sourceCommentId    String?
+  sourceCommentUrl   String?
+  stage              OutreachMessageStage
+  status             OutreachAttemptStatus @default(DRAFT)
+  qualificationReason String?
+  message            String
+  publicLeadsUrl     String
+  error              String?
+  approvedAt         DateTime?
+  sentAt             DateTime?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  run              OutreachRun      @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runPost          OutreachRunPost? @relation(fields: [runPostId], references: [id], onDelete: SetNull)
+  campaign         Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  contact          OutreachContact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  sourceRedditItem RedditItem       @relation(fields: [sourceRedditItemId], references: [id], onDelete: Cascade)
+
+  @@unique([contactId, stage])
+  @@index([runId, status, createdAt])
+  @@index([campaignId, createdAt(sort: Desc)])
+  @@index([status, sentAt(sort: Desc)])
 }
 
 /* =========================

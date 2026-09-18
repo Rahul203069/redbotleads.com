@@ -184,13 +184,13 @@ export type NotificationAggregateArgs<ExtArgs extends runtime.Types.Extensions.I
   _count?: true | NotificationCountAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   *
+   * 
    * Select which fields to average
   **/
   _avg?: NotificationAvgAggregateInputType
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-   *
+   * 
    * Select which fields to sum
   **/
   _sum?: NotificationSumAggregateInputType

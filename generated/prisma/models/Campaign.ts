@@ -342,6 +342,9 @@ export type CampaignWhereInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
   leadViewStates?: Prisma.CampaignLeadViewStateListRelationFilter
   publicVisitors?: Prisma.CampaignPublicVisitorListRelationFilter
+  outreachSettings?: Prisma.XOR<Prisma.CampaignOutreachSettingsNullableScalarRelationFilter, Prisma.CampaignOutreachSettingsWhereInput> | null
+  outreachRuns?: Prisma.OutreachRunListRelationFilter
+  outreachAttempts?: Prisma.OutreachAttemptListRelationFilter
 }
 
 export type CampaignOrderByWithRelationInput = {
@@ -379,6 +382,9 @@ export type CampaignOrderByWithRelationInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventOrderByRelationAggregateInput
   leadViewStates?: Prisma.CampaignLeadViewStateOrderByRelationAggregateInput
   publicVisitors?: Prisma.CampaignPublicVisitorOrderByRelationAggregateInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsOrderByWithRelationInput
+  outreachRuns?: Prisma.OutreachRunOrderByRelationAggregateInput
+  outreachAttempts?: Prisma.OutreachAttemptOrderByRelationAggregateInput
 }
 
 export type CampaignWhereUniqueInput = Prisma.AtLeast<{
@@ -419,6 +425,9 @@ export type CampaignWhereUniqueInput = Prisma.AtLeast<{
   clientActivityEvents?: Prisma.CampaignClientActivityEventListRelationFilter
   leadViewStates?: Prisma.CampaignLeadViewStateListRelationFilter
   publicVisitors?: Prisma.CampaignPublicVisitorListRelationFilter
+  outreachSettings?: Prisma.XOR<Prisma.CampaignOutreachSettingsNullableScalarRelationFilter, Prisma.CampaignOutreachSettingsWhereInput> | null
+  outreachRuns?: Prisma.OutreachRunListRelationFilter
+  outreachAttempts?: Prisma.OutreachAttemptListRelationFilter
 }, "id">
 
 export type CampaignOrderByWithAggregationInput = {
@@ -508,6 +517,9 @@ export type CampaignCreateInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateInput = {
@@ -543,6 +555,9 @@ export type CampaignUncheckedCreateInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUpdateInput = {
@@ -578,6 +593,9 @@ export type CampaignUpdateInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateInput = {
@@ -613,6 +631,9 @@ export type CampaignUncheckedUpdateInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateManyInput = {
@@ -1085,6 +1106,48 @@ export type CampaignUpdateOneRequiredWithoutLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutLeadsInput, Prisma.CampaignUpdateWithoutLeadsInput>, Prisma.CampaignUncheckedUpdateWithoutLeadsInput>
 }
 
+export type CampaignCreateNestedOneWithoutOutreachSettingsInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachSettingsInput, Prisma.CampaignUncheckedCreateWithoutOutreachSettingsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutOutreachSettingsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+}
+
+export type CampaignUpdateOneRequiredWithoutOutreachSettingsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachSettingsInput, Prisma.CampaignUncheckedCreateWithoutOutreachSettingsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutOutreachSettingsInput
+  upsert?: Prisma.CampaignUpsertWithoutOutreachSettingsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutOutreachSettingsInput, Prisma.CampaignUpdateWithoutOutreachSettingsInput>, Prisma.CampaignUncheckedUpdateWithoutOutreachSettingsInput>
+}
+
+export type CampaignCreateNestedOneWithoutOutreachRunsInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachRunsInput, Prisma.CampaignUncheckedCreateWithoutOutreachRunsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutOutreachRunsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+}
+
+export type CampaignUpdateOneRequiredWithoutOutreachRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachRunsInput, Prisma.CampaignUncheckedCreateWithoutOutreachRunsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutOutreachRunsInput
+  upsert?: Prisma.CampaignUpsertWithoutOutreachRunsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutOutreachRunsInput, Prisma.CampaignUpdateWithoutOutreachRunsInput>, Prisma.CampaignUncheckedUpdateWithoutOutreachRunsInput>
+}
+
+export type CampaignCreateNestedOneWithoutOutreachAttemptsInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachAttemptsInput, Prisma.CampaignUncheckedCreateWithoutOutreachAttemptsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutOutreachAttemptsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+}
+
+export type CampaignUpdateOneRequiredWithoutOutreachAttemptsNestedInput = {
+  create?: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachAttemptsInput, Prisma.CampaignUncheckedCreateWithoutOutreachAttemptsInput>
+  connectOrCreate?: Prisma.CampaignCreateOrConnectWithoutOutreachAttemptsInput
+  upsert?: Prisma.CampaignUpsertWithoutOutreachAttemptsInput
+  connect?: Prisma.CampaignWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CampaignUpdateToOneWithWhereWithoutOutreachAttemptsInput, Prisma.CampaignUpdateWithoutOutreachAttemptsInput>, Prisma.CampaignUncheckedUpdateWithoutOutreachAttemptsInput>
+}
+
 export type CampaignCreateWithoutUserInput = {
   id?: string
   name: string
@@ -1117,6 +1180,9 @@ export type CampaignCreateWithoutUserInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutUserInput = {
@@ -1151,6 +1217,9 @@ export type CampaignUncheckedCreateWithoutUserInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutUserInput = {
@@ -1237,6 +1306,9 @@ export type CampaignCreateWithoutRedditAccountInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutRedditAccountInput = {
@@ -1271,6 +1343,9 @@ export type CampaignUncheckedCreateWithoutRedditAccountInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutRedditAccountInput = {
@@ -1331,6 +1406,9 @@ export type CampaignCreateWithoutPublicVisitorsInput = {
   clientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCampaignInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutPublicVisitorsInput = {
@@ -1365,6 +1443,9 @@ export type CampaignUncheckedCreateWithoutPublicVisitorsInput = {
   clientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCampaignInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutPublicVisitorsInput = {
@@ -1415,6 +1496,9 @@ export type CampaignUpdateWithoutPublicVisitorsInput = {
   clientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCampaignNestedInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutPublicVisitorsInput = {
@@ -1449,6 +1533,9 @@ export type CampaignUncheckedUpdateWithoutPublicVisitorsInput = {
   clientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCampaignNestedInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutClientAccessesInput = {
@@ -1483,6 +1570,9 @@ export type CampaignCreateWithoutClientAccessesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutClientAccessesInput = {
@@ -1517,6 +1607,9 @@ export type CampaignUncheckedCreateWithoutClientAccessesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutClientAccessesInput = {
@@ -1567,6 +1660,9 @@ export type CampaignUpdateWithoutClientAccessesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutClientAccessesInput = {
@@ -1601,6 +1697,9 @@ export type CampaignUncheckedUpdateWithoutClientAccessesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutClientActivityEventsInput = {
@@ -1635,6 +1734,9 @@ export type CampaignCreateWithoutClientActivityEventsInput = {
   clientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutClientActivityEventsInput = {
@@ -1669,6 +1771,9 @@ export type CampaignUncheckedCreateWithoutClientActivityEventsInput = {
   clientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutClientActivityEventsInput = {
@@ -1719,6 +1824,9 @@ export type CampaignUpdateWithoutClientActivityEventsInput = {
   clientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutClientActivityEventsInput = {
@@ -1753,6 +1861,9 @@ export type CampaignUncheckedUpdateWithoutClientActivityEventsInput = {
   clientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutLeadViewStatesInput = {
@@ -1787,6 +1898,9 @@ export type CampaignCreateWithoutLeadViewStatesInput = {
   clientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCampaignInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutLeadViewStatesInput = {
@@ -1821,6 +1935,9 @@ export type CampaignUncheckedCreateWithoutLeadViewStatesInput = {
   clientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCampaignInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutLeadViewStatesInput = {
@@ -1871,6 +1988,9 @@ export type CampaignUpdateWithoutLeadViewStatesInput = {
   clientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCampaignNestedInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutLeadViewStatesInput = {
@@ -1905,6 +2025,9 @@ export type CampaignUncheckedUpdateWithoutLeadViewStatesInput = {
   clientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCampaignNestedInput
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutRunsInput = {
@@ -1939,6 +2062,9 @@ export type CampaignCreateWithoutRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutRunsInput = {
@@ -1973,6 +2099,9 @@ export type CampaignUncheckedCreateWithoutRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutRunsInput = {
@@ -2023,6 +2152,9 @@ export type CampaignUpdateWithoutRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutRunsInput = {
@@ -2057,6 +2189,9 @@ export type CampaignUncheckedUpdateWithoutRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutInitialRssPollEventsInput = {
@@ -2091,6 +2226,9 @@ export type CampaignCreateWithoutInitialRssPollEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutInitialRssPollEventsInput = {
@@ -2125,6 +2263,9 @@ export type CampaignUncheckedCreateWithoutInitialRssPollEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutInitialRssPollEventsInput = {
@@ -2175,6 +2316,9 @@ export type CampaignUpdateWithoutInitialRssPollEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutInitialRssPollEventsInput = {
@@ -2209,6 +2353,9 @@ export type CampaignUncheckedUpdateWithoutInitialRssPollEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutAiUsageEventsInput = {
@@ -2243,6 +2390,9 @@ export type CampaignCreateWithoutAiUsageEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutAiUsageEventsInput = {
@@ -2277,6 +2427,9 @@ export type CampaignUncheckedCreateWithoutAiUsageEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutAiUsageEventsInput = {
@@ -2327,6 +2480,9 @@ export type CampaignUpdateWithoutAiUsageEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutAiUsageEventsInput = {
@@ -2361,6 +2517,9 @@ export type CampaignUncheckedUpdateWithoutAiUsageEventsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutSemanticQueriesInput = {
@@ -2395,6 +2554,9 @@ export type CampaignCreateWithoutSemanticQueriesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutSemanticQueriesInput = {
@@ -2429,6 +2591,9 @@ export type CampaignUncheckedCreateWithoutSemanticQueriesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutSemanticQueriesInput = {
@@ -2479,6 +2644,9 @@ export type CampaignUpdateWithoutSemanticQueriesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutSemanticQueriesInput = {
@@ -2513,6 +2681,9 @@ export type CampaignUncheckedUpdateWithoutSemanticQueriesInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutSemanticPlaygroundRunsInput = {
@@ -2547,6 +2718,9 @@ export type CampaignCreateWithoutSemanticPlaygroundRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
@@ -2581,6 +2755,9 @@ export type CampaignUncheckedCreateWithoutSemanticPlaygroundRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutSemanticPlaygroundRunsInput = {
@@ -2631,6 +2808,9 @@ export type CampaignUpdateWithoutSemanticPlaygroundRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
@@ -2665,6 +2845,9 @@ export type CampaignUncheckedUpdateWithoutSemanticPlaygroundRunsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutDailySemanticScansInput = {
@@ -2699,6 +2882,9 @@ export type CampaignCreateWithoutDailySemanticScansInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutDailySemanticScansInput = {
@@ -2733,6 +2919,9 @@ export type CampaignUncheckedCreateWithoutDailySemanticScansInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutDailySemanticScansInput = {
@@ -2783,6 +2972,9 @@ export type CampaignUpdateWithoutDailySemanticScansInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutDailySemanticScansInput = {
@@ -2817,6 +3009,9 @@ export type CampaignUncheckedUpdateWithoutDailySemanticScansInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutSyncInput = {
@@ -2851,6 +3046,9 @@ export type CampaignCreateWithoutSyncInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutSyncInput = {
@@ -2885,6 +3083,9 @@ export type CampaignUncheckedCreateWithoutSyncInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutSyncInput = {
@@ -2935,6 +3136,9 @@ export type CampaignUpdateWithoutSyncInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutSyncInput = {
@@ -2969,6 +3173,9 @@ export type CampaignUncheckedUpdateWithoutSyncInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateWithoutLeadsInput = {
@@ -3003,6 +3210,9 @@ export type CampaignCreateWithoutLeadsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignUncheckedCreateWithoutLeadsInput = {
@@ -3037,6 +3247,9 @@ export type CampaignUncheckedCreateWithoutLeadsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
 }
 
 export type CampaignCreateOrConnectWithoutLeadsInput = {
@@ -3087,6 +3300,9 @@ export type CampaignUpdateWithoutLeadsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutLeadsInput = {
@@ -3121,6 +3337,501 @@ export type CampaignUncheckedUpdateWithoutLeadsInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignCreateWithoutOutreachSettingsInput = {
+  id?: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  rssPollingEnabled?: boolean
+  notificationsPaused?: boolean
+  notificationEpoch?: number
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  semanticSearchScope?: $Enums.CampaignSemanticSearchScope
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignsInput
+  redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
+  leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
+  clientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCampaignInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
+  leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
+  publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignUncheckedCreateWithoutOutreachSettingsInput = {
+  id?: string
+  userId: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  rssPollingEnabled?: boolean
+  notificationsPaused?: boolean
+  notificationEpoch?: number
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  semanticSearchScope?: $Enums.CampaignSemanticSearchScope
+  redditAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
+  clientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCampaignInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignCreateOrConnectWithoutOutreachSettingsInput = {
+  where: Prisma.CampaignWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachSettingsInput, Prisma.CampaignUncheckedCreateWithoutOutreachSettingsInput>
+}
+
+export type CampaignUpsertWithoutOutreachSettingsInput = {
+  update: Prisma.XOR<Prisma.CampaignUpdateWithoutOutreachSettingsInput, Prisma.CampaignUncheckedUpdateWithoutOutreachSettingsInput>
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachSettingsInput, Prisma.CampaignUncheckedCreateWithoutOutreachSettingsInput>
+  where?: Prisma.CampaignWhereInput
+}
+
+export type CampaignUpdateToOneWithWhereWithoutOutreachSettingsInput = {
+  where?: Prisma.CampaignWhereInput
+  data: Prisma.XOR<Prisma.CampaignUpdateWithoutOutreachSettingsInput, Prisma.CampaignUncheckedUpdateWithoutOutreachSettingsInput>
+}
+
+export type CampaignUpdateWithoutOutreachSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsPaused?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
+  redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
+  clientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCampaignNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignUncheckedUpdateWithoutOutreachSettingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsPaused?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
+  redditAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
+  clientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCampaignNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignCreateWithoutOutreachRunsInput = {
+  id?: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  rssPollingEnabled?: boolean
+  notificationsPaused?: boolean
+  notificationEpoch?: number
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  semanticSearchScope?: $Enums.CampaignSemanticSearchScope
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignsInput
+  redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
+  leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
+  clientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCampaignInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
+  leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
+  publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignUncheckedCreateWithoutOutreachRunsInput = {
+  id?: string
+  userId: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  rssPollingEnabled?: boolean
+  notificationsPaused?: boolean
+  notificationEpoch?: number
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  semanticSearchScope?: $Enums.CampaignSemanticSearchScope
+  redditAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
+  clientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCampaignInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignCreateOrConnectWithoutOutreachRunsInput = {
+  where: Prisma.CampaignWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachRunsInput, Prisma.CampaignUncheckedCreateWithoutOutreachRunsInput>
+}
+
+export type CampaignUpsertWithoutOutreachRunsInput = {
+  update: Prisma.XOR<Prisma.CampaignUpdateWithoutOutreachRunsInput, Prisma.CampaignUncheckedUpdateWithoutOutreachRunsInput>
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachRunsInput, Prisma.CampaignUncheckedCreateWithoutOutreachRunsInput>
+  where?: Prisma.CampaignWhereInput
+}
+
+export type CampaignUpdateToOneWithWhereWithoutOutreachRunsInput = {
+  where?: Prisma.CampaignWhereInput
+  data: Prisma.XOR<Prisma.CampaignUpdateWithoutOutreachRunsInput, Prisma.CampaignUncheckedUpdateWithoutOutreachRunsInput>
+}
+
+export type CampaignUpdateWithoutOutreachRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsPaused?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
+  redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
+  clientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCampaignNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignUncheckedUpdateWithoutOutreachRunsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsPaused?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
+  redditAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
+  clientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCampaignNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignCreateWithoutOutreachAttemptsInput = {
+  id?: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  rssPollingEnabled?: boolean
+  notificationsPaused?: boolean
+  notificationEpoch?: number
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  semanticSearchScope?: $Enums.CampaignSemanticSearchScope
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCampaignsInput
+  redditAccount?: Prisma.RedditAccountCreateNestedOneWithoutCampaignsInput
+  leads?: Prisma.LeadCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunCreateNestedManyWithoutCampaignInput
+  clientAccesses?: Prisma.CampaignClientAccessCreateNestedManyWithoutCampaignInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventCreateNestedManyWithoutCampaignInput
+  leadViewStates?: Prisma.CampaignLeadViewStateCreateNestedManyWithoutCampaignInput
+  publicVisitors?: Prisma.CampaignPublicVisitorCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignUncheckedCreateWithoutOutreachAttemptsInput = {
+  id?: string
+  userId: string
+  name: string
+  leadType: $Enums.LeadType
+  description?: string | null
+  keywords?: Prisma.CampaignCreatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignCreatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignCreatesubredditsInput | string[]
+  regions?: Prisma.CampaignCreateregionsInput | string[]
+  recentDays?: number
+  isActive?: boolean
+  rssPollingEnabled?: boolean
+  notificationsPaused?: boolean
+  notificationEpoch?: number
+  minScoreToAlert?: number
+  sourceMode?: $Enums.SourceMode
+  semanticSearchScope?: $Enums.CampaignSemanticSearchScope
+  redditAccountId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutCampaignInput
+  sync?: Prisma.CampaignSyncUncheckedCreateNestedOneWithoutCampaignInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedCreateNestedManyWithoutCampaignInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutCampaignInput
+  runs?: Prisma.CampaignRunUncheckedCreateNestedManyWithoutCampaignInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedCreateNestedManyWithoutCampaignInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedCreateNestedManyWithoutCampaignInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedCreateNestedManyWithoutCampaignInput
+  clientAccesses?: Prisma.CampaignClientAccessUncheckedCreateNestedManyWithoutCampaignInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedCreateNestedManyWithoutCampaignInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUncheckedCreateNestedManyWithoutCampaignInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUncheckedCreateNestedManyWithoutCampaignInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedCreateNestedOneWithoutCampaignInput
+  outreachRuns?: Prisma.OutreachRunUncheckedCreateNestedManyWithoutCampaignInput
+}
+
+export type CampaignCreateOrConnectWithoutOutreachAttemptsInput = {
+  where: Prisma.CampaignWhereUniqueInput
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachAttemptsInput, Prisma.CampaignUncheckedCreateWithoutOutreachAttemptsInput>
+}
+
+export type CampaignUpsertWithoutOutreachAttemptsInput = {
+  update: Prisma.XOR<Prisma.CampaignUpdateWithoutOutreachAttemptsInput, Prisma.CampaignUncheckedUpdateWithoutOutreachAttemptsInput>
+  create: Prisma.XOR<Prisma.CampaignCreateWithoutOutreachAttemptsInput, Prisma.CampaignUncheckedCreateWithoutOutreachAttemptsInput>
+  where?: Prisma.CampaignWhereInput
+}
+
+export type CampaignUpdateToOneWithWhereWithoutOutreachAttemptsInput = {
+  where?: Prisma.CampaignWhereInput
+  data: Prisma.XOR<Prisma.CampaignUpdateWithoutOutreachAttemptsInput, Prisma.CampaignUncheckedUpdateWithoutOutreachAttemptsInput>
+}
+
+export type CampaignUpdateWithoutOutreachAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsPaused?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCampaignsNestedInput
+  redditAccount?: Prisma.RedditAccountUpdateOneWithoutCampaignsNestedInput
+  leads?: Prisma.LeadUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUpdateManyWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUpdateManyWithoutCampaignNestedInput
+  clientAccesses?: Prisma.CampaignClientAccessUpdateManyWithoutCampaignNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+}
+
+export type CampaignUncheckedUpdateWithoutOutreachAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  leadType?: Prisma.EnumLeadTypeFieldUpdateOperationsInput | $Enums.LeadType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  keywords?: Prisma.CampaignUpdatekeywordsInput | string[]
+  negativeKeywords?: Prisma.CampaignUpdatenegativeKeywordsInput | string[]
+  subreddits?: Prisma.CampaignUpdatesubredditsInput | string[]
+  regions?: Prisma.CampaignUpdateregionsInput | string[]
+  recentDays?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rssPollingEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationsPaused?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notificationEpoch?: Prisma.IntFieldUpdateOperationsInput | number
+  minScoreToAlert?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  semanticSearchScope?: Prisma.EnumCampaignSemanticSearchScopeFieldUpdateOperationsInput | $Enums.CampaignSemanticSearchScope
+  redditAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutCampaignNestedInput
+  sync?: Prisma.CampaignSyncUncheckedUpdateOneWithoutCampaignNestedInput
+  semanticQueries?: Prisma.CampaignSemanticQueryUncheckedUpdateManyWithoutCampaignNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutCampaignNestedInput
+  runs?: Prisma.CampaignRunUncheckedUpdateManyWithoutCampaignNestedInput
+  aiUsageEvents?: Prisma.AiUsageEventUncheckedUpdateManyWithoutCampaignNestedInput
+  initialRssPollEvents?: Prisma.CampaignInitialRssPollEventUncheckedUpdateManyWithoutCampaignNestedInput
+  semanticPlaygroundRuns?: Prisma.CampaignSemanticPlaygroundRunUncheckedUpdateManyWithoutCampaignNestedInput
+  clientAccesses?: Prisma.CampaignClientAccessUncheckedUpdateManyWithoutCampaignNestedInput
+  clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
+  leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
+  publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignCreateManyUserInput = {
@@ -3177,6 +3888,9 @@ export type CampaignUpdateWithoutUserInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutUserInput = {
@@ -3211,6 +3925,9 @@ export type CampaignUncheckedUpdateWithoutUserInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateManyWithoutUserInput = {
@@ -3289,6 +4006,9 @@ export type CampaignUpdateWithoutRedditAccountInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
@@ -3323,6 +4043,9 @@ export type CampaignUncheckedUpdateWithoutRedditAccountInput = {
   clientActivityEvents?: Prisma.CampaignClientActivityEventUncheckedUpdateManyWithoutCampaignNestedInput
   leadViewStates?: Prisma.CampaignLeadViewStateUncheckedUpdateManyWithoutCampaignNestedInput
   publicVisitors?: Prisma.CampaignPublicVisitorUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachSettings?: Prisma.CampaignOutreachSettingsUncheckedUpdateOneWithoutCampaignNestedInput
+  outreachRuns?: Prisma.OutreachRunUncheckedUpdateManyWithoutCampaignNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutCampaignNestedInput
 }
 
 export type CampaignUncheckedUpdateManyWithoutRedditAccountInput = {
@@ -3364,6 +4087,8 @@ export type CampaignCountOutputType = {
   clientActivityEvents: number
   leadViewStates: number
   publicVisitors: number
+  outreachRuns: number
+  outreachAttempts: number
 }
 
 export type CampaignCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3378,6 +4103,8 @@ export type CampaignCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   clientActivityEvents?: boolean | CampaignCountOutputTypeCountClientActivityEventsArgs
   leadViewStates?: boolean | CampaignCountOutputTypeCountLeadViewStatesArgs
   publicVisitors?: boolean | CampaignCountOutputTypeCountPublicVisitorsArgs
+  outreachRuns?: boolean | CampaignCountOutputTypeCountOutreachRunsArgs
+  outreachAttempts?: boolean | CampaignCountOutputTypeCountOutreachAttemptsArgs
 }
 
 /**
@@ -3467,6 +4194,20 @@ export type CampaignCountOutputTypeCountPublicVisitorsArgs<ExtArgs extends runti
   where?: Prisma.CampaignPublicVisitorWhereInput
 }
 
+/**
+ * CampaignCountOutputType without action
+ */
+export type CampaignCountOutputTypeCountOutreachRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OutreachRunWhereInput
+}
+
+/**
+ * CampaignCountOutputType without action
+ */
+export type CampaignCountOutputTypeCountOutreachAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OutreachAttemptWhereInput
+}
+
 
 export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3503,6 +4244,9 @@ export type CampaignSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   clientActivityEvents?: boolean | Prisma.Campaign$clientActivityEventsArgs<ExtArgs>
   leadViewStates?: boolean | Prisma.Campaign$leadViewStatesArgs<ExtArgs>
   publicVisitors?: boolean | Prisma.Campaign$publicVisitorsArgs<ExtArgs>
+  outreachSettings?: boolean | Prisma.Campaign$outreachSettingsArgs<ExtArgs>
+  outreachRuns?: boolean | Prisma.Campaign$outreachRunsArgs<ExtArgs>
+  outreachAttempts?: boolean | Prisma.Campaign$outreachAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["campaign"]>
 
@@ -3595,6 +4339,9 @@ export type CampaignInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   clientActivityEvents?: boolean | Prisma.Campaign$clientActivityEventsArgs<ExtArgs>
   leadViewStates?: boolean | Prisma.Campaign$leadViewStatesArgs<ExtArgs>
   publicVisitors?: boolean | Prisma.Campaign$publicVisitorsArgs<ExtArgs>
+  outreachSettings?: boolean | Prisma.Campaign$outreachSettingsArgs<ExtArgs>
+  outreachRuns?: boolean | Prisma.Campaign$outreachRunsArgs<ExtArgs>
+  outreachAttempts?: boolean | Prisma.Campaign$outreachAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.CampaignCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CampaignIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3623,6 +4370,9 @@ export type $CampaignPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     clientActivityEvents: Prisma.$CampaignClientActivityEventPayload<ExtArgs>[]
     leadViewStates: Prisma.$CampaignLeadViewStatePayload<ExtArgs>[]
     publicVisitors: Prisma.$CampaignPublicVisitorPayload<ExtArgs>[]
+    outreachSettings: Prisma.$CampaignOutreachSettingsPayload<ExtArgs> | null
+    outreachRuns: Prisma.$OutreachRunPayload<ExtArgs>[]
+    outreachAttempts: Prisma.$OutreachAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4053,6 +4803,9 @@ export interface Prisma__CampaignClient<T, Null = never, ExtArgs extends runtime
   clientActivityEvents<T extends Prisma.Campaign$clientActivityEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$clientActivityEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignClientActivityEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leadViewStates<T extends Prisma.Campaign$leadViewStatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$leadViewStatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignLeadViewStatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   publicVisitors<T extends Prisma.Campaign$publicVisitorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$publicVisitorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignPublicVisitorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  outreachSettings<T extends Prisma.Campaign$outreachSettingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$outreachSettingsArgs<ExtArgs>>): Prisma.Prisma__CampaignOutreachSettingsClient<runtime.Types.Result.GetResult<Prisma.$CampaignOutreachSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  outreachRuns<T extends Prisma.Campaign$outreachRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$outreachRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OutreachRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  outreachAttempts<T extends Prisma.Campaign$outreachAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Campaign$outreachAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OutreachAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4797,6 +5550,73 @@ export type Campaign$publicVisitorsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.CampaignPublicVisitorScalarFieldEnum | Prisma.CampaignPublicVisitorScalarFieldEnum[]
+}
+
+/**
+ * Campaign.outreachSettings
+ */
+export type Campaign$outreachSettingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CampaignOutreachSettings
+   */
+  select?: Prisma.CampaignOutreachSettingsSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CampaignOutreachSettings
+   */
+  omit?: Prisma.CampaignOutreachSettingsOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CampaignOutreachSettingsInclude<ExtArgs> | null
+  where?: Prisma.CampaignOutreachSettingsWhereInput
+}
+
+/**
+ * Campaign.outreachRuns
+ */
+export type Campaign$outreachRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OutreachRun
+   */
+  select?: Prisma.OutreachRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OutreachRun
+   */
+  omit?: Prisma.OutreachRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutreachRunInclude<ExtArgs> | null
+  where?: Prisma.OutreachRunWhereInput
+  orderBy?: Prisma.OutreachRunOrderByWithRelationInput | Prisma.OutreachRunOrderByWithRelationInput[]
+  cursor?: Prisma.OutreachRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OutreachRunScalarFieldEnum | Prisma.OutreachRunScalarFieldEnum[]
+}
+
+/**
+ * Campaign.outreachAttempts
+ */
+export type Campaign$outreachAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OutreachAttempt
+   */
+  select?: Prisma.OutreachAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OutreachAttempt
+   */
+  omit?: Prisma.OutreachAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutreachAttemptInclude<ExtArgs> | null
+  where?: Prisma.OutreachAttemptWhereInput
+  orderBy?: Prisma.OutreachAttemptOrderByWithRelationInput | Prisma.OutreachAttemptOrderByWithRelationInput[]
+  cursor?: Prisma.OutreachAttemptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OutreachAttemptScalarFieldEnum | Prisma.OutreachAttemptScalarFieldEnum[]
 }
 
 /**

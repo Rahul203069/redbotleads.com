@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "RedBot Outreach Assistant",
+  "version": "0.1.0",
+  "description": "Owner-operated Reddit outreach workflow for RedBot campaign leads.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://redbotleads.com/*",
+    "https://www.redbotleads.com/*",
+    "https://reddit.com/*",
+    "https://*.reddit.com/*",
+    "https://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/campaigns/*",
+        "https://redbotleads.com/campaigns/*",
+        "https://www.redbotleads.com/campaigns/*"
+      ],
+      "js": ["content-app.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://reddit.com/*", "https://*.reddit.com/*"],
+      "js": ["content-reddit.js"],
+      "css": ["reddit-overlay.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content-chatgpt.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

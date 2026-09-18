@@ -80,6 +80,11 @@ export const ModelName = {
   Lead: 'Lead',
   LeadAI: 'LeadAI',
   Notification: 'Notification',
+  CampaignOutreachSettings: 'CampaignOutreachSettings',
+  OutreachRun: 'OutreachRun',
+  OutreachRunPost: 'OutreachRunPost',
+  OutreachContact: 'OutreachContact',
+  OutreachAttempt: 'OutreachAttempt',
   Subreddit: 'Subreddit',
   TrackedThread: 'TrackedThread',
   IngestCursor: 'IngestCursor'
@@ -626,6 +631,103 @@ export const NotificationScalarFieldEnum = {
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const CampaignOutreachSettingsScalarFieldEnum = {
+  campaignId: 'campaignId',
+  firstTouchInstructions: 'firstTouchInstructions',
+  firstTouchExamples: 'firstTouchExamples',
+  followUpInstructions: 'followUpInstructions',
+  followUpExamples: 'followUpExamples',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CampaignOutreachSettingsScalarFieldEnum = (typeof CampaignOutreachSettingsScalarFieldEnum)[keyof typeof CampaignOutreachSettingsScalarFieldEnum]
+
+
+export const OutreachRunScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  campaignId: 'campaignId',
+  redditAccountId: 'redditAccountId',
+  status: 'status',
+  filterJson: 'filterJson',
+  publicLeadsUrl: 'publicLeadsUrl',
+  extensionVersion: 'extensionVersion',
+  queuedPosts: 'queuedPosts',
+  analyzedPosts: 'analyzedPosts',
+  draftedMessages: 'draftedMessages',
+  sentMessages: 'sentMessages',
+  skippedMessages: 'skippedMessages',
+  failedMessages: 'failedMessages',
+  lastError: 'lastError',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  stoppedAt: 'stoppedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachRunScalarFieldEnum = (typeof OutreachRunScalarFieldEnum)[keyof typeof OutreachRunScalarFieldEnum]
+
+
+export const OutreachRunPostScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  redditItemId: 'redditItemId',
+  leadId: 'leadId',
+  status: 'status',
+  commentCount: 'commentCount',
+  selectedCount: 'selectedCount',
+  error: 'error',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachRunPostScalarFieldEnum = (typeof OutreachRunPostScalarFieldEnum)[keyof typeof OutreachRunPostScalarFieldEnum]
+
+
+export const OutreachContactScalarFieldEnum = {
+  id: 'id',
+  redditAccountId: 'redditAccountId',
+  normalizedUsername: 'normalizedUsername',
+  displayUsername: 'displayUsername',
+  firstSentAt: 'firstSentAt',
+  followUpSentAt: 'followUpSentAt',
+  lastSentAt: 'lastSentAt',
+  doNotContact: 'doNotContact',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachContactScalarFieldEnum = (typeof OutreachContactScalarFieldEnum)[keyof typeof OutreachContactScalarFieldEnum]
+
+
+export const OutreachAttemptScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  runPostId: 'runPostId',
+  campaignId: 'campaignId',
+  contactId: 'contactId',
+  sourceRedditItemId: 'sourceRedditItemId',
+  sourceCommentId: 'sourceCommentId',
+  sourceCommentUrl: 'sourceCommentUrl',
+  stage: 'stage',
+  status: 'status',
+  qualificationReason: 'qualificationReason',
+  message: 'message',
+  publicLeadsUrl: 'publicLeadsUrl',
+  error: 'error',
+  approvedAt: 'approvedAt',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OutreachAttemptScalarFieldEnum = (typeof OutreachAttemptScalarFieldEnum)[keyof typeof OutreachAttemptScalarFieldEnum]
 
 
 export const SubredditScalarFieldEnum = {

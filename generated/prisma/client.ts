@@ -187,6 +187,31 @@ export type LeadAI = Prisma.LeadAIModel
  */
 export type Notification = Prisma.NotificationModel
 /**
+ * Model CampaignOutreachSettings
+ * 
+ */
+export type CampaignOutreachSettings = Prisma.CampaignOutreachSettingsModel
+/**
+ * Model OutreachRun
+ * 
+ */
+export type OutreachRun = Prisma.OutreachRunModel
+/**
+ * Model OutreachRunPost
+ * 
+ */
+export type OutreachRunPost = Prisma.OutreachRunPostModel
+/**
+ * Model OutreachContact
+ * 
+ */
+export type OutreachContact = Prisma.OutreachContactModel
+/**
+ * Model OutreachAttempt
+ * 
+ */
+export type OutreachAttempt = Prisma.OutreachAttemptModel
+/**
  * Model Subreddit
  * 
  */

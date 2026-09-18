@@ -192,3 +192,48 @@ export const SubredditRssPollStatus = {
 } as const
 
 export type SubredditRssPollStatus = (typeof SubredditRssPollStatus)[keyof typeof SubredditRssPollStatus]
+
+
+export const OutreachRunStatus = {
+  QUEUED: 'QUEUED',
+  RUNNING: 'RUNNING',
+  PAUSED: 'PAUSED',
+  LIMIT_REACHED: 'LIMIT_REACHED',
+  COMPLETED: 'COMPLETED',
+  STOPPED: 'STOPPED',
+  FAILED: 'FAILED'
+} as const
+
+export type OutreachRunStatus = (typeof OutreachRunStatus)[keyof typeof OutreachRunStatus]
+
+
+export const OutreachRunPostStatus = {
+  QUEUED: 'QUEUED',
+  SCANNING: 'SCANNING',
+  GENERATING: 'GENERATING',
+  READY: 'READY',
+  COMPLETED: 'COMPLETED',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED'
+} as const
+
+export type OutreachRunPostStatus = (typeof OutreachRunPostStatus)[keyof typeof OutreachRunPostStatus]
+
+
+export const OutreachMessageStage = {
+  INITIAL: 'INITIAL',
+  FOLLOW_UP: 'FOLLOW_UP'
+} as const
+
+export type OutreachMessageStage = (typeof OutreachMessageStage)[keyof typeof OutreachMessageStage]
+
+
+export const OutreachAttemptStatus = {
+  DRAFT: 'DRAFT',
+  AWAITING_APPROVAL: 'AWAITING_APPROVAL',
+  SENT: 'SENT',
+  SKIPPED: 'SKIPPED',
+  FAILED: 'FAILED'
+} as const
+
+export type OutreachAttemptStatus = (typeof OutreachAttemptStatus)[keyof typeof OutreachAttemptStatus]

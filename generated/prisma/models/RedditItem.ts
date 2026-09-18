@@ -262,6 +262,8 @@ export type RedditItemWhereInput = {
   embedding?: Prisma.XOR<Prisma.RedditItemEmbeddingNullableScalarRelationFilter, Prisma.RedditItemEmbeddingWhereInput> | null
   dailySemanticScans?: Prisma.CampaignDailySemanticScanListRelationFilter
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultListRelationFilter
+  outreachRunPosts?: Prisma.OutreachRunPostListRelationFilter
+  outreachAttempts?: Prisma.OutreachAttemptListRelationFilter
 }
 
 export type RedditItemOrderByWithRelationInput = {
@@ -284,6 +286,8 @@ export type RedditItemOrderByWithRelationInput = {
   embedding?: Prisma.RedditItemEmbeddingOrderByWithRelationInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanOrderByRelationAggregateInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultOrderByRelationAggregateInput
+  outreachRunPosts?: Prisma.OutreachRunPostOrderByRelationAggregateInput
+  outreachAttempts?: Prisma.OutreachAttemptOrderByRelationAggregateInput
 }
 
 export type RedditItemWhereUniqueInput = Prisma.AtLeast<{
@@ -309,6 +313,8 @@ export type RedditItemWhereUniqueInput = Prisma.AtLeast<{
   embedding?: Prisma.XOR<Prisma.RedditItemEmbeddingNullableScalarRelationFilter, Prisma.RedditItemEmbeddingWhereInput> | null
   dailySemanticScans?: Prisma.CampaignDailySemanticScanListRelationFilter
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultListRelationFilter
+  outreachRunPosts?: Prisma.OutreachRunPostListRelationFilter
+  outreachAttempts?: Prisma.OutreachAttemptListRelationFilter
 }, "id" | "fullname">
 
 export type RedditItemOrderByWithAggregationInput = {
@@ -373,6 +379,8 @@ export type RedditItemCreateInput = {
   embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemUncheckedCreateInput = {
@@ -395,6 +403,8 @@ export type RedditItemUncheckedCreateInput = {
   embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemUpdateInput = {
@@ -417,6 +427,8 @@ export type RedditItemUpdateInput = {
   embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateInput = {
@@ -439,6 +451,8 @@ export type RedditItemUncheckedUpdateInput = {
   embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemCreateManyInput = {
@@ -612,6 +626,34 @@ export type RedditItemUpdateOneRequiredWithoutLeadsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.RedditItemUpdateToOneWithWhereWithoutLeadsInput, Prisma.RedditItemUpdateWithoutLeadsInput>, Prisma.RedditItemUncheckedUpdateWithoutLeadsInput>
 }
 
+export type RedditItemCreateNestedOneWithoutOutreachRunPostsInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachRunPostsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachRunPostsInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutOutreachRunPostsInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+}
+
+export type RedditItemUpdateOneRequiredWithoutOutreachRunPostsNestedInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachRunPostsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachRunPostsInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutOutreachRunPostsInput
+  upsert?: Prisma.RedditItemUpsertWithoutOutreachRunPostsInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RedditItemUpdateToOneWithWhereWithoutOutreachRunPostsInput, Prisma.RedditItemUpdateWithoutOutreachRunPostsInput>, Prisma.RedditItemUncheckedUpdateWithoutOutreachRunPostsInput>
+}
+
+export type RedditItemCreateNestedOneWithoutOutreachAttemptsInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachAttemptsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachAttemptsInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutOutreachAttemptsInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+}
+
+export type RedditItemUpdateOneRequiredWithoutOutreachAttemptsNestedInput = {
+  create?: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachAttemptsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachAttemptsInput>
+  connectOrCreate?: Prisma.RedditItemCreateOrConnectWithoutOutreachAttemptsInput
+  upsert?: Prisma.RedditItemUpsertWithoutOutreachAttemptsInput
+  connect?: Prisma.RedditItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.RedditItemUpdateToOneWithWhereWithoutOutreachAttemptsInput, Prisma.RedditItemUpdateWithoutOutreachAttemptsInput>, Prisma.RedditItemUncheckedUpdateWithoutOutreachAttemptsInput>
+}
+
 export type RedditItemCreateWithoutSemanticPlaygroundResultsInput = {
   id?: string
   fullname: string
@@ -631,6 +673,8 @@ export type RedditItemCreateWithoutSemanticPlaygroundResultsInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
   embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemUncheckedCreateWithoutSemanticPlaygroundResultsInput = {
@@ -652,6 +696,8 @@ export type RedditItemUncheckedCreateWithoutSemanticPlaygroundResultsInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
   embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemCreateOrConnectWithoutSemanticPlaygroundResultsInput = {
@@ -689,6 +735,8 @@ export type RedditItemUpdateWithoutSemanticPlaygroundResultsInput = {
   leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
   embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateWithoutSemanticPlaygroundResultsInput = {
@@ -710,6 +758,8 @@ export type RedditItemUncheckedUpdateWithoutSemanticPlaygroundResultsInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
   embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemCreateWithoutDailySemanticScansInput = {
@@ -731,6 +781,8 @@ export type RedditItemCreateWithoutDailySemanticScansInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
   embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemUncheckedCreateWithoutDailySemanticScansInput = {
@@ -752,6 +804,8 @@ export type RedditItemUncheckedCreateWithoutDailySemanticScansInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
   embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemCreateOrConnectWithoutDailySemanticScansInput = {
@@ -789,6 +843,8 @@ export type RedditItemUpdateWithoutDailySemanticScansInput = {
   leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
   embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateWithoutDailySemanticScansInput = {
@@ -810,6 +866,8 @@ export type RedditItemUncheckedUpdateWithoutDailySemanticScansInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
   embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemCreateWithoutEmbeddingInput = {
@@ -831,6 +889,8 @@ export type RedditItemCreateWithoutEmbeddingInput = {
   leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemUncheckedCreateWithoutEmbeddingInput = {
@@ -852,6 +912,8 @@ export type RedditItemUncheckedCreateWithoutEmbeddingInput = {
   leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemCreateOrConnectWithoutEmbeddingInput = {
@@ -889,6 +951,8 @@ export type RedditItemUpdateWithoutEmbeddingInput = {
   leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateWithoutEmbeddingInput = {
@@ -910,6 +974,8 @@ export type RedditItemUncheckedUpdateWithoutEmbeddingInput = {
   leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemCreateWithoutLeadsInput = {
@@ -931,6 +997,8 @@ export type RedditItemCreateWithoutLeadsInput = {
   embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemUncheckedCreateWithoutLeadsInput = {
@@ -952,6 +1020,8 @@ export type RedditItemUncheckedCreateWithoutLeadsInput = {
   embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutSourceRedditItemInput
 }
 
 export type RedditItemCreateOrConnectWithoutLeadsInput = {
@@ -989,6 +1059,8 @@ export type RedditItemUpdateWithoutLeadsInput = {
   embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutSourceRedditItemNestedInput
 }
 
 export type RedditItemUncheckedUpdateWithoutLeadsInput = {
@@ -1010,6 +1082,224 @@ export type RedditItemUncheckedUpdateWithoutLeadsInput = {
   embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
   dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
   semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutSourceRedditItemNestedInput
+}
+
+export type RedditItemCreateWithoutOutreachRunPostsInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptCreateNestedManyWithoutSourceRedditItemInput
+}
+
+export type RedditItemUncheckedCreateWithoutOutreachRunPostsInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedCreateNestedManyWithoutSourceRedditItemInput
+}
+
+export type RedditItemCreateOrConnectWithoutOutreachRunPostsInput = {
+  where: Prisma.RedditItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachRunPostsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachRunPostsInput>
+}
+
+export type RedditItemUpsertWithoutOutreachRunPostsInput = {
+  update: Prisma.XOR<Prisma.RedditItemUpdateWithoutOutreachRunPostsInput, Prisma.RedditItemUncheckedUpdateWithoutOutreachRunPostsInput>
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachRunPostsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachRunPostsInput>
+  where?: Prisma.RedditItemWhereInput
+}
+
+export type RedditItemUpdateToOneWithWhereWithoutOutreachRunPostsInput = {
+  where?: Prisma.RedditItemWhereInput
+  data: Prisma.XOR<Prisma.RedditItemUpdateWithoutOutreachRunPostsInput, Prisma.RedditItemUncheckedUpdateWithoutOutreachRunPostsInput>
+}
+
+export type RedditItemUpdateWithoutOutreachRunPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUpdateManyWithoutSourceRedditItemNestedInput
+}
+
+export type RedditItemUncheckedUpdateWithoutOutreachRunPostsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachAttempts?: Prisma.OutreachAttemptUncheckedUpdateManyWithoutSourceRedditItemNestedInput
+}
+
+export type RedditItemCreateWithoutOutreachAttemptsInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanCreateNestedManyWithoutRedditItemInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostCreateNestedManyWithoutRedditItemInput
+}
+
+export type RedditItemUncheckedCreateWithoutOutreachAttemptsInput = {
+  id?: string
+  fullname: string
+  type: $Enums.RedditItemType
+  subreddit: string
+  title?: string | null
+  description?: string | null
+  body?: string | null
+  author?: string | null
+  url?: string | null
+  createdUtc: Date | string
+  fetchedAt?: Date | string
+  sourceMode?: $Enums.SourceMode
+  postFullname?: string | null
+  parentFullname?: string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedCreateNestedManyWithoutRedditItemInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedCreateNestedOneWithoutRedditItemInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedCreateNestedManyWithoutRedditItemInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedCreateNestedManyWithoutRedditItemInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedCreateNestedManyWithoutRedditItemInput
+}
+
+export type RedditItemCreateOrConnectWithoutOutreachAttemptsInput = {
+  where: Prisma.RedditItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachAttemptsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachAttemptsInput>
+}
+
+export type RedditItemUpsertWithoutOutreachAttemptsInput = {
+  update: Prisma.XOR<Prisma.RedditItemUpdateWithoutOutreachAttemptsInput, Prisma.RedditItemUncheckedUpdateWithoutOutreachAttemptsInput>
+  create: Prisma.XOR<Prisma.RedditItemCreateWithoutOutreachAttemptsInput, Prisma.RedditItemUncheckedCreateWithoutOutreachAttemptsInput>
+  where?: Prisma.RedditItemWhereInput
+}
+
+export type RedditItemUpdateToOneWithWhereWithoutOutreachAttemptsInput = {
+  where?: Prisma.RedditItemWhereInput
+  data: Prisma.XOR<Prisma.RedditItemUpdateWithoutOutreachAttemptsInput, Prisma.RedditItemUncheckedUpdateWithoutOutreachAttemptsInput>
+}
+
+export type RedditItemUpdateWithoutOutreachAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUpdateManyWithoutRedditItemNestedInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUpdateManyWithoutRedditItemNestedInput
+}
+
+export type RedditItemUncheckedUpdateWithoutOutreachAttemptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullname?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumRedditItemTypeFieldUpdateOperationsInput | $Enums.RedditItemType
+  subreddit?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  author?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdUtc?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fetchedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceMode?: Prisma.EnumSourceModeFieldUpdateOperationsInput | $Enums.SourceMode
+  postFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  parentFullname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rawJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  leads?: Prisma.LeadUncheckedUpdateManyWithoutRedditItemNestedInput
+  embedding?: Prisma.RedditItemEmbeddingUncheckedUpdateOneWithoutRedditItemNestedInput
+  dailySemanticScans?: Prisma.CampaignDailySemanticScanUncheckedUpdateManyWithoutRedditItemNestedInput
+  semanticPlaygroundResults?: Prisma.CampaignSemanticPlaygroundResultUncheckedUpdateManyWithoutRedditItemNestedInput
+  outreachRunPosts?: Prisma.OutreachRunPostUncheckedUpdateManyWithoutRedditItemNestedInput
 }
 
 
@@ -1021,12 +1311,16 @@ export type RedditItemCountOutputType = {
   leads: number
   dailySemanticScans: number
   semanticPlaygroundResults: number
+  outreachRunPosts: number
+  outreachAttempts: number
 }
 
 export type RedditItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leads?: boolean | RedditItemCountOutputTypeCountLeadsArgs
   dailySemanticScans?: boolean | RedditItemCountOutputTypeCountDailySemanticScansArgs
   semanticPlaygroundResults?: boolean | RedditItemCountOutputTypeCountSemanticPlaygroundResultsArgs
+  outreachRunPosts?: boolean | RedditItemCountOutputTypeCountOutreachRunPostsArgs
+  outreachAttempts?: boolean | RedditItemCountOutputTypeCountOutreachAttemptsArgs
 }
 
 /**
@@ -1060,6 +1354,20 @@ export type RedditItemCountOutputTypeCountSemanticPlaygroundResultsArgs<ExtArgs 
   where?: Prisma.CampaignSemanticPlaygroundResultWhereInput
 }
 
+/**
+ * RedditItemCountOutputType without action
+ */
+export type RedditItemCountOutputTypeCountOutreachRunPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OutreachRunPostWhereInput
+}
+
+/**
+ * RedditItemCountOutputType without action
+ */
+export type RedditItemCountOutputTypeCountOutreachAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OutreachAttemptWhereInput
+}
+
 
 export type RedditItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1081,6 +1389,8 @@ export type RedditItemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   embedding?: boolean | Prisma.RedditItem$embeddingArgs<ExtArgs>
   dailySemanticScans?: boolean | Prisma.RedditItem$dailySemanticScansArgs<ExtArgs>
   semanticPlaygroundResults?: boolean | Prisma.RedditItem$semanticPlaygroundResultsArgs<ExtArgs>
+  outreachRunPosts?: boolean | Prisma.RedditItem$outreachRunPostsArgs<ExtArgs>
+  outreachAttempts?: boolean | Prisma.RedditItem$outreachAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.RedditItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["redditItem"]>
 
@@ -1144,6 +1454,8 @@ export type RedditItemInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   embedding?: boolean | Prisma.RedditItem$embeddingArgs<ExtArgs>
   dailySemanticScans?: boolean | Prisma.RedditItem$dailySemanticScansArgs<ExtArgs>
   semanticPlaygroundResults?: boolean | Prisma.RedditItem$semanticPlaygroundResultsArgs<ExtArgs>
+  outreachRunPosts?: boolean | Prisma.RedditItem$outreachRunPostsArgs<ExtArgs>
+  outreachAttempts?: boolean | Prisma.RedditItem$outreachAttemptsArgs<ExtArgs>
   _count?: boolean | Prisma.RedditItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RedditItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1156,6 +1468,8 @@ export type $RedditItemPayload<ExtArgs extends runtime.Types.Extensions.Internal
     embedding: Prisma.$RedditItemEmbeddingPayload<ExtArgs> | null
     dailySemanticScans: Prisma.$CampaignDailySemanticScanPayload<ExtArgs>[]
     semanticPlaygroundResults: Prisma.$CampaignSemanticPlaygroundResultPayload<ExtArgs>[]
+    outreachRunPosts: Prisma.$OutreachRunPostPayload<ExtArgs>[]
+    outreachAttempts: Prisma.$OutreachAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1571,6 +1885,8 @@ export interface Prisma__RedditItemClient<T, Null = never, ExtArgs extends runti
   embedding<T extends Prisma.RedditItem$embeddingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$embeddingArgs<ExtArgs>>): Prisma.Prisma__RedditItemEmbeddingClient<runtime.Types.Result.GetResult<Prisma.$RedditItemEmbeddingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   dailySemanticScans<T extends Prisma.RedditItem$dailySemanticScansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$dailySemanticScansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignDailySemanticScanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   semanticPlaygroundResults<T extends Prisma.RedditItem$semanticPlaygroundResultsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$semanticPlaygroundResultsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CampaignSemanticPlaygroundResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  outreachRunPosts<T extends Prisma.RedditItem$outreachRunPostsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$outreachRunPostsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OutreachRunPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  outreachAttempts<T extends Prisma.RedditItem$outreachAttemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RedditItem$outreachAttemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OutreachAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2091,6 +2407,54 @@ export type RedditItem$semanticPlaygroundResultsArgs<ExtArgs extends runtime.Typ
   take?: number
   skip?: number
   distinct?: Prisma.CampaignSemanticPlaygroundResultScalarFieldEnum | Prisma.CampaignSemanticPlaygroundResultScalarFieldEnum[]
+}
+
+/**
+ * RedditItem.outreachRunPosts
+ */
+export type RedditItem$outreachRunPostsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OutreachRunPost
+   */
+  select?: Prisma.OutreachRunPostSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OutreachRunPost
+   */
+  omit?: Prisma.OutreachRunPostOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutreachRunPostInclude<ExtArgs> | null
+  where?: Prisma.OutreachRunPostWhereInput
+  orderBy?: Prisma.OutreachRunPostOrderByWithRelationInput | Prisma.OutreachRunPostOrderByWithRelationInput[]
+  cursor?: Prisma.OutreachRunPostWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OutreachRunPostScalarFieldEnum | Prisma.OutreachRunPostScalarFieldEnum[]
+}
+
+/**
+ * RedditItem.outreachAttempts
+ */
+export type RedditItem$outreachAttemptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OutreachAttempt
+   */
+  select?: Prisma.OutreachAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OutreachAttempt
+   */
+  omit?: Prisma.OutreachAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OutreachAttemptInclude<ExtArgs> | null
+  where?: Prisma.OutreachAttemptWhereInput
+  orderBy?: Prisma.OutreachAttemptOrderByWithRelationInput | Prisma.OutreachAttemptOrderByWithRelationInput[]
+  cursor?: Prisma.OutreachAttemptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OutreachAttemptScalarFieldEnum | Prisma.OutreachAttemptScalarFieldEnum[]
 }
 
 /**

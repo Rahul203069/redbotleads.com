@@ -18,6 +18,7 @@ import { DeleteCampaignDialog } from "@/components/campaigns/delete-campaign-dia
 import { EditCampaignDialog } from "@/components/campaigns/edit-campaign-dialog";
 import { ExportCampaignLeadsButton } from "@/components/campaigns/export-campaign-leads-button";
 import { NewCampaignSemanticRunControl } from "@/components/campaigns/new-campaign-semantic-run-control";
+import { OutreachAssistantDialog } from "@/components/campaigns/outreach-assistant-dialog";
 import { EditCampaignDescriptionDialog } from "@/components/live/edit-campaign-description-dialog";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
@@ -336,6 +337,11 @@ export default async function CampaignDetailPage({
                 </Link>
                 <CopyPublicCampaignLinkButton campaignId={campaign.id} />
                 <CopyPublicCampaignLinkButton campaignId={campaign.id} kind="leads" />
+                <OutreachAssistantDialog
+                  campaignId={campaign.id}
+                  campaignName={displayName}
+                  dateFilter={leadDateFilter}
+                />
                 {canExportLeads ? (
                   <ExportCampaignLeadsButton campaignId={campaign.id} campaignName={displayName} />
                 ) : null}

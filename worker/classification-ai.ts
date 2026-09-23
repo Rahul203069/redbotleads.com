@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 import { generateStructuredOutput } from "@/lib/openai";
-import { DEFAULT_LEAD_SCORING_MODEL } from "@/lib/openai-models";
+import {
+  DEFAULT_LEAD_SCORING_MODEL,
+  getLeadScoringRequestConfig,
+  normalizeLeadScoringModel,
+} from "@/lib/openai-models";
 import { getSaasConfig } from "@/lib/saas-config";
 import { workerClassificationMinIntervalMs } from "./config";
 import { workerLogger } from "./logger";
@@ -49,7 +53,7 @@ type ClassificationResult = z.infer<typeof classificationResultSchema> & {
 
 const PRODUCT_PROMPT_VERSION = "lead-classifier-v3-product";
 const SERVICE_PROMPT_VERSION = "lead-classifier-v3-service";
-const ENV_DEFAULT_MODEL = process.env.OPENAI_MODEL?.trim() || DEFAULT_LEAD_SCORING_MODEL;
+const ENV_DEFAULT_MODEL = normalizeLeadScoringModel(process.env.OPENAI_MODEL ?? DEFAULT_LEAD_SCORING_MODEL);
 const MIN_REQUEST_INTERVAL_MS = workerClassificationMinIntervalMs;
 const MAX_CATEGORY_LENGTH = 80;
 const MAX_SUMMARY_LENGTH = 400;
@@ -68,12 +72,13 @@ export async function classifyLeadWithOpenAI(input: ClassificationInput): Promis
 
   const { systemPrompt, userPrompt } = buildPrompt(input);
   const model = await getLeadScoringModel();
+  const requestConfig = getLeadScoringRequestConfig(model);
   const response = await generateStructuredOutput({
+    ...requestConfig,
     model,
     schema: classificationResponseSchema,
     schemaName: "lead_classification",
     systemPrompt,
-    temperature: 0.1,
     userPrompt,
     usage: {
       userId: input.userId,

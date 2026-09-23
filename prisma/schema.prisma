@@ -242,7 +242,7 @@ model TelegramPairing {
 model SaasConfig {
   id                       String   @id @default("global")
   subredditSuggestionCount Int      @default(40)
-  leadScoringModel         String   @default("gpt-5-mini")
+  leadScoringModel         String   @default("gpt-6-luna")
   campaignLeadLayout       String   @default("CLASSIC")
   appMode                   SaasAppMode @default(DAILY)
   createdAt                DateTime @default(now())

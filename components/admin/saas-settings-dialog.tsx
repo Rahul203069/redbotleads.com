@@ -16,7 +16,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { LEAD_SCORING_MODEL_OPTIONS, formatModelPrice, type LeadScoringModelId } from "@/lib/openai-models";
+import {
+  LEAD_SCORING_MODEL_OPTIONS,
+  formatModelPrice,
+  getLeadScoringModelLabel,
+  type LeadScoringModelId,
+} from "@/lib/openai-models";
 import { MAX_SUBREDDIT_SUGGESTION_COUNT, MIN_SUBREDDIT_SUGGESTION_COUNT } from "@/lib/saas-config-constants";
 
 const initialState: AdminSettingsActionState = {
@@ -32,6 +37,7 @@ export function SaasSettingsDialog({
 }) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const activeModelLabel = getLeadScoringModelLabel(leadScoringModel);
   const submitSettings = useCallback(async (_previousState: AdminSettingsActionState, formData: FormData) => {
     const result = await updateSaasSettings(_previousState, formData);
 
@@ -100,8 +106,13 @@ export function SaasSettingsDialog({
 
             <div className="grid gap-3">
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
-                  Lead scoring model
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3b3b3]">
+                    Lead scoring model
+                  </div>
+                  <div className="rounded-full bg-[#17351f] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#69e990]">
+                    Active: {activeModelLabel}
+                  </div>
                 </div>
                 <div className="mt-1 text-[13px] leading-5 text-[#b3b3b3]">
                   New worker classification calls use the saved model.
@@ -111,7 +122,7 @@ export function SaasSettingsDialog({
               <div className="grid gap-2 sm:grid-cols-2">
                 {LEAD_SCORING_MODEL_OPTIONS.map((model) => (
                   <label
-                    className="min-h-[112px] cursor-pointer rounded-[16px] bg-[#121212] p-4 text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition hover:bg-[#1f1f1f]"
+                    className="min-h-[112px] cursor-pointer rounded-[16px] bg-[#121212] p-4 text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors duration-200 hover:bg-[#1f1f1f] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#1ed760] focus-within:ring-offset-2 focus-within:ring-offset-[#121212]"
                     key={model.id}
                   >
                     <div className="flex items-start gap-3">
@@ -122,9 +133,17 @@ export function SaasSettingsDialog({
                         type="radio"
                         value={model.id}
                       />
-                      <div className="min-w-0">
-                        <div className="text-sm font-bold text-[#ffffff]">{model.label}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="text-sm font-bold text-[#ffffff]">{model.label}</div>
+                          {leadScoringModel === model.id ? (
+                            <span className="rounded-full border border-[#1ed760]/50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#69e990]">
+                              Active
+                            </span>
+                          ) : null}
+                        </div>
                         <div className="mt-2 grid gap-1 text-[12px] leading-5 text-[#b3b3b3]">
+                          {model.id === "gpt-6-luna" ? <span>Medium reasoning</span> : null}
                           <span>Input {formatModelPrice(model.inputPerMillion)}</span>
                           <span>Output {formatModelPrice(model.outputPerMillion)}</span>
                         </div>

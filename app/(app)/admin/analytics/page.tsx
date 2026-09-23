@@ -27,7 +27,12 @@ import { SubredditPerformanceDialog } from "@/components/admin/subreddit-perform
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
 import { getDailyRssPollerPauseState } from "@/lib/daily-rss-poller-control";
-import { LEAD_SCORING_MODEL_OPTIONS, normalizeLeadScoringModel, type LeadScoringModelId } from "@/lib/openai-models";
+import {
+  LEAD_SCORING_MODEL_OPTIONS,
+  getLeadScoringModelLabel,
+  normalizeLeadScoringModel,
+  type LeadScoringModelId,
+} from "@/lib/openai-models";
 import { prisma } from "@/lib/prisma";
 import { getSaasConfig } from "@/lib/saas-config";
 
@@ -85,6 +90,7 @@ export default async function AdminAnalyticsPage({
   const saasConfig = await getSaasConfig();
   const dailyRssPauseState = await getDailyRssPollerPauseState();
   const selectedPriceModel = normalizeLeadScoringModel(params.priceModel ?? saasConfig.leadScoringModel);
+  const activeClassifierLabel = getLeadScoringModelLabel(saasConfig.leadScoringModel);
 
   const [users, campaigns, leads, usageEvents, campaignRunCounts] = await Promise.all([
     prisma.user.findMany({
@@ -248,7 +254,7 @@ export default async function AdminAnalyticsPage({
           title="Operations"
         >
           <div className="grid gap-3 sm:grid-cols-2">
-            <ControlCard description="Models and global SaaS defaults." title="Platform settings">
+            <ControlCard description={`Active classifier: ${activeClassifierLabel}`} title="Platform settings">
               <SaasSettingsDialog
                 leadScoringModel={saasConfig.leadScoringModel}
                 subredditSuggestionCount={saasConfig.subredditSuggestionCount}

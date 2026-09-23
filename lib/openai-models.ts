@@ -1,4 +1,9 @@
-export type LeadScoringModelId = "gpt-4o-mini" | "gpt-4.1-mini" | "gpt-5-mini" | "gpt-5.1-mini";
+export type LeadScoringModelId =
+  | "gpt-4o-mini"
+  | "gpt-4.1-mini"
+  | "gpt-5-mini"
+  | "gpt-5.1-mini"
+  | "gpt-6-luna";
 
 export type OpenAiModelPricing = {
   inputPerMillion: number;
@@ -35,9 +40,15 @@ export const LEAD_SCORING_MODEL_OPTIONS: LeadScoringModelOption[] = [
     inputPerMillion: 0.25,
     outputPerMillion: 2,
   },
+  {
+    id: "gpt-6-luna",
+    label: "GPT-6 Luna",
+    inputPerMillion: 0.1,
+    outputPerMillion: 0.5,
+  },
 ];
 
-export const DEFAULT_LEAD_SCORING_MODEL: LeadScoringModelId = "gpt-5-mini";
+export const DEFAULT_LEAD_SCORING_MODEL: LeadScoringModelId = "gpt-6-luna";
 
 const leadScoringModelIds = new Set(LEAD_SCORING_MODEL_OPTIONS.map((model) => model.id));
 
@@ -52,6 +63,16 @@ export function normalizeLeadScoringModel(value: string | null | undefined): Lea
 
 export function getOpenAiModelPricing(model: string): OpenAiModelPricing | null {
   return LEAD_SCORING_MODEL_OPTIONS.find((option) => option.id === model) ?? null;
+}
+
+export function getLeadScoringModelLabel(model: LeadScoringModelId) {
+  return LEAD_SCORING_MODEL_OPTIONS.find((option) => option.id === model)?.label ?? model;
+}
+
+export function getLeadScoringRequestConfig(model: LeadScoringModelId) {
+  return model === "gpt-6-luna"
+    ? ({ reasoningEffort: "medium" } as const)
+    : ({ temperature: 0.1 } as const);
 }
 
 export function formatModelPrice(value: number) {

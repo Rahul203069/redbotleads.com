@@ -70,11 +70,14 @@ type WebSearchRequest = {
   };
 };
 
+type OpenAiReasoningEffort = "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
+
 type StructuredOutputRequest = {
   systemPrompt: string;
   userPrompt: string;
   schemaName: string;
   schema: Record<string, unknown>;
+  reasoningEffort?: OpenAiReasoningEffort;
   temperature?: number;
   model?: string;
   webSearch?: WebSearchRequest;
@@ -143,6 +146,7 @@ export async function generateStructuredOutput(
           schema: request.schema,
           schemaName: request.schemaName,
           systemPrompt: request.systemPrompt,
+          reasoningEffort: request.reasoningEffort,
           temperature: request.temperature ?? 0.1,
           userPrompt: request.userPrompt,
           webSearch: request.webSearch,
@@ -205,6 +209,7 @@ async function requestWithRetry(input: {
   schema: Record<string, unknown>;
   schemaName: string;
   systemPrompt: string;
+  reasoningEffort?: OpenAiReasoningEffort;
   temperature?: number;
   userPrompt: string;
   webSearch?: WebSearchRequest;
@@ -233,7 +238,8 @@ async function requestWithRetry(input: {
     signal: AbortSignal.timeout(OPENAI_REQUEST_TIMEOUT_MS),
     body: JSON.stringify({
       model: input.model,
-      ...(supportsCustomTemperature(input.model) && input.temperature !== undefined
+      ...(input.reasoningEffort ? { reasoning_effort: input.reasoningEffort } : {}),
+      ...(supportsCustomTemperature(input.model, input.reasoningEffort) && input.temperature !== undefined
         ? { temperature: input.temperature }
         : {}),
       messages: [
@@ -528,7 +534,11 @@ function parsePositiveInteger(value: string | undefined, fallback: number) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-function supportsCustomTemperature(model: string) {
+function supportsCustomTemperature(model: string, reasoningEffort?: OpenAiReasoningEffort) {
+  if (reasoningEffort && reasoningEffort !== "none") {
+    return false;
+  }
+
   return !/^gpt-5(?:\.|$|-)/i.test(model.trim());
 }
 

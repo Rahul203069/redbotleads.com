@@ -3,7 +3,7 @@ import { summarizeNotificationDeliveries } from "@/lib/notification-delivery-sum
 import { SEMANTIC_CRON_PATHS } from "@/lib/semantic-cron-paths";
 import { addDaysToDateKey, getDateKeyInTimeZone, normalizeTimeZone } from "@/lib/time-zone";
 
-export const DAILY_STRONG_LEAD_SCORE = 75;
+export const DAILY_STRONG_LEAD_SCORE = 80;
 export const DAILY_LEADS_PAGE_SIZE = 50;
 export const DAILY_LEAD_SEMANTIC_STATUS_OPTIONS = ["ALL", "MATCHED", "NO_MATCH"] as const;
 const CLASSIFICATION_ERROR_MODEL = "classification-error";

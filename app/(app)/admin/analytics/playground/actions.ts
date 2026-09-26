@@ -612,7 +612,7 @@ function normalizeQueryCategory(value: string | null | undefined) {
 }
 
 function labelFromScore(score: number): LeadLabel {
-  if (score >= 75) {
+  if (score >= 80) {
     return "HIGH";
   }
 

@@ -273,7 +273,7 @@ export function CampaignDetailLiveSections({
     [leads],
   );
   const leadCount = classifiedLeads.length;
-  const highIntentCount = classifiedLeads.filter((lead) => lead.label === "HIGH").length;
+  const highIntentCount = classifiedLeads.filter((lead) => lead.score >= 80).length;
   const historicalSummary = useMemo(
     () => summarizeHistoricalCampaignLeads(classifiedLeads),
     [classifiedLeads],

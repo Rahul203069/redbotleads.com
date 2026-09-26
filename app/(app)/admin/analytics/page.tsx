@@ -36,7 +36,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { getSaasConfig } from "@/lib/saas-config";
 
-const STRONG_LEAD_SCORE = 75;
+const STRONG_LEAD_SCORE = 80;
 const DAILY_REDDIT_ITEM_EMBEDDING_OPERATION = "daily_reddit_item_embedding";
 const SUBREDDIT_SET_BADGE_STYLES = [
   {

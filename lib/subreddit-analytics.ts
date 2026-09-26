@@ -70,7 +70,7 @@ export function buildSubredditRows(
 
     row.totalLeads += 1;
     row.scoreTotal += lead.score;
-    const strong = lead.score >= 75;
+    const strong = lead.score >= 80;
     row.highLeads += strong ? 1 : 0;
     row.medLeads += !strong && lead.label === "MED" ? 1 : 0;
     row.lowLeads += lead.label === "LOW" ? 1 : 0;

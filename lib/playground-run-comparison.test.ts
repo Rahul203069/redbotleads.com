@@ -80,22 +80,22 @@ test("calculates pairwise percentages and zero denominators", () => {
 
 test("ranks runs by strong leads, then qualified count, then average qualified score", () => {
   const analysis = analyzePlaygroundRunComparison([
-    { id: "more-qualified", results: [result("a1", 74, "MED"), result("a2", 74, "MED")] },
-    { id: "strong", results: [result("b1", 75, "MED")] },
+    { id: "more-qualified", results: [result("a1", 79, "MED"), result("a2", 79, "MED")] },
+    { id: "strong", results: [result("b1", 80, "HIGH")] },
     { id: "also-strong", results: [result("c1", 90, "HIGH")] },
   ]);
 
   assert.deepEqual(analysis.winnerRunIds, ["also-strong"]);
 });
 
-test("counts scores of 75 or higher as strong regardless of the stored AI label", () => {
+test("counts scores of 80 or higher as strong regardless of the stored AI label", () => {
   const analysis = analyzePlaygroundRunComparison([
-    { id: "boundary", results: [result("below-75", 74, "HIGH"), result("at-75", 75, "MED")] },
+    { id: "boundary", results: [result("below-80", 79, "HIGH"), result("at-80", 80, "MED")] },
   ]);
 
   assert.equal(analysis.runMetrics[0]?.strongLeads, 1);
-  assert.deepEqual(analysis.memberships.find((item) => item.redditItemId === "below-75")?.strongRunIds, []);
-  assert.deepEqual(analysis.memberships.find((item) => item.redditItemId === "at-75")?.strongRunIds, ["boundary"]);
+  assert.deepEqual(analysis.memberships.find((item) => item.redditItemId === "below-80")?.strongRunIds, []);
+  assert.deepEqual(analysis.memberships.find((item) => item.redditItemId === "at-80")?.strongRunIds, ["boundary"]);
 });
 
 test("returns every run when the strong-first metrics are tied", () => {

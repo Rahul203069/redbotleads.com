@@ -1,5 +1,5 @@
 export const PLAYGROUND_QUALIFIED_LEAD_MIN_SCORE = 50;
-export const PLAYGROUND_STRONG_LEAD_SCORE = 75;
+export const PLAYGROUND_STRONG_LEAD_SCORE = 80;
 
 export type PlaygroundComparisonResultInput = {
   bestScore: number;

@@ -25,7 +25,7 @@ type SearchParams = {
 
 const MAX_DISPLAYED_RESULTS = 250;
 const PLAYGROUND_TOTAL_LEAD_SCORE = 50;
-const PLAYGROUND_STRONG_LEAD_SCORE = 75;
+const PLAYGROUND_STRONG_LEAD_SCORE = 80;
 
 type PlaygroundRunLeadMetrics = {
   strongLeads: number;

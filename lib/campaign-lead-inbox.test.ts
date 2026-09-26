@@ -43,9 +43,9 @@ test("formats zero, singular, and multiple live strong-match counts", () => {
 
 test("summarizes only total leads and strong historical matches", () => {
   const summary = summarizeHistoricalCampaignLeads([
-    { label: "HIGH" },
-    { label: "MED" },
-    { label: "HIGH" },
+    { score: 80 },
+    { score: 79 },
+    { score: 95 },
   ]);
 
   assert.deepEqual(summary, {

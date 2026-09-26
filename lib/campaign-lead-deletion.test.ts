@@ -15,7 +15,7 @@ test("recalculates daily semantic counts while preserving unrelated run stats", 
         matchedPosts: 99,
       },
       leads: [
-        { ai: { id: "ai-1" }, score: 75 },
+        { ai: { id: "ai-1" }, score: 80 },
         { ai: { id: "ai-2" }, score: 60 },
         { ai: null, score: 0 },
       ],

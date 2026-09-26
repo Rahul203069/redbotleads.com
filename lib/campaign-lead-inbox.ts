@@ -67,11 +67,11 @@ export function countCampaignLeadStatuses(
 }
 
 export function summarizeHistoricalCampaignLeads(
-  leads: Array<{ label: string }>,
+  leads: Array<{ score: number }>,
 ): CampaignHistoricalLeadSummary {
   return {
     leadCount: leads.length,
-    strongMatchCount: leads.filter((lead) => lead.label === "HIGH").length,
+    strongMatchCount: leads.filter((lead) => lead.score >= 80).length,
   };
 }
 

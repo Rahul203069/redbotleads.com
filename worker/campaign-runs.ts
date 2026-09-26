@@ -137,8 +137,8 @@ export async function refreshDailySemanticCampaignRunStats(campaignRunId: string
     scannedPosts: matchedScans + noMatchScans,
     totalLeadsFound: matchedScans,
     classifiedLeads: classifiedLeads.length,
-    strongLeads: classifiedLeads.filter((lead) => lead.score >= 75).length,
-    notStrongLeads: classifiedLeads.filter((lead) => lead.score < 75).length,
+    strongLeads: classifiedLeads.filter((lead) => lead.score >= 80).length,
+    notStrongLeads: classifiedLeads.filter((lead) => lead.score < 80).length,
     pendingClassifications: leads.length - classifiedLeads.length,
   };
 

@@ -25,7 +25,7 @@ import {
 } from "@/lib/time-zone";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
-const STRONG_LEAD_SCORE = 75;
+const STRONG_LEAD_SCORE = 80;
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const DASHBOARD_TREND_DAYS = 14;
 

@@ -5,7 +5,7 @@ import type { CampaignLeadStatus } from "@/lib/campaign-lead-status";
 import { prisma } from "@/lib/prisma";
 
 export const LIVE_MIN_VISIBLE_LEAD_SCORE = 40;
-export const LIVE_HIGH_INTENT_SCORE = 75;
+export const LIVE_HIGH_INTENT_SCORE = 80;
 export const LIVE_PAGE_SIZE = 50;
 
 export type LiveLeadFilter = "ALL" | "UNREVIEWED" | CampaignLeadStatus;

@@ -194,8 +194,8 @@ export default async function CampaignsPage() {
                   leadType: campaign.leadType,
                   isActive: campaign.isActive,
                   description: campaign.description,
-                  strongLeads: classifiedLeads.filter((lead) => lead.score >= 75).length,
-                  partialLeads: classifiedLeads.filter((lead) => lead.score < 75).length,
+                  strongLeads: classifiedLeads.filter((lead) => lead.score >= 80).length,
+                  partialLeads: classifiedLeads.filter((lead) => lead.score < 80).length,
                   sync: getCampaignListSync(campaign.sync, campaign.runs[0] ?? null),
                 };
               })}

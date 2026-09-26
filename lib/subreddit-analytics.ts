@@ -70,8 +70,9 @@ export function buildSubredditRows(
 
     row.totalLeads += 1;
     row.scoreTotal += lead.score;
-    row.highLeads += lead.label === "HIGH" ? 1 : 0;
-    row.medLeads += lead.label === "MED" ? 1 : 0;
+    const strong = lead.score >= 75;
+    row.highLeads += strong ? 1 : 0;
+    row.medLeads += !strong && lead.label === "MED" ? 1 : 0;
     row.lowLeads += lead.label === "LOW" ? 1 : 0;
     row.latestLeadAt =
       !row.latestLeadAt || lead.createdAt.getTime() > row.latestLeadAt.getTime()

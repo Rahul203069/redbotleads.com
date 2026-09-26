@@ -63,7 +63,7 @@ export default async function AdminDailyLeadsPage({
       page: analytics.pagination.page,
       pageSize: DAILY_LEADS_PAGE_SIZE,
       semanticStatus,
-      strongScore: `> ${DAILY_STRONG_LEAD_SCORE}`,
+      strongScore: `>= ${DAILY_STRONG_LEAD_SCORE}`,
     },
     metrics: analytics.metrics,
     cronRuns: analytics.cronRuns.map((run) => ({

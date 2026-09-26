@@ -1,4 +1,5 @@
 export const PLAYGROUND_QUALIFIED_LEAD_MIN_SCORE = 50;
+export const PLAYGROUND_STRONG_LEAD_SCORE = 75;
 
 export type PlaygroundComparisonResultInput = {
   bestScore: number;
@@ -94,7 +95,7 @@ export function analyzePlaygroundRunComparison(
       qualified.add(result.redditItemId);
       qualifiedScoreTotal += result.score;
 
-      if (result.label === "HIGH") {
+      if (result.score >= PLAYGROUND_STRONG_LEAD_SCORE) {
         strong.add(result.redditItemId);
       }
     }

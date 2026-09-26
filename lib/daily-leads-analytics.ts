@@ -394,7 +394,7 @@ export async function getDailyLeadAnalytics({
     );
     const classificationFailed = lead?.ai?.model === CLASSIFICATION_ERROR_MODEL;
     const classified = Boolean(lead?.ai && !classificationFailed);
-    const strong = classified && (lead?.score ?? 0) > DAILY_STRONG_LEAD_SCORE;
+    const strong = classified && (lead?.score ?? 0) >= DAILY_STRONG_LEAD_SCORE;
 
     return {
       id: scan.id,
@@ -480,8 +480,8 @@ export async function getDailyLeadAnalytics({
       totalLeadsFound: totalSemanticMatches,
       classifiedLeads: classifiedMetricRows.length,
       classificationFailedLeads: failedMetricRows.length,
-      strongLeads: classifiedMetricRows.filter((row) => row.score > DAILY_STRONG_LEAD_SCORE).length,
-      notStrongLeads: classifiedMetricRows.filter((row) => row.score <= DAILY_STRONG_LEAD_SCORE).length,
+      strongLeads: classifiedMetricRows.filter((row) => row.score >= DAILY_STRONG_LEAD_SCORE).length,
+      notStrongLeads: classifiedMetricRows.filter((row) => row.score < DAILY_STRONG_LEAD_SCORE).length,
       pendingClassifications: matchedMetricRows.filter((row) => !row.classified && !row.classificationFailed).length,
       notificationsSent: matchedMetricRows.reduce(
         (count, row) => count + row.notificationStatuses.filter((status) => status === "SENT").length,
@@ -570,7 +570,7 @@ function buildDailyLeadTrendRows({
       if (classificationFailed) {
         bucket.classificationFailures += 1;
       } else if (classified && lead) {
-        if (lead.score > DAILY_STRONG_LEAD_SCORE) {
+        if (lead.score >= DAILY_STRONG_LEAD_SCORE) {
           bucket.strongLeads += 1;
         } else {
           bucket.notStrongLeads += 1;

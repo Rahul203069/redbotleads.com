@@ -713,7 +713,7 @@ function buildAnalyticsHref({
 }
 
 function isStrongClassifiedLead(lead: { ai: { model: string | null } | null; label: string; score: number }) {
-  return Boolean(lead.ai && lead.ai.model !== "semantic-threshold-filter" && lead.score > STRONG_LEAD_SCORE);
+  return Boolean(lead.ai && lead.ai.model !== "semantic-threshold-filter" && lead.score >= STRONG_LEAD_SCORE);
 }
 
 function formatCurrency(value: number) {

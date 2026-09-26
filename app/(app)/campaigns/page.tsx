@@ -73,6 +73,7 @@ export default async function CampaignsPage() {
       leads: {
         select: {
           label: true,
+          score: true,
           ai: {
             select: {
               leadId: true,
@@ -193,8 +194,8 @@ export default async function CampaignsPage() {
                   leadType: campaign.leadType,
                   isActive: campaign.isActive,
                   description: campaign.description,
-                  strongLeads: classifiedLeads.filter((lead) => lead.label === "HIGH").length,
-                  partialLeads: classifiedLeads.filter((lead) => lead.label !== "HIGH").length,
+                  strongLeads: classifiedLeads.filter((lead) => lead.score >= 75).length,
+                  partialLeads: classifiedLeads.filter((lead) => lead.score < 75).length,
                   sync: getCampaignListSync(campaign.sync, campaign.runs[0] ?? null),
                 };
               })}

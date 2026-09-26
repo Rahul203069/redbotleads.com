@@ -25,7 +25,7 @@ type SearchParams = {
 
 const MAX_DISPLAYED_RESULTS = 250;
 const PLAYGROUND_TOTAL_LEAD_SCORE = 50;
-const PLAYGROUND_STRONG_LEAD_LABEL = "HIGH";
+const PLAYGROUND_STRONG_LEAD_SCORE = 75;
 
 type PlaygroundRunLeadMetrics = {
   strongLeads: number;
@@ -235,12 +235,11 @@ export default async function AdminSemanticPlaygroundPage({
           by: ["runId"],
           where: {
             classificationStatus: "CLASSIFIED",
-            label: PLAYGROUND_STRONG_LEAD_LABEL,
             runId: {
               in: runIdsForLeadMetrics,
             },
             score: {
-              gte: PLAYGROUND_TOTAL_LEAD_SCORE,
+              gte: PLAYGROUND_STRONG_LEAD_SCORE,
             },
           },
           _count: {

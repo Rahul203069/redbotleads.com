@@ -62,7 +62,7 @@ export function WorkspaceLeadsTrendChart({
           value={scanSummary.value}
         />
         <TrendMetric detail="Matched in 14 days" label="Leads found" value={totals.totalLeads} tone="blue" />
-        <TrendMetric detail="Score above 75" label="Strong leads" value={totals.strongLeads} tone="green" />
+        <TrendMetric detail="Score 75 or higher" label="Strong leads" value={totals.strongLeads} tone="green" />
         <TrendMetric detail="Of all leads found" label="Strong lead rate" suffix="%" value={strongLeadRate} tone="green" />
       </div>
 

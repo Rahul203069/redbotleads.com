@@ -100,7 +100,7 @@ export default async function AppHomePage() {
           where: {
             campaignId: campaign.id,
             score: {
-              gt: STRONG_LEAD_SCORE,
+              gte: STRONG_LEAD_SCORE,
             },
             ai: {
               isNot: null,
@@ -168,7 +168,7 @@ export default async function AppHomePage() {
 
   const visibleLeads = campaign?.leads.filter((lead) => lead.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE).length ?? 0;
   const newStrongLeads = campaign?.leads.filter(
-    (lead) => lead.ai && lead.score > STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
+    (lead) => lead.ai && lead.score >= STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
   ).length ?? 0;
   const nextSyncAt = campaign ? getNextSemanticScanAt(now) : null;
   const campaignStatus = campaign?.sync?.status ?? (campaign ? "IDLE" : "NONE");
@@ -348,7 +348,7 @@ async function AdminWorkspaceDashboard({
     prisma.lead.findMany({
       where: {
         campaign: accessibleCampaignWhere,
-        score: { gt: STRONG_LEAD_SCORE },
+        score: { gte: STRONG_LEAD_SCORE },
         ai: { isNot: null },
       },
       select: {
@@ -392,7 +392,7 @@ async function AdminWorkspaceDashboard({
     (count, campaign) =>
       count +
       campaign.leads.filter(
-        (lead) => lead.ai && lead.score > STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
+        (lead) => lead.ai && lead.score >= STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
       ).length,
     0,
   );
@@ -417,7 +417,7 @@ async function AdminWorkspaceDashboard({
       return {
         id: campaign.id,
         name: getCampaignDisplayName(campaign, access),
-        strongLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score > STRONG_LEAD_SCORE).length,
+        strongLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score >= STRONG_LEAD_SCORE).length,
         visibleLeadCount: campaign.leads.filter((lead) => lead.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE).length,
       };
     })
@@ -718,7 +718,7 @@ function buildWorkspaceLeadsTrendRows({
       if (lead?.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE) {
         row.totalLeads += 1;
 
-        if (lead.score > STRONG_LEAD_SCORE) {
+        if (lead.score >= STRONG_LEAD_SCORE) {
           row.strongLeads += 1;
         }
       }

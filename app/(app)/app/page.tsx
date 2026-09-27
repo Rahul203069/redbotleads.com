@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
+import { Prisma } from "@/generated/prisma/client";
 import { WorkspaceLeadsTrendChart, type WorkspaceLeadsTrendRow } from "@/components/campaigns/workspace-leads-trend-chart";
 import { auth } from "@/lib/auth";
 import { canViewAnalytics } from "@/lib/beta-access";
@@ -77,24 +78,14 @@ export default async function AppHomePage() {
           updatedAt: true,
         },
       },
-      leads: {
-        select: {
-          score: true,
-          createdAt: true,
-          ai: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      },
     },
     orderBy: {
       updatedAt: "desc",
     },
   });
 
-  const [recentStrongLeads, trendScans, completedSemanticRuns] = campaign
+  const trendUntil = new Date(now.valueOf() + 60 * 1000);
+  const [recentStrongLeads, trendAggregates, completedSemanticRuns, leadCounts] = campaign
     ? await Promise.all([
         prisma.lead.findMany({
           where: {
@@ -128,27 +119,19 @@ export default async function AppHomePage() {
           },
           take: 4,
         }),
-        prisma.campaignDailySemanticScan.findMany({
-          where: {
-            campaignId: campaign.id,
-            updatedAt: {
-              gte: trendFrom,
-              lt: new Date(now.valueOf() + 60 * 1000),
-            },
-          },
-          select: {
-            campaignId: true,
-            redditItemId: true,
-            status: true,
-            updatedAt: true,
-          },
-          orderBy: {
-            updatedAt: "asc",
-          },
+        getCampaignTrendAggregates({
+          campaignId: campaign.id,
+          from: trendFrom,
+          timeZone: browserTimeZone,
+          to: trendUntil,
         }),
         prisma.campaignRun.findMany({
           where: {
             campaignId: campaign.id,
+            createdAt: {
+              gte: trendFrom,
+              lt: trendUntil,
+            },
             status: "COMPLETED",
             trigger: {
               in: ["DAILY_SEMANTIC", "HOURLY_SEMANTIC"],
@@ -163,50 +146,27 @@ export default async function AppHomePage() {
             createdAt: "asc",
           },
         }),
+        getCampaignLeadCounts({
+          campaignId: campaign.id,
+          dayAgo,
+        }),
       ])
-    : [[], [], []];
+    : [[], [], [], { newStrongLeads: 0, visibleLeads: 0 }];
 
-  const visibleLeads = campaign?.leads.filter((lead) => lead.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE).length ?? 0;
-  const newStrongLeads = campaign?.leads.filter(
-    (lead) => lead.ai && lead.score >= STRONG_LEAD_SCORE && lead.createdAt.getTime() >= dayAgo.getTime(),
-  ).length ?? 0;
+  const visibleLeads = leadCounts.visibleLeads;
+  const newStrongLeads = leadCounts.newStrongLeads;
   const nextSyncAt = campaign ? getNextSemanticScanAt(now) : null;
   const campaignStatus = campaign?.sync?.status ?? (campaign ? "IDLE" : "NONE");
 
-  const matchedTrendPairs = trendScans
-    .filter((scan) => scan.status === "MATCHED")
-    .map((scan) => ({
-      campaignId: scan.campaignId,
-      redditItemId: scan.redditItemId,
-    }));
-  const trendLeads = matchedTrendPairs.length === 0
-    ? []
-    : await prisma.lead.findMany({
-        where: {
-          campaignId: campaign?.id,
-          OR: matchedTrendPairs,
-        },
-        select: {
-          ai: {
-            select: {
-              id: true,
-            },
-          },
-          campaignId: true,
-          redditItemId: true,
-          score: true,
-        },
-      });
+  const retainedScanCount = trendAggregates.reduce((sum, row) => sum + row.scanned, 0);
   const scanSummary = buildCampaignScanSummary({
     completedRuns: completedSemanticRuns,
-    retainedScanCount: trendScans.length,
+    retainedScanCount,
   });
   const trendRows = buildWorkspaceLeadsTrendRows({
-    leadByPair: new Map(trendLeads.map((lead) => [buildTrendPairKey(lead.campaignId, lead.redditItemId), lead])),
+    aggregates: trendAggregates,
     scannedByDay: buildRecordedScansByDay(completedSemanticRuns, browserTimeZone),
-    scans: trendScans,
     startDateKey: trendStartKey,
-    timeZone: browserTimeZone,
   });
 
   return (
@@ -654,30 +614,104 @@ function formatStatus(value: string) {
   return value.toLowerCase().replace(/_/g, " ");
 }
 
-function buildWorkspaceLeadsTrendRows({
-  leadByPair,
-  scannedByDay,
-  scans,
-  startDateKey,
-  timeZone,
+type CampaignTrendAggregate = {
+  day: string;
+  scanned: number;
+  strongLeads: number;
+  totalLeads: number;
+};
+
+async function getCampaignLeadCounts({
+  campaignId,
+  dayAgo,
 }: {
-  leadByPair: Map<string, {
-    ai: {
-      id: string;
-    } | null;
-    campaignId: string;
-    redditItemId: string;
-    score: number;
-  }>;
-  scannedByDay: Map<string, number>;
-  scans: Array<{
-    campaignId: string;
-    redditItemId: string;
-    status: "MATCHED" | "NO_MATCH";
-    updatedAt: Date;
-  }>;
-  startDateKey: string;
+  campaignId: string;
+  dayAgo: Date;
+}) {
+  const [counts] = await prisma.$queryRaw<Array<{
+    newStrongLeads: number;
+    visibleLeads: number;
+  }>>(
+    Prisma.sql`
+      SELECT
+        COUNT(*) FILTER (
+          WHERE "lead"."score" >= ${MIN_VISIBLE_LEAD_SCORE}
+            AND "ai"."leadId" IS NOT NULL
+        )::int AS "visibleLeads",
+        COUNT(*) FILTER (
+          WHERE "lead"."score" >= ${STRONG_LEAD_SCORE}
+            AND "lead"."createdAt" >= ${dayAgo}
+            AND "ai"."leadId" IS NOT NULL
+        )::int AS "newStrongLeads"
+      FROM "Lead" "lead"
+      LEFT JOIN "LeadAI" "ai"
+        ON "ai"."leadId" = "lead"."id"
+      WHERE "lead"."campaignId" = ${campaignId}
+    `,
+  );
+
+  return counts ?? { newStrongLeads: 0, visibleLeads: 0 };
+}
+
+async function getCampaignTrendAggregates({
+  campaignId,
+  from,
+  timeZone,
+  to,
+}: {
+  campaignId: string;
+  from: Date;
   timeZone: string;
+  to: Date;
+}) {
+  return prisma.$queryRaw<CampaignTrendAggregate[]>(
+    Prisma.sql`
+      WITH "classifiedLeads" AS (
+        SELECT
+          "lead"."campaignId" AS "campaignId",
+          "lead"."redditItemId" AS "redditItemId",
+          MAX("lead"."score") AS "score"
+        FROM "Lead" "lead"
+        INNER JOIN "LeadAI" "ai"
+          ON "ai"."leadId" = "lead"."id"
+        WHERE "lead"."campaignId" = ${campaignId}
+        GROUP BY "lead"."campaignId", "lead"."redditItemId"
+      )
+      SELECT
+        TO_CHAR(
+          ("scan"."updatedAt" AT TIME ZONE 'UTC') AT TIME ZONE ${timeZone},
+          'YYYY-MM-DD'
+        ) AS "day",
+        COUNT(*)::int AS "scanned",
+        COUNT(*) FILTER (
+          WHERE "scan"."status" = 'MATCHED'
+            AND "lead"."score" >= ${MIN_VISIBLE_LEAD_SCORE}
+        )::int AS "totalLeads",
+        COUNT(*) FILTER (
+          WHERE "scan"."status" = 'MATCHED'
+            AND "lead"."score" >= ${STRONG_LEAD_SCORE}
+        )::int AS "strongLeads"
+      FROM "CampaignDailySemanticScan" "scan"
+      LEFT JOIN "classifiedLeads" "lead"
+        ON "lead"."campaignId" = "scan"."campaignId"
+       AND "lead"."redditItemId" = "scan"."redditItemId"
+      WHERE "scan"."campaignId" = ${campaignId}
+        AND "scan"."updatedAt" >= ${from}
+        AND "scan"."updatedAt" < ${to}
+      GROUP BY "day"
+      ORDER BY "day" ASC
+    `,
+  );
+}
+
+function buildWorkspaceLeadsTrendRows({
+  aggregates,
+  scannedByDay,
+  startDateKey,
+}: {
+  aggregates: CampaignTrendAggregate[];
+  scannedByDay: Map<string, number>;
+  startDateKey: string;
 }) {
   const rows = new Map<string, WorkspaceLeadsTrendRow>();
 
@@ -700,29 +734,19 @@ function buildWorkspaceLeadsTrendRows({
     }
   }
 
-  for (const scan of scans) {
-    const key = getDateKeyInTimeZone(scan.updatedAt, timeZone);
-    const row = rows.get(key);
+  for (const aggregate of aggregates) {
+    const row = rows.get(aggregate.day);
 
     if (!row) {
       continue;
     }
 
-    if (!scannedByDay.has(key)) {
-      row.scanned += 1;
+    if (!scannedByDay.has(aggregate.day)) {
+      row.scanned += aggregate.scanned;
     }
 
-    if (scan.status === "MATCHED") {
-      const lead = leadByPair.get(buildTrendPairKey(scan.campaignId, scan.redditItemId));
-
-      if (lead?.ai && lead.score >= MIN_VISIBLE_LEAD_SCORE) {
-        row.totalLeads += 1;
-
-        if (lead.score >= STRONG_LEAD_SCORE) {
-          row.strongLeads += 1;
-        }
-      }
-    }
+    row.totalLeads += aggregate.totalLeads;
+    row.strongLeads += aggregate.strongLeads;
   }
 
   return Array.from(rows.values());
@@ -805,10 +829,6 @@ function getRecordedScannedPosts(statsJson: unknown) {
   }
 
   return Math.round(scannedPosts);
-}
-
-function buildTrendPairKey(campaignId: string, redditItemId: string) {
-  return `${campaignId}:${redditItemId}`;
 }
 
 function formatTrendLabel(day: string) {

@@ -69,15 +69,6 @@ export default async function AppHomePage() {
       description: true,
       isActive: true,
       updatedAt: true,
-      sync: {
-        select: {
-          status: true,
-          completedAt: true,
-          failedAt: true,
-          lastHeartbeat: true,
-          updatedAt: true,
-        },
-      },
     },
     orderBy: {
       updatedAt: "desc",
@@ -156,7 +147,6 @@ export default async function AppHomePage() {
   const visibleLeads = leadCounts.visibleLeads;
   const newStrongLeads = leadCounts.newStrongLeads;
   const nextSyncAt = campaign ? getNextSemanticScanAt(now) : null;
-  const campaignStatus = campaign?.sync?.status ?? (campaign ? "IDLE" : "NONE");
 
   const retainedScanCount = trendAggregates.reduce((sum, row) => sum + row.scanned, 0);
   const scanSummary = buildCampaignScanSummary({
@@ -191,7 +181,7 @@ export default async function AppHomePage() {
       </section>
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Campaign status" value={campaign ? formatStatus(campaign.isActive ? campaignStatus : "PAUSED") : "None"} />
+        <StatCard label="Campaign monitoring" value={campaign ? (campaign.isActive ? "Active" : "Paused") : "None"} />
         <StatCard label={`Next scan · ${SEMANTIC_SCAN_SCHEDULE_LABEL}`} value={campaign?.isActive && nextSyncAt ? formatDate(nextSyncAt, browserTimeZone) : "Paused"} />
         <StatCard label="Total leads" value={String(visibleLeads).padStart(2, "0")} />
         <StatCard label="New strong leads" value={String(newStrongLeads).padStart(2, "0")} />
@@ -608,10 +598,6 @@ function formatDate(value: Date, timeZone?: string) {
     hour: "numeric",
     minute: "2-digit",
   }).format(value);
-}
-
-function formatStatus(value: string) {
-  return value.toLowerCase().replace(/_/g, " ");
 }
 
 type CampaignTrendAggregate = {

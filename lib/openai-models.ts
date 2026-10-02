@@ -48,7 +48,7 @@ export const LEAD_SCORING_MODEL_OPTIONS: LeadScoringModelOption[] = [
   },
 ];
 
-export const DEFAULT_LEAD_SCORING_MODEL: LeadScoringModelId = "gpt-6-luna";
+export const DEFAULT_LEAD_SCORING_MODEL: LeadScoringModelId = "gpt-5-mini";
 
 const leadScoringModelIds = new Set(LEAD_SCORING_MODEL_OPTIONS.map((model) => model.id));
 

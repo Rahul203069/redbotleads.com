@@ -44,6 +44,7 @@ import { prisma } from "@/lib/prisma";
 import { getPublicShareViewStats } from "@/lib/public-share-analytics";
 import { getSaasConfig } from "@/lib/saas-config";
 import {
+  addDaysToDateKey,
   BROWSER_TIME_ZONE_COOKIE,
   formatDateInTimeZone,
   formatDateTimeInTimeZone,
@@ -54,6 +55,7 @@ import {
 import { reconcileCampaignSyncState } from "@/worker/sync-reconcile";
 
 const MIN_VISIBLE_LEAD_SCORE = 40;
+const STRONG_LEAD_SCORE = 80;
 
 type SearchParams = {
   date?: string | string[];
@@ -82,7 +84,9 @@ export default async function CampaignDetailPage({
   const browserTimeZone = normalizeTimeZone(cookieStore.get(BROWSER_TIME_ZONE_COOKIE)?.value);
   const { id } = await params;
   const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
-  const todayRange = getDayRangeInTimeZone(getDateKeyInTimeZone(new Date(), browserTimeZone), browserTimeZone);
+  const todayKey = getDateKeyInTimeZone(new Date(), browserTimeZone);
+  const todayRange = getDayRangeInTimeZone(todayKey, browserTimeZone);
+  const yesterdayRange = getDayRangeInTimeZone(addDaysToDateKey(todayKey, -1), browserTimeZone);
   const leadDateSelection = getDailyLeadDateSelection(
     resolvedSearchParams.date || resolvedSearchParams.range || resolvedSearchParams.from || resolvedSearchParams.to
       ? resolvedSearchParams
@@ -266,6 +270,14 @@ export default async function CampaignDetailPage({
     ?? initialDiagnostics?.run.queuedAt
     ?? campaign.createdAt.toISOString();
   const classifiedLeads = initialLeads.filter((lead) => lead.ai !== null && lead.score >= MIN_VISIBLE_LEAD_SCORE);
+  const yesterdayStrongLeadCount = isAdminAccount
+    ? undefined
+    : campaign.leads.filter((lead) =>
+        lead.ai !== null
+        && lead.score >= STRONG_LEAD_SCORE
+        && lead.createdAt >= yesterdayRange.from
+        && lead.createdAt < yesterdayRange.to,
+      ).length;
   const canExportLeads = isAdminAccount || canManage;
   const leadDateLabel = getLeadDateSelectionLabel(leadDateSelection, browserTimeZone);
 
@@ -403,7 +415,11 @@ export default async function CampaignDetailPage({
               ) : null}
             </div>
             <div className="w-full">
-              <DailyLeadsDateFilter defaultRange="today" enableMultipleDates />
+              <DailyLeadsDateFilter
+                defaultRange="today"
+                enableMultipleDates
+                yesterdayStrongLeadCount={yesterdayStrongLeadCount}
+              />
             </div>
           </div>
         </div>

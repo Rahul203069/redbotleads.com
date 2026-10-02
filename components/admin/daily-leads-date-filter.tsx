@@ -13,9 +13,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 export function DailyLeadsDateFilter({
   defaultRange = "today",
   enableMultipleDates = false,
+  yesterdayStrongLeadCount,
 }: {
   defaultRange?: "all" | "last7" | "today";
   enableMultipleDates?: boolean;
+  yesterdayStrongLeadCount?: number;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -56,15 +58,21 @@ export function DailyLeadsDateFilter({
     return {};
   }, [defaultRange, enableMultipleDates, isAllTime, searchParams, selectedDateStarts]);
   const todayValue = useMemo(() => getTodayInputValue(), []);
+  const yesterdayValue = useMemo(() => getRelativeDateInputValue(-1), []);
   const [dateValue, setDateValue] = useState(initialDate);
   const [selectedDateRange, setSelectedDateRange] = useState<DateRangeInputValue>(initialDateRangeValue);
-  const [pendingRange, setPendingRange] = useState<"all" | "day" | "range" | "today" | null>(null);
+  const [pendingRange, setPendingRange] = useState<"all" | "day" | "range" | "today" | "yesterday" | null>(null);
   const isToday = enableMultipleDates
     ? !isAllTime
       && selectedDateRange.from === todayValue
       && (selectedDateRange.to ?? selectedDateRange.from) === todayValue
     : !isAllTime && getDateInputValue(searchParams.get("from")) === todayValue;
-  const activeRange = pendingRange ?? (isAllTime ? "all" : isToday ? "today" : hasSelectedDates || hasSelectedRange ? "range" : "day");
+  const isYesterday = enableMultipleDates
+    ? !isAllTime
+      && selectedDateRange.from === yesterdayValue
+      && (selectedDateRange.to ?? selectedDateRange.from) === yesterdayValue
+    : !isAllTime && getDateInputValue(searchParams.get("from")) === yesterdayValue;
+  const activeRange = pendingRange ?? (isAllTime ? "all" : isToday ? "today" : isYesterday ? "yesterday" : hasSelectedDates || hasSelectedRange ? "range" : "day");
   const isNavigating = isPending || isLeadFilterLoading;
 
   useEffect(() => {
@@ -147,6 +155,22 @@ export function DailyLeadsDateFilter({
     });
   }
 
+  function handleYesterday() {
+    const range = getLocalDayRange(yesterdayValue);
+    const href = buildHref(pathname, searchParams, range);
+
+    if (isCurrentHref(pathname, searchParams, href)) {
+      return;
+    }
+
+    setPendingRange("yesterday");
+    setSelectedDateRange({ from: yesterdayValue, to: yesterdayValue });
+    startLeadFilterLoading(getLeadDateFilterKey(range));
+    startTransition(() => {
+      router.push(href);
+    });
+  }
+
   function handleAllTime() {
     const href = buildAllTimeHref(pathname, searchParams);
 
@@ -188,27 +212,47 @@ export function DailyLeadsDateFilter({
 
   return (
     <div aria-busy={isNavigating} className="flex w-full flex-col gap-4 border-t border-white/8 pt-5 sm:flex-row sm:items-center sm:justify-between">
-      <div className="inline-flex w-fit rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-        <button className={getQuickButtonClass(activeRange === "today", isNavigating && pendingRange === "today")} onClick={handleToday} type="button">
-          {isNavigating && pendingRange === "today" ? (
-            <>
-              <LoadingDot />
-              Today
-            </>
-          ) : (
-            "Today"
-          )}
-        </button>
-        <button className={getQuickButtonClass(activeRange === "all", isNavigating && pendingRange === "all")} onClick={handleAllTime} type="button">
-          {isNavigating && pendingRange === "all" ? (
-            <>
-              <LoadingDot />
-              All time
-            </>
-          ) : (
-            "All time"
-          )}
-        </button>
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+        <div className="inline-flex w-fit rounded-full bg-[#121212] p-1 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
+          <button className={getQuickButtonClass(activeRange === "today", isNavigating && pendingRange === "today")} onClick={handleToday} type="button">
+            {isNavigating && pendingRange === "today" ? (
+              <>
+                <LoadingDot />
+                Today
+              </>
+            ) : (
+              "Today"
+            )}
+          </button>
+          <button className={getQuickButtonClass(activeRange === "all", isNavigating && pendingRange === "all")} onClick={handleAllTime} type="button">
+            {isNavigating && pendingRange === "all" ? (
+              <>
+                <LoadingDot />
+                All time
+              </>
+            ) : (
+              "All time"
+            )}
+          </button>
+        </div>
+        {yesterdayStrongLeadCount !== undefined ? (
+          <button
+            aria-current={activeRange === "yesterday" ? "date" : undefined}
+            className={[
+              "inline-flex min-h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff] sm:w-auto",
+              activeRange === "yesterday"
+                ? "border-[#1ed760]/40 bg-[#173923] text-[#73f5a0]"
+                : "border-white/10 bg-[#1f1f1f] text-[#ffffff] hover:bg-[#292929]",
+            ].join(" ")}
+            disabled={isNavigating && pendingRange === "yesterday"}
+            onClick={handleYesterday}
+            type="button"
+          >
+            <CalendarDays aria-hidden="true" className="h-4 w-4 shrink-0" />
+            <span className="text-left">{activeRange === "yesterday" ? "Viewing yesterday’s leads" : "View yesterday’s leads"}</span>
+            <span className="shrink-0 rounded-full bg-[#121212] px-2 py-1 text-[10px] text-[#73f5a0]">{yesterdayStrongLeadCount} strong</span>
+          </button>
+        ) : null}
       </div>
 
       {enableMultipleDates ? (
@@ -567,6 +611,12 @@ function getExclusiveToDateInputValue(value: string | null) {
 
 function getTodayInputValue() {
   return formatDateInput(new Date());
+}
+
+function getRelativeDateInputValue(dayDelta: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + dayDelta);
+  return formatDateInput(date);
 }
 
 function getTodayDate() {

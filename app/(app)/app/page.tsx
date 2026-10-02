@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { CalendarDays } from "lucide-react";
 
 import { Prisma } from "@/generated/prisma/client";
 import { WorkspaceLeadsTrendChart, type WorkspaceLeadsTrendRow } from "@/components/campaigns/workspace-leads-trend-chart";
@@ -55,7 +54,6 @@ export default async function AppHomePage() {
   const now = new Date();
   const dayAgo = new Date(now.valueOf() - DAY_IN_MS);
   const todayKey = getDateKeyInTimeZone(now, browserTimeZone);
-  const yesterdayRange = getDayRangeInTimeZone(addDaysToDateKey(todayKey, -1), browserTimeZone);
   const trendStartKey = addDaysToDateKey(todayKey, -(DASHBOARD_TREND_DAYS - 1));
   const trendFrom = getDayRangeInTimeZone(trendStartKey, browserTimeZone).from;
 
@@ -151,22 +149,12 @@ export default async function AppHomePage() {
         getCampaignLeadCounts({
           campaignId: campaign.id,
           dayAgo,
-          yesterdayFrom: yesterdayRange.from,
-          yesterdayTo: yesterdayRange.to,
         }),
       ])
-    : [[], [], [], { newStrongLeads: 0, visibleLeads: 0, yesterdayVisibleLeads: 0 }];
+    : [[], [], [], { newStrongLeads: 0, visibleLeads: 0 }];
 
   const visibleLeads = leadCounts.visibleLeads;
   const newStrongLeads = leadCounts.newStrongLeads;
-  const yesterdayVisibleLeads = leadCounts.yesterdayVisibleLeads;
-  const yesterdayLeadsHref = campaign
-    ? buildCampaignDateHref({
-        campaignId: campaign.id,
-        from: yesterdayRange.from,
-        to: yesterdayRange.to,
-      })
-    : null;
   const nextSyncAt = campaign ? getNextSemanticScanAt(now) : null;
   const campaignStatus = campaign?.sync?.status ?? (campaign ? "IDLE" : "NONE");
 
@@ -198,12 +186,6 @@ export default async function AppHomePage() {
             <PrimaryLink href={campaign ? `/campaigns/${campaign.id}` : "/campaigns"}>
               {campaign ? "Open campaign" : "Create campaign"}
             </PrimaryLink>
-            {yesterdayLeadsHref ? (
-              <SecondaryLink href={yesterdayLeadsHref}>
-                <CalendarDays aria-hidden="true" className="h-4 w-4 shrink-0" />
-                View yesterday&apos;s leads ({yesterdayVisibleLeads})
-              </SecondaryLink>
-            ) : null}
           </div>
         </div>
       </section>
@@ -574,17 +556,6 @@ function PrimaryLink({ children, href }: { children: React.ReactNode; href: stri
   );
 }
 
-function SecondaryLink({ children, href }: { children: React.ReactNode; href: string }) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[#1f1f1f] px-5 text-center text-[12px] font-bold uppercase tracking-[0.14em] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset] transition-colors duration-200 hover:bg-[#292929] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffffff]"
-    >
-      {children}
-    </Link>
-  );
-}
-
 function MiniLink({ children, href }: { children: React.ReactNode; href: string }) {
   return (
     <Link
@@ -653,18 +624,13 @@ type CampaignTrendAggregate = {
 async function getCampaignLeadCounts({
   campaignId,
   dayAgo,
-  yesterdayFrom,
-  yesterdayTo,
 }: {
   campaignId: string;
   dayAgo: Date;
-  yesterdayFrom: Date;
-  yesterdayTo: Date;
 }) {
   const [counts] = await prisma.$queryRaw<Array<{
     newStrongLeads: number;
     visibleLeads: number;
-    yesterdayVisibleLeads: number;
   }>>(
     Prisma.sql`
       SELECT
@@ -676,13 +642,7 @@ async function getCampaignLeadCounts({
           WHERE "lead"."score" >= ${STRONG_LEAD_SCORE}
             AND "lead"."createdAt" >= ${dayAgo}
             AND "ai"."leadId" IS NOT NULL
-        )::int AS "newStrongLeads",
-        COUNT(*) FILTER (
-          WHERE "lead"."score" >= ${MIN_VISIBLE_LEAD_SCORE}
-            AND "lead"."createdAt" >= ${yesterdayFrom}
-            AND "lead"."createdAt" < ${yesterdayTo}
-            AND "ai"."leadId" IS NOT NULL
-        )::int AS "yesterdayVisibleLeads"
+        )::int AS "newStrongLeads"
       FROM "Lead" "lead"
       LEFT JOIN "LeadAI" "ai"
         ON "ai"."leadId" = "lead"."id"
@@ -690,24 +650,7 @@ async function getCampaignLeadCounts({
     `,
   );
 
-  return counts ?? { newStrongLeads: 0, visibleLeads: 0, yesterdayVisibleLeads: 0 };
-}
-
-function buildCampaignDateHref({
-  campaignId,
-  from,
-  to,
-}: {
-  campaignId: string;
-  from: Date;
-  to: Date;
-}) {
-  const params = new URLSearchParams({
-    from: from.toISOString(),
-    to: to.toISOString(),
-  });
-
-  return `/campaigns/${campaignId}?${params.toString()}`;
+  return counts ?? { newStrongLeads: 0, visibleLeads: 0 };
 }
 
 async function getCampaignTrendAggregates({

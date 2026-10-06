@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { BarChart3, CalendarCheck2, CalendarDays, Clock3 } from "lucide-react";
+import { BarChart3, CalendarCheck2, CalendarDays, Clock3, Mail, MessageCircle, PauseCircle } from "lucide-react";
 
 import { DailyLeadsDateFilter } from "@/components/admin/daily-leads-date-filter";
 import { CampaignActiveToggle } from "@/components/admin/campaign-active-toggle";
@@ -30,7 +30,9 @@ import {
   canManageCampaign,
   getCampaignAccessFromRecord,
   getCampaignDisplayName,
+  normalizeAccessEmail,
 } from "@/lib/campaign-access";
+import { isCampaignClientTrialExpired } from "@/lib/campaign-client-trial";
 import { getCampaignLeadViewsForUser } from "@/lib/campaign-leads";
 import { getLiveNotificationHealth } from "@/lib/live-leads";
 import { getManualCampaignSemanticState } from "@/lib/manual-campaign-semantic";
@@ -122,6 +124,7 @@ export default async function CampaignDetailPage({
         select: {
           displayName: true,
           normalizedEmail: true,
+          createdAt: true,
         },
       },
       leads: {
@@ -184,6 +187,13 @@ export default async function CampaignDetailPage({
   const displayName = getCampaignDisplayName(campaign, access);
   const canManage = canManageCampaign(access);
   const visitStartedAt = new Date();
+  const isLinkedClient = access.role === "CLIENT" && !isAdminAccount;
+  const clientAccess = isLinkedClient
+    ? campaign.clientAccesses.find((entry) => entry.normalizedEmail === normalizeAccessEmail(session.user.email))
+    : null;
+  const isTrialExpired = clientAccess
+    ? isCampaignClientTrialExpired(clientAccess.createdAt, visitStartedAt)
+    : false;
 
   const [sync, latestSemanticRun, manualSemanticState] = await Promise.all([
     reconcileCampaignSyncState(campaign.id),
@@ -217,9 +227,13 @@ export default async function CampaignDetailPage({
     latestSemanticRunAt,
     selection: leadDateSelection,
   });
-  const leadEmptyStateMode = !isLiveTodayView && shouldWaitForTodaySync ? "WAITING" : "NO_RESULTS";
+  const leadEmptyStateMode = campaign.isActive && !isLiveTodayView && shouldWaitForTodaySync
+    ? "WAITING"
+    : "NO_RESULTS";
 
-  const nextSync = formatDateTimeInTimeZone(semanticNextSyncAt, browserTimeZone);
+  const nextSync = campaign.isActive
+    ? formatDateTimeInTimeZone(semanticNextSyncAt, browserTimeZone)
+    : "Paused";
   const [initialLeads, initialDiagnostics, publicViewStats, initialNotificationHealth, notificationUser, initialLeadViewState] = await Promise.all([
     getCampaignLeadViewsForUser({
       campaignId: campaign.id,
@@ -284,7 +298,7 @@ export default async function CampaignDetailPage({
   return (
     <CampaignLeadFilterLoadingProvider filterKey={leadDateFilterKey}>
       <div className="space-y-5">
-        {access.role === "CLIENT" && !isAdminAccount ? (
+        {isLinkedClient ? (
           <CampaignClientActivityPageView campaignId={campaign.id} eventType="CAMPAIGN_DASHBOARD_VIEW" />
         ) : null}
         <section className="rounded-[28px] bg-[#181818] p-6 shadow-[rgba(0,0,0,0.5)_0px_8px_24px] lg:p-8">
@@ -402,7 +416,7 @@ export default async function CampaignDetailPage({
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {!selectedPeriodIsToday ? <ViewingPeriodPill label={leadDateLabel} /> : null}
-                  <ScheduledProcessingPill isActive={campaign.isActive} />
+                  <ScheduledProcessingPill isActive={campaign.isActive} canActivate={isAdminAccount || canManage} />
                   <HeroChip label={`${campaign.subreddits.length} subreddit${campaign.subreddits.length === 1 ? "" : "s"}`} />
                   <TrackedSincePill date={firstSyncAt} timeZone={browserTimeZone} />
                 </div>
@@ -424,6 +438,32 @@ export default async function CampaignDetailPage({
           </div>
         </div>
       </section>
+
+      {isLinkedClient && (!campaign.isActive || isTrialExpired) ? (
+        <div className="grid gap-3" aria-label="Campaign notices">
+          {!campaign.isActive ? (
+            <section className="rounded-[22px] border border-[#6b5528] bg-[#2a2114] p-5" aria-labelledby="campaign-paused-notice">
+              <div className="flex items-start gap-3">
+                <PauseCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-[#ffd66e]" />
+                <div>
+                  <h2 className="text-[17px] font-bold text-[#fff1c8]" id="campaign-paused-notice">Campaign paused by the owner</h2>
+                  <p className="mt-1 text-[13px] leading-6 text-[#e1d0a6]">New campaign scans are paused. You can still review leads found earlier.</p>
+                </div>
+              </div>
+            </section>
+          ) : null}
+          {isTrialExpired ? (
+            <section className="rounded-[22px] border border-white/[0.12] bg-[#1f1f1f] p-5" aria-labelledby="campaign-trial-notice">
+              <h2 className="text-[17px] font-bold text-white" id="campaign-trial-notice">Your 7-day free trial has ended</h2>
+              <p className="mt-1 text-[13px] leading-6 text-[#cbcbcb]">To arrange continued use, contact the owner on WhatsApp or by email.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <a className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#1ed760] px-4 text-[11px] font-bold text-[#0d160f] transition-colors hover:bg-[#3be477] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1ed760]/70" href="https://wa.me/917006414367" rel="noopener noreferrer" target="_blank"><MessageCircle aria-hidden="true" className="h-4 w-4" /> WhatsApp +91 70064 14367</a>
+                <a className="inline-flex min-h-10 items-center gap-2 rounded-full bg-[#303030] px-4 text-[11px] font-bold text-white transition-colors hover:bg-[#3b3b3b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40" href="mailto:rs3296471t@gmail.com"><Mail aria-hidden="true" className="h-4 w-4" /> rs3296471t@gmail.com</a>
+              </div>
+            </section>
+          ) : null}
+        </div>
+      ) : null}
 
       {publicViewStats ? <CampaignPublicViewStats stats={publicViewStats} /> : null}
 
@@ -618,7 +658,7 @@ function TrackedSincePill({ date, timeZone }: { date: string; timeZone: string }
   );
 }
 
-function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
+function ScheduledProcessingPill({ isActive, canActivate }: { isActive: boolean; canActivate: boolean }) {
   return (
     <div
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] ${
@@ -626,7 +666,11 @@ function ScheduledProcessingPill({ isActive }: { isActive: boolean }) {
           ? "border-[#1ed760]/25 bg-[#1ed760]/10 text-[#7cf5a3]"
           : "border-[#3f3f46] bg-[#121212] text-[#b3b3b3]"
       }`}
-      title={isActive ? "Campaign receives semantic filtering every 30 minutes from newly collected Reddit posts." : "Activate this campaign to include it in 30-minute semantic filtering."}
+      title={isActive
+        ? "Campaign receives semantic filtering every 30 minutes from newly collected Reddit posts."
+        : canActivate
+          ? "Activate this campaign to include it in 30-minute semantic filtering."
+          : "Campaign monitoring is paused by the owner."}
     >
       <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
       {isActive ? "Every 30 min" : "Paused"}

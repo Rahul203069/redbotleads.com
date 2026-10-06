@@ -285,7 +285,11 @@ export function CampaignDetailLiveSections({
     : semanticLastSyncAt
       ? "Loading..."
       : "Not run yet";
-  const nextSync = hasMounted ? formatLocalDateTime(semanticNextSyncAt) : "Loading...";
+  const nextSync = !campaignIsActive
+    ? "Paused"
+    : hasMounted
+      ? formatLocalDateTime(semanticNextSyncAt)
+      : "Loading...";
 
   return (
     <>

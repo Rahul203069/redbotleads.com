@@ -187,6 +187,8 @@ The refiller reads the current subreddit list from campaign
 is disabled. Global queue producers exclude those subreddits; a global worker
 redirects any older queued jobs before fetching. Keep the VM service to one
 process per host and use the existing application database role and Redis.
+The 412 MiB Lightsail hosts run the extracted Linux worker bundle with Node 20
+under systemd and a persistent 1 GiB swap file; Docker is not installed on them.
 
 The optional `worker-rss` image must use the same application database role and
 Redis URL:

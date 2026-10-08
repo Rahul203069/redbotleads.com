@@ -47,6 +47,8 @@ export const workerEnv = envSchema.parse(process.env);
 export const workerRedisConnection = {
   url: workerEnv.REDIS_URL,
   maxRetriesPerRequest: null,
+  connectTimeout: 10_000,
+  keepAlive: 30_000,
 };
 
 export const redisQueueTimeoutMs = workerEnv.REDIS_QUEUE_TIMEOUT_MS ?? 30000;

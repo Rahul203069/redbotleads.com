@@ -31,6 +31,7 @@ const REDDIT_TRANSIENT_BACKOFF_MS = 15 * 60 * 1000;
 const MAX_REDDIT_POST_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 const CAMPAIGN_MATCH_RETRY_DELAY_MS = 2 * 60 * 1000;
 const CAMPAIGN_MATCH_MAX_ATTEMPTS = 8;
+const POLL_JOB_WATCHDOG_MS = 8 * 60 * 1000;
 
 type RssPollingJobData = PollSubredditRssJobData | MatchCampaignRssPollRunJobData;
 
@@ -38,7 +39,17 @@ const worker = new Worker<RssPollingJobData>(
   rssPollingQueueName,
   async (job) => {
     if (job.name === pollSubredditRssJobName) {
-      return runSubredditRssPoll(job.data as PollSubredditRssJobData, job.id ?? "unknown");
+      const watchdog = setTimeout(() => {
+        workerLogger.error({ jobId: job.id, subreddit: (job.data as PollSubredditRssJobData).subreddit },
+          "RSS poll exceeded watchdog; restarting worker to recover the job");
+        process.exit(1);
+      }, POLL_JOB_WATCHDOG_MS);
+
+      try {
+        return await runSubredditRssPoll(job.data as PollSubredditRssJobData, job.id ?? "unknown");
+      } finally {
+        clearTimeout(watchdog);
+      }
     }
 
     if (job.name === matchCampaignRssPollRunJobName) {

@@ -12,7 +12,11 @@ export async function waitForDedicatedRssSlot() {
     return;
   }
 
-  redis ??= new Redis(workerRedisConnection.url, { maxRetriesPerRequest: null });
+  redis ??= new Redis(workerRedisConnection.url, {
+    maxRetriesPerRequest: null,
+    connectTimeout: 10_000,
+    keepAlive: 30_000,
+  });
   const waitMs = Number(await redis.eval(
     `
       local now = tonumber(ARGV[1])

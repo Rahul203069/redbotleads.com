@@ -271,18 +271,14 @@ Frequent subreddit ingestion is handled by a locked 24/7 worker poller loop.
 The `/api/cron/rss-poll` and `/api/cron/daily-sync` routes remain available but
 are not externally scheduled.
 
-Daily subreddit RSS polling defaults:
+RSS polling defaults:
 
-- poll unique subreddits contributed by campaigns with RSS fetching enabled
-- pause for `5 minutes` after every `30` subreddit poll attempts
-- bypass the shared in-process Reddit RSS request slot because the poller loop owns pacing
-- retry a Reddit `429`, `408`, or `5xx` response once
-- wait for Reddit `Retry-After` when provided, otherwise wait `3 minutes` before retrying
-- put a subreddit into DB backoff for `1 hour` after a rate-limit failure, or `15 minutes` after another transient failure
+- refill the global and Nuveca queues from enabled campaign subreddits
+- make one RSS request per subreddit; on an error, record the failure and continue with the next queued subreddit
+- space request starts by `70–100 seconds` per worker, including after failed requests
+- put a subreddit into DB backoff for `1 hour` after a rate-limit failure, or `15 minutes` after another failure
 
-Other RSS callers still use the shared Reddit RSS request slot with `REDDIT_RSS_REQUEST_INTERVAL_MS` and `REDDIT_RSS_REQUEST_JITTER_MS`.
-
-Relevant tuning envs: `SUBREDDIT_DAILY_SCHEDULER_BASE_DELAY_MS`, `SUBREDDIT_DAILY_SCHEDULER_JITTER_MS`, `SUBREDDIT_DAILY_SCHEDULER_BATCH_SIZE`, `SUBREDDIT_DAILY_SCHEDULER_BATCH_SLEEP_MS`, `REDDIT_RSS_MAX_RETRIES`, and `REDDIT_RSS_RETRY_BACKOFF_MS`.
+The request slot uses `REDDIT_RSS_REQUEST_INTERVAL_MS=70000` and `REDDIT_RSS_REQUEST_JITTER_MS=30000`. Set `REDDIT_RSS_MAX_RETRIES=0` to skip retries.
 
 Required env on Vercel:
 

@@ -5,6 +5,7 @@ import { z } from "zod";
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1, "REDIS_URL is required for worker processes."),
+  RSS_POLL_QUEUE_NAME: z.enum(["rss-polling", "rss-polling-nuveca-first"]).optional(),
   REDDIT_RSS_USER_AGENT: z.string().min(1).optional(),
   OPENAI_API_KEY: z.string().min(1).optional(),
   OPENAI_MODEL: z.string().min(1).optional(),

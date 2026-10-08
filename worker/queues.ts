@@ -14,6 +14,7 @@ export const semanticPlaygroundQueueName = "semantic-playground";
 export const classificationQueueName = "classification";
 export const notificationsQueueName = "notifications";
 export const rssPollingQueueName = "rss-polling";
+export const nuvecaRssPollingQueueName = "rss-polling-nuveca-first";
 
 export const initialIngestJobName = "INITIAL_INGEST";
 export const dailyIngestJobName = "DAILY_INGEST";
@@ -160,6 +161,10 @@ export const rssPollingQueue = new Queue(rssPollingQueueName, {
   connection: workerRedisConnection,
 });
 
+export const nuvecaRssPollingQueue = new Queue(nuvecaRssPollingQueueName, {
+  connection: workerRedisConnection,
+});
+
 const LIVE_JOB_STATES = ["waiting", "active", "delayed", "prioritized"] as const;
 const REMOVABLE_JOB_STATES = ["waiting", "delayed", "prioritized", "paused"] as const;
 const MAX_JOBS_TO_SCAN_PER_QUEUE = 500;
@@ -185,9 +190,9 @@ async function getLiveIngestionJobForCampaign(campaignId: string) {
   });
 }
 
-async function getLiveRssPollingJobForSubreddit(subreddit: string) {
+async function getLiveRssPollingJobForSubreddit(subreddit: string, queue: Queue = rssPollingQueue) {
   const normalizedSubreddit = normalizeSubredditName(subreddit);
-  const jobs = await rssPollingQueue.getJobs(
+  const jobs = await queue.getJobs(
     [...LIVE_JOB_STATES],
     0,
     MAX_JOBS_TO_SCAN_PER_QUEUE,
@@ -609,6 +614,7 @@ export async function enqueueSubredditRssPoll(
   data: PollSubredditRssJobData,
   options?: {
     delayMs?: number;
+    dedicated?: boolean;
   },
 ) {
   const subreddit = normalizeSubredditName(data.subreddit);
@@ -617,13 +623,14 @@ export async function enqueueSubredditRssPoll(
     throw new Error("Subreddit is required for RSS polling.");
   }
 
-  const existingLiveJob = await getLiveRssPollingJobForSubreddit(subreddit);
+  const queue = options?.dedicated ? nuvecaRssPollingQueue : rssPollingQueue;
+  const existingLiveJob = await getLiveRssPollingJobForSubreddit(subreddit, queue);
 
   if (existingLiveJob) {
     return existingLiveJob;
   }
 
-  return rssPollingQueue.add(
+  return queue.add(
     pollSubredditRssJobName,
     {
       ...data,

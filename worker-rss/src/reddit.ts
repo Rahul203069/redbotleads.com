@@ -7,6 +7,7 @@ import {
   redditRssRetryBackoffMs,
 } from "./config";
 import { workerLogger } from "./logger";
+import { waitForDedicatedRssSlot } from "./rss-request-slot";
 
 const REDDIT_RSS_BASE_URL = "https://www.reddit.com";
 const DEFAULT_USER_AGENT = "script:reddit-leads-rss-worker:v1.0.0 (by /u/Comfortable-Pop-9050)";
@@ -188,6 +189,10 @@ export async function fetchSubredditRss(
           );
         })
       : getImmediateRedditRssSlot();
+
+    if (useRequestSlot) {
+      await waitForDedicatedRssSlot();
+    }
 
     const requestedAt = new Date();
     await observer?.onRequestStart?.({

@@ -10,12 +10,14 @@ import { Worker } from "bullmq";
 
 import { workerIngestionConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
+import { isNuvecaRssSubreddit, NUVECA_FIRST_CAMPAIGN_ID } from "./nuveca";
 import {
   enqueueCampaignRssPollRunMatch,
   enqueueRedditItemEmbedding,
   enqueueRedditItemSemanticMatch,
   matchCampaignRssPollRunJobName,
   pollSubredditRssJobName,
+  nuvecaRssPollingQueueName,
   rssPollingQueueName,
   type MatchCampaignRssPollRunJobData,
   type PollSubredditRssJobData,
@@ -68,6 +70,11 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   if (!subreddit) {
     workerLogger.warn({ jobId, data }, "Skipping RSS poll because subreddit is missing");
     return { skipped: true, reason: "missing_subreddit" };
+  }
+
+  if (rssPollingQueueName === nuvecaRssPollingQueueName && !(await isNuvecaRssSubreddit(subreddit))) {
+    workerLogger.warn({ jobId, subreddit }, "Rejecting subreddit outside Nuveca's first campaign");
+    return { skipped: true, reason: "outside_nuveca_campaign" };
   }
 
   if (!(await isSubredditDailyRssPollingEnabled(subreddit))) {
@@ -258,6 +265,10 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
 }
 
 async function runCampaignRssPollRunMatch(data: MatchCampaignRssPollRunJobData, jobId: string) {
+  if (rssPollingQueueName === nuvecaRssPollingQueueName && data.campaignId !== NUVECA_FIRST_CAMPAIGN_ID) {
+    workerLogger.warn({ jobId, campaignId: data.campaignId }, "Rejecting match job outside Nuveca's first campaign");
+    return { skipped: true, reason: "outside_nuveca_campaign" };
+  }
   const runStartedAt = new Date(data.runStartedAt);
   const redditPostRecencyCutoff = new Date(Date.now() - MAX_REDDIT_POST_AGE_MS);
   const attempt = data.attempt ?? 0;

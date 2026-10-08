@@ -1,0 +1,20 @@
+[Unit]
+Description=Redbot Nuveca RSS polling worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/redbot-rss/app
+Environment=NODE_ENV=production
+Environment=PATH=/home/ubuntu/redbot-rss:/usr/bin:/bin
+EnvironmentFile=/home/ubuntu/redbot-rss/.env
+ExecStart=/home/ubuntu/redbot-rss/node /home/ubuntu/redbot-rss/app/node_modules/tsx/dist/cli.mjs src/rss-polling.ts
+Restart=always
+RestartSec=10
+MemoryMax=320M
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

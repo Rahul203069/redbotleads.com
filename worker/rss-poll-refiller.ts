@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import Redis from "ioredis";
 
 import { getDailyRssSubredditPool } from "@/lib/daily-rss-subreddit-pool";
+import { getNuvecaRssSubredditPool } from "@/lib/nuveca-rss";
 import { prisma } from "@/lib/prisma";
 import { normalizeSubredditName } from "@/lib/subreddit-polling-settings";
 
@@ -18,12 +19,15 @@ import { workerLogger } from "./logger";
 import {
   enqueueSubredditRssPoll,
   pollSubredditRssJobName,
+  nuvecaRssPollingQueue,
   rssPollingQueue,
 } from "./queues";
 
 const refillerId = randomUUID();
-const lockKey = "redbot:rss-poll-refiller:lock";
-const cursorKey = "redbot:rss-poll-refiller:cursor";
+const dedicated = process.env.RSS_POLL_MODE === "nuveca";
+const lockKey = dedicated ? "redbot:rss-poll-refiller:nuveca:lock" : "redbot:rss-poll-refiller:lock";
+const cursorKey = dedicated ? "redbot:rss-poll-refiller:nuveca:cursor" : "redbot:rss-poll-refiller:cursor";
+const pollQueue = dedicated ? nuvecaRssPollingQueue : rssPollingQueue;
 const liveJobStates = ["waiting", "active", "delayed", "prioritized"] as const;
 const maxJobsToScan = 5000;
 
@@ -37,6 +41,7 @@ async function startRssPollRefiller() {
   workerLogger.info(
     {
       refillerId,
+      mode: dedicated ? "nuveca" : "global",
       lowWatermark: rssPollRefillLowWatermark,
       highWatermark: rssPollRefillHighWatermark,
       intervalMs: rssPollRefillIntervalMs,
@@ -114,7 +119,7 @@ async function refillIfNeeded() {
         enqueueSubredditRssPoll({
           subreddit,
           trigger: "rss_poll",
-        }),
+        }, { dedicated }),
       ),
     );
 
@@ -160,7 +165,7 @@ async function refillIfNeeded() {
 }
 
 async function getLivePollJobs() {
-  const jobs = await rssPollingQueue.getJobs([...liveJobStates], 0, maxJobsToScan, true);
+  const jobs = await pollQueue.getJobs([...liveJobStates], 0, maxJobsToScan, true);
   return jobs.filter((job) => job.name === pollSubredditRssJobName);
 }
 
@@ -172,7 +177,15 @@ async function loadCircularCandidates({
   liveSubreddits: Set<string>;
 }) {
   const now = new Date();
-  const { allSubreddits, enabledSubreddits } = await getDailyRssSubredditPool();
+  const nuvecaPool = await getNuvecaRssSubredditPool();
+  const globalPool = dedicated ? null : await getDailyRssSubredditPool();
+  const ownedByNuveca = new Set(nuvecaPool.enabledSubreddits);
+  const allSubreddits = dedicated
+    ? nuvecaPool.allSubreddits
+    : globalPool!.allSubreddits.filter((subreddit) => !ownedByNuveca.has(subreddit));
+  const enabledSubreddits = dedicated
+    ? nuvecaPool.enabledSubreddits
+    : globalPool!.enabledSubreddits.filter((subreddit) => !ownedByNuveca.has(subreddit));
   const cursorBySubreddit = new Map(
     (
       await prisma.ingestCursor.findMany({

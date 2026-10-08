@@ -274,6 +274,7 @@ model Campaign {
   recentDays       Int      @default(7)
 
   isActive        Boolean    @default(true)
+  rssPollingEnabled Boolean @default(true)
   minScoreToAlert Int        @default(75)
   sourceMode      SourceMode @default(PUBLIC)
 

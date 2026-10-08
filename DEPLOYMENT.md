@@ -178,6 +178,16 @@ without measuring recall against exact cosine results first.
 
 ## Lightweight RSS polling worker
 
+For `nuveca.co first`, mothership runs the `nuveca-rss-refiller` Compose service.
+The three lightweight workers run only the `rss-polling-nuveca-first` queue using
+`deploy/systemd/redbot-nuveca-rss.service`. They must have
+`RSS_POLL_QUEUE_NAME=rss-polling-nuveca-first` in their private `.env` file.
+The refiller reads the current subreddit list from campaign
+`cmrxf5i36000004l16u27gj35` and stops enqueueing if the campaign or RSS polling
+is disabled. Global queue producers exclude those subreddits; a global worker
+redirects any older queued jobs before fetching. Keep the VM service to one
+process per host and use the existing application database role and Redis.
+
 The optional `worker-rss` image must use the same application database role and
 Redis URL:
 

@@ -1,11 +1,12 @@
 import { Queue } from "bullmq";
 
 import { createCampaignRun } from "./campaign-runs";
-import { workerRedisConnection } from "./config";
+import { workerEnv, workerRedisConnection } from "./config";
 
 export const embeddingQueueName = "embedding";
 export const semanticQueueName = "semantic";
-export const rssPollingQueueName = "rss-polling";
+export const nuvecaRssPollingQueueName = "rss-polling-nuveca-first";
+export const rssPollingQueueName = workerEnv.RSS_POLL_QUEUE_NAME ?? "rss-polling";
 
 export const pollSubredditRssJobName = "POLL_SUBREDDIT_RSS";
 export const matchCampaignRssPollRunJobName = "MATCH_CAMPAIGN_RSS_POLL_RUN";

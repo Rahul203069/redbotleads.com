@@ -1,6 +1,7 @@
 import "dotenv/config";
 
 import { Prisma } from "../generated/prisma/client";
+import { getNuvecaRssSubredditPool } from "@/lib/nuveca-rss";
 import { prisma } from "@/lib/prisma";
 import {
   getDisabledDailyRssSubredditSet,
@@ -13,6 +14,7 @@ import { workerIngestionConcurrency, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
 import {
   enqueueCampaignRssPollRunMatch,
+  enqueueSubredditRssPoll,
   enqueueRedditItemEmbedding,
   enqueueRedditItemSemanticMatch,
   matchCampaignRssPollRunJobName,
@@ -68,6 +70,13 @@ async function runSubredditRssPoll(data: PollSubredditRssJobData, jobId: string)
   if (!subreddit) {
     workerLogger.warn({ jobId, data }, "Skipping RSS poll because subreddit is missing");
     return { skipped: true, reason: "missing_subreddit" };
+  }
+
+  const nuvecaPool = await getNuvecaRssSubredditPool();
+  if (nuvecaPool.enabledSubreddits.includes(subreddit)) {
+    await enqueueSubredditRssPoll(data, { dedicated: true });
+    workerLogger.info({ jobId, subreddit }, "Redirected Nuveca RSS poll to dedicated queue");
+    return { skipped: true, reason: "dedicated_nuveca_queue" };
   }
 
   if (!(await isSubredditDailyRssPollingEnabled(subreddit))) {

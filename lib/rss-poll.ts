@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getDisabledDailyRssSubredditSet } from "@/lib/subreddit-polling-settings";
+import { getNuvecaRssSubredditPool } from "@/lib/nuveca-rss";
 import { buildCampaignRssPollingSubreddits, normalizeSubredditName } from "@/lib/subreddit-name";
 import { enqueueCampaignRssPollRunMatch, enqueueSubredditRssPoll } from "@/worker/queues";
 
@@ -31,6 +32,8 @@ export async function enqueueDueSubredditRssPolls(options?: {
 
   const allSubreddits = buildCampaignRssPollingSubreddits(campaigns);
   const disabledSubreddits = await getDisabledDailyRssSubredditSet(allSubreddits);
+  const nuvecaPool = await getNuvecaRssSubredditPool();
+  const ownedByNuveca = new Set(nuvecaPool.enabledSubreddits);
   const subreddits = allSubreddits.filter((subreddit) => !disabledSubreddits.has(subreddit));
   const disabledSkipped = allSubreddits.length - subreddits.length;
 
@@ -83,6 +86,7 @@ export async function enqueueDueSubredditRssPolls(options?: {
         },
         {
           delayMs: getStaggerDelayMs(index, dueSubreddits.length),
+          dedicated: ownedByNuveca.has(subreddit),
         },
       ),
     ),

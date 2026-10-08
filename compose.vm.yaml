@@ -142,6 +142,27 @@ services:
     command: ["npm", "run", "worker:db-maintenance"]
     mem_limit: 400m
 
+  nuveca-rss-refiller:
+    build:
+      context: .
+      target: worker-runner
+    container_name: reddit-leads-nuveca-rss-refiller
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env.vm
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_APP_USER}:${POSTGRES_APP_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_POOL_MAX: 2
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      RSS_POLL_MODE: nuveca
+    command: ["npm", "run", "worker:rss-poll-refiller"]
+    mem_limit: 350m
+
 volumes:
   postgres-data:
   redis-data:

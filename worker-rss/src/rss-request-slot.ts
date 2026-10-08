@@ -3,7 +3,7 @@ import Redis from "ioredis";
 import { workerEnv, workerRedisConnection } from "./config";
 import { workerLogger } from "./logger";
 
-const spacingMs = 15_000;
+const spacingMs = 30_000;
 const key = "redbot:rss-poll:nuveca:next-request-ms";
 let redis: Redis | undefined;
 

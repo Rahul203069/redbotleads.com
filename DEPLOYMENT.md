@@ -189,6 +189,8 @@ redirects any older queued jobs before fetching. Keep the VM service to one
 process per host and use the existing application database role and Redis.
 The 412 MiB Lightsail hosts run the extracted Linux worker bundle with Node 20
 under systemd and a persistent 1 GiB swap file; Docker is not installed on them.
+Use at least 70 seconds plus jitter between requests per host. The workers also
+reserve a shared Redis request slot every 30 seconds to avoid bursts.
 
 The optional `worker-rss` image must use the same application database role and
 Redis URL:

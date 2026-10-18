@@ -1,5 +1,6 @@
 #!/bin/sh
 set -eu
+umask 077
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)

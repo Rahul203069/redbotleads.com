@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+cd /home/ubuntu/redbotleads.com
+CERT_DIR=/etc/letsencrypt/live/63.32.87.20 exec sh ./scripts/sync-pgbouncer-tls.sh

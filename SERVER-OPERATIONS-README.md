@@ -1,5 +1,8 @@
 # Server Operations Reference
 
+> This inventory describes the retired Azure setup. See
+> [LIGHTSAIL-MOTHERSHIP.md](LIGHTSAIL-MOTHERSHIP.md) for the current VM.
+
 This file records the current server layout and the commands used to
 connect, inspect, update, and restart worker services.
 

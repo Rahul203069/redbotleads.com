@@ -1,5 +1,8 @@
 # Deployment Notes
 
+> This guide describes the retired Azure setup. See
+> [LIGHTSAIL-MOTHERSHIP.md](LIGHTSAIL-MOTHERSHIP.md) for the current VM.
+
 ## VM topology
 
 The Ubuntu 24.04 Azure VM at `172.173.155.9` runs PostgreSQL 17 with pgvector, PgBouncer,

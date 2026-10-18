@@ -1,6 +1,6 @@
 # Lightsail mothership (October 2026)
 
-The production backend is on Ubuntu 24.04 at static IP `63.32.87.20`, with 2 vCPU,
+The replacement backend is on Ubuntu 24.04 at static IP `63.32.87.20`, with 2 vCPU,
 4 GB RAM, an 80 GB disk, and 4 GB swap. SSH uses `ubuntu` and the eu-west-1
 Lightsail default key. The checkout is `/home/ubuntu/redbotleads.com`.
 
@@ -57,13 +57,14 @@ df -h /
 `redbot-hourly-semantic.timer` uses `.env.semantic-cron` and the Vercel
 `CRON_SECRET`. Enable it only after Vercel points at the new backend.
 
-`redbot-postgres-backup.timer` runs daily at 02:15 UTC. It requires
-`/etc/redbot-backup.env` containing `S3_BACKUP_URI=s3://<private-bucket>/postgres`
-and AWS credentials with access only to that bucket. The backup script keeps
-seven days locally and uploads daily and Sunday copies to S3. Configure bucket
+`redbot-postgres-backup.timer` runs daily at 02:15 UTC and keeps seven days of
+local dumps. For off-VM copies, create `/etc/redbot-backup.env` containing
+`S3_BACKUP_URI=s3://<private-bucket>/postgres` and give the VM AWS credentials
+with access only to that bucket. The same script then uploads daily and Sunday
+copies to S3. Configure bucket
 public access blocking, server-side encryption, and lifecycle expiry of eight
-days for `daily/` and 90 days for `weekly/`. Test the first upload before
-enabling the timer.
+days for `daily/` and 90 days for `weekly/`. Test the first upload after
+adding the bucket.
 
 To restore again, stop workers first and restore into an empty database. Apply
 Prisma migrations and run `db:verify-vector` before starting application traffic.

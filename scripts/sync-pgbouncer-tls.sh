@@ -12,6 +12,19 @@ install -d -m 755 -o root -g "$PGBOUNCER_GID" "$TARGET_DIR"
 install -m 644 -o root -g "$PGBOUNCER_GID" "$CERT_DIR/fullchain.pem" "$TARGET_DIR/fullchain.pem"
 install -m 640 -o root -g "$PGBOUNCER_GID" "$CERT_DIR/privkey.pem" "$TARGET_DIR/privkey.pem"
 
+# HAProxy expects the private key and certificate chain in one protected file.
+umask 077
+REDIS_CERT_TMP="$TARGET_DIR/.redis.pem.$$"
+trap 'rm -f "$REDIS_CERT_TMP"' EXIT
+cat "$CERT_DIR/privkey.pem" "$CERT_DIR/fullchain.pem" > "$REDIS_CERT_TMP"
+chown root:root "$REDIS_CERT_TMP"
+mv -f "$REDIS_CERT_TMP" "$TARGET_DIR/redis.pem"
+trap - EXIT
+
 if docker compose --env-file "$ROOT_DIR/.env.vm" -f "$ROOT_DIR/compose.vm.yaml" ps --quiet pgbouncer | grep -q .; then
   docker compose --env-file "$ROOT_DIR/.env.vm" -f "$ROOT_DIR/compose.vm.yaml" restart pgbouncer
+fi
+
+if docker compose --env-file "$ROOT_DIR/.env.vm" -f "$ROOT_DIR/compose.vm.yaml" ps --quiet redis-tls-proxy | grep -q .; then
+  docker compose --env-file "$ROOT_DIR/.env.vm" -f "$ROOT_DIR/compose.vm.yaml" restart redis-tls-proxy
 fi

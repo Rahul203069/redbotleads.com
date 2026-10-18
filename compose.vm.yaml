@@ -90,6 +90,26 @@ services:
       retries: 20
     mem_limit: 320m
 
+  redis-tls-proxy:
+    image: haproxy:3.0-alpine
+    container_name: reddit-leads-redis-tls-proxy
+    restart: unless-stopped
+    user: "0:0"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "6380:6380"
+    volumes:
+      - ./deploy/redis-tls/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+      - ./deploy/tls/redis.pem:/etc/haproxy/tls/redis.pem:ro
+    mem_limit: 64m
+
   migrate:
     build:
       context: .

@@ -1,627 +1,210 @@
-"use client";
-
+import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { motion } from "motion/react";
-import {
-  ArrowRight,
-  Bell,
-  Filter,
-  Search,
-  Zap,
-  LayoutDashboard,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, MessageCircle, ScanSearch, Sparkles } from "lucide-react";
 
-const proofStats = [
-  { label: "Signal-first", value: "24h sync cadence" },
-  { label: "AI qualified", value: "Lead scoring built in" },
-  { label: "Delivery", value: "Slack alerts on threshold" },
-];
+import { BrandLogo } from "@/components/app/brand-logo";
 
-const featureCards = [
+export const metadata: Metadata = {
+  title: "Find relevant conversations on Reddit and X | Redleadsai",
+  description:
+    "Find posts worth your attention on Reddit and X, understand the conversation, and show up with a useful response.",
+};
+
+const examples = [
   {
-    icon: Search,
-    eyebrow: "Discovery",
-    title: "Monitor trusted communities.",
-    copy: "Track target subreddits, surface new posts daily, and keep your workflow focused on fresh signals.",
+    platform: "Reddit",
+    place: "r/smallbusiness",
+    title: "How are you keeping client handoffs from getting lost?",
+    context: "A team is looking for a better way to manage a recurring problem.",
+    topic: "Operations",
+    logo: "/reddit-mark.png",
   },
   {
-    icon: Filter,
-    eyebrow: "Qualification",
-    title: "Filter out the noise.",
-    copy: "Semantic filtering and LLM scoring narrow the pipeline to commercially relevant posts.",
+    platform: "X",
+    place: "Public conversation",
+    title: "What tools actually make customer support easier for a small team?",
+    context: "Someone is asking for practical recommendations and real experience.",
+    topic: "Customer support",
+    logo: "/x-mark.svg",
+  },
+] as const;
+
+const features = [
+  {
+    icon: ScanSearch,
+    number: "01",
+    title: "Spot the right posts",
+    copy: "Find discussions connected to the problems your business solves, instead of hunting through a crowded feed.",
   },
   {
-    icon: Bell,
-    eyebrow: "Action",
-    title: "Route leads directly.",
-    copy: "Send alerts straight into Slack when a lead crosses the campaign threshold to ensure fast follow-up.",
-  },
-];
-
-const workflowSteps = [
-  {
-    title: "Choose subreddits",
-    copy: "Define the communities, terms, and exclusions that match your category.",
+    icon: Sparkles,
+    number: "02",
+    title: "Understand the context",
+    copy: "See what people are asking for and why a conversation may be relevant before you decide to take part.",
   },
   {
-    title: "Sync and classify",
-    copy: "The pipeline fetches posts, filters for relevance, and scores them for intent.",
+    icon: MessageCircle,
+    number: "03",
+    title: "Join with something useful",
+    copy: "Bring your expertise to the discussion with a helpful response that fits the moment.",
   },
-  {
-    title: "Review strong leads",
-    copy: "Your team gets the short list, not the full firehose.",
-  },
-];
+] as const;
 
-const mockSidebarItems = [
-  { label: "Overview", description: "Workspace state", active: true },
-  { label: "Campaigns", description: "Targeting rules" },
-  { label: "Settings", description: "Alerts and profile" },
-];
+const steps = [
+  ["01", "Set your focus", "Start with the topics and customer problems that matter to your business."],
+  ["02", "Review relevant posts", "Look at the conversation and decide where your knowledge can add value."],
+  ["03", "Join thoughtfully", "Respond in your own voice and make the exchange useful for the person who asked."],
+] as const;
 
-const mockOverviewStats = [
-  { label: "Active campaigns", value: "03" },
-  { label: "Syncs running", value: "01" },
-  { label: "Failed syncs", value: "00" },
-  { label: "New strong leads", value: "04", highlight: true },
-];
-
-const mockUpcomingSyncs = [
-  { name: "AI note-taking", date: "May 5, 7:30 PM", status: "QUEUED" },
-  { name: "Support automation", date: "May 5, 9:15 PM", status: "COMPLETED" },
-];
-
-const mockStrongLeads = [
-  {
-    title: "Looking to replace our internal notes stack",
-    meta: "AI note-taking / r/SaaS",
-    score: "92",
-    summary: "Needs API access and team rollout controls before the next vendor review.",
-  },
-  {
-    title: "Ops lead asking for automation recommendations",
-    meta: "Support automation / r/smallbusiness",
-    score: "84",
-    summary: "Pricing pressure and inbox volume are driving an active tool search this week.",
-  },
-];
-
-export default function Page() {
+function PlatformMark({ platform, logo }: { platform: "Reddit" | "X"; logo: string }) {
   return (
-    <div className="relative min-h-screen bg-[#050505] text-white selection:bg-brand-green/30">
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-[20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-brand-green/10 blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] h-[600px] w-[600px] rounded-full bg-brand-green/5 blur-[150px]" />
-        <div className="absolute left-[20%] top-[30%] h-[300px] w-[300px] rounded-full bg-white/5 blur-[100px]" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+    <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${platform === "Reddit" ? "bg-white" : "bg-black"}`}>
+      <Image src={logo} alt="" width={platform === "Reddit" ? 29 : 24} height={platform === "Reddit" ? 29 : 24} className={platform === "Reddit" ? "h-[29px] w-[29px]" : "h-6 w-6"} />
+    </span>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen overflow-hidden bg-[#050505] text-white selection:bg-brand-green/30">
+      <a href="#main" className="sr-only rounded-lg bg-brand-green px-4 py-2 font-semibold text-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60]">
+        Skip to content
+      </a>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[850px] overflow-hidden">
+        <div className="absolute -left-40 -top-72 h-[660px] w-[660px] rounded-full bg-brand-green/[0.09] blur-[130px]" />
+        <div className="absolute -right-52 top-28 h-[660px] w-[660px] rounded-full bg-brand-green/[0.07] blur-[145px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-6 lg:px-8">
-        <motion.header
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="sticky top-6 z-50 flex items-center justify-between rounded-full border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-black/20"
-        >
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-green">
-              <Zap className="h-5 w-5 text-black" fill="currentColor" />
-            </div>
-            <span className="font-display text-xl font-bold tracking-tight">
-              redleadsai
-            </span>
+      <header className="relative z-20 border-b border-white/10 bg-[#070807]/85 backdrop-blur-xl">
+        <nav aria-label="Main navigation" className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-6 px-5 sm:px-8">
+          <Link href="/" aria-label="Redleadsai home" className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-4 focus-visible:ring-offset-black">
+            <BrandLogo showMark className="text-xl font-bold tracking-[-0.06em]" />
+          </Link>
+          <div className="hidden items-center gap-8 md:flex">
+            <a href="#features" className="rounded text-sm font-medium text-zinc-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green">Why Redleadsai</a>
+            <a href="#how-it-works" className="rounded text-sm font-medium text-zinc-300 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green">How it works</a>
           </div>
-
-          <div className="hidden items-center gap-4 md:flex">
-            <a href="#" className="text-sm font-medium text-zinc-400 hover:text-white">
-              Features
-            </a>
-            <a href="#" className="text-sm font-medium text-zinc-400 hover:text-white">
-              How it works
-            </a>
-            <a href="#" className="text-sm font-medium text-zinc-400 hover:text-white">
-              Pricing
-            </a>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="hidden text-sm font-medium text-white hover:opacity-80 sm:block"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/signup"
-              className="group flex h-10 items-center justify-center gap-2 rounded-full border border-brand-green/20 bg-brand-green/10 px-5 text-sm font-medium text-brand-green transition-all hover:bg-brand-green hover:text-black"
-            >
-              Start workspace
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          <div className="flex items-center gap-3 sm:gap-5">
+            <Link href="/login" className="hidden rounded text-sm font-medium text-zinc-300 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green sm:inline-flex">Sign in</Link>
+            <Link href="/signup" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-brand-green px-4 text-sm font-semibold text-black transition-colors hover:bg-brand-green-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green sm:px-5">
+              <span className="min-[420px]:hidden">Get started</span>
+              <span className="hidden min-[420px]:inline">Create workspace</span>
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>
-        </motion.header>
+        </nav>
+      </header>
 
-        <section className="relative pb-16 pt-24 md:pt-32 lg:pt-40">
-          <div className="mx-auto max-w-4xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-              className="mb-8 flex justify-center"
-            >
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-zinc-300">
-                <span className="flex h-2 w-2 rounded-full bg-brand-green" />
-                Reddit lead intelligence is live
-              </span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-              className="font-display text-5xl font-bold tracking-[-0.04em] sm:text-6xl md:text-7xl lg:text-[5.5rem] lg:leading-[0.95]"
-            >
-              Find buying intent on{" "}
-              <span className="text-brand-green">Reddit</span> before it
-              disappears.
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-              className="mx-auto mt-8 max-w-2xl text-lg text-zinc-400 sm:text-xl"
-            >
-              Redleadsai helps you monitor selected subreddits, filter weak
-              matches, score stronger ones with AI, and push real leads into a
-              workflow your team can act on.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-              className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
-            >
-              <Link
-                href="/signup"
-                className="flex h-14 w-full items-center justify-center rounded-full bg-brand-green px-8 text-sm font-bold uppercase tracking-wider text-black transition-all hover:bg-brand-green-hover sm:w-auto"
-              >
-                Create workspace
-              </Link>
-              <a
-                href="#"
-                className="flex h-14 w-full items-center justify-center rounded-full border border-white/10 bg-white/5 px-8 text-sm font-bold uppercase tracking-wider text-white transition-all hover:border-white/20 hover:bg-white/10 sm:w-auto"
-              >
-                See how it works
-              </a>
-            </motion.div>
-          </div>
-        </section>
-
-        <section className="relative mt-12 pb-24">
-          <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="group relative mx-auto max-w-5xl"
-          >
-            <div className="absolute -inset-4 rounded-[40px] bg-brand-green/20 blur-2xl transition-all duration-500 group-hover:bg-brand-green/30" />
-
-            <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#0a0a0a] shadow-2xl">
-              <div className="flex items-center border-b border-white/5 bg-[#141414] px-6 py-4">
-                <div className="flex gap-2">
-                  <div className="h-3 w-3 rounded-full bg-zinc-700" />
-                  <div className="h-3 w-3 rounded-full bg-zinc-700" />
-                  <div className="h-3 w-3 rounded-full bg-zinc-700" />
-                </div>
-
-                <div className="flex flex-1 justify-center">
-                  <div className="flex items-center gap-2 rounded-md bg-black/50 px-4 py-1 text-xs font-medium text-zinc-500">
-                    <LayoutDashboard className="h-3 w-3" />
-                    app.redleadsai.com/app
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-4 p-4 lg:grid-cols-[260px_minmax(0,1fr)]">
-                <div className="rounded-[24px] bg-[linear-gradient(180deg,#121212_0%,#181818_100%)] p-4 text-white shadow-[rgba(0,0,0,0.45)_0px_10px_28px]">
-                  <div className="rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-2">
-                        <div className="text-[24px] font-semibold tracking-[-0.07em]">
-                          <span className="text-[#22c55e]">Redleads</span>
-                          <span className="text-white">ai</span>
-                        </div>
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#b3b3b3]">
-                          Workspace
-                        </p>
-                      </div>
-                      <div className="grid h-11 w-11 place-items-center rounded-full bg-[#1f1f1f] text-[#1ed760] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-                        <div className="h-2.5 w-2.5 rounded-full bg-current" />
-                      </div>
-                    </div>
-
-                    <div className="mt-5 rounded-[18px] bg-[#121212] px-4 py-3 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">
-                        Signed in
-                      </p>
-                      <p className="mt-1 truncate text-[14px] font-bold text-[#ffffff]">
-                        operator@redleads.ai
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5">
-                    <p className="px-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">
-                      Navigation
-                    </p>
-                    <div className="mt-3 space-y-2">
-                      {mockSidebarItems.map((item) => (
-                        <MockSidebarItem
-                          key={item.label}
-                          active={item.active}
-                          description={item.description}
-                          label={item.label}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 rounded-[20px] bg-[#181818] p-4 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#b3b3b3]">
-                      Utility
-                    </p>
-                    <div className="mt-4 rounded-[18px] bg-[#121212] p-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-                      <p className="text-[13px] font-bold text-[#ffffff]">Session active</p>
-                      <p className="text-[11px] text-[#b3b3b3]">Leave the workspace safely.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-[32px] border border-[#27272a] bg-[linear-gradient(180deg,rgba(15,15,17,0.94),rgba(9,9,10,0.98))] p-4 shadow-[0_32px_90px_rgba(0,0,0,0.48)] lg:p-5">
-                  <div className="rounded-[28px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                      <div>
-                        <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[#b3b3b3]">
-                          Overview
-                        </p>
-                        <h3 className="mt-3 text-[28px] font-bold tracking-[-0.04em] text-[#fdfdfd]">
-                          Workspace snapshot
-                        </h3>
-                        <p className="mt-3 text-[15px] leading-6 text-[#cbcbcb]">
-                          Signed in as operator@redleads.ai.
-                        </p>
-                      </div>
-                      <div className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#1ed760] px-5 text-[13px] font-bold uppercase tracking-[0.16em] text-[#121212]">
-                        Open campaigns
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 xl:grid-cols-4">
-                    {mockOverviewStats.map((item) => (
-                      <MockOverviewStat key={item.label} {...item} />
-                    ))}
-                  </div>
-
-                  <div className="mt-4 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-                    <MockSectionCard
-                      description="The next campaigns expected to run on the daily sync cadence."
-                      title="Upcoming syncs"
-                    >
-                      <div className="space-y-3">
-                        {mockUpcomingSyncs.map((item) => (
-                          <MockSyncRow key={item.name} {...item} />
-                        ))}
-                      </div>
-                    </MockSectionCard>
-
-                    <MockSectionCard
-                      description="Latest high-intent leads that already cleared the visible score threshold."
-                      title="Recent strong leads"
-                    >
-                      <div className="space-y-3">
-                        {mockStrongLeads.map((lead) => (
-                          <MockLeadRow key={lead.title} {...lead} />
-                        ))}
-                      </div>
-                    </MockSectionCard>
-                  </div>
-                </div>
-              </div>
+      <main id="main" className="relative z-10">
+        <section className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-24 pt-20 sm:px-8 sm:pt-24 lg:grid-cols-[1.04fr_0.96fr] lg:gap-16 lg:pb-32 lg:pt-32">
+          <div>
+            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-brand-green/25 bg-brand-green/[0.07] px-3 py-2 text-xs font-semibold text-brand-green sm:px-4">
+              <span className="flex items-center gap-1.5"><Image src="/reddit-mark.png" alt="" width={20} height={20} className="h-5 w-5" />Reddit</span>
+              <span aria-hidden="true" className="text-zinc-500">+</span>
+              <span className="flex items-center gap-1.5"><span className="grid h-5 w-5 place-items-center rounded bg-black"><Image src="/x-mark.svg" alt="" width={12} height={12} className="h-3 w-3" /></span>X</span>
+              <span className="ml-1 text-zinc-300">Conversation discovery</span>
             </div>
-          </motion.div>
-        </section>
-
-        <section className="border-y border-white/5 py-12">
-          <div className="grid gap-8 divide-y divide-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {proofStats.map((item, i) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="flex flex-col items-center justify-center p-4 text-center sm:p-0"
-              >
-                <div className="font-mono text-sm uppercase tracking-widest text-zinc-500">
-                  {item.label}
-                </div>
-                <div className="mt-2 font-display text-xl font-medium text-white">
-                  {item.value}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        <section className="py-24">
-          <div className="mb-16 text-center">
-            <h2 className="font-display text-3xl font-bold sm:text-5xl">
-              Engineered for pure signal.
-            </h2>
-            <p className="mt-4 text-zinc-400">
-              Stop scrolling, start selling. We handle the noise.
+            <h1 className="mt-7 max-w-[11ch] font-display text-5xl font-bold leading-[1.04] tracking-[-0.055em] sm:text-6xl lg:text-[5.3rem]">
+              Find the conversations <span className="text-brand-green">worth joining</span> on Reddit and X.
+            </h1>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-zinc-300 sm:text-xl">
+              Spot posts where people are talking about problems your business can help solve. Understand the context, then show up with something useful to say.
             </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <Link href="/signup" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-brand-green px-7 text-sm font-bold text-black transition-colors hover:bg-brand-green-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green">
+                Create workspace <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+              <a href="#how-it-works" className="inline-flex min-h-14 items-center justify-center rounded-full border border-white/15 px-7 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green">See how it works</a>
+            </div>
+            <p className="mt-6 text-sm text-zinc-500">Useful conversations start with listening.</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {featureCards.map((card, i) => (
-              <motion.div
-                key={card.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#121212] p-8 transition-colors hover:bg-[#161616]"
-              >
-                <div className="absolute right-0 top-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 rounded-full bg-brand-green/10 blur-2xl transition-transform group-hover:scale-150" />
-
-                <div className="relative z-10">
-                  <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                    <card.icon className="h-6 w-6 text-brand-green" />
-                  </div>
-                  <div className="mb-2 font-mono text-xs uppercase tracking-widest text-zinc-500">
-                    {card.eyebrow}
-                  </div>
-                  <h3 className="mb-4 font-display text-2xl font-semibold text-white">
-                    {card.title}
-                  </h3>
-                  <p className="text-sm leading-relaxed text-zinc-400">
-                    {card.copy}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
+          <div className="relative mx-auto w-full max-w-xl lg:max-w-none">
+            <div aria-hidden="true" className="absolute inset-7 rounded-[48px] bg-brand-green/15 blur-[70px]" />
+            <div className="relative rounded-[30px] border border-white/10 bg-[#0c0e0d] p-4 shadow-[0_30px_100px_rgba(0,0,0,0.55)] sm:p-6">
+              <div className="border-b border-white/10 px-1 pb-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-green">A closer look</p>
+                <h2 className="mt-1 font-display text-xl font-semibold tracking-tight text-white sm:text-2xl">Conversations worth your attention</h2>
+              </div>
+              <div className="mt-5 space-y-3">
+                {examples.map((example) => (
+                  <article key={example.platform} className="rounded-2xl border border-white/10 bg-[#141715] p-5 sm:p-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <PlatformMark platform={example.platform} logo={example.logo} />
+                        <span><span className="block text-sm font-semibold text-white">{example.platform}</span><span className="block text-xs text-zinc-500">{example.place}</span></span>
+                      </div>
+                      <span className="rounded-full border border-brand-green/20 bg-brand-green/[0.07] px-3 py-1 text-xs font-medium text-brand-green">{example.topic}</span>
+                    </div>
+                    <h3 className="mt-5 text-base font-semibold leading-6 text-white sm:text-lg">{example.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">{example.context}</p>
+                  </article>
+                ))}
+              </div>
+              <p className="px-1 pt-4 text-xs text-zinc-500">Illustrative examples of the conversations businesses look for.</p>
+            </div>
           </div>
         </section>
 
-        <section className="py-24">
-          <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="flex flex-col justify-center"
-            >
-              <div className="mb-4 font-mono text-xs uppercase tracking-widest text-brand-green">
-                Why it works
-              </div>
-              <h2 className="font-display text-4xl font-bold leading-tight sm:text-5xl">
-                The workflow stays narrow on purpose.
-              </h2>
-              <p className="mt-6 text-lg text-zinc-400">
-                Instead of pushing every Reddit mention into a noisy inbox, the
-                workspace keeps the path tight: discover, filter, classify, then
-                notify when the signal is strong enough to justify attention.
-              </p>
-            </motion.div>
-
-            <div className="space-y-6">
-              {workflowSteps.map((step, index) => (
-                <motion.div
-                  key={step.title}
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.15 }}
-                  className="flex gap-6 rounded-3xl border border-white/10 bg-[#121212] p-6 lg:p-8"
-                >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-green/10 font-mono text-base font-bold text-brand-green">
-                    0{index + 1}
+        <section id="features" className="scroll-mt-24 border-y border-white/10 bg-[#0b0d0b] py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-green">From noise to opportunity</p>
+              <h2 className="mt-4 font-display text-3xl font-bold tracking-[-0.04em] sm:text-5xl">Be part of the right conversation.</h2>
+              <p className="mt-5 text-lg leading-8 text-zinc-400">A relevant post is an invitation to be helpful. Find the right moment and respond with the context it deserves.</p>
+            </div>
+            <div className="mt-12 grid gap-4 md:grid-cols-3">
+              {features.map((feature) => (
+                <article key={feature.number} className="rounded-3xl border border-white/10 bg-[#121512] p-6 sm:p-8">
+                  <div className="flex items-start justify-between">
+                    <span className="grid h-12 w-12 place-items-center rounded-2xl border border-brand-green/20 bg-brand-green/10 text-brand-green"><feature.icon aria-hidden="true" className="h-6 w-6" /></span>
+                    <span className="font-mono text-xs text-zinc-600">{feature.number}</span>
                   </div>
-                  <div>
-                    <h3 className="font-display text-xl font-bold text-white">
-                      {step.title}
-                    </h3>
-                    <p className="mt-2 text-zinc-400">{step.copy}</p>
-                  </div>
-                </motion.div>
+                  <h3 className="mt-9 font-display text-2xl font-semibold tracking-tight">{feature.title}</h3>
+                  <p className="mt-4 text-base leading-7 text-zinc-400">{feature.copy}</p>
+                </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="relative overflow-hidden rounded-[40px] border border-white/10 bg-[#121212] px-8 py-20 text-center shadow-2xl sm:px-16"
-          >
-            <div className="absolute -left-20 top-0 h-64 w-64 rounded-full bg-brand-green/10 blur-[80px]" />
-            <div className="absolute -right-20 bottom-0 h-64 w-64 rounded-full bg-brand-green/5 blur-[80px]" />
-
-            <div className="relative z-10 mx-auto max-w-2xl">
-              <h2 className="font-display text-4xl font-bold sm:text-5xl">
-                Build a quieter Reddit lead pipeline.
-              </h2>
-              <p className="mt-6 text-lg text-zinc-400">
-                Define a campaign and let the workspace keep watch while your
-                team stays focused on the leads worth acting on.
-              </p>
-
-              <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Link
-                  href="/signup"
-                  className="flex h-14 w-full items-center justify-center rounded-full bg-brand-green px-8 text-sm font-bold uppercase tracking-wider text-black transition-all hover:scale-105 hover:bg-brand-green-hover sm:w-auto"
-                >
-                  Start your workspace
-                </Link>
-              </div>
-            </div>
-          </motion.div>
+        <section id="how-it-works" className="scroll-mt-24 mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 sm:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-green">How it works</p>
+            <h2 className="mt-4 font-display text-3xl font-bold tracking-[-0.04em] sm:text-5xl">A simple path from discovery to dialogue.</h2>
+            <p className="mt-6 text-lg leading-8 text-zinc-400">Keep your attention on people and their questions, rather than on another endless feed.</p>
+          </div>
+          <ol className="space-y-3">
+            {steps.map(([number, title, copy]) => (
+              <li key={number} className="flex gap-5 rounded-2xl border border-white/10 bg-[#111311] p-5 sm:gap-7 sm:p-7">
+                <span className="font-mono text-sm font-bold text-brand-green">{number}</span>
+                <div><h3 className="font-display text-xl font-semibold">{title}</h3><p className="mt-2 text-base leading-7 text-zinc-400">{copy}</p></div>
+              </li>
+            ))}
+          </ol>
         </section>
 
-        <footer className="flex flex-col items-center justify-between border-t border-white/10 py-8 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-brand-green" fill="currentColor" />
-            <span className="font-display font-medium text-white">
-              redleadsai
-            </span>
+        <section className="px-5 pb-20 sm:px-8 sm:pb-28">
+          <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[30px] border border-brand-green/20 bg-[#111a12] px-6 py-16 text-center sm:px-12 sm:py-20">
+            <div aria-hidden="true" className="absolute -right-32 -top-40 h-[420px] w-[420px] rounded-full bg-brand-green/15 blur-[100px]" />
+            <div className="relative mx-auto max-w-3xl">
+              <h2 className="font-display text-3xl font-bold tracking-[-0.04em] sm:text-5xl">Your next customer conversation could already be happening.</h2>
+              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-zinc-300">Find the posts that matter. Bring your perspective to the discussion.</p>
+              <Link href="/signup" className="mt-8 inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-brand-green px-8 text-sm font-bold text-black transition-colors hover:bg-brand-green-hover focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-green">
+                Create workspace <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
-          <div className="mt-4 text-sm text-zinc-500 sm:mt-0">
-            © {new Date().getFullYear()} Redleadsai. All rights reserved.
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-}
+        </section>
+      </main>
 
-function MockSidebarItem({
-  active = false,
-  description,
-  label,
-}: {
-  active?: boolean;
-  description: string;
-  label: string;
-}) {
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-full px-3 py-3 ${
-        active
-          ? "bg-[#1f1f1f] text-[#ffffff] shadow-[rgba(0,0,0,0.3)_0px_8px_8px]"
-          : "text-[#b3b3b3]"
-      }`}
-    >
-      <div
-        className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${
-          active
-            ? "bg-[#121212] text-[#ffffff] shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]"
-            : "bg-[#1f1f1f] text-[#b3b3b3]"
-        }`}
-      >
-        <div className="h-2.5 w-2.5 rounded-full bg-current" />
-      </div>
-      <div className="min-w-0">
-        <p className={`text-[14px] leading-none ${active ? "font-bold" : "font-normal"}`}>{label}</p>
-        <p className="mt-1 text-[12px] leading-4 text-[#b3b3b3]">{description}</p>
-      </div>
-    </div>
-  );
-}
-
-function MockOverviewStat({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`rounded-2xl border p-5 ${
-        highlight
-          ? "border-brand-green/30 bg-brand-green/5"
-          : "border-white/5 bg-[#1a1a1a]"
-      }`}
-    >
-      <div className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
-        {label}
-      </div>
-      <div
-        className={`mt-3 font-display text-4xl font-semibold tracking-tight ${
-          highlight ? "text-brand-green" : "text-white"
-        }`}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
-
-function MockSectionCard({
-  children,
-  description,
-  title,
-}: {
-  children: React.ReactNode;
-  description: string;
-  title: string;
-}) {
-  return (
-    <section className="rounded-[24px] bg-[#181818] p-5 shadow-[rgba(0,0,0,0.3)_0px_8px_8px]">
-      <div className="border-b border-white/8 pb-5">
-        <h3 className="text-[24px] font-bold tracking-tight text-[#ffffff]">{title}</h3>
-        <p className="mt-2 text-[14px] leading-6 text-[#cbcbcb]">{description}</p>
-      </div>
-      <div className="pt-5">{children}</div>
-    </section>
-  );
-}
-
-function MockSyncRow({
-  date,
-  name,
-  status,
-}: {
-  date: string;
-  name: string;
-  status: string;
-}) {
-  const tone = status === "COMPLETED" ? "text-[#1ed760]" : "text-[#ffffff]";
-
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-      <div>
-        <p className="text-[13px] font-bold text-[#fdfdfd]">{name}</p>
-        <p className="mt-1 text-[12px] text-[#b3b3b3]">{date}</p>
-      </div>
-      <span className={`rounded-full bg-[#1f1f1f] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${tone}`}>
-        {status}
-      </span>
-    </div>
-  );
-}
-
-function MockLeadRow({
-  meta,
-  score,
-  summary,
-  title,
-}: {
-  meta: string;
-  score: string;
-  summary: string;
-  title: string;
-}) {
-  return (
-    <div className="rounded-[18px] bg-[#121212] px-4 py-4 shadow-[rgb(18,18,18)_0px_1px_0px,rgb(124,124,124)_0px_0px_0px_1px_inset]">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[13px] font-bold text-[#fdfdfd]">{title}</p>
-          <p className="mt-1 text-[12px] uppercase tracking-[0.18em] text-[#b3b3b3]">{meta}</p>
+      <footer className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <BrandLogo showMark className="text-lg font-bold tracking-[-0.06em]" />
+          <p>© {new Date().getFullYear()} Redleadsai. Platform marks belong to their respective owners.</p>
         </div>
-        <span className="rounded-full bg-[#1f1f1f] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1ed760]">
-          {score}
-        </span>
-      </div>
-      <p className="mt-3 text-[13px] leading-6 text-[#cbcbcb]">{summary}</p>
+      </footer>
     </div>
   );
 }
